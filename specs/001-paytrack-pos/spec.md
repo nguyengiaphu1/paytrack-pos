@@ -7,6 +7,18 @@
 
 ---
 
+## Clarifications
+
+### Session 2026-11-16
+
+- Q: Khi xuất hóa đơn điện tử (PDF/PNG), bạn muốn hóa đơn hiển thị phần công nợ và định dạng xuất như thế nào? → A: Hỗ trợ cả **Ảnh PNG / PDF A5** lẫn **khổ nhiệt 80mm**, đồng thời có **tùy chọn tick bật/tắt** ngay trên màn hình xem trước hóa đơn (và mặc định trong Cài đặt) để chọn giữa *Hiển thị công nợ lũy kế (Nợ cũ + Đơn này − Đã trả = Tổng nợ còn lại)* hoặc *Chỉ hiển thị thông tin đơn hàng cơ bản như hóa đơn thông thường*.
+- Q: Hệ thống nên gửi thông báo nhắc thu nợ (Push Notification) lên iPhone và Windows theo cơ chế nào? → A: **Tổng hợp đầu ngày + Hẹn giờ riêng** — gửi 1 thông báo tóm tắt mỗi sáng (giờ mặc định cấu hình được, VD `08:30`) cho các khoản đến hạn/quá hạn hôm nay, cộng thêm thông báo riêng đúng ngày/giờ mẹ đặt cho từng khách; chạm vào thông báo mở thẳng thẻ công nợ & nút tạo QR của khách đó.
+- Q: Khi tạo mã QR động thu nợ cho khách hàng đang nợ nhiều đơn cùng lúc, hệ thống nên mặc định tạo QR theo số tiền nào? → A: **Mặc định Tổng nợ khách + chọn đơn lẻ / sửa số tiền** — tạo QR mặc định bằng tổng dư nợ của khách (khi xác nhận thu sẽ trừ tự động đơn cũ nhất trước theo FIFO), cho phép chuyển sang từng đơn lẻ hoặc nhập số tiền trả bớt, kèm nút copy sẵn mẫu tin nhắn nhắc nợ gửi Zalo.
+- Q: Trong phần Thống kê chi tiết trực quan, bạn có muốn theo dõi thêm giá vốn / tiền lời (lợi nhuận gộp) ngoài doanh thu và công nợ không? → A: **Có tiền lời (giá vốn tùy chọn) + Biểu đồ trực quan** — giá vốn là trường không bắt buộc khi tạo/bán món; món nào có giá vốn sẽ tự tính thêm *Lợi nhuận gộp ước tính*, kèm biểu đồ cột *Doanh thu vs Thực thu* theo ngày, tỷ trọng *Tiền mặt / Chuyển khoản / Ghi nợ*, phân nhóm tuổi nợ và Top sản phẩm/khách nợ.
+- Q: Bạn muốn mẹ đăng nhập vào tài khoản trên iPhone và Windows bằng hình thức nào? → A: **Email + Mật khẩu & Đăng nhập Google** — hỗ trợ cả đăng nhập 1 chạm qua Google OAuth lẫn Email/Mật khẩu (kèm quên mật khẩu) và tự giữ phiên đăng nhập lâu dài trên iPhone/Windows.
+
+---
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Tạo đơn bán hàng nhanh & đồng bộ Cloud real-time (Priority: P1)
@@ -38,7 +50,7 @@ Mẹ xem danh sách khách hàng đang nợ, biết rõ từng khách nợ bao n
 
 1. **Given** khách hàng đang có tổng dư nợ > 0, **When** mẹ mở tab "Sổ nợ", **Then** hệ thống hiển thị tổng công nợ toàn shop và danh sách từng khách sắp xếp theo mức nợ hoặc hạn nhắc thu gần nhất/quá hạn.
 2. **Given** mẹ bấm "Thu nợ" cho một khách hàng và nhập số tiền khách trả, **When** mẹ xác nhận, **Then** hệ thống tạo bản ghi `debt_payments`, trừ số dư nợ theo thứ tự đơn cũ nhất trước (FIFO) hoặc theo đơn được chọn, và cập nhật trạng thái đơn sang `partial` / `paid`.
-3. **Given** mẹ đặt lịch nhắc thu nợ (ví dụ: ngày 20/11 lúc 09:00) cho một khách hoặc một đơn, **When** đến thời điểm nhắc, **Then** hệ thống gửi Web Push Notification kèm tên khách và số tiền còn nợ đến tất cả thiết bị đã bật thông báo (Windows & iPhone PWA).
+3. **Given** mẹ bật chế độ nhắc đầu ngày (mặc định `08:30`, chỉnh được trong Cài đặt) và/hoặc đặt lịch hẹn giờ riêng cho một khách hàng/đơn hàng, **When** đến giờ tổng hợp sáng hoặc đúng giờ hẹn riêng, **Then** hệ thống gửi Web Push Notification đến tất cả thiết bị đã bật thông báo (Windows & iPhone PWA); khi mẹ chạm vào thông báo, app mở thẳng trang Sổ nợ (hoặc thẻ công nợ & nút tạo QR của khách hàng đó).
 4. **Given** mẹ sử dụng iPhone chưa cài PWA ra màn hình chính, **When** mẹ mở mục bật thông báo, **Then** giao diện hướng dẫn trực quan từng bước bằng tiếng Việt (*"Chạm nút Chia sẻ → Thêm vào Màn hình chính (Add to Home Screen) → Mở từ icon ngoài màn hình để bật thông báo iPhone"*).
 
 ---
@@ -53,41 +65,41 @@ Khi thu tiền đơn hàng mới hoặc thu nợ cũ, mẹ bấm "Tạo QR" đ�
 
 **Acceptance Scenarios**:
 
-1. **Given** mẹ đã cấu hình thông tin ngân hàng trong Cài đặt shop, **When** mẹ bấm "Tạo QR" tại màn hình thanh toán đơn hoặc tại dòng công nợ của một khách, **Then** hệ thống sinh mã VietQR động đúng chuẩn Napas 247/EMVCo với số tiền mặc định bằng số tiền còn phải trả của đơn hoặc tổng nợ khách (cho phép mẹ sửa tay nếu khách trả một phần).
-2. **Given** thẻ QR động đang hiển thị, **When** mẹ bấm "Chia sẻ / Tải ảnh QR", **Then** hệ thống xuất ảnh PNG rõ nét gồm tên shop, tên khách, số tiền, nội dung CK và mã QR, hỗ trợ `navigator.share` trên iPhone và tải file PNG trên Windows.
+1. **Given** mẹ đã cấu hình thông tin ngân hàng trong Cài đặt shop, **When** mẹ bấm "Tạo QR" tại màn hình thanh toán đơn (lấy đúng số tiền còn thiếu của đơn) hoặc tại Sổ nợ của một khách (mặc định lấy **Tổng dư nợ** của khách đó), **Then** hệ thống sinh mã VietQR động đúng chuẩn Napas 247/EMVCo với nội dung chuyển khoản định danh (`PT DHxxxx` hoặc `PT NO TENKHACH`), đồng thời cho phép mẹ chuyển nhanh sang **từng đơn lẻ** hoặc **sửa tay số tiền** nếu khách trả bớt.
+2. **Given** thẻ QR động đang hiển thị, **When** mẹ bấm "Chia sẻ / Tải ảnh QR" hoặc "Copy lời nhắc Zalo", **Then** hệ thống xuất ảnh PNG rõ nét gồm tên shop, tên khách, số tiền, nội dung CK và mã QR (hỗ trợ `navigator.share` trên iPhone và tải file PNG trên Windows), hoặc copy sẵn đoạn tin nhắn lịch sự kèm số tiền & danh sách đơn nợ để dán gửi Zalo/SMS.
 3. **Given** mẹ chưa cấu hình tài khoản ngân hàng, **When** bấm "Tạo QR", **Then** app điều hướng nhẹ nhàng tới form nhập ngân hàng trong Cài đặt thay vì báo lỗi khó hiểu.
 
 ---
 
-### User Story 4 - Xuất & In hóa đơn điện tử (PDF & Hình ảnh PNG) (Priority: P2)
+### User Story 4 - Xuất & In hóa đơn điện tử tùy biến (PDF & Hình ảnh PNG) (Priority: P2)
 
-Sau khi lên đơn hoặc khi xem lại đơn hàng cũ, mẹ có thể xem trước hóa đơn điện tử gọn đẹp và chọn **Tải ảnh hóa đơn (PNG)** để gửi nhanh cho khách qua Zalo/Messenger, hoặc **In / Xuất PDF** cho máy in nhiệt 80mm / giấy A5 trên Windows và iPhone.
+Sau khi lên đơn hoặc khi xem lại đơn hàng cũ, mẹ có thể xem trước hóa đơn điện tử gọn đẹp, **tick tùy chọn bật/tắt** các mục trên hóa đơn (như mục *Công nợ lũy kế: Nợ cũ + Đơn này − Đã trả = Tổng nợ còn lại* hoặc *Chỉ thông tin đơn cơ bản*, kèm *mã VietQR*), chọn khổ **A5 / 80mm**, rồi **Tải ảnh PNG** gửi Zalo/Messenger hoặc **In / Xuất PDF**.
 
-**Why this priority**: Khách quen thường muốn xem lại chi tiết các món đã mua và số dư nợ cũ/mới; xuất PNG gửi Zalo cực kỳ tiện trên điện thoại của mẹ.
+**Why this priority**: Khách quen thường muốn xem lại chi tiết các món đã mua và tổng dư nợ, nhưng với khách mua lẻ hoặc lúc cần hóa đơn gọn, mẹ cần tick ẩn phần nợ cũ để hóa đơn trông như hóa đơn bán lẻ thông thường.
 
-**Independent Test**: Mở một đơn hàng bất kỳ gồm 3 sản phẩm và có phần ghi nợ; bấm "Xem hóa đơn" → bấm "Lưu ảnh PNG" nhận được file ảnh đầy đủ tiếng Việt không lỗi font; bấm "In / Xuất PDF" mở hộp thoại in chuẩn layout không bị cắt chữ.
+**Independent Test**: Mở một đơn hàng của khách có nợ cũ; tick bật "Hiện công nợ lũy kế" thấy đủ 3 dòng *Nợ cũ / Đơn này / Tổng nợ còn lại*; bỏ tick thì hóa đơn chỉ còn thông tin đơn hàng cơ bản; lưu được ảnh PNG tiếng Việt chuẩn và in/PDF sạch cho cả A5 lẫn 80mm.
 
 **Acceptance Scenarios**:
 
-1. **Given** một đơn hàng đã lưu, **When** mẹ chọn "Xuất hóa đơn", **Then** màn hình xem trước hiển thị đầy đủ: tên shop, SĐT, địa chỉ, mã đơn, ngày giờ, tên khách, bảng chi tiết món (tên, SL, đơn giá, thành tiền), giảm giá, tổng cộng, đã thanh toán, còn nợ, và mã VietQR (nếu còn nợ > 0).
-2. **Given** màn hình xem trước hóa đơn, **When** mẹ bấm "Tải ảnh (PNG)" hoặc "Chia sẻ ảnh", **Then** ảnh hóa đơn độ phân giải cao (2x retina) được tạo không mất dấu tiếng Việt.
-3. **Given** màn hình xem trước hóa đơn, **When** mẹ bấm "In / Lưu PDF", **Then** CSS `@media print` định dạng sạch sẽ (ẩn thanh điều hướng/nút bấm) để lưu PDF hoặc in trực tiếp.
+1. **Given** một đơn hàng đã lưu, **When** mẹ chọn "Xuất hóa đơn", **Then** màn hình xem trước hiển thị đầy đủ: tên shop, SĐT, địa chỉ, mã đơn, ngày giờ, tên khách, bảng chi tiết món (tên, SL, đơn giá, thành tiền), giảm giá, tổng cộng, đã thanh toán, còn lại.
+2. **Given** màn hình xem trước hóa đơn, **When** mẹ tick bật/tắt tùy chọn *"Hiện công nợ lũy kế"*, *"Hiện mã VietQR"* hoặc đổi khổ giấy (`A5 / PNG` ↔ `Nhiệt 80mm`), **Then** bản xem trước cập nhật tức thì (và ghi nhớ lựa chọn mặc định trong Cài đặt shop nếu muốn).
+3. **Given** bản xem trước hóa đơn đã ưng ý, **When** mẹ bấm "Tải ảnh (PNG)" hoặc "Chia sẻ ảnh", **Then** ảnh hóa đơn độ phân giải cao (2x retina) được tạo không mất dấu tiếng Việt; khi bấm "In / Lưu PDF", CSS `@media print` định dạng chuẩn khổ đã chọn (ẩn nút bấm điều hướng).
 
 ---
 
-### User Story 5 - Thống kê bán hàng & Đăng nhập tài khoản bảo mật (Priority: P3)
+### User Story 5 - Thống kê chi tiết trực quan & Đăng nhập tài khoản bảo mật (Priority: P3)
 
-Mẹ đăng nhập tài khoản riêng để bảo vệ dữ liệu shop và xem báo cáo doanh thu, tiền thực thu, công nợ phát sinh, số đơn hàng, top sản phẩm bán chạy và top khách nợ theo ngày / tuần / tháng / khoảng ngày tùy chọn.
+Mẹ đăng nhập tài khoản riêng để bảo vệ dữ liệu shop và xem báo cáo trực quan: doanh thu, tiền thực thu, lợi nhuận gộp ước tính (cho các món có nhập giá vốn tùy chọn), công nợ phát sinh, số đơn hàng, biểu đồ so sánh ngày/tuần/tháng, phân nhóm tuổi nợ và top sản phẩm / top khách nợ.
 
 **Why this priority**: Hoàn thiện vòng quản lý kinh doanh hằng ngày và bảo mật dữ liệu riêng tư bằng Supabase Auth + RLS.
 
-**Independent Test**: Đăng ký/đăng nhập tài khoản A và tài khoản B; dữ liệu của tài khoản A hoàn toàn tách biệt với B (kiểm tra RLS). Tạo 3 đơn (2 đã trả, 1 ghi nợ) trong hôm nay và kiểm tra tab Thống kê hiển thị khớp 100% tổng doanh thu, tiền thực thu và công nợ mới.
+**Independent Test**: Đăng ký/đăng nhập tài khoản A và tài khoản B; dữ liệu của tài khoản A hoàn toàn tách biệt với B (kiểm tra RLS). Tạo 3 đơn (có 2 món nhập giá vốn và 1 món bỏ trống giá vốn, 2 đơn đã trả, 1 đơn ghi nợ) trong hôm nay và kiểm tra tab Thống kê hiển thị khớp 100% tổng doanh thu, tiền thực thu, tiền lời ước tính và công nợ mới cùng biểu đồ trực quan.
 
 **Acceptance Scenarios**:
 
-1. **Given** người dùng chưa đăng nhập, **When** truy cập app, **Then** được chuyển đến màn hình Đăng nhập / Tạo tài khoản gọn gàng (hỗ trợ giữ phiên đăng nhập lâu dài trên máy cá nhân của mẹ).
-2. **Given** mẹ đã đăng nhập, **When** mở tab "Thống kê", **Then** hiển thị 4 chỉ số rõ ràng: Tổng doanh thu, Tiền thực thu, Công nợ chưa thu, Số đơn hàng; lọc được theo Hôm nay / 7 ngày / 30 ngày / Tháng này / Tùy chọn; kèm danh sách Top sản phẩm bán chạy và Top khách hàng còn nợ.
-3. **Given** thiết bị có kích thước màn hình từ `375px` (iPhone SE/15) đến `1440px` (Windows desktop), **When** thao tác trên mọi tab, **Then** không bị tràn ngang (`overflow-x`), nút bấm dễ chạm và bảng số liệu đọc được rõ ràng.
+1. **Given** người dùng chưa đăng nhập, **When** truy cập app, **Then** được chuyển đến màn hình Đăng nhập / Tạo tài khoản gọn gàng hỗ trợ cả **Google OAuth (1 chạm)** và **Email + Mật khẩu** (kèm Quên mật khẩu), tự giữ phiên đăng nhập lâu dài trên máy cá nhân của mẹ.
+2. **Given** mẹ đã đăng nhập, **When** mở tab "Thống kê", **Then** hiển thị bộ chỉ số tổng hợp (Doanh thu, Tiền thực thu, Lợi nhuận ước tính nếu có giá vốn, Công nợ chưa thu, Số đơn hàng) lọc theo Hôm nay / 7 ngày / 30 ngày / Tháng này / Tùy chọn; kèm **biểu đồ cột Doanh thu vs Thực thu**, **tỷ trọng Tiền mặt / Chuyển khoản / Ghi nợ**, **phân nhóm tuổi nợ (Trong hạn / Quá hạn)** và bảng Top sản phẩm bán chạy / Top khách hàng còn nợ.
+3. **Given** thiết bị có kích thước màn hình từ `375px` (iPhone SE/15) đến `1440px` (Windows desktop), **When** thao tác trên mọi tab, **Then** không bị tràn ngang (`overflow-x`), nút bấm dễ chạm và bảng số liệu/biểu đồ đọc được rõ ràng.
 
 ---
 
@@ -106,26 +118,26 @@ Mẹ đăng nhập tài khoản riêng để bảo vệ dữ liệu shop và xem
 
 ### Functional Requirements
 
-- **FR-001 (Xác thực & Đa thiết bị)**: Hệ thống PHẢI hỗ trợ đăng ký, đăng nhập, đăng xuất và duy trì phiên đăng nhập an toàn qua Supabase Auth; toàn bộ dữ liệu PHẢI áp dụng Row Level Security (RLS) theo tài khoản/cửa hàng (`user_id` / `shop_id`).
+- **FR-001 (Xác thực & Đa thiết bị)**: Hệ thống PHẢI hỗ trợ đăng ký, đăng nhập qua **Google OAuth (1 chạm)** và **Email + Mật khẩu** (kèm Quên mật khẩu), đăng xuất và duy trì phiên đăng nhập an toàn qua Supabase Auth; toàn bộ dữ liệu PHẢI áp dụng Row Level Security (RLS) theo tài khoản/cửa hàng (`user_id` / `shop_id`).
 - **FR-002 (Quản lý sản phẩm & bán hàng POS)**: Hệ thống PHẢI cho phép thêm/sửa/ẩn sản phẩm (tên, đơn vị tính, giá bán VND, danh mục, mã SKU tùy chọn), tìm kiếm nhanh theo tên không dấu/có dấu, thêm món tự do vào giỏ, chỉnh số lượng, giảm giá, ghi chú đơn hàng.
 - **FR-003 (Quản lý khách hàng & Sổ nợ)**: Hệ thống PHẢI cho phép quản lý danh bạ khách hàng (tên, SĐT, địa chỉ/ghi chú), xem tổng công nợ từng khách, danh sách đơn còn nợ, ghi nhận trả nợ từng phần hoặc toàn bộ (`debt_payments`), và lưu ngày hẹn thu tiền (`due_date` / `reminder_at`).
-- **FR-004 (Nhắc nhở thu nợ & Push Notification iPhone/Windows)**: Hệ thống PHẢI lưu `push_subscriptions` (Web Push VAPID) theo thiết bị trong Supabase, cung cấp nút bật/tắt & test notification, và gửi thông báo tự động theo lịch nhắc thu nợ đến hạn/quá hạn cho cả Windows (Chrome/Edge) và iPhone (iOS PWA).
-- **FR-005 (QR động VietQR)**: Hệ thống PHẢI cho phép lưu cấu hình ngân hàng nhận tiền của shop và tự động tạo mã QR động chuẩn VietQR (Napas 247 / EMVCo) với chính xác số tiền cần thu cho đơn hàng hoặc khoản nợ của từng khách hàng, hỗ trợ chia sẻ/tải ảnh QR PNG.
-- **FR-006 (Hóa đơn điện tử PDF & IMG)**: Hệ thống PHẢI tạo được bản xem trước hóa đơn chi tiết tiếng Việt đầy đủ và xuất ra cả định dạng **PNG** (tải về / chia sẻ Zalo) lẫn **PDF / In trực tiếp** (`@media print` hoặc PDF generator).
-- **FR-007 (Thống kê bán hàng)**: Hệ thống PHẢI cung cấp báo cáo theo bộ lọc thời gian (Hôm nay, 7 ngày, 30 ngày, Tháng này, Tùy chọn) gồm: Doanh thu, Thực thu, Công nợ phát sinh, Tổng nợ hiện tại, Số đơn, Top sản phẩm và Top khách nợ.
+- **FR-004 (Nhắc nhở thu nợ & Push Notification iPhone/Windows)**: Hệ thống PHẢI lưu `push_subscriptions` (Web Push VAPID) theo thiết bị trong Supabase, cung cấp nút bật/tắt & test notification, và gửi thông báo theo **2 cơ chế**: (1) **Tổng hợp đầu ngày** vào giờ cấu hình (mặc định `08:30`) cho các khoản đến hạn/quá hạn trong ngày, và (2) **Hẹn giờ riêng** cho từng khách/đơn; khi chạm thông báo trên Windows (Chrome/Edge) hoặc iPhone (iOS PWA), hệ thống mở thẳng màn hình Sổ nợ / thẻ công nợ kèm nút tạo QR của khách đó.
+- **FR-005 (QR động VietQR)**: Hệ thống PHẢI cho phép lưu cấu hình ngân hàng nhận tiền của shop và tự động tạo mã QR động chuẩn VietQR (Napas 247 / EMVCo) với chính xác số tiền cần thu (mặc định **Tổng dư nợ của khách** khi tạo từ Sổ nợ — trừ FIFO đơn cũ trước khi xác nhận đã thu, hoặc số tiền còn thiếu của đơn khi tạo từ đơn hàng; cho phép chuyển sang từng đơn lẻ hoặc sửa tay số tiền), hỗ trợ chia sẻ/tải ảnh QR PNG và copy mẫu tin nhắn nhắc nợ gửi Zalo/SMS.
+- **FR-006 (Hóa đơn điện tử PDF & IMG tùy biến)**: Hệ thống PHẢI tạo được bản xem trước hóa đơn chi tiết tiếng Việt đầy đủ, hỗ trợ **tùy chọn tick bật/tắt** hiển thị *Công nợ lũy kế* (Nợ cũ + Đơn này − Đã trả = Tổng nợ còn lại) so với *chỉ thông tin đơn hàng cơ bản* và bật/tắt *mã VietQR*; hỗ trợ chuyển đổi khổ **A5 / PNG** (tải về / chia sẻ Zalo) và **khổ nhiệt 80mm** (in trực tiếp / lưu PDF).
+- **FR-007 (Thống kê bán hàng trực quan)**: Hệ thống PHẢI cung cấp báo cáo theo bộ lọc thời gian (Hôm nay, 7 ngày, 30 ngày, Tháng này, Tùy chọn) gồm: Doanh thu, Thực thu, Lợi nhuận gộp ước tính (tính cho các món có nhập giá vốn tùy chọn `cost_price`), Công nợ phát sinh, Tổng nợ hiện tại, Số đơn; kèm **biểu đồ cột Doanh thu vs Thực thu theo ngày**, **tỷ trọng Tiền mặt / Chuyển khoản / Ghi nợ**, **phân nhóm tuổi nợ (Trong hạn / Quá hạn)**, Top sản phẩm và Top khách nợ.
 - **FR-008 (Lưu trữ Cloud & Real-Time Sync)**: Mọi dữ liệu PHẢI lưu trên Supabase PostgreSQL (không lưu cục bộ tạm thời rồi mất khi refresh) và đồng bộ real-time qua Supabase Realtime (`postgres_changes`) giữa các thiết bị đang mở.
 - **FR-009 (Responsive & PWA)**: Giao diện PHẢI hoạt động mượt mà trên màn hình mobile (`375px+`, bottom tab bar, tap target ≥ 48px) và desktop (`1024px+`, split-pane POS), kèm `manifest.json` và Service Worker chuẩn PWA.
 - **FR-010 (Thiết kế Anti-AI-Slop)**: Toàn bộ giao diện PHẢI tuân thủ `DESIGN.md` (bảng màu `#F8F9FA` + `#0E6B4E`, font `Be Vietnam Pro` + `JetBrains Mono`, không dùng gradient tím/indigo, không lặp bố cục SaaS AI mặc định).
 
 ### Key Entities
 
-- **ShopProfile (`shop_profiles`)**: Thông tin cửa hàng gắn với `user_id` (tên shop, SĐT, địa chỉ, bank_bin, bank_name, bank_account_no, bank_account_name, reminder_default_hour).
-- **Product (`products`)**: Mặt hàng kinh doanh (tên, tên chuẩn hóa không dấu để tìm nhanh, đơn vị tính, giá bán nguyên `bigint`, danh mục, trạng thái `is_active`).
+- **ShopProfile (`shop_profiles`)**: Thông tin cửa hàng gắn với `user_id` (tên shop, SĐT, địa chỉ, bank_bin, bank_name, bank_account_no, bank_account_name, `reminder_digest_enabled`, `reminder_default_hour` mặc định `08:30`, `default_invoice_format`: `a5 | 80mm`, `default_show_cumulative_debt`: `boolean`, `default_show_qr_on_invoice`: `boolean`).
+- **Product (`products`)**: Mặt hàng kinh doanh (tên, tên chuẩn hóa không dấu để tìm nhanh, đơn vị tính, giá bán nguyên `bigint`, giá vốn tùy chọn `cost_price` nullable `bigint`, danh mục, trạng thái `is_active`).
 - **Customer (`customers`)**: Khách hàng (tên, SĐT, ghi chú, tổng nợ hiện tại hoặc tính từ orders/payments).
 - **Order (`orders`)**: Hóa đơn bán hàng (mã đơn `order_code`, `customer_id` nullable nếu khách lẻ, `subtotal`, `discount_amount`, `total_amount`, `paid_amount`, `payment_status`: `paid | partial | unpaid | cancelled`, `payment_method`, `debt_due_date`, `note`, `created_at`).
-- **OrderItem (`order_items`)**: Chi tiết từng dòng hàng trong đơn (snapshot `product_name`, `unit_price`, `quantity`, `line_total` để giá cũ không bị sai nếu sau này mẹ đổi giá sản phẩm).
+- **OrderItem (`order_items`)**: Chi tiết từng dòng hàng trong đơn (snapshot `product_name`, `unit_price`, `cost_price` nullable `bigint`, `quantity`, `line_total` để giá cũ & tiền lời không bị sai nếu sau này mẹ đổi giá sản phẩm).
 - **DebtPayment (`debt_payments`)**: Lịch sử thu nợ (liên kết `customer_id` và `order_id`, số tiền thu `amount`, phương thức `cash | transfer`, ghi chú, `paid_at`).
-- **DebtReminder (`debt_reminders`) / PushSubscription (`push_subscriptions`)**: Lịch nhắc thu tiền (`scheduled_for`, `status`: `pending | sent | dismissed`) và token đăng ký Web Push của từng thiết bị iPhone/Windows.
+- **DebtReminder (`debt_reminders`) / PushSubscription (`push_subscriptions`)**: Lịch nhắc thu tiền (`customer_id`, `order_id` nullable, `reminder_type`: `digest | custom`, `scheduled_for`, `target_url`, `status`: `pending | sent | dismissed`) và token đăng ký Web Push của từng thiết bị iPhone/Windows.
 
 ---
 
