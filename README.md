@@ -110,21 +110,40 @@ git push -u origin feat/001-pos-core
 
 Sau khi kiểm tra Vercel Preview URL và test ổn định trên iPhone/Windows, tạo Pull Request trên GitHub để merge vào `main`.
 
-### Cấu hình biến môi trường (cho bước triển khai tiếp theo)
+### Hướng dẫn chạy Local, Supabase Migration & Deploy Vercel
 
-Khi bắt đầu khởi tạo app Next.js và kết nối Supabase + Vercel, tạo `.env.local` (không commit file này lên Git):
+1. **Cài đặt và chạy local**:
+   ```bash
+   npm install
+   cp .env.example .env.local
+   npx web-push generate-vapid-keys   # Điền vào NEXT_PUBLIC_VAPID_PUBLIC_KEY & VAPID_PRIVATE_KEY
+   npm run dev
+   ```
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
+2. **Thiết lập Supabase (Database, Auth, RLS, RPC & Cron)**:
+   - Tạo project trên Supabase (khuyến nghị region `ap-southeast-1` Singapore).
+   - Vào **Authentication → Providers**, bật **Email** và **Google**; thêm Redirect URLs:
+     - `http://localhost:3000/auth/callback`
+     - `https://<your-vercel-domain>/auth/callback`
+   - Vào **Database → Extensions**, bật **`pg_cron`** và **`pg_net`**.
+   - Vào **SQL Editor**, chạy lần lượt:
+     1. [`supabase/migrations/0001_initial_schema.sql`](supabase/migrations/0001_initial_schema.sql)
+     2. [`supabase/migrations/0002_rpc_functions.sql`](supabase/migrations/0002_rpc_functions.sql)
+     3. [`supabase/migrations/0003_reminder_cron.sql`](supabase/migrations/0003_reminder_cron.sql) *(nhớ thay `<YOUR_VERCEL_DOMAIN>` và `<YOUR_CRON_SECRET>` bằng domain Vercel và `CRON_SECRET` thật trước khi chạy)*.
 
-NEXT_PUBLIC_VAPID_PUBLIC_KEY=
-VAPID_PRIVATE_KEY=
-VAPID_SUBJECT=mailto:your-email@example.com
-```
+3. **Biến môi trường trên Vercel** (`Project Settings → Environment Variables` và `.env.local`):
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=
+   SUPABASE_SERVICE_ROLE_KEY=
 
-Trên **Vercel**:
-1. Import repo `nguyengiaphu1/paytrack-pos` vào Vercel.
-2. Thêm toàn bộ biến môi trường ở trên vào **Project Settings → Environment Variables**.
-3. Gắn domain riêng (nếu có) hoặc dùng domain `.vercel.app` mặc định; mỗi nhánh đẩy lên GitHub sẽ tự có một link Preview riêng để test trên điện thoại của mẹ trước khi merge vào `main`.
+   NEXT_PUBLIC_VAPID_PUBLIC_KEY=
+   VAPID_PRIVATE_KEY=
+   VAPID_SUBJECT=mailto:your-email@example.com
+
+   CRON_SECRET=
+   ```
+
+4. **Deploy trên Vercel**:
+   - Import repo `nguyengiaphu1/paytrack-pos` vào Vercel, thêm đầy đủ biến môi trường trên.
+   - Mỗi nhánh feature đẩy lên GitHub sẽ tự có một Preview URL riêng để kiểm thử trên iPhone và Windows trước khi merge Pull Request vào `main`.
