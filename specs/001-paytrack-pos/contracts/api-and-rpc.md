@@ -33,7 +33,7 @@ Atomically creates an order, inserts line-item snapshots, updates customer debt,
   }
   ```
 - **Output**: `{ "order_id": "uuid", "order_code": "string", "total_amount": "bigint", "remaining_amount": "bigint", "new_customer_debt": "bigint" }`
-- **Validation**: Rejects empty `p_items`, rejects `p_paid_amount > total_amount`, rejects `remaining_amount > 0` when `p_customer_id IS NULL`.
+- **Validation**: Computes each `line_total = ROUND(quantity * unit_price)::bigint` (nearest integer VND). Rejects empty `p_items`, rejects `p_paid_amount > total_amount`, rejects `remaining_amount > 0` when `p_customer_id IS NULL`.
 
 ### `record_debt_payment`
 Atomically records a customer debt repayment and allocates across unpaid/partial orders (FIFO oldest-first or targeted single order).
@@ -51,9 +51,9 @@ Atomically records a customer debt repayment and allocates across unpaid/partial
 - **Validation**: Rejects `p_amount > customer.total_debt` (or `> order.remaining_amount` when `p_order_id` is provided).
 
 ### `cancel_order`
-Cancels an order and reverses its unpaid debt impact on `customers.total_debt` and pending `debt_reminders`.
+Cancels an order, subtracts only its unpaid `remaining_amount` (`total_amount - paid_amount`) from `customers.total_debt`, and dismisses pending `debt_reminders` linked to that order. Preserves historical `debt_payments` rows (`paid_amount` already collected is not auto-refunded or turned negative).
 - **Input**: `{ "p_order_id": "uuid" }`
-- **Output**: `{ "order_id": "uuid", "payment_status": "cancelled", "remaining_customer_debt": "bigint" }`
+- **Output**: `{ "order_id": "uuid", "payment_status": "cancelled", "reversed_debt_amount": "bigint", "remaining_customer_debt": "bigint" }`
 
 ### `get_analytics_summary`
 Returns period KPIs, daily Revenue vs Collected Cash series, Payment Method breakdown, Debt Aging buckets, Top Products, and Top Debt Customers for a date range `[p_start, p_end]`.

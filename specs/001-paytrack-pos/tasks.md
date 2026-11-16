@@ -28,8 +28,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T006 Create Supabase tables (`shop_profiles`, `products`, `customers`, `orders`, `order_items`, `debt_payments`, `debt_reminders`, `push_subscriptions`), indexes, RLS policies (`user_id = auth.uid()`), and `supabase_realtime` publication in `supabase/migrations/0001_initial_schema.sql`
-- [ ] T007 Create atomic PostgreSQL RPC functions (`create_order_with_items`, `record_debt_payment`, `cancel_order`, `get_analytics_summary`) with `FOR UPDATE` locking in `supabase/migrations/0002_rpc_functions.sql`
+- [ ] T006 Create Supabase tables (`shop_profiles`, `products`, `customers`, `orders`, `order_items`, `debt_payments`, `debt_reminders`, `push_subscriptions`), `handle_new_user` auto-profile trigger, indexes, RLS policies (`user_id = auth.uid()`), and `supabase_realtime` publication in `supabase/migrations/0001_initial_schema.sql`
+- [ ] T007 Create atomic PostgreSQL RPC functions (`create_order_with_items` with `ROUND` integer VND, `record_debt_payment`, `cancel_order` reversing `remaining_amount`, `get_analytics_summary`) with `FOR UPDATE` locking in `supabase/migrations/0002_rpc_functions.sql`
 - [ ] T008 [P] Create shared TypeScript database & domain types in `src/types/database.ts`
 - [ ] T009 [P] Implement Vietnamese utilities (VND formatter, accent-stripper `stripVietnamese`, Zalo debt message builder) in `src/lib/vietnamese.ts`
 - [ ] T010 [P] Create Supabase browser, SSR server, and service-role admin clients in `src/lib/supabase/client.ts`, `src/lib/supabase/server.ts`, and `src/lib/supabase/admin.ts`
@@ -48,13 +48,13 @@
 
 **Independent Test**: Open 2 browsers (`375px` and `1280px`) logged into the same account; add a product, create a partial-payment order on mobile, verify it appears immediately on desktop (`<= 2s`), and survives hard refresh (`F5`) on both devices.
 
-- [ ] T015 [P] [US1] Implement unit tests for `stripVietnamese` and VND total/discount calculations in `tests/unit/vietnamese.test.ts`
-- [ ] T016 [P] [US1] Create product catalog CRUD modal and search/category filter bar in `src/components/pos/ProductCatalog.tsx` and `src/components/pos/ProductFormModal.tsx`
+- [ ] T015 [P] [US1] Implement unit tests for `stripVietnamese` and VND total/discount/fractional-quantity rounding calculations in `tests/unit/vietnamese.test.ts`
+- [ ] T016 [P] [US1] Create product catalog CRUD modal, search/category filter bar, and friendly first-time empty-state CTA in `src/components/pos/ProductCatalog.tsx` and `src/components/pos/ProductFormModal.tsx`
 - [ ] T017 [P] [US1] Create customer quick-picker and new-customer inline modal in `src/components/pos/CustomerPicker.tsx`
 - [ ] T018 [P] [US1] Create quick custom-item modal ("Thêm món nhanh" with optional save-to-catalog toggle) in `src/components/pos/QuickItemModal.tsx`
-- [ ] T019 [US1] Implement responsive POS workspace (`Bán hàng`) with desktop split-pane and mobile sticky cart drawer in `src/app/(app)/page.tsx` and `src/components/pos/CartPanel.tsx`
+- [ ] T019 [US1] Implement responsive POS workspace (`Bán hàng`) with desktop split-pane, mobile sticky cart drawer, and guided onboarding banner when catalog/bank settings are empty in `src/app/(app)/page.tsx` and `src/components/pos/CartPanel.tsx`
 - [ ] T020 [US1] Implement checkout confirmation modal calling `create_order_with_items` RPC (paid / partial / unpaid + due date) with offline/error guard in `src/components/pos/CheckoutModal.tsx`
-- [ ] T021 [US1] Implement order history page (`Đơn hàng`) with search, status filter, order detail drawer, and `cancel_order` RPC action in `src/app/(app)/orders/page.tsx`
+- [ ] T021 [US1] Implement order history page (`Đơn hàng`) with search, status filter, order detail drawer, and `cancel_order` RPC action with explicit confirmation warning when `paid_amount > 0` in `src/app/(app)/orders/page.tsx`
 - [ ] T022 [US1] Wire `useRealtimeSync` subscriptions (`products`, `customers`, `orders`) into POS and Orders pages in `src/app/(app)/page.tsx` and `src/app/(app)/orders/page.tsx`
 
 **Checkpoint**: User Story 1 MVP fully functional on cloud with real-time multi-device sync.
@@ -72,7 +72,7 @@
 - [ ] T025 [P] [US2] Implement server Web Push sender with automatic `410`/`404` stale subscription cleanup in `src/lib/push.ts`
 - [ ] T026 [US2] Implement push subscription management endpoints (`POST`/`DELETE`) and immediate test endpoint in `src/app/api/push/subscribe/route.ts` and `src/app/api/push/test/route.ts`
 - [ ] T027 [US2] Implement `POST /api/cron/reminders` route handler (`CRON_SECRET` auth, custom `debt_reminders` + `08:30` VN morning digest idempotency) in `src/app/api/cron/reminders/route.ts`
-- [ ] T028 [P] [US2] Create Debt Ledger list (`Sổ nợ`) with overdue/due-today badges, customer debt detail drawer, and repayment history in `src/app/(app)/debts/page.tsx` and `src/components/debts/DebtCustomerDrawer.tsx`
+- [ ] T028 [P] [US2] Create Debt Ledger list (`Sổ nợ`) with overdue/due-today badges, customer debt detail drawer (including editing customer name/phone/note), and repayment history in `src/app/(app)/debts/page.tsx` and `src/components/debts/DebtCustomerDrawer.tsx`
 - [ ] T029 [P] [US2] Create FIFO/per-order Collect Debt modal (`record_debt_payment` RPC) and Custom Reminder modal (`debt_reminders`) in `src/components/debts/CollectDebtModal.tsx` and `src/components/debts/ReminderModal.tsx`
 - [ ] T030 [US2] Create iPhone PWA (`display-mode: standalone` detector + Vietnamese "Share → Add to Home Screen" guide) & Windows Web Push setup widget in `src/components/pwa/PushNotificationSetup.tsx`
 

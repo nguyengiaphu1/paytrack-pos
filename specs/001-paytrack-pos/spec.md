@@ -1,6 +1,6 @@
 # Feature Specification: PayTrack POS (Ứng dụng Bán hàng & Sổ nợ Cloud cho Mẹ)
 
-**Feature Branch**: `feat/001-paytrack-pos`  
+**Feature Branch**: `feat/001-paytrack-pos-mvp`  
 **Created**: 2026-11-16  
 **Status**: Draft  
 **Input**: Web app bán hàng cho mẹ gồm bán hàng POS cơ bản, nhắc nhở thu nợ có notification trên iPhone/Windows, in hóa đơn điện tử (PDF/IMG), tạo & chia sẻ QR động thu đúng số tiền từng khách, thống kê bán hàng, đăng nhập tài khoản, lưu trữ cloud real-time sync không mất dữ liệu khi refresh, và responsive; triển khai với Supabase + Vercel.
@@ -106,7 +106,9 @@ Mẹ đăng nhập tài khoản riêng để bảo vệ dữ liệu shop và xem
 ### Edge Cases
 
 - **Mất mạng tạm thời khi đang bán**: Khi mất Wi-Fi/4G, giao diện hiển thị trạng thái *"Mất kết nối — chưa lưu lên cloud"* và chặn thao tác ghi dữ liệu âm thầm gây hiểu nhầm đã lưu, hoặc cho phép thử lại ngay khi có mạng.
-- **Chỉnh sửa hoặc hủy đơn đã ghi nợ**: Khi hủy đơn (`cancelled`) có liên quan đến công nợ, tổng dư nợ khách hàng phải tự động trừ lại phần nợ của đơn bị hủy và ghi nhận lịch sử rõ ràng.
+- **Chỉnh sửa hoặc hủy đơn đã ghi nợ**: Khi hủy đơn (`cancelled`), hệ thống tự động trừ đúng phần nợ chưa thu (`remaining_amount`) khỏi `customers.total_debt` và hủy lịch nhắc liên quan; nếu đơn đã có tiền thực thu (`paid_amount > 0`), UI cảnh báo xác nhận rõ trước khi hủy và giữ nguyên nhật ký tiền đã thu (không tự tạo số dư âm).
+- **Số lượng thập phân (kg/lít)**: Khi bán theo số lượng lẻ (ví dụ `0.5 kg` hoặc `1.25 kg`), `line_total` được làm tròn theo số nguyên VND gần nhất (`Math.round(quantity * unit_price)` / `ROUND(...)::bigint`) để giữ chính xác tuyệt đối tiền nguyên VND.
+- **Lần đầu đăng nhập (Empty state)**: Khi tài khoản mới chưa có sản phẩm/khách hàng/cấu hình ngân hàng, tự động tạo `shop_profiles` mặc định và hiển thị thẻ hướng dẫn gọn gàng thay vì bảng trống.
 - **Khách trả vượt số nợ hiện tại**: Nếu mẹ nhập số tiền thu nợ lớn hơn tổng nợ của đơn/khách, hệ thống cảnh báo rõ ràng và không cho lưu số dư âm ngoài ý muốn.
 - **Thông báo trên iOS Safari**: iOS chỉ hỗ trợ Web Push khi app được mở từ icon PWA đã "Add to Home Screen" (iOS >= 16.4); app phải phát hiện môi trường `standalone` vs trình duyệt thường để hướng dẫn đúng cách.
 - **Thông tin ngân hàng sai hoặc thiếu**: Kiểm tra định dạng BIN ngân hàng (6 số) và số tài khoản trước khi sinh QR động.

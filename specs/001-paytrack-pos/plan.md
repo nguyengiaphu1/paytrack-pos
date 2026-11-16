@@ -63,8 +63,7 @@ specs/001-paytrack-pos/
 paytrack-pos/
 ├── public/
 │   ├── sw.js                          # Web Push listener & notificationclick deep-linking
-│   ├── icons/                         # PWA 192x192, 512x512, apple-touch-icon.png
-│   └── manifest.webmanifest           # Or src/app/manifest.ts (App Router native manifest)
+│   └── icons/                         # PWA 192x192, 512x512, apple-touch-icon.png
 ├── supabase/
 │   └── migrations/
 │       ├── 0001_initial_schema.sql    # Tables, indexes, RLS policies, realtime publication

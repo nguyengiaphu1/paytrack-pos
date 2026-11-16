@@ -24,7 +24,7 @@ auth.users (1) ──── (1) shop_profiles
 ## 2. Tables & Validation Rules
 
 ### `shop_profiles`
-Stores shop identity, bank details for VietQR, reminder defaults, and invoice customization defaults.
+Stores shop identity, bank details for VietQR, reminder defaults, and invoice customization defaults. Automatically initialized via an `AFTER INSERT ON auth.users` trigger (`handle_new_user`) and safe upsert on first app load.
 - `id`: `uuid` PK (`gen_random_uuid()`)
 - `user_id`: `uuid` UNIQUE NOT NULL FK → `auth.users(id)` ON DELETE CASCADE
 - `shop_name`: `text` NOT NULL (default `'Tạp Hóa Mẹ'`)
@@ -102,7 +102,7 @@ Immutable line-item snapshots so later product price/cost edits never corrupt hi
 - `unit_price`: `bigint` NOT NULL CHECK (`unit_price >= 0`)
 - `cost_price`: `bigint` NULL CHECK (`cost_price IS NULL OR cost_price >= 0`)
 - `quantity`: `numeric(10, 2)` NOT NULL CHECK (`quantity > 0`) (supports fractional kg like `0.5 kg`, `1.2 kg`)
-- `line_total`: `bigint` NOT NULL CHECK (`line_total >= 0`)
+- `line_total`: `bigint` NOT NULL CHECK (`line_total >= 0`) (computed as `ROUND(quantity * unit_price)::bigint`)
 
 ### `debt_payments`
 Audit log of every repayment (both initial partial/full payments at checkout or subsequent debt collections).
