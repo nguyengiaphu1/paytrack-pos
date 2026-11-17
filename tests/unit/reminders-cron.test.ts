@@ -50,6 +50,7 @@ function makeFakeAdmin(seed: {
   subscriptionsByUser?: Record<string, PushSubscriptionRecord[]>;
   profiles?: ShopProfile[];
   dueCustomersByUser?: Record<string, DueCustomerRow[]>;
+  errors?: Partial<Record<'debt_reminders' | 'push_subscriptions' | 'shop_profiles' | 'customers', string>>;
 }) {
   const updates: UpdateCall[] = [];
   const deletes: DeleteCall[] = [];
@@ -76,27 +77,39 @@ function makeFakeAdmin(seed: {
             limit() {
               return resolveSelect();
             },
-            then(onFulfilled: (value: { data: unknown[] }) => unknown) {
+            then(onFulfilled: (value: { data: unknown[] | null; error: { message: string } | null }) => unknown) {
               return Promise.resolve(resolveSelect()).then(onFulfilled);
             },
           };
 
-          function resolveSelect(): { data: unknown[] } {
+          function resolveSelect(): { data: unknown[] | null; error: { message: string } | null } {
+            const errMessage = seed.errors?.[table as keyof NonNullable<typeof seed.errors>];
+            if (errMessage) {
+              return { data: null, error: { message: errMessage } };
+            }
             if (table === 'debt_reminders') {
-              return { data: seed.pendingReminders ?? [] };
+              const rows = seed.pendingReminders ?? [];
+              const filtered = filters.user_id
+                ? rows.filter((r) => r.user_id === filters.user_id)
+                : rows;
+              return { data: filtered, error: null };
             }
             if (table === 'push_subscriptions') {
               const userId = String(filters.user_id ?? '');
-              return { data: seed.subscriptionsByUser?.[userId] ?? [] };
+              return { data: seed.subscriptionsByUser?.[userId] ?? [], error: null };
             }
             if (table === 'shop_profiles') {
-              return { data: seed.profiles ?? [] };
+              const rows = seed.profiles ?? [];
+              const filtered = filters.user_id
+                ? rows.filter((p) => p.user_id === filters.user_id)
+                : rows;
+              return { data: filtered, error: null };
             }
             if (table === 'customers') {
               const userId = String(filters.user_id ?? '');
-              return { data: seed.dueCustomersByUser?.[userId] ?? [] };
+              return { data: seed.dueCustomersByUser?.[userId] ?? [], error: null };
             }
-            return { data: [] };
+            return { data: [], error: null };
           }
 
           return builder;
@@ -366,5 +379,81 @@ describe('scheduled push notifications & reminder cron', () => {
         payload: { last_digest_sent_date: resWithDue.todayVN },
       },
     ]);
+  });
+
+  it('derives todayVN from passed now across VN midnight and normalizes single-digit HH:MM', async () => {
+    const { getTodayVN } = await import('@/lib/vietnamese');
+    const { normalizeHHMM, runReminderCron } = await import('@/lib/reminders-cron');
+
+    const vnMidnightAfter = new Date('2026-11-17T17:05:00.000Z'); // 2026-11-18 00:05 VN
+    expect(getTodayVN(vnMidnightAfter)).toBe('2026-11-18');
+    expect(normalizeHHMM('8:30')).toBe('08:30');
+    expect(normalizeHHMM('bad', '09:00')).toBe('09:00');
+
+    const fake = makeFakeAdmin({ pendingReminders: [], profiles: [] });
+    mocks.createAdminClient.mockReturnValue(fake.client);
+    const res = await runReminderCron(vnMidnightAfter);
+    expect(res.todayVN).toBe('2026-11-18');
+    expect(res.nowHHMM).toBe('00:05');
+  });
+
+  it('throws an explicit error when Supabase query fails instead of silently returning 0', async () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const fakeErr = makeFakeAdmin({
+      errors: { debt_reminders: 'invalid service_role key' },
+    });
+    mocks.createAdminClient.mockReturnValue(fakeErr.client);
+
+    const { runReminderCron } = await import('@/lib/reminders-cron');
+    await expect(runReminderCron(new Date('2026-11-17T02:00:00.000Z'))).rejects.toThrow(
+      'Không thể truy vấn debt_reminders: invalid service_role key'
+    );
+    errSpy.mockRestore();
+  });
+
+  it('scopes reminders and daily digest strictly to userId when options.userId is provided', async () => {
+    mocks.sendNotification.mockResolvedValue({});
+    const fake = makeFakeAdmin({
+      pendingReminders: [
+        {
+          id: 'rem-u1',
+          user_id: 'user-1',
+          customer_id: 'c1',
+          message: 'Nhắc user 1',
+          target_url: '/debts?customer=c1',
+          customers: { name: 'Cô Lan', total_debt: 100000 },
+        },
+        {
+          id: 'rem-u2',
+          user_id: 'user-2',
+          customer_id: 'c2',
+          message: 'Nhắc user 2',
+          target_url: '/debts?customer=c2',
+          customers: { name: 'Chú Ba', total_debt: 200000 },
+        },
+      ],
+      profiles: [
+        makeProfile({ id: 'p1', user_id: 'user-1', reminder_default_hour: '08:30' }),
+        makeProfile({ id: 'p2', user_id: 'user-2', reminder_default_hour: '08:30' }),
+      ],
+      dueCustomersByUser: {
+        'user-1': [{ id: 'c1', name: 'Cô Lan', total_debt: 100000, next_due_date: '2026-11-17' }],
+        'user-2': [{ id: 'c2', name: 'Chú Ba', total_debt: 200000, next_due_date: '2026-11-17' }],
+      },
+      subscriptionsByUser: {
+        'user-1': [makeSub('sub-1', 'user-1')],
+        'user-2': [makeSub('sub-2', 'user-2')],
+      },
+    });
+    mocks.createAdminClient.mockReturnValue(fake.client);
+
+    const { runReminderCron } = await import('@/lib/reminders-cron');
+    const res = await runReminderCron(new Date('2026-11-17T02:00:00.000Z'), {
+      userId: 'user-1',
+    });
+
+    expect(res.customSent).toBe(1);
+    expect(res.digestSent).toBe(1);
+    expect(fake.updates.map((u) => u.id)).toEqual(['rem-u1', 'p1']);
   });
 });

@@ -26,11 +26,14 @@ SELECT cron.schedule(
       'Content-Type', 'application/json',
       'Authorization', 'Bearer <YOUR_CRON_SECRET>'
     ),
-    body := '{}'::jsonb
+    body := '{}'::jsonb,
+    timeout_milliseconds := 10000
   );
   $$
 );
 
 -- Kiểm tra trạng thái chạy thực tế trên Supabase SQL Editor:
+-- SELECT jobid, jobname, schedule, active FROM cron.job WHERE jobname = 'paytrack_reminder_dispatch';
 -- SELECT * FROM cron.job_run_details ORDER BY start_time DESC LIMIT 10;
--- SELECT status_code, content, error_msg FROM net._http_response ORDER BY created DESC LIMIT 10;
+-- SELECT status_code, content, error_msg, created FROM net._http_response ORDER BY created DESC LIMIT 10;
+-- SELECT * FROM public.cron_heartbeats;

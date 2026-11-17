@@ -1,7 +1,7 @@
 # PayTrack POS — Project Context & Agent Quickstart
 
 > **Purpose**: Single-source-of-truth context file for AI assistants and developers. Read this file first in a new session instead of scanning the entire repository.
-> **Last Updated**: 2026-11-17 (`v1.1.0` — UX Polish, Brand Loading & Skeletons, 3-Layer Welcome, Smooth Light/Dark/System Theme on `feat/002-ux-polish-theme`)
+> **Last Updated**: 2026-11-17 (`v1.1.0` + `fix/cron-reminders-not-firing` — Cron Heartbeat, Overdue Diagnostics, Manual Due Dispatch & Vercel Cron Fallback)
 
 ---
 
@@ -20,15 +20,15 @@
 ## 2. Environments, Git & Live Deployment (Non-Secret)
 
 ### Git Topology
-- `main`: Active production branch (`v1.0.1`, includes Spec Kit foundation + MVP + bug fixes via PR #1 & PR #2). Create feature/fix branches from `main` — **do not commit directly to `main`**.
-- Feature branches: `feat/spec-kit-foundation` (PR #1), `feat/001-paytrack-pos-mvp` (PR #2), `feat/002-ux-polish-theme` (`002-ux-polish-theme` active). Tags: `v1.0.0`, `v1.0.1`.
+- `main`: Active production branch (`v1.1.0`, includes Spec Kit foundation + MVP + bug fixes + `002-ux-polish-theme` via PR #1, #2, #3). Create feature/fix branches from `main` — **do not commit directly to `main`**.
+- Active fix branch: `fix/cron-reminders-not-firing`. Previous feature branches: `feat/spec-kit-foundation` (PR #1), `feat/001-paytrack-pos-mvp` (PR #2), `feat/002-ux-polish-theme` (PR #3). Tags: `v1.0.0`, `v1.0.1`.
 
 ### Live Infrastructure
-- **Vercel Production**: `https://paytrack-pos.vercel.app` (team `phu-nguyen4`, project `paytrack-pos`, preset `nextjs`, Node `24.x`, region `sin1` via `vercel.json`).
+- **Vercel Production**: `https://paytrack-pos.vercel.app` (team `phu-nguyen4`, project `paytrack-pos`, preset `nextjs`, Node `24.x`, region `sin1`, plus daily fallback cron `0 1 * * *` via `vercel.json`).
   - *Important*: Supabase env vars currently live in Vercel **Production** only (not `Preview`), so PR preview deployments lack Supabase service keys unless copied.
 - **Supabase Project**: ref `mezuxaqvbtjbbtugsohm` (`ap-southeast-1`, Postgres 17).
-  - Migrations `0001_initial_schema.sql`, `0002_rpc_functions.sql`, and `0003_reminder_cron.sql` are applied in production.
-  - `pg_cron` job `paytrack_reminder_dispatch` (scheduled `* * * * *` in `0003_reminder_cron.sql` — verify/re-apply if production is still on `*/5 * * * *`), calling `https://paytrack-pos.vercel.app/api/cron/reminders` with `Authorization: Bearer <CRON_SECRET>`.
+  - Migrations `0001_initial_schema.sql`, `0002_rpc_functions.sql`, and `0003_reminder_cron.sql` exist; `0004_cron_heartbeat.sql` adds `cron_heartbeats` observability (apply in SQL Editor along with `0003_reminder_cron.sql` using real Vercel domain & `CRON_SECRET`).
+  - `pg_cron` job `paytrack_reminder_dispatch` (`* * * * *`, `timeout_milliseconds := 10000` in `0003_reminder_cron.sql`), calling `https://paytrack-pos.vercel.app/api/cron/reminders` with `Authorization: Bearer <CRON_SECRET>`.
   - Auth config: `site_url = https://paytrack-pos.vercel.app`; Email auth enabled; Google OAuth currently disabled on Supabase Auth dashboard (UI button exists in `src/app/login/page.tsx`).
 
 ### Required Environment Variables (see `.env.example` — NEVER commit secrets)
@@ -51,6 +51,7 @@ All tables enforce Row Level Security (`user_id = auth.uid()`). All monetary amo
 6. `debt_payments`: `customer_id`, `order_id` (nullable), `amount`, `payment_method` (`'cash' | 'transfer'`), `note`, `paid_at`.
 7. `debt_reminders`: `customer_id`, `order_id` (nullable), `reminder_type` (`'digest' | 'custom'`), `scheduled_for`, `message`, `target_url`, `status` (`'pending' | 'sent' | 'dismissed'`), `sent_at`.
 8. `push_subscriptions`: `user_id`, `endpoint` (unique), `p256dh`, `auth`, `device_label`, `last_seen_at`.
+9. `cron_heartbeats` (`0004_cron_heartbeat.sql`): `job_name` (PK), `last_run_at`, `last_status` (`'ok' | 'error'`), `last_summary` (`jsonb`), `last_error` (RLS `SELECT` for authenticated; written only by `service_role`).
 
 ### Atomic RPC Functions (`supabase/migrations/0002_rpc_functions.sql` — `SECURITY INVOKER` + `FOR UPDATE`)
 - `recompute_customer_debt_state(p_customer_id, p_user_id)`: Recalculates `customers.total_debt` and `MIN(debt_due_date)` across `unpaid`/`partial` orders.
@@ -82,19 +83,20 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 - `src/app/(app)/settings/page.tsx`: **Settings** — `SettingsPageSkeleton`, `FetchErrorCard`, `SettingsThemeSelector` (Section 1), numbered sections (`PushNotificationSetup`, shop profile, VietQR bank config `VIETNAM_BANKS`, digest & invoice defaults, replayable onboarding trigger, logout).
 
 ### API Routes & Service Worker
-- `src/app/api/push/subscribe/route.ts`: `GET` (registered devices + pending reminders count), `POST` upsert, `DELETE` remove user's `push_subscriptions`.
+- `src/app/api/push/subscribe/route.ts`: `GET` (registered devices + `pendingReminders` + `overdueReminders` + `dueCustomersToday` + `cronHeartbeat`), `POST` upsert, `DELETE` remove user's `push_subscriptions`.
 - `src/app/api/push/test/route.ts`: `POST` sends test Web Push notification to current user's subscribed devices.
-- `src/app/api/cron/reminders/route.ts`: `GET` / `POST` (`Authorization: Bearer $CRON_SECRET`) delegates to `runReminderCron()`.
+- `src/app/api/push/dispatch-due/route.ts`: `POST` authenticated single-user dispatch (`runReminderCron(now, { userId })`) to flush due reminders/digest on demand from Settings.
+- `src/app/api/cron/reminders/route.ts`: `GET` / `POST` (`Authorization: Bearer $CRON_SECRET`, trimmed) delegates to `runReminderCron()` and records `cron_heartbeats`.
 - `public/sw.js` (+ no-cache header in `next.config.ts`): Handles `push` (calls `showNotification` for APNs compliance) and `notificationclick` deep-linking (`client.navigate` + `focus` or `openWindow`).
 
 ### Libraries, Hooks, Providers & Types
 - `src/types/database.ts`: Shared TS interfaces (`ShopProfile`, `Product`, `Customer`, `Order`, `OrderItem`, `DebtPayment`, `DebtReminder`, `PushSubscriptionRecord`, `CartItem`, `AnalyticsSummary`).
-- `src/lib/vietnamese.ts`: `stripVietnamese`, `formatVND`, `computeLineTotal`, `computeOrderTotals`, `formatDateTimeVN`, `formatDateVN`, `getTodayVN`, `buildZaloDebtMessage`.
+- `src/lib/vietnamese.ts`: `stripVietnamese`, `formatVND`, `computeLineTotal`, `computeOrderTotals`, `formatDateTimeVN`, `formatDateVN`, `getTodayVN(now?)`, `buildZaloDebtMessage`.
 - `src/lib/vietqr.ts`: `VIETNAM_BANKS`, `sanitizeVietQRMemo`, `computeCRC16CCITT`, `buildVietQRPayload` (EMVCo / Napas 247 dynamic QR).
 - `src/lib/theme.ts`: Pure theme utilities (`ThemePreference`, `resolveTheme`, `getNextThemePreference`, `readStoredThemePreference`/`writeStoredThemePreference`, `THEME_BOOTSTRAP_SCRIPT`).
 - `src/lib/welcome.ts`: Pure Vietnam time-of-day greeting (`getTimeOfDayGreetingVN` in `Asia/Ho_Chi_Minh`), onboarding mirror & daily greeting collapse storage helpers.
 - `src/lib/push.ts`: `sendPushToSubscriptions` (VAPID setup + auto-purges `410`/`404` dead endpoints).
-- `src/lib/reminders-cron.ts`: `runReminderCron()`, `getCurrentTimeHHMM_VN()` — dispatches due custom `debt_reminders` & morning digests; only marks `sent` / `last_digest_sent_date` when `res.sent > 0` (`customFailed` / `digestFailed` otherwise).
+- `src/lib/reminders-cron.ts`: `runReminderCron(now?, { userId? })`, `recordCronHeartbeat()`, `normalizeHHMM()`, `getCurrentTimeHHMM_VN()` — checks DB errors explicitly, dispatches due custom `debt_reminders` & morning digests; only marks `sent` / `last_digest_sent_date` when `res.sent > 0`.
 - `src/lib/supabase/client.ts`: Browser client (`createBrowserClient`).
 - `src/lib/supabase/server.ts`: Server component/route client (`createServerClient` with Next `cookies()`).
 - `src/lib/supabase/admin.ts`: **Server-only** service-role client (`createAdminClient`) — NEVER import in client components.
@@ -111,12 +113,12 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 - `src/components/qr/VietQRModal.tsx`: Total debt / single order / custom amount dynamic QR card (`.print-surface-light`), PNG download/share, Zalo reminder message copy.
 - `src/components/invoice/`: `InvoicePreviewModal.tsx` (A5 / 80mm toggle, cumulative debt toggle, QR toggle, PNG download/share, `window.print()`, `.print-surface-light`), `ReceiptTemplate.tsx`.
 - `src/components/stats/`: `RevenueCashChart.tsx`, `PaymentBreakdownChart.tsx`, `DebtAgingCard.tsx` (CSS-variable theme-safe charts).
-- `src/components/pwa/PushNotificationSetup.tsx`: iOS Safari "Add to Home Screen" guide + Web Push subscribe/test/unsubscribe.
+- `src/components/pwa/PushNotificationSetup.tsx`: iOS Safari "Add to Home Screen" guide + Web Push subscribe/test/dispatch-due/unsubscribe + overdue/cron heartbeat diagnostics.
 
 ### Unit Tests (`tests/unit/`)
 - `tests/unit/vietnamese.test.ts` (diacritic stripping, fractional rounding, order totals, VND format, Zalo message).
 - `tests/unit/vietqr.test.ts` (CRC-16/CCITT-FALSE, memo sanitization, Napas 247 payload, validation errors).
-- `tests/unit/reminders-cron.test.ts` (scheduled push dispatch, failure retry preservation, digest timing, VN midnight `00:` handling).
+- `tests/unit/reminders-cron.test.ts` (scheduled push dispatch, failure retry preservation, digest timing, VN midnight `00:` & date consistency, Supabase error propagation, `userId` scoping).
 - `tests/unit/tab-cache-architecture.test.ts` (shared `PosDataProvider` cache & deduplication checks).
 - `tests/unit/mobile-overflow-guards.test.ts` (mobile horizontal overflow CSS/layout guards).
 - `tests/unit/theme-and-welcome.test.ts` (theme resolution/storage fallback, Vietnam time-of-day greetings, welcome storage keys).
@@ -149,12 +151,13 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 ## 6. Current Status & Open Backlog
 
 - **Completed**:
-  - MVP (`T001`–`T043`) + `v1.0.1` fixes deployed live on Vercel (`https://paytrack-pos.vercel.app`, region `sin1`).
-  - Feature `002-ux-polish-theme` (`T001`–`T046` on `feat/002-ux-polish-theme`): Branded loading splash + 5 context skeletons + offline retry cards, 3-layer Welcome experience, low-tech Vietnamese UX across all 5 tabs & `/login`, smooth Light/Dark/System theme (`280ms` transition + zero-flash bootstrap + `.print-surface-light`), pure CSS micro-animations (`prefers-reduced-motion`), convergence hardening (`--status-*-border` tokens, `>= 16px` form controls, `>= 44px` interactive touch targets, accurate `todayOrderCount` greeting), and unit/structural guard tests. Verification Gate passed (`tsc --noEmit`, `eslint .`, `vitest run` 7/7 files / 37/37 tests, `next build`).
+  - MVP (`T001`–`T043`) + `v1.0.1` fixes + `v1.1.0` (`002-ux-polish-theme` PR #3) merged into `main` and deployed live on Vercel (`https://paytrack-pos.vercel.app`, region `sin1`).
+  - Bug fix `cron-reminders-not-firing` on `fix/cron-reminders-not-firing`: Added `0004_cron_heartbeat.sql` + `cron_heartbeats` recording in `/api/cron/reminders`, `overdueReminders`/`dueCustomersToday`/`cronHeartbeat` diagnostics in `/api/push/subscribe`, authenticated `POST /api/push/dispatch-due` + UI button & warning banner in `PushNotificationSetup`, explicit Supabase error checking + `getTodayVN(now)` + `normalizeHHMM` + `userId` scoping in `runReminderCron`, `timeout_milliseconds := 10000` in `0003_reminder_cron.sql`, and daily Vercel Cron fallback `0 1 * * *` in `vercel.json`.
 - **Pending Verification / Infra Sync**:
+  - Run `npm ci && npm run typecheck && npm run lint && npm test && npm run build` in an environment with `registry.npmjs.org` access before opening PR for `fix/cron-reminders-not-firing`.
+  - Apply `0004_cron_heartbeat.sql` and re-apply `0003_reminder_cron.sql` (with real `paytrack-pos.vercel.app` & `CRON_SECRET`) on Supabase `mezuxaqvbtjbbtugsohm`, then verify HTTP 200 in `net._http_response` and `cron_heartbeats`.
   - Manual visual & device walkthrough (`specs/001-paytrack-pos/quickstart.md` + `specs/002-ux-polish-theme/quickstart.md`: iPhone Safari PWA / dark-mode receipt & VietQR check / `375px` & `1280px` layout).
-  - Confirm Supabase `pg_cron` job `paytrack_reminder_dispatch` schedule (`* * * * *` per updated `0003_reminder_cron.sql`) matches production if still on `*/5 * * * *`.
-- **Branch / PR State**: PR #2 and PR #1 merged into `main`. Feature `002-ux-polish-theme` verified locally on `feat/002-ux-polish-theme` (ready to commit & open PR).
+- **Branch / PR State**: PR #1, #2, #3 merged into `main`. Bug fix `fix/cron-reminders-not-firing` ready for Verification Gate & PR.
 
 ---
 
@@ -177,3 +180,4 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 | 2026-11-17 | `v1.0.0` MVP | Built & converged MVP (`T001`–`T043`), deployed Vercel + Supabase (`0001`–`0003` + `pg_cron`), added `bug` extension `v1.0.2`. |
 | 2026-11-17 | `v1.0.1` Bug Fixes + Context | Hardened `runReminderCron`, added `PosDataProvider` shared tab cache & mobile overflow guards; added `PROJECT_CONTEXT.md`, `AGENTS.md`, and persistent `paytrack-pos-context` skill. |
 | 2026-11-17 | `v1.1.0` UX Polish & Theme (`002-ux-polish-theme`) | Completed `T001`–`T046`: smooth Light/Dark/System theme (`280ms`, zero-flash bootstrap, `.print-surface-light`, complete `--status-*-border` tokens), `BrandLoadingScreen` + 5 skeletons + `FetchErrorCard`, 3-layer Welcome (`login`, `WelcomeOnboardingModal`, `DailyWelcomeBanner` with `ordersLoaded`), low-tech Vietnamese UX + `>= 16px` controls & `>= 44px` hit targets, CSS micro-animations (`prefers-reduced-motion`), and `theme-and-welcome` + `ux-guards` tests (`37/37` pass). |
+| 2026-11-17 | `fix/cron-reminders-not-firing` | Added `0004_cron_heartbeat.sql`, `POST /api/push/dispatch-due`, overdue/cron diagnostics in `PushNotificationSetup`, explicit query error checks + `getTodayVN(now)` + `userId` scoping in `runReminderCron`, `timeout_milliseconds := 10000` in `0003_reminder_cron.sql`, and Vercel daily cron fallback (`0 1 * * *`). |

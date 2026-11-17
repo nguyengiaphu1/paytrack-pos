@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getTodayVN } from '@/lib/vietnamese';
 
 interface SubscribeBody {
   subscription?: {
@@ -22,7 +23,16 @@ export async function GET() {
     return NextResponse.json({ error: 'Chưa đăng nhập' }, { status: 401 });
   }
 
-  const [{ data: subs, error: subErr }, { count: pendingCount }] = await Promise.all([
+  const overdueCutoffIso = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+  const todayVN = getTodayVN();
+
+  const [
+    { data: subs, error: subErr },
+    { count: pendingCount },
+    { count: overdueCount },
+    { count: dueCustomersCount },
+    heartbeatRes,
+  ] = await Promise.all([
     supabase
       .from('push_subscriptions')
       .select('id, endpoint, device_label, last_seen_at, created_at')
@@ -33,15 +43,38 @@ export async function GET() {
       .select('id', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .eq('status', 'pending'),
+    supabase
+      .from('debt_reminders')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('status', 'pending')
+      .lte('scheduled_for', overdueCutoffIso),
+    supabase
+      .from('customers')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .gt('total_debt', 0)
+      .not('next_due_date', 'is', null)
+      .lte('next_due_date', todayVN),
+    supabase
+      .from('cron_heartbeats')
+      .select('job_name, last_run_at, last_status, last_error')
+      .eq('job_name', 'paytrack_reminder_dispatch')
+      .maybeSingle(),
   ]);
 
   if (subErr) {
     return NextResponse.json({ error: subErr.message }, { status: 500 });
   }
 
+  const cronHeartbeat = heartbeatRes.error ? null : heartbeatRes.data;
+
   return NextResponse.json({
     devices: subs ?? [],
     pendingReminders: pendingCount ?? 0,
+    overdueReminders: overdueCount ?? 0,
+    dueCustomersToday: dueCustomersCount ?? 0,
+    cronHeartbeat,
   });
 }
 

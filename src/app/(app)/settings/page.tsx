@@ -317,10 +317,11 @@ function SettingsFormBody({
               />
               <span className="min-w-0">
                 <span className="block text-[14px] font-semibold text-[var(--text-primary)]">
-                  Báo tổng hợp khách đến hạn mỗi sáng
+                  Báo tổng hợp khách đến hạn mỗi ngày
                 </span>
                 <span className="block text-[12px] text-[var(--text-secondary)]">
-                  Tự gửi 1 thông báo nhắc bạn kiểm tra những khách sắp hoặc đã tới ngày trả nợ.
+                  Đến khung giờ đã chọn, tự gửi 1 thông báo nếu có khách còn nợ với &ldquo;Ngày hẹn
+                  thu&rdquo; hôm nay hoặc đã quá hạn.
                 </span>
               </span>
             </label>
