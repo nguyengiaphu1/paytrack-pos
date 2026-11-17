@@ -1,13 +1,13 @@
 # PayTrack POS — Project Context & Agent Quickstart
 
 > **Purpose**: Single-source-of-truth context file for AI assistants and developers. Read this file first in a new session instead of scanning the entire repository.
-> **Last Updated**: 2026-11-17 (`v1.1.0` + `fix/cron-reminders-not-firing` — Cron Heartbeat, Overdue Diagnostics, Manual Due Dispatch & Vercel Cron Fallback)
+> **Last Updated**: 2026-11-17 (`v1.1.1` — Web Push Cron Reliability, Heartbeat Diagnostics, Overdue Warning & Live Verification)
 
 ---
 
 ## 1. Project Overview & Tech Stack
 
-**PayTrack POS** (`v1.1.0`) is a responsive Vietnamese retail POS, customer FIFO debt ledger, multi-device Web Push reminder (iPhone Safari PWA + Windows Chrome/Edge), dynamic VietQR, customizable e-invoice (`PNG` / `A5` / `80mm`), and visual analytics web app.
+**PayTrack POS** (`v1.1.1`) is a responsive Vietnamese retail POS, customer FIFO debt ledger, multi-device Web Push reminder (iPhone Safari PWA + Windows Chrome/Edge), dynamic VietQR, customizable e-invoice (`PNG` / `A5` / `80mm`), and visual analytics web app.
 
 - **Framework**: Next.js `^16.4.6` (App Router, Turbopack dev), React `^19.3.1`, TypeScript `^5.9.0`
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`), CSS custom properties in `src/app/globals.css` (Light + Dark WCAG AA themes + pure CSS micro-animations + `prefers-reduced-motion`), fonts `Be Vietnam Pro` + `JetBrains Mono`
@@ -20,14 +20,14 @@
 ## 2. Environments, Git & Live Deployment (Non-Secret)
 
 ### Git Topology
-- `main`: Active production branch (`v1.1.0`, includes Spec Kit foundation + MVP + bug fixes + `002-ux-polish-theme` via PR #1, #2, #3). Create feature/fix branches from `main` — **do not commit directly to `main`**.
-- Active fix branch: `fix/cron-reminders-not-firing`. Previous feature branches: `feat/spec-kit-foundation` (PR #1), `feat/001-paytrack-pos-mvp` (PR #2), `feat/002-ux-polish-theme` (PR #3). Tags: `v1.0.0`, `v1.0.1`.
+- `main`: Active production branch (`v1.1.1`, includes Spec Kit foundation + MVP + `002-ux-polish-theme` + `cron-reminders-not-firing` fix via PR #1, #2, #3, #4). Create feature/fix/chore branches from `main` — **do not commit directly to `main`**.
+- Previous branches: `feat/spec-kit-foundation` (PR #1), `feat/001-paytrack-pos-mvp` (PR #2), `feat/002-ux-polish-theme` (PR #3), `fix/cron-reminders-not-firing` (PR #4). Tags: `v1.0.0`, `v1.0.1`, `v1.1.0`, `v1.1.1`.
 
 ### Live Infrastructure
 - **Vercel Production**: `https://paytrack-pos.vercel.app` (team `phu-nguyen4`, project `paytrack-pos`, preset `nextjs`, Node `24.x`, region `sin1`, plus daily fallback cron `0 1 * * *` via `vercel.json`).
   - *Important*: Supabase env vars currently live in Vercel **Production** only (not `Preview`), so PR preview deployments lack Supabase service keys unless copied.
 - **Supabase Project**: ref `mezuxaqvbtjbbtugsohm` (`ap-southeast-1`, Postgres 17).
-  - Migrations `0001_initial_schema.sql`, `0002_rpc_functions.sql`, and `0003_reminder_cron.sql` exist; `0004_cron_heartbeat.sql` adds `cron_heartbeats` observability (apply in SQL Editor along with `0003_reminder_cron.sql` using real Vercel domain & `CRON_SECRET`).
+  - Migrations `0001_initial_schema.sql`, `0002_rpc_functions.sql`, `0003_reminder_cron.sql`, and `0004_cron_heartbeat.sql` applied on live Supabase (`cron_heartbeats` observability + `paytrack_reminder_dispatch` verified live).
   - `pg_cron` job `paytrack_reminder_dispatch` (`* * * * *`, `timeout_milliseconds := 10000` in `0003_reminder_cron.sql`), calling `https://paytrack-pos.vercel.app/api/cron/reminders` with `Authorization: Bearer <CRON_SECRET>`.
   - Auth config: `site_url = https://paytrack-pos.vercel.app`; Email auth enabled; Google OAuth currently disabled on Supabase Auth dashboard (UI button exists in `src/app/login/page.tsx`).
 
@@ -151,13 +151,12 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 ## 6. Current Status & Open Backlog
 
 - **Completed**:
-  - MVP (`T001`–`T043`) + `v1.0.1` fixes + `v1.1.0` (`002-ux-polish-theme` PR #3) merged into `main` and deployed live on Vercel (`https://paytrack-pos.vercel.app`, region `sin1`).
-  - Bug fix `cron-reminders-not-firing` on `fix/cron-reminders-not-firing`: Added `0004_cron_heartbeat.sql` + `cron_heartbeats` recording in `/api/cron/reminders`, `overdueReminders`/`dueCustomersToday`/`cronHeartbeat` diagnostics in `/api/push/subscribe`, authenticated `POST /api/push/dispatch-due` + UI button & warning banner in `PushNotificationSetup`, explicit Supabase error checking + `getTodayVN(now)` + `normalizeHHMM` + `userId` scoping in `runReminderCron`, `timeout_milliseconds := 10000` in `0003_reminder_cron.sql`, and daily Vercel Cron fallback `0 1 * * *` in `vercel.json`.
+  - MVP (`T001`–`T043`) + `v1.0.1` fixes + `v1.1.0` (`002-ux-polish-theme` PR #3) + `v1.1.1` (`cron-reminders-not-firing` PR #4) merged into `main` and deployed live on Vercel (`https://paytrack-pos.vercel.app`, region `sin1`).
+  - Bug fix `cron-reminders-not-firing` (PR #4, `9eaf3da`, **verified** live on Production + Supabase `pg_cron`): Added `0004_cron_heartbeat.sql` + `cron_heartbeats` recording in `/api/cron/reminders`, `overdueReminders`/`dueCustomersToday`/`cronHeartbeat` diagnostics in `/api/push/subscribe`, authenticated `POST /api/push/dispatch-due` + UI button & warning banner in `PushNotificationSetup`, explicit Supabase error checking + `getTodayVN(now)` + `normalizeHHMM` + `userId` scoping in `runReminderCron`, `timeout_milliseconds := 10000` in `0003_reminder_cron.sql`, and daily Vercel Cron fallback `0 1 * * *` in `vercel.json`. Confirmed live that both scheduled customer debt reminders and daily auto digest push notifications when the app is closed.
 - **Pending Verification / Infra Sync**:
-  - Run `npm ci && npm run typecheck && npm run lint && npm test && npm run build` in an environment with `registry.npmjs.org` access before opening PR for `fix/cron-reminders-not-firing`.
-  - Apply `0004_cron_heartbeat.sql` and re-apply `0003_reminder_cron.sql` (with real `paytrack-pos.vercel.app` & `CRON_SECRET`) on Supabase `mezuxaqvbtjbbtugsohm`, then verify HTTP 200 in `net._http_response` and `cron_heartbeats`.
-  - Manual visual & device walkthrough (`specs/001-paytrack-pos/quickstart.md` + `specs/002-ux-polish-theme/quickstart.md`: iPhone Safari PWA / dark-mode receipt & VietQR check / `375px` & `1280px` layout).
-- **Branch / PR State**: PR #1, #2, #3 merged into `main`. Bug fix `fix/cron-reminders-not-firing` ready for Verification Gate & PR.
+  - Run `npm ci && npm run typecheck && npm run lint && npm test && npm run build` in an environment with `registry.npmjs.org` access to lock automated Vitest/ESLint regression checks (blocked in sandbox VM by proxy `403`).
+  - Manual visual & device walkthrough (`specs/001-paytrack-pos/quickstart.md` + `specs/002-ux-polish-theme/quickstart.md`: dark-mode receipt & VietQR check / `375px` & `1280px` layout).
+- **Branch / PR State**: PR #1, #2, #3, #4 merged into `main`; release `v1.1.1` prepared from `main`.
 
 ---
 
@@ -180,4 +179,4 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 | 2026-11-17 | `v1.0.0` MVP | Built & converged MVP (`T001`–`T043`), deployed Vercel + Supabase (`0001`–`0003` + `pg_cron`), added `bug` extension `v1.0.2`. |
 | 2026-11-17 | `v1.0.1` Bug Fixes + Context | Hardened `runReminderCron`, added `PosDataProvider` shared tab cache & mobile overflow guards; added `PROJECT_CONTEXT.md`, `AGENTS.md`, and persistent `paytrack-pos-context` skill. |
 | 2026-11-17 | `v1.1.0` UX Polish & Theme (`002-ux-polish-theme`) | Completed `T001`–`T046`: smooth Light/Dark/System theme (`280ms`, zero-flash bootstrap, `.print-surface-light`, complete `--status-*-border` tokens), `BrandLoadingScreen` + 5 skeletons + `FetchErrorCard`, 3-layer Welcome (`login`, `WelcomeOnboardingModal`, `DailyWelcomeBanner` with `ordersLoaded`), low-tech Vietnamese UX + `>= 16px` controls & `>= 44px` hit targets, CSS micro-animations (`prefers-reduced-motion`), and `theme-and-welcome` + `ux-guards` tests (`37/37` pass). |
-| 2026-11-17 | `fix/cron-reminders-not-firing` | Added `0004_cron_heartbeat.sql`, `POST /api/push/dispatch-due`, overdue/cron diagnostics in `PushNotificationSetup`, explicit query error checks + `getTodayVN(now)` + `userId` scoping in `runReminderCron`, `timeout_milliseconds := 10000` in `0003_reminder_cron.sql`, and Vercel daily cron fallback (`0 1 * * *`). |
+| 2026-11-17 | `v1.1.1` Push Cron Fix & Release (`PR #4`) | Merged `fix/cron-reminders-not-firing` (`PR #4`): added `0004_cron_heartbeat.sql`, `POST /api/push/dispatch-due`, overdue/cron diagnostics in `PushNotificationSetup`, explicit query error checks + `getTodayVN(now)` + `userId` scoping in `runReminderCron`, `timeout_milliseconds := 10000` in `0003_reminder_cron.sql`, and Vercel daily cron fallback (`0 1 * * *`). Applied `0003` + `0004` on live Supabase and verified scheduled + daily auto Web Push notifications end-to-end when app is closed (`cron-reminders-not-firing` -> `verified`). |
