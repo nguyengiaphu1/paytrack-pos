@@ -20,9 +20,8 @@
 ## 2. Environments, Git & Live Deployment (Non-Secret)
 
 ### Git Topology
-- `main`: Initial repo commit (`6ca88cf`) — **do not commit directly to `main`**.
-- `feat/spec-kit-foundation`: Spec Kit artifacts (`DESIGN.md`, `specs/001-paytrack-pos/*`, `.specify/`). **PR #1** → `main` (`OPEN`).
-- `feat/001-paytrack-pos-mvp`: MVP (`T001`–`T043`) + `bug` extension (`v1.0.2`) + `v1.0.1` bug fixes (`bc3d595` / `6147ea1`). **PR #2** → `feat/spec-kit-foundation` (`OPEN`). Tags: `v1.0.0`, `v1.0.1`.
+- `main`: Active production branch (`v1.0.1`, includes Spec Kit foundation + MVP + bug fixes via PR #1 & PR #2). Create feature/fix branches from `main` — **do not commit directly to `main`**.
+- Historical feature branches: `feat/spec-kit-foundation` (PR #1), `feat/001-paytrack-pos-mvp` (PR #2). Tags: `v1.0.0`, `v1.0.1`.
 
 ### Live Infrastructure
 - **Vercel Production**: `https://paytrack-pos.vercel.app` (team `phu-nguyen4`, project `paytrack-pos`, preset `nextjs`, Node `24.x`, region `sin1` via `vercel.json`).
@@ -144,7 +143,7 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 - **Pending Verification / Infra Sync**:
   - `T044` manual iPhone Safari PWA + Windows E2E test (`specs/001-paytrack-pos/quickstart.md`).
   - Confirm Supabase `pg_cron` job `paytrack_reminder_dispatch` schedule (`* * * * *` per updated `0003_reminder_cron.sql`) matches production if still on `*/5 * * * *`.
-- **Open PRs**: PR #1 (`feat/spec-kit-foundation` → `main`) and PR #2 (`feat/001-paytrack-pos-mvp` → `feat/spec-kit-foundation`).
+- **Branch / PR State**: PR #2 and PR #1 merged into `main`. Use new branches from `main` for subsequent fixes/features.
 
 ---
 
