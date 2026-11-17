@@ -61,13 +61,13 @@ export function formatDateVN(dateString: string | null): string {
   }).format(date);
 }
 
-export function getTodayVN(): string {
+export function getTodayVN(now: Date = new Date()): string {
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Ho_Chi_Minh',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
-  }).formatToParts(new Date());
+  }).formatToParts(now);
 
   const year = parts.find((p) => p.type === 'year')?.value ?? '2026';
   const month = parts.find((p) => p.type === 'month')?.value ?? '01';

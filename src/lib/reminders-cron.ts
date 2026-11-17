@@ -17,6 +17,15 @@ export function getCurrentTimeHHMM_VN(now: Date = new Date()): string {
   return `${hour}:${minute}`;
 }
 
+export function normalizeHHMM(value: string | null | undefined, fallback = '08:30'): string {
+  const raw = (value ?? '').trim();
+  const match = raw.match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return fallback;
+  const h = match[1].padStart(2, '0');
+  const m = match[2];
+  return `${h}:${m}`;
+}
+
 export interface CronRemindersSummary {
   ok: true;
   todayVN: string;
@@ -28,11 +37,19 @@ export interface CronRemindersSummary {
   removedSubs: number;
 }
 
-export async function runReminderCron(now: Date = new Date()): Promise<CronRemindersSummary> {
+export interface RunReminderCronOptions {
+  userId?: string;
+}
+
+export async function runReminderCron(
+  now: Date = new Date(),
+  options: RunReminderCronOptions = {}
+): Promise<CronRemindersSummary> {
   const admin = createAdminClient();
   const nowIso = now.toISOString();
-  const todayVN = getTodayVN();
+  const todayVN = getTodayVN(now);
   const nowHHMM = getCurrentTimeHHMM_VN(now);
+  const scopedUserId = options.userId;
 
   let customSent = 0;
   let customFailed = 0;
@@ -41,12 +58,21 @@ export async function runReminderCron(now: Date = new Date()): Promise<CronRemin
   let removedSubs = 0;
 
   // 1. Custom scheduled reminders due <= now()
-  const { data: pendingReminders } = await admin
+  let remindersQuery = admin
     .from('debt_reminders')
     .select('id, user_id, customer_id, message, target_url, customers(name, total_debt)')
     .eq('status', 'pending')
-    .lte('scheduled_for', nowIso)
-    .limit(100);
+    .lte('scheduled_for', nowIso);
+
+  if (scopedUserId) {
+    remindersQuery = remindersQuery.eq('user_id', scopedUserId);
+  }
+
+  const { data: pendingReminders, error: remindersError } = await remindersQuery.limit(100);
+  if (remindersError) {
+    console.error('[cron/reminders] failed querying debt_reminders', remindersError);
+    throw new Error(`Không thể truy vấn debt_reminders: ${remindersError.message}`);
+  }
 
   for (const rem of pendingReminders ?? []) {
     const customerObj = Array.isArray(rem.customers) ? rem.customers[0] : rem.customers;
@@ -62,10 +88,15 @@ export async function runReminderCron(now: Date = new Date()): Promise<CronRemin
       continue;
     }
 
-    const { data: subs } = await admin
+    const { data: subs, error: subsError } = await admin
       .from('push_subscriptions')
       .select('*')
       .eq('user_id', rem.user_id);
+
+    if (subsError) {
+      console.error('[cron/reminders] failed querying push_subscriptions', subsError);
+      throw new Error(`Không thể truy vấn push_subscriptions: ${subsError.message}`);
+    }
 
     const subList = (subs as PushSubscriptionRecord[]) ?? [];
     if (subList.length === 0) {
@@ -99,22 +130,37 @@ export async function runReminderCron(now: Date = new Date()): Promise<CronRemin
   }
 
   // 2. Daily morning digest per shop_profiles
-  const { data: profiles } = await admin
+  let profilesQuery = admin
     .from('shop_profiles')
     .select('*')
     .eq('reminder_digest_enabled', true);
 
+  if (scopedUserId) {
+    profilesQuery = profilesQuery.eq('user_id', scopedUserId);
+  }
+
+  const { data: profiles, error: profilesError } = await profilesQuery;
+  if (profilesError) {
+    console.error('[cron/reminders] failed querying shop_profiles', profilesError);
+    throw new Error(`Không thể truy vấn shop_profiles: ${profilesError.message}`);
+  }
+
   for (const profile of (profiles as ShopProfile[]) ?? []) {
     if (profile.last_digest_sent_date === todayVN) continue;
-    if (nowHHMM < (profile.reminder_default_hour || '08:30')) continue;
+    if (nowHHMM < normalizeHHMM(profile.reminder_default_hour, '08:30')) continue;
 
-    const { data: dueCustomers } = await admin
+    const { data: dueCustomers, error: dueError } = await admin
       .from('customers')
       .select('id, name, total_debt, next_due_date')
       .eq('user_id', profile.user_id)
       .gt('total_debt', 0)
       .not('next_due_date', 'is', null)
       .lte('next_due_date', todayVN);
+
+    if (dueError) {
+      console.error('[cron/reminders] failed querying due customers', dueError);
+      throw new Error(`Không thể truy vấn customers: ${dueError.message}`);
+    }
 
     const count = dueCustomers?.length ?? 0;
     if (count === 0) continue;
@@ -124,10 +170,15 @@ export async function runReminderCron(now: Date = new Date()): Promise<CronRemin
       0
     );
 
-    const { data: subs } = await admin
+    const { data: subs, error: subsError } = await admin
       .from('push_subscriptions')
       .select('*')
       .eq('user_id', profile.user_id);
+
+    if (subsError) {
+      console.error('[cron/reminders] failed querying push_subscriptions for digest', subsError);
+      throw new Error(`Không thể truy vấn push_subscriptions: ${subsError.message}`);
+    }
 
     const subList = (subs as PushSubscriptionRecord[]) ?? [];
     if (subList.length === 0) {
@@ -164,4 +215,33 @@ export async function runReminderCron(now: Date = new Date()): Promise<CronRemin
     digestFailed,
     removedSubs,
   };
+}
+
+export async function recordCronHeartbeat(params: {
+  jobName?: string;
+  status: 'ok' | 'error';
+  summary?: CronRemindersSummary;
+  error?: string | null;
+}) {
+  try {
+    const admin = createAdminClient();
+    const nowIso = new Date().toISOString();
+    const { error } = await admin.from('cron_heartbeats').upsert(
+      {
+        job_name: params.jobName ?? 'paytrack_reminder_dispatch',
+        last_run_at: nowIso,
+        last_status: params.status,
+        last_summary: params.summary ?? null,
+        last_error: params.error ? params.error.slice(0, 500) : null,
+        updated_at: nowIso,
+      },
+      { onConflict: 'job_name' }
+    );
+    if (error) {
+      // Bảng cron_heartbeats có thể chưa được migrate trên production; không làm hỏng cron chính.
+      console.warn('[cron/reminders] could not record cron_heartbeats:', error.message);
+    }
+  } catch (err) {
+    console.warn('[cron/reminders] heartbeat error:', err);
+  }
 }
