@@ -41,6 +41,7 @@ function ProductFormModalBody({
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (saving) return;
     setError(null);
 
     const trimmedName = name.trim();
@@ -101,7 +102,7 @@ function ProductFormModalBody({
   }
 
   async function handleArchive() {
-    if (!product) return;
+    if (!product || saving) return;
     setSaving(true);
     try {
       const supabase = createClient();
@@ -121,21 +122,21 @@ function ProductFormModalBody({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"
+      className="animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-label={product ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}
     >
-      <div className="max-h-[92dvh] w-full max-w-[460px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
+      <div className="animate-sheet-up sm:animate-modal-in max-h-[92dvh] w-full max-w-[460px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
         <div className="flex items-center justify-between gap-2 border-b border-[var(--border-default)] px-4 py-3.5">
           <h2 className="min-w-0 flex-1 truncate text-[17px] font-bold text-[var(--text-primary)]">
-            {product ? 'Sửa sản phẩm' : 'Thêm sản phẩm mới'}
+            {product ? 'Sửa thông tin món' : 'Thêm món mới vào sổ'}
           </h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Đóng"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
           >
             <X className="h-5 w-5" />
           </button>
@@ -143,26 +144,30 @@ function ProductFormModalBody({
 
         <form onSubmit={handleSubmit} className="space-y-3.5 p-4">
           {error && (
-            <div className="rounded-lg border border-[#FCA5A5] bg-[var(--status-overdue-bg)] px-3 py-2 text-[14px] text-[var(--status-overdue)]">
+            <div className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3 py-2 text-[14px] text-[var(--status-overdue)]">
               {error}
             </div>
           )}
 
           <div>
-            <label className="mb-1 block text-[14px] font-medium">Tên mặt hàng *</label>
+            <label className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]">
+              Tên món hàng *
+            </label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="VD: Gạo ST25 túi 5kg"
-              className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3.5 outline-none focus:border-[var(--brand-jade)]"
+              className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="min-w-0">
-              <label className="mb-1 block text-[14px] font-medium">Giá bán (VND) *</label>
+              <label className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]">
+                Giá bán (VND) *
+              </label>
               <input
                 type="number"
                 required
@@ -170,24 +175,26 @@ function ProductFormModalBody({
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="150000"
-                className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3.5 outline-none focus:border-[var(--brand-jade)]"
+                className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
               />
             </div>
             <div className="min-w-0">
-              <label className="mb-1 block text-[14px] font-medium">Đơn vị tính</label>
+              <label className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]">
+                Đơn vị tính
+              </label>
               <input
                 type="text"
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
                 placeholder="cái / kg / chai"
-                className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3.5 outline-none focus:border-[var(--brand-jade)]"
+                className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="min-w-0">
-              <label className="mb-1 block text-[14px] font-medium">
+              <label className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]">
                 Giá vốn <span className="text-[12px] text-[var(--text-secondary)]">(tùy chọn)</span>
               </label>
               <input
@@ -196,31 +203,33 @@ function ProductFormModalBody({
                 value={costPrice}
                 onChange={(e) => setCostPrice(e.target.value)}
                 placeholder="Bỏ trống nếu không cần"
-                className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3.5 outline-none focus:border-[var(--brand-jade)]"
+                className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
               />
             </div>
             <div className="min-w-0">
-              <label className="mb-1 block text-[14px] font-medium">Danh mục</label>
+              <label className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]">
+                Nhóm hàng
+              </label>
               <input
                 type="text"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 placeholder="VD: Tạp hóa / Nước"
-                className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3.5 outline-none focus:border-[var(--brand-jade)]"
+                className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
               />
             </div>
           </div>
 
           <div>
-            <label className="mb-1 block text-[14px] font-medium">
-              Mã SKU / Mã vạch <span className="text-[12px] text-[var(--text-secondary)]">(tùy chọn)</span>
+            <label className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]">
+              Mã hàng / Mã vạch <span className="text-[12px] text-[var(--text-secondary)]">(tùy chọn)</span>
             </label>
             <input
               type="text"
               value={sku}
               onChange={(e) => setSku(e.target.value)}
               placeholder="VD: GAOST25"
-              className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3.5 outline-none focus:border-[var(--brand-jade)]"
+              className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
             />
           </div>
 
@@ -230,7 +239,7 @@ function ProductFormModalBody({
                 type="button"
                 disabled={saving}
                 onClick={handleArchive}
-                className="flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] px-4 text-[14px] font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+                className="press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] px-4 text-[14px] font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] disabled:opacity-60"
               >
                 <Archive className="h-4 w-4" />
                 <span>{product.is_active ? 'Ẩn món' : 'Hiện lại'}</span>
@@ -239,10 +248,16 @@ function ProductFormModalBody({
             <button
               type="submit"
               disabled={saving}
-              className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+              className="press-tactile flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
             >
               {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-              <span>{product ? 'Lưu thay đổi' : 'Thêm vào danh mục'}</span>
+              <span>
+                {saving
+                  ? 'Đang lưu...'
+                  : product
+                    ? 'Lưu thay đổi'
+                    : 'Thêm vào sổ hàng'}
+              </span>
             </button>
           </div>
         </form>

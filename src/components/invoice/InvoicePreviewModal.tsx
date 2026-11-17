@@ -102,17 +102,17 @@ function InvoicePreviewModalBody({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
+      className="animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-label="Xem trước và xuất hóa đơn"
     >
-      <div className="max-h-[94dvh] w-full max-w-[600px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-canvas)] sm:rounded-[10px]">
+      <div className="animate-sheet-up sm:animate-modal-in max-h-[94dvh] w-full max-w-[600px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-canvas)] sm:rounded-[10px]">
         {/* Header & Toggles (hidden during window.print) */}
         <div className="no-print sticky top-0 z-10 border-b border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 flex-1 items-center gap-2">
-              <ReceiptText className="h-5 w-5 shrink-0 text-[var(--brand-jade)]" />
+              <ReceiptText className="h-5 w-5 shrink-0 text-[var(--brand-jade-text)]" />
               <h2 className="min-w-0 truncate text-[17px] font-bold text-[var(--text-primary)]">
                 Xuất hóa đơn {order.order_code}
               </h2>
@@ -121,7 +121,7 @@ function InvoicePreviewModalBody({
               type="button"
               onClick={onClose}
               aria-label="Đóng"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+              className="press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
             >
               <X className="h-5 w-5" />
             </button>
@@ -133,9 +133,9 @@ function InvoicePreviewModalBody({
               <button
                 type="button"
                 onClick={() => setFormat('a5')}
-                className={`min-h-[34px] rounded-md px-3 font-semibold ${
+                className={`press-tactile min-h-[44px] rounded-md px-3 font-semibold ${
                   format === 'a5'
-                    ? 'bg-[var(--bg-surface)] text-[var(--brand-jade)]'
+                    ? 'bg-[var(--bg-surface)] text-[var(--brand-jade-text)]'
                     : 'text-[var(--text-secondary)]'
                 }`}
               >
@@ -144,9 +144,9 @@ function InvoicePreviewModalBody({
               <button
                 type="button"
                 onClick={() => setFormat('80mm')}
-                className={`min-h-[34px] rounded-md px-3 font-semibold ${
+                className={`press-tactile min-h-[44px] rounded-md px-3 font-semibold ${
                   format === '80mm'
-                    ? 'bg-[var(--bg-surface)] text-[var(--brand-jade)]'
+                    ? 'bg-[var(--bg-surface)] text-[var(--brand-jade-text)]'
                     : 'text-[var(--text-secondary)]'
                 }`}
               >
@@ -155,7 +155,7 @@ function InvoicePreviewModalBody({
             </div>
 
             {order.customer_id && (
-              <label className="inline-flex min-h-[36px] cursor-pointer items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 font-medium">
+              <label className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 font-medium">
                 <input
                   type="checkbox"
                   checked={showCumulativeDebt}
@@ -166,7 +166,7 @@ function InvoicePreviewModalBody({
               </label>
             )}
 
-            <label className="inline-flex min-h-[36px] cursor-pointer items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 font-medium">
+            <label className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 font-medium">
               <input
                 type="checkbox"
                 checked={showQr}
@@ -182,7 +182,7 @@ function InvoicePreviewModalBody({
         <div className="p-3 sm:p-4">
           <div
             ref={sheetRef}
-            className={`print-only-sheet ${
+            className={`print-surface-light print-only-sheet ${
               format === '80mm' ? 'print-format-80mm' : 'print-format-a5'
             }`}
           >
@@ -203,24 +203,24 @@ function InvoicePreviewModalBody({
             type="button"
             disabled={exporting}
             onClick={handleDownloadPng}
-            className="flex min-h-[48px] items-center justify-center gap-1 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-1.5 text-[12px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] disabled:opacity-50 sm:gap-1.5 sm:px-2 sm:text-[14px]"
+            className="press-tactile flex min-h-[48px] items-center justify-center gap-1 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-1.5 text-[12px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] disabled:opacity-50 sm:gap-1.5 sm:px-2 sm:text-[14px]"
           >
             <Download className="h-4 w-4 shrink-0" />
-            <span className="truncate">Tải PNG</span>
+            <span className="truncate">{exporting ? 'Đang tạo...' : 'Tải PNG'}</span>
           </button>
           <button
             type="button"
             disabled={exporting}
             onClick={handleSharePng}
-            className="flex min-h-[48px] items-center justify-center gap-1 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-1.5 text-[12px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] disabled:opacity-50 sm:gap-1.5 sm:px-2 sm:text-[14px]"
+            className="press-tactile flex min-h-[48px] items-center justify-center gap-1 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-1.5 text-[12px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] disabled:opacity-50 sm:gap-1.5 sm:px-2 sm:text-[14px]"
           >
             <Share2 className="h-4 w-4 shrink-0" />
-            <span className="truncate">Gửi ảnh</span>
+            <span className="truncate">{exporting ? 'Đang gửi...' : 'Gửi ảnh'}</span>
           </button>
           <button
             type="button"
             onClick={handlePrint}
-            className="flex min-h-[48px] items-center justify-center gap-1 rounded-lg bg-[var(--brand-jade)] px-1.5 text-[12px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] sm:gap-1.5 sm:px-2 sm:text-[14px]"
+            className="press-tactile flex min-h-[48px] items-center justify-center gap-1 rounded-lg bg-[var(--brand-jade)] px-1.5 text-[12px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] sm:gap-1.5 sm:px-2 sm:text-[14px]"
           >
             <Printer className="h-4 w-4 shrink-0" />
             <span className="truncate">In / PDF</span>

@@ -83,7 +83,7 @@ export function ReceiptTemplate({
 
   return (
     <div
-      className={`mx-auto bg-white text-[#141A21] border border-[var(--border-default)] ${
+      className={`print-surface-light mx-auto bg-white text-[#141A21] border border-[var(--border-default)] ${
         is80mm ? 'w-full max-w-[304px] p-4 text-[12px]' : 'w-full max-w-[460px] p-4 text-[13px] sm:p-6 sm:text-[14px]'
       }`}
     >

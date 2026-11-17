@@ -262,12 +262,12 @@ export function PushNotificationSetup() {
   }
 
   return (
-    <div className="space-y-3 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
+    <div className="space-y-3 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-2.5">
         <div className="min-w-0 flex-1">
-          <h3 className="text-[16px] font-bold text-[var(--text-primary)]">
-            Thông báo nhắc thu nợ trên thiết bị này
-          </h3>
+          <h2 className="text-[16px] font-bold text-[var(--text-primary)]">
+            2. Thông báo nhắc thu nợ trên thiết bị này
+          </h2>
           <p className="mt-0.5 text-[13px] text-[var(--text-secondary)]">
             Hỗ trợ Windows (Chrome/Edge) và iPhone (iOS 16.4+ qua icon Màn hình chính).
           </p>
@@ -281,7 +281,7 @@ export function PushNotificationSetup() {
       </div>
 
       {envState.isIOS && !envState.isStandalone && (
-        <div className="rounded-lg border border-[#FCD34D] bg-[var(--status-debt-bg)] p-3.5 text-[14px] text-[var(--text-primary)]">
+        <div className="rounded-lg border border-[var(--status-debt-border)] bg-[var(--status-debt-bg)] p-3.5 text-[14px] text-[var(--text-primary)]">
           <div className="flex items-center gap-2 font-bold text-[var(--status-debt)]">
             <Smartphone className="h-4 w-4 shrink-0" />
             <span>Hướng dẫn bật thông báo trên iPhone</span>
@@ -303,13 +303,13 @@ export function PushNotificationSetup() {
       )}
 
       {errorMsg && (
-        <div className="rounded-lg border border-[#FCA5A5] bg-[var(--status-overdue-bg)] px-3 py-2 text-[13px] font-medium text-[var(--status-overdue)]">
+        <div className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3 py-2 text-[13px] font-medium text-[var(--status-overdue)]">
           {errorMsg}
         </div>
       )}
 
       {statusMsg && (
-        <div className="rounded-lg border border-[#5EEAD4] bg-[var(--status-paid-bg)] px-3 py-2 text-[13px] font-medium text-[var(--status-paid)]">
+        <div className="rounded-lg border border-[var(--status-paid-border)] bg-[var(--status-paid-bg)] px-3 py-2 text-[13px] font-medium text-[var(--status-paid)]">
           {statusMsg}
         </div>
       )}
@@ -328,7 +328,7 @@ export function PushNotificationSetup() {
               type="button"
               disabled={busy}
               onClick={handleEnablePush}
-              className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+              className="press-tactile flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
             >
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bell className="h-4 w-4" />}
               <span>Bật thông báo trên thiết bị này</span>
@@ -339,7 +339,7 @@ export function PushNotificationSetup() {
                 type="button"
                 disabled={busy}
                 onClick={handleSendTest}
-                className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+                className="press-tactile flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
               >
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                 <span>Gửi thử thông báo</span>
@@ -348,7 +348,7 @@ export function PushNotificationSetup() {
                 type="button"
                 disabled={busy}
                 onClick={handleDisablePush}
-                className="flex min-h-[48px] items-center justify-center gap-2 rounded-lg border border-[var(--border-default)] px-4 text-[14px] font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] disabled:opacity-60"
+                className="press-tactile flex min-h-[48px] items-center justify-center gap-2 rounded-lg border border-[var(--border-default)] px-4 text-[14px] font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] disabled:opacity-60"
               >
                 <BellOff className="h-4 w-4" />
                 <span>Tắt</span>
@@ -363,7 +363,7 @@ export function PushNotificationSetup() {
         <div className="flex flex-wrap items-center justify-between gap-2 font-semibold text-[var(--text-primary)]">
           <span>Thiết bị đang nhận nhắc nợ ({devices.length})</span>
           {pendingReminders > 0 && (
-            <span className="font-mono-tabular text-[var(--brand-jade)]">
+            <span className="font-mono-tabular text-[var(--brand-jade-text)]">
               {pendingReminders} lịch hẹn đang chờ
             </span>
           )}
@@ -374,7 +374,7 @@ export function PushNotificationSetup() {
           </p>
         )}
         <div className="mt-2 flex items-start gap-1.5 border-t border-[var(--border-default)] pt-2">
-          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--brand-jade)]" />
+          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--brand-jade-text)]" />
           <p className="leading-relaxed">
             <strong>Để nhận thông báo cả khi không mở app:</strong> Trên iPhone giữ icon{' '}
             <em>PayTrack POS</em> ngoài Màn hình chính (không cần mở sẵn app). Trên Windows, hãy{' '}

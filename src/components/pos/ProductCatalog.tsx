@@ -1,9 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Pencil, Plus, Search, Zap } from 'lucide-react';
+import { PackageOpen, Pencil, Plus, Search, Zap } from 'lucide-react';
 import type { Product } from '@/types/database';
 import { formatVND, stripVietnamese } from '@/lib/vietnamese';
+import { EmptyStateCard } from '@/components/ui/EmptyStateCard';
 
 interface ProductCatalogProps {
   products: Product[];
@@ -54,26 +55,26 @@ export function ProductCatalog({
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Tìm món không dấu (VD: gao, nuoc mam)..."
-            className="min-h-[48px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] pr-3.5 pl-10 text-[16px] outline-none focus:border-[var(--brand-jade)]"
+            placeholder="Tìm tên món (gõ không dấu cũng ra, VD: gao, nuoc)..."
+            className="min-h-[48px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] pr-3.5 pl-10 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
           />
         </div>
         <div className="grid grid-cols-2 gap-2 sm:flex">
           <button
             type="button"
             onClick={onOpenQuickItem}
-            className="flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[14px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
+            className="press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[14px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
           >
-            <Zap className="h-4 w-4 text-[var(--brand-jade)]" />
-            <span>Món nhanh</span>
+            <Zap className="h-4 w-4 text-[var(--brand-jade-text)]" />
+            <span>Bán món lẻ</span>
           </button>
           <button
             type="button"
             onClick={onOpenNewProduct}
-            className="flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-3.5 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
+            className="press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-3.5 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
           >
             <Plus className="h-4 w-4" />
-            <span>Thêm SP</span>
+            <span>Thêm món mới</span>
           </button>
         </div>
       </div>
@@ -86,9 +87,9 @@ export function ProductCatalog({
               key={cat}
               type="button"
               onClick={() => setSelectedCategory(cat)}
-              className={`min-h-[36px] rounded-lg border px-3 text-[13px] font-medium transition-colors ${
+              className={`press-tactile min-h-[44px] rounded-lg border px-3 text-[13px] font-medium transition-colors ${
                 selectedCategory === cat
-                  ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] font-semibold text-[var(--brand-jade)]'
+                  ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] font-semibold text-[var(--brand-jade-text)]'
                   : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'
               }`}
             >
@@ -108,47 +109,49 @@ export function ProductCatalog({
         </label>
       </div>
 
-      {/* Product Grid or First-time Empty State */}
+      {/* Product Grid or Guided Empty State */}
       {products.length === 0 ? (
-        <div className="rounded-[10px] border border-dashed border-[var(--border-default)] bg-[var(--bg-surface)] p-6 text-center">
-          <p className="text-[16px] font-bold text-[var(--text-primary)]">
-            Danh mục sản phẩm chưa có món nào
-          </p>
-          <p className="mx-auto mt-1 max-w-[380px] text-[14px] text-[var(--text-secondary)]">
-            Mẹ có thể thêm sẵn các mặt hàng hay bán để bấm 1 chạm lên đơn, hoặc dùng nút{' '}
-            <strong>Món nhanh</strong> để bán ngay lập tức.
-          </p>
-          <div className="mt-4 flex flex-wrap justify-center gap-2.5">
-            <button
-              type="button"
-              onClick={onOpenNewProduct}
-              className="flex min-h-[48px] items-center gap-2 rounded-lg bg-[var(--brand-jade)] px-5 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Thêm sản phẩm đầu tiên</span>
-            </button>
+        <EmptyStateCard
+          icon={PackageOpen}
+          title="Sổ hàng hóa chưa có món nào"
+          description="Bạn có thể lưu sẵn các mặt hàng hay bán để bấm 1 chạm lên đơn, hoặc bấm Bán món lẻ để tính tiền ngay."
+          action={
+            <>
+              <button
+                type="button"
+                onClick={onOpenNewProduct}
+                className="press-tactile flex min-h-[48px] items-center gap-2 rounded-lg bg-[var(--brand-jade)] px-5 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Thêm món đầu tiên</span>
+              </button>
+              <button
+                type="button"
+                onClick={onOpenQuickItem}
+                className="press-tactile flex min-h-[48px] items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-5 text-[15px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
+              >
+                <Zap className="h-4 w-4 text-[var(--brand-jade-text)]" />
+                <span>Bán món lẻ ngay</span>
+              </button>
+            </>
+          }
+        />
+      ) : filtered.length === 0 ? (
+        <EmptyStateCard
+          icon={Search}
+          title={`Không thấy món khớp với "${query}"`}
+          description="Thử gõ tên khác ngắn hơn hoặc thêm nhanh món này vào đơn hàng hiện tại."
+          action={
             <button
               type="button"
               onClick={onOpenQuickItem}
-              className="flex min-h-[48px] items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-5 text-[15px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
+              className="press-tactile flex min-h-[48px] items-center gap-2 rounded-lg bg-[var(--brand-jade)] px-5 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
             >
-              <Zap className="h-4 w-4 text-[var(--brand-jade)]" />
-              <span>Bán món nhanh ngay</span>
+              <Zap className="h-4 w-4" />
+              <span>Bán món lẻ ngay</span>
             </button>
-          </div>
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-6 text-center text-[14px] text-[var(--text-secondary)]">
-          Không tìm thấy sản phẩm khớp với &ldquo;{query}&rdquo;. Mẹ thử tìm lại hoặc bấm{' '}
-          <button
-            type="button"
-            onClick={onOpenQuickItem}
-            className="font-semibold text-[var(--brand-jade)] hover:underline"
-          >
-            Thêm món nhanh
-          </button>
-          .
-        </div>
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((product) => (
@@ -161,7 +164,7 @@ export function ProductCatalog({
               <button
                 type="button"
                 onClick={() => onAddToCart(product)}
-                className="flex min-h-[64px] min-w-0 flex-1 flex-col justify-between p-3 text-left active:bg-[var(--bg-subtle)]"
+                className="press-tactile flex min-h-[68px] min-w-0 flex-1 flex-col justify-between p-3 text-left active:bg-[var(--bg-subtle)]"
               >
                 <div className="flex w-full items-start justify-between gap-2">
                   <span className="line-clamp-2 break-words text-[15px] font-semibold text-[var(--text-primary)]">
@@ -169,7 +172,7 @@ export function ProductCatalog({
                   </span>
                 </div>
                 <div className="mt-2 flex w-full items-baseline justify-between gap-2">
-                  <span className="font-mono-tabular truncate text-[15px] font-bold text-[var(--brand-jade)]">
+                  <span className="font-mono-tabular truncate text-[15px] font-bold text-[var(--brand-jade-text)]">
                     {formatVND(product.price)}
                   </span>
                   <span className="shrink-0 text-[12px] text-[var(--text-secondary)]">

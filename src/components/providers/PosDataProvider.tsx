@@ -24,6 +24,10 @@ interface PosDataContextValue {
   ordersLoaded: boolean;
   profile: ShopProfile | null;
   profileLoaded: boolean;
+  catalogError: string | null;
+  customersError: string | null;
+  ordersError: string | null;
+  profileError: string | null;
   analyticsVersion: number;
   ensurePosCatalog: () => Promise<void>;
   refreshPosCatalog: () => Promise<void>;
@@ -65,6 +69,11 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
   const [profile, setProfile] = useState<ShopProfile | null>(initialProfile);
   const [profileLoaded, setProfileLoaded] = useState<boolean>(Boolean(initialProfile));
 
+  const [catalogError, setCatalogError] = useState<string | null>(null);
+  const [customersError, setCustomersError] = useState<string | null>(null);
+  const [ordersError, setOrdersError] = useState<string | null>(null);
+  const [profileError, setProfileError] = useState<string | null>(null);
+
   const analyticsCacheRef = useRef<Map<string, AnalyticsSummary>>(new Map());
   const [analyticsVersion, setAnalyticsVersion] = useState(0);
 
@@ -90,11 +99,19 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
   const refreshProfile = useCallback(async () => {
     if (inflightRef.current.profile) return inflightRef.current.profile;
     const task = (async () => {
-      const supabase = createClient();
-      const { data } = await supabase.from('shop_profiles').select('*').maybeSingle();
-      if (data) setProfile(data as ShopProfile);
-      loadedFlagsRef.current.profile = true;
-      setProfileLoaded(true);
+      try {
+        setProfileError(null);
+        const supabase = createClient();
+        const { data, error } = await supabase.from('shop_profiles').select('*').maybeSingle();
+        if (error) throw error;
+        if (data) setProfile(data as ShopProfile);
+        loadedFlagsRef.current.profile = true;
+        setProfileLoaded(true);
+      } catch (err) {
+        setProfileError(
+          err instanceof Error ? err.message : 'Không tải được cài đặt cửa hàng.'
+        );
+      }
     })().finally(() => {
       inflightRef.current.profile = null;
     });
@@ -105,32 +122,44 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
   const refreshPosCatalog = useCallback(async () => {
     if (inflightRef.current.posCatalog) return inflightRef.current.posCatalog;
     const task = (async () => {
-      const supabase = createClient();
-      const [{ data: prods }, { data: custs }, { data: prof }] = await Promise.all([
-        supabase.from('products').select('*').order('name', { ascending: true }),
-        supabase
-          .from('customers')
-          .select('*')
-          .order('total_debt', { ascending: false })
-          .order('name', { ascending: true }),
-        loadedFlagsRef.current.profile
-          ? Promise.resolve({ data: null })
-          : supabase.from('shop_profiles').select('*').maybeSingle(),
-      ]);
-      if (prods) {
-        setProducts(prods as Product[]);
-        loadedFlagsRef.current.products = true;
-        setProductsLoaded(true);
-      }
-      if (custs) {
-        setCustomers(custs as Customer[]);
-        loadedFlagsRef.current.customers = true;
-        setCustomersLoaded(true);
-      }
-      if (prof) {
-        setProfile(prof as ShopProfile);
-        loadedFlagsRef.current.profile = true;
-        setProfileLoaded(true);
+      try {
+        setCatalogError(null);
+        const supabase = createClient();
+        const [prodRes, custRes, profRes] = await Promise.all([
+          supabase.from('products').select('*').order('name', { ascending: true }),
+          supabase
+            .from('customers')
+            .select('*')
+            .order('total_debt', { ascending: false })
+            .order('name', { ascending: true }),
+          loadedFlagsRef.current.profile
+            ? Promise.resolve({ data: null, error: null })
+            : supabase.from('shop_profiles').select('*').maybeSingle(),
+        ]);
+
+        if (prodRes.error) throw prodRes.error;
+        if (custRes.error) throw custRes.error;
+        if (profRes.error) throw profRes.error;
+
+        if (prodRes.data) {
+          setProducts(prodRes.data as Product[]);
+          loadedFlagsRef.current.products = true;
+          setProductsLoaded(true);
+        }
+        if (custRes.data) {
+          setCustomers(custRes.data as Customer[]);
+          loadedFlagsRef.current.customers = true;
+          setCustomersLoaded(true);
+        }
+        if (profRes.data) {
+          setProfile(profRes.data as ShopProfile);
+          loadedFlagsRef.current.profile = true;
+          setProfileLoaded(true);
+        }
+      } catch (err) {
+        setCatalogError(
+          err instanceof Error ? err.message : 'Không tải được danh sách sản phẩm.'
+        );
       }
     })().finally(() => {
       inflightRef.current.posCatalog = null;
@@ -142,16 +171,24 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
   const refreshCustomers = useCallback(async () => {
     if (inflightRef.current.customers) return inflightRef.current.customers;
     const task = (async () => {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from('customers')
-        .select('*')
-        .order('total_debt', { ascending: false })
-        .order('name', { ascending: true });
-      if (data) {
-        setCustomers(data as Customer[]);
-        loadedFlagsRef.current.customers = true;
-        setCustomersLoaded(true);
+      try {
+        setCustomersError(null);
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from('customers')
+          .select('*')
+          .order('total_debt', { ascending: false })
+          .order('name', { ascending: true });
+        if (error) throw error;
+        if (data) {
+          setCustomers(data as Customer[]);
+          loadedFlagsRef.current.customers = true;
+          setCustomersLoaded(true);
+        }
+      } catch (err) {
+        setCustomersError(
+          err instanceof Error ? err.message : 'Không tải được sổ nợ khách hàng.'
+        );
       }
     })().finally(() => {
       inflightRef.current.customers = null;
@@ -163,16 +200,24 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
   const refreshOrders = useCallback(async () => {
     if (inflightRef.current.orders) return inflightRef.current.orders;
     const task = (async () => {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(200);
-      if (data) {
-        setOrders(data as Order[]);
-        loadedFlagsRef.current.orders = true;
-        setOrdersLoaded(true);
+      try {
+        setOrdersError(null);
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from('orders')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(200);
+        if (error) throw error;
+        if (data) {
+          setOrders(data as Order[]);
+          loadedFlagsRef.current.orders = true;
+          setOrdersLoaded(true);
+        }
+      } catch (err) {
+        setOrdersError(
+          err instanceof Error ? err.message : 'Không tải được lịch sử đơn hàng.'
+        );
       }
     })().finally(() => {
       inflightRef.current.orders = null;
@@ -310,6 +355,10 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
       ordersLoaded,
       profile,
       profileLoaded,
+      catalogError,
+      customersError,
+      ordersError,
+      profileError,
       analyticsVersion,
       ensurePosCatalog,
       refreshPosCatalog,
@@ -336,6 +385,10 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
       ordersLoaded,
       profile,
       profileLoaded,
+      catalogError,
+      customersError,
+      ordersError,
+      profileError,
       analyticsVersion,
       ensurePosCatalog,
       refreshPosCatalog,

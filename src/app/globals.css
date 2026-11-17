@@ -9,12 +9,76 @@
   --text-secondary: #4B5563;
   --brand-jade: #0E6B4E;
   --brand-jade-hover: #0A543D;
+  --brand-jade-text: #0E6B4E;
   --status-paid: #0F766E;
   --status-paid-bg: #CCFBF1;
+  --status-paid-border: #5EEAD4;
   --status-debt: #B45309;
   --status-debt-bg: #FEF3C7;
+  --status-debt-border: #FCD34D;
   --status-overdue: #B91C1C;
   --status-overdue-bg: #FEE2E2;
+  --status-overdue-border: #FCA5A5;
+  --skeleton-base: #E6EAEF;
+  --skeleton-shine: #F4F6F9;
+}
+
+:root[data-theme="dark"] {
+  --bg-canvas: #0E1317;
+  --bg-surface: #161D24;
+  --bg-subtle: #1F2933;
+  --border-default: #2A3642;
+  --text-primary: #F1F5F9;
+  --text-secondary: #9CA3AF;
+  --brand-jade: #15805E;
+  --brand-jade-hover: #11694D;
+  --brand-jade-text: #4CC39B;
+  --status-paid: #4CC39B;
+  --status-paid-bg: #12352C;
+  --status-paid-border: #1E5A49;
+  --status-debt: #FBBF24;
+  --status-debt-bg: #33250C;
+  --status-debt-border: #785315;
+  --status-overdue: #F87171;
+  --status-overdue-bg: #3A1619;
+  --status-overdue-border: #7F1D1D;
+  --skeleton-base: #212B36;
+  --skeleton-shine: #2B3845;
+}
+
+/* Cô lập vùng xem trước hóa đơn & thẻ VietQR luôn nền trắng chữ đen để quét mã và in rõ nét */
+.print-surface-light {
+  --bg-canvas: #F8F9FA;
+  --bg-surface: #FFFFFF;
+  --bg-subtle: #EFF2F5;
+  --border-default: #DDE2E7;
+  --text-primary: #141A21;
+  --text-secondary: #4B5563;
+  --brand-jade: #0E6B4E;
+  --brand-jade-hover: #0A543D;
+  --brand-jade-text: #0E6B4E;
+  --status-paid: #0F766E;
+  --status-paid-bg: #CCFBF1;
+  --status-paid-border: #5EEAD4;
+  --status-debt: #B45309;
+  --status-debt-bg: #FEF3C7;
+  --status-debt-border: #FCD34D;
+  --status-overdue: #B91C1C;
+  --status-overdue-bg: #FEE2E2;
+  --status-overdue-border: #FCA5A5;
+  background-color: #FFFFFF;
+  color: #141A21;
+  color-scheme: light;
+}
+
+/* Chuyển màu mượt mà trong cửa sổ chuyển đổi Sáng <-> Tối, không ảnh hưởng thao tác bấm hằng ngày */
+:root.theme-transitioning,
+:root.theme-transitioning *,
+:root.theme-transitioning *::before,
+:root.theme-transitioning *::after {
+  transition-property: background-color, border-color, color, fill, stroke !important;
+  transition-duration: 280ms !important;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
 @layer base {
@@ -39,7 +103,122 @@
   font-variant-numeric: tabular-nums;
 }
 
+@keyframes paytrack-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes paytrack-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes paytrack-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes paytrack-sheet-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes paytrack-drawer-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes paytrack-badge-pop {
+  0% {
+    transform: scale(0.95);
+  }
+  55% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-shine) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: paytrack-shimmer 1.5s ease-in-out infinite;
+}
+
+.press-tactile {
+  transition: transform 120ms cubic-bezier(0.22, 1, 0.36, 1), background-color 150ms ease, border-color 150ms ease;
+}
+
+.press-tactile:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.animate-fade-in {
+  animation: paytrack-fade-in 160ms ease-out both;
+}
+
+.animate-backdrop-in {
+  animation: paytrack-fade-in 160ms ease-out both;
+}
+
+.animate-modal-in {
+  animation: paytrack-modal-in 190ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-sheet-up {
+  animation: paytrack-sheet-up 210ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-drawer-in {
+  animation: paytrack-drawer-in 210ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-badge-pop {
+  animation: paytrack-badge-pop 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer {
+    animation: none !important;
+    background: var(--skeleton-base) !important;
+  }
+
+  .press-tactile:active:not(:disabled) {
+    transform: none !important;
+  }
+
   *,
   *::before,
   *::after {

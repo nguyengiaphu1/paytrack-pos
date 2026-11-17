@@ -14,9 +14,9 @@ export function PaymentBreakdownChart({ breakdown }: PaymentBreakdownChartProps)
   const total = breakdown.cash + breakdown.transfer + breakdown.debt;
 
   const rows = [
-    { label: 'Tiền mặt', amount: breakdown.cash, color: '#0E6B4E' },
-    { label: 'Chuyển khoản', amount: breakdown.transfer, color: '#0F766E' },
-    { label: 'Ghi nợ', amount: breakdown.debt, color: '#B45309' },
+    { label: 'Tiền mặt', amount: breakdown.cash, color: 'var(--brand-jade)' },
+    { label: 'Chuyển khoản', amount: breakdown.transfer, color: 'var(--status-paid)' },
+    { label: 'Ghi nợ', amount: breakdown.debt, color: 'var(--status-debt)' },
   ];
 
   return (

@@ -3,15 +3,47 @@
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { BookOpenCheck, Loader2, Lock, Mail, Store } from 'lucide-react';
+import {
+  BookOpenCheck,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  Loader2,
+  Lock,
+  Mail,
+  QrCode,
+  ShoppingBag,
+  Store,
+  Users,
+} from 'lucide-react';
+import { ThemeQuickToggle } from '@/components/ui/ThemeToggle';
 
 type AuthMode = 'login' | 'signup' | 'forgot';
+
+const WELCOME_HIGHLIGHTS = [
+  {
+    icon: ShoppingBag,
+    title: 'Tính tiền nhanh trong 3 chạm',
+    desc: 'Chạm món là ra hóa đơn rõ ràng, không cần cộng tay dễ nhầm.',
+  },
+  {
+    icon: Users,
+    title: 'Sổ nợ khách quen tự động nhớ',
+    desc: 'Khách trả góp hay ghi nợ đều tự trừ đơn cũ nhất và nhắc đúng hạn.',
+  },
+  {
+    icon: QrCode,
+    title: 'Mã VietQR đúng từng đồng',
+    desc: 'Khách quét là điền sẵn số tiền và nội dung, gửi ảnh hóa đơn qua Zalo.',
+  },
+] as const;
 
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [shopName, setShopName] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -19,6 +51,7 @@ export default function LoginPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   async function handleGoogleLogin() {
+    if (googleLoading || loading) return;
     setErrorMessage(null);
     setSuccessMessage(null);
     setGoogleLoading(true);
@@ -47,6 +80,7 @@ export default function LoginPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (loading || googleLoading) return;
     setErrorMessage(null);
     setSuccessMessage(null);
     setLoading(true);
@@ -85,7 +119,7 @@ export default function LoginPage() {
           router.refresh();
         } else {
           setSuccessMessage(
-            'Đã tạo tài khoản! Vui lòng kiểm tra hộp thư email để xác nhận đăng nhập.'
+            'Đã tạo sổ mới! Vui lòng mở hộp thư email và bấm vào liên kết xác nhận để đăng nhập.'
           );
         }
       } else {
@@ -96,7 +130,7 @@ export default function LoginPage() {
           setErrorMessage(error.message);
           return;
         }
-        setSuccessMessage('Đã gửi liên kết đặt lại mật khẩu vào email của bạn.');
+        setSuccessMessage('Đã gửi liên kết đặt lại mật khẩu vào hộp thư email của bạn.');
       }
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : 'Có lỗi xảy ra, vui lòng thử lại.');
@@ -106,40 +140,119 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-[var(--bg-canvas)] px-4 py-8">
-      <div className="w-full max-w-[420px]">
-        {/* Brand Header */}
-        <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[var(--brand-jade)] text-white">
+    <main className="min-h-dvh bg-[var(--bg-canvas)] px-4 py-6 sm:py-10">
+      {/* Top Bar with Theme Quick Toggle */}
+      <div className="mx-auto mb-6 flex max-w-[960px] items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-jade)] text-white">
             <BookOpenCheck className="h-6 w-6" />
           </div>
-          <div>
-            <h1 className="text-[22px] font-bold tracking-[-0.015em] text-[var(--text-primary)]">
+          <div className="min-w-0">
+            <h1 className="truncate text-[20px] font-bold tracking-[-0.015em] text-[var(--text-primary)] sm:text-[22px]">
               PayTrack POS
             </h1>
-            <p className="text-[14px] text-[var(--text-secondary)]">
-              Sổ bán hàng &amp; công nợ đồng bộ iPhone, Windows
+            <p className="truncate text-[13px] text-[var(--text-secondary)]">
+              Sổ bán hàng &amp; công nợ cho cửa hàng
             </p>
           </div>
         </div>
+        <ThemeQuickToggle compact />
+      </div>
 
-        {/* Ledger Card */}
-        <section className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-5 sm:p-6">
+      <div className="mx-auto grid max-w-[960px] items-start gap-6 lg:grid-cols-[1.05fr_1fr] lg:items-center">
+        {/* Layer 1 Welcome Intro (Compact strip on mobile, full card on desktop) */}
+        <section
+          aria-label="Giới thiệu PayTrack POS"
+          className="animate-fade-in rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-5 sm:p-6"
+        >
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[var(--status-paid-bg)] px-3 py-1 text-[12px] font-semibold text-[var(--status-paid)]">
+            <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+            <span>Dùng chung trên iPhone &amp; máy tính Windows</span>
+          </div>
+
+          <h2 className="mt-3 text-[20px] font-bold leading-snug tracking-[-0.015em] text-[var(--text-primary)] sm:text-[24px]">
+            Chào mừng đến với sổ bán hàng dễ dùng mỗi ngày
+          </h2>
+          <p className="mt-1.5 text-[14px] leading-relaxed text-[var(--text-secondary)]">
+            Mở sổ là bán được ngay — mọi đơn hàng và tiền nợ của khách quen đều lưu an toàn, không lo mất khi tắt máy.
+          </p>
+
+          <ul className="mt-4 space-y-3">
+            {WELCOME_HIGHLIGHTS.map((item) => {
+              const Icon = item.icon;
+              return (
+                <li
+                  key={item.title}
+                  className="flex items-start gap-3 rounded-lg border border-[var(--border-default)] bg-[var(--bg-canvas)] p-3"
+                >
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[14px] font-bold text-[var(--text-primary)]">{item.title}</p>
+                    <p className="mt-0.5 text-[13px] leading-relaxed text-[var(--text-secondary)]">
+                      {item.desc}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+
+        {/* Auth Card */}
+        <section className="animate-fade-in rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-5 sm:p-6">
+          {/* Clear Mode Switcher */}
+          {mode !== 'forgot' && (
+            <div className="mb-4 grid grid-cols-2 gap-1.5 rounded-lg bg-[var(--bg-subtle)] p-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('login');
+                  setErrorMessage(null);
+                  setSuccessMessage(null);
+                }}
+                className={`min-h-[44px] rounded-md px-3 text-[14px] font-semibold transition-colors ${
+                  mode === 'login'
+                    ? 'border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--brand-jade-text)]'
+                    : 'text-[var(--text-secondary)]'
+                }`}
+              >
+                Đăng nhập
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('signup');
+                  setErrorMessage(null);
+                  setSuccessMessage(null);
+                }}
+                className={`min-h-[44px] rounded-md px-3 text-[14px] font-semibold transition-colors ${
+                  mode === 'signup'
+                    ? 'border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--brand-jade-text)]'
+                    : 'text-[var(--text-secondary)]'
+                }`}
+              >
+                Mở sổ bán hàng mới
+              </button>
+            </div>
+          )}
+
           <h2 className="mb-1 text-[18px] font-bold text-[var(--text-primary)]">
-            {mode === 'login' && 'Đăng nhập cửa hàng'}
-            {mode === 'signup' && 'Tạo tài khoản cửa hàng mới'}
-            {mode === 'forgot' && 'Khôi phục mật khẩu'}
+            {mode === 'login' && 'Đăng nhập vào tiệm của bạn'}
+            {mode === 'signup' && 'Tạo sổ bán hàng mới'}
+            {mode === 'forgot' && 'Lấy lại mật khẩu'}
           </h2>
           <p className="mb-5 text-[14px] text-[var(--text-secondary)]">
-            {mode === 'login' && 'Dữ liệu đơn hàng và sổ nợ luôn đồng bộ an toàn trên cloud.'}
-            {mode === 'signup' && 'Bắt đầu ghi đơn, theo dõi công nợ và tạo mã VietQR riêng.'}
-            {mode === 'forgot' && 'Nhập email đã đăng ký để nhận liên kết đặt lại mật khẩu.'}
+            {mode === 'login' && 'Nhập email và mật khẩu để mở sổ đơn hàng & công nợ.'}
+            {mode === 'signup' && 'Điền tên tiệm, email và mật khẩu bất kỳ (từ 6 ký tự) để bắt đầu.'}
+            {mode === 'forgot' && 'Nhập email đã đăng ký để nhận đường dẫn đặt lại mật khẩu mới.'}
           </p>
 
           {errorMessage && (
             <div
               role="alert"
-              className="mb-4 rounded-lg border border-[#FCA5A5] bg-[var(--status-overdue-bg)] px-3.5 py-2.5 text-[14px] font-medium text-[var(--status-overdue)]"
+              className="mb-4 rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3.5 py-2.5 text-[14px] font-medium text-[var(--status-overdue)]"
             >
               {errorMessage}
             </div>
@@ -148,7 +261,7 @@ export default function LoginPage() {
           {successMessage && (
             <div
               role="status"
-              className="mb-4 rounded-lg border border-[#5EEAD4] bg-[var(--status-paid-bg)] px-3.5 py-2.5 text-[14px] font-medium text-[var(--status-paid)]"
+              className="mb-4 rounded-lg border border-[var(--brand-jade)] bg-[var(--status-paid-bg)] px-3.5 py-2.5 text-[14px] font-medium text-[var(--status-paid)]"
             >
               {successMessage}
             </div>
@@ -160,10 +273,10 @@ export default function LoginPage() {
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={googleLoading || loading}
-                className="flex min-h-[48px] w-full items-center justify-center gap-2.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 text-[15px] font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-subtle)] disabled:opacity-60"
+                className="press-tactile flex min-h-[48px] w-full items-center justify-center gap-2.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 text-[15px] font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-subtle)] disabled:opacity-60"
               >
                 {googleLoading ? (
-                  <Loader2 className="h-5 w-5 animate-spin text-[var(--brand-jade)]" />
+                  <Loader2 className="h-5 w-5 animate-spin text-[var(--brand-jade-text)]" />
                 ) : (
                   <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
                     <path
@@ -184,12 +297,12 @@ export default function LoginPage() {
                     />
                   </svg>
                 )}
-                <span>Tiếp tục với Google (1 chạm)</span>
+                <span>Đăng nhập nhanh bằng Google</span>
               </button>
 
               <div className="my-5 flex items-center gap-3">
                 <div className="h-px flex-1 bg-[var(--border-default)]" />
-                <span className="text-[13px] text-[var(--text-secondary)]">hoặc dùng Email</span>
+                <span className="text-[13px] text-[var(--text-secondary)]">hoặc nhập Email</span>
                 <div className="h-px flex-1 bg-[var(--border-default)]" />
               </div>
             </>
@@ -202,7 +315,7 @@ export default function LoginPage() {
                   htmlFor="shop-name"
                   className="mb-1.5 block text-[14px] font-medium text-[var(--text-primary)]"
                 >
-                  Tên cửa hàng
+                  Tên cửa hàng của bạn
                 </label>
                 <div className="relative">
                   <Store className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
@@ -223,7 +336,7 @@ export default function LoginPage() {
                 htmlFor="auth-email"
                 className="mb-1.5 block text-[14px] font-medium text-[var(--text-primary)]"
               >
-                Email
+                Địa chỉ Email
               </label>
               <div className="relative">
                 <Mail className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
@@ -234,7 +347,7 @@ export default function LoginPage() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="me@example.com"
+                  placeholder="tenban@gmail.com"
                   className="min-h-[48px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] pr-3.5 pl-10 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
                 />
               </div>
@@ -242,7 +355,7 @@ export default function LoginPage() {
 
             {mode !== 'forgot' && (
               <div>
-                <div className="mb-1.5 flex items-center justify-between">
+                <div className="mb-1.5 flex items-center justify-between gap-2">
                   <label
                     htmlFor="auth-password"
                     className="block text-[14px] font-medium text-[var(--text-primary)]"
@@ -257,7 +370,7 @@ export default function LoginPage() {
                         setErrorMessage(null);
                         setSuccessMessage(null);
                       }}
-                      className="text-[13px] font-medium text-[var(--brand-jade)] hover:underline"
+                      className="text-[13px] font-medium text-[var(--brand-jade-text)] hover:underline"
                     >
                       Quên mật khẩu?
                     </button>
@@ -267,15 +380,23 @@ export default function LoginPage() {
                   <Lock className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
                   <input
                     id="auth-password"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     required
                     minLength={6}
                     autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Tối thiểu 6 ký tự"
-                    className="min-h-[48px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] pr-3.5 pl-10 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                    placeholder="Nhập từ 6 ký tự trở lên"
+                    className="min-h-[48px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] pr-12 pl-10 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                    className="absolute top-1/2 right-1 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
               </div>
             )}
@@ -283,50 +404,32 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[16px] font-semibold text-white transition-colors hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+              className="press-tactile flex min-h-[48px] w-full items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[16px] font-semibold text-white transition-colors hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
             >
               {loading && <Loader2 className="h-5 w-5 animate-spin" />}
               <span>
-                {mode === 'login' && 'Đăng nhập'}
-                {mode === 'signup' && 'Tạo tài khoản'}
-                {mode === 'forgot' && 'Gửi email khôi phục'}
+                {mode === 'login' && (loading ? 'Đang đăng nhập...' : 'Đăng nhập ngay')}
+                {mode === 'signup' && (loading ? 'Đang tạo sổ...' : 'Tạo sổ bán hàng')}
+                {mode === 'forgot' && (loading ? 'Đang gửi email...' : 'Gửi hướng dẫn đặt lại')}
               </span>
             </button>
           </form>
 
-          <div className="mt-5 border-t border-[var(--border-default)] pt-4 text-center text-[14px] text-[var(--text-secondary)]">
-            {mode === 'login' ? (
-              <>
-                Chưa có tài khoản?{' '}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode('signup');
-                    setErrorMessage(null);
-                    setSuccessMessage(null);
-                  }}
-                  className="font-semibold text-[var(--brand-jade)] hover:underline"
-                >
-                  Đăng ký ngay
-                </button>
-              </>
-            ) : (
-              <>
-                Đã có tài khoản?{' '}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode('login');
-                    setErrorMessage(null);
-                    setSuccessMessage(null);
-                  }}
-                  className="font-semibold text-[var(--brand-jade)] hover:underline"
-                >
-                  Quay lại đăng nhập
-                </button>
-              </>
-            )}
-          </div>
+          {mode === 'forgot' && (
+            <div className="mt-5 border-t border-[var(--border-default)] pt-4 text-center text-[14px] text-[var(--text-secondary)]">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('login');
+                  setErrorMessage(null);
+                  setSuccessMessage(null);
+                }}
+                className="font-semibold text-[var(--brand-jade-text)] hover:underline"
+              >
+                Quay lại trang đăng nhập
+              </button>
+            </div>
+          )}
         </section>
       </div>
     </main>

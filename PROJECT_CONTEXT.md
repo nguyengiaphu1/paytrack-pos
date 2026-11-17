@@ -1,16 +1,16 @@
 # PayTrack POS — Project Context & Agent Quickstart
 
 > **Purpose**: Single-source-of-truth context file for AI assistants and developers. Read this file first in a new session instead of scanning the entire repository.
-> **Last Updated**: 2026-11-17 (`v1.0.1` — bug fixes deployed + persistent context setup)
+> **Last Updated**: 2026-11-17 (`v1.1.0` — UX Polish, Brand Loading & Skeletons, 3-Layer Welcome, Smooth Light/Dark/System Theme on `feat/002-ux-polish-theme`)
 
 ---
 
 ## 1. Project Overview & Tech Stack
 
-**PayTrack POS** (`v1.0.1`) is a responsive Vietnamese retail POS, customer FIFO debt ledger, multi-device Web Push reminder (iPhone Safari PWA + Windows Chrome/Edge), dynamic VietQR, customizable e-invoice (`PNG` / `A5` / `80mm`), and visual analytics web app.
+**PayTrack POS** (`v1.1.0`) is a responsive Vietnamese retail POS, customer FIFO debt ledger, multi-device Web Push reminder (iPhone Safari PWA + Windows Chrome/Edge), dynamic VietQR, customizable e-invoice (`PNG` / `A5` / `80mm`), and visual analytics web app.
 
 - **Framework**: Next.js `^16.4.6` (App Router, Turbopack dev), React `^19.3.1`, TypeScript `^5.9.0`
-- **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`), CSS custom properties in `src/app/globals.css`, fonts `Be Vietnam Pro` + `JetBrains Mono`
+- **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`), CSS custom properties in `src/app/globals.css` (Light + Dark WCAG AA themes + pure CSS micro-animations + `prefers-reduced-motion`), fonts `Be Vietnam Pro` + `JetBrains Mono`
 - **Database / Auth / Realtime / Cron**: Supabase (`@supabase/ssr ^0.9.0`, `@supabase/supabase-js ^2.100.0`, Postgres 17, `pg_cron` + `pg_net`)
 - **Utilities**: `qrcode` (EMVCo/Napas 247 VietQR), `html-to-image` (PNG export/share), `web-push` (VAPID Web Push), `recharts` (charts), `lucide-react` (icons)
 - **Testing**: `vitest ^4.1.0` (unit tests in `tests/unit/`)
@@ -21,7 +21,7 @@
 
 ### Git Topology
 - `main`: Active production branch (`v1.0.1`, includes Spec Kit foundation + MVP + bug fixes via PR #1 & PR #2). Create feature/fix branches from `main` — **do not commit directly to `main`**.
-- Historical feature branches: `feat/spec-kit-foundation` (PR #1), `feat/001-paytrack-pos-mvp` (PR #2). Tags: `v1.0.0`, `v1.0.1`.
+- Feature branches: `feat/spec-kit-foundation` (PR #1), `feat/001-paytrack-pos-mvp` (PR #2), `feat/002-ux-polish-theme` (`002-ux-polish-theme` active). Tags: `v1.0.0`, `v1.0.1`.
 
 ### Live Infrastructure
 - **Vercel Production**: `https://paytrack-pos.vercel.app` (team `phu-nguyen4`, project `paytrack-pos`, preset `nextjs`, Node `24.x`, region `sin1` via `vercel.json`).
@@ -68,17 +68,18 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 
 ### App Routes & Middleware
 - `src/middleware.ts`: Refreshes Supabase SSR session; redirects unauthenticated page requests to `/login`; bypasses `/login`, `/auth/callback`, `/api/cron/reminders`, `/manifest.webmanifest`, `/sw.js`, `/icons/*`.
-- `src/app/layout.tsx`: Root HTML (`lang="vi"`), Google Fonts (`Be Vietnam Pro`, `JetBrains Mono`), Apple PWA metadata, viewport `themeColor: #0E6B4E`.
+- `src/app/layout.tsx`: Root HTML (`lang="vi"`, `suppressHydrationWarning`), inline pre-hydration `THEME_BOOTSTRAP_SCRIPT` in `<head>`, wraps children in `ThemeProvider`, Google Fonts (`Be Vietnam Pro`, `JetBrains Mono`), Apple PWA metadata.
+- `src/app/loading.tsx`: Root branded splash (`BrandLoadingScreen`).
 - `src/app/manifest.ts`: Web App Manifest (`/manifest.webmanifest`, standalone portrait PWA).
-- `src/app/login/page.tsx`: Email/password login, signup (passes `shop_name` metadata), password reset, Google OAuth trigger.
+- `src/app/login/page.tsx`: Layer 1 integrated Welcome highlights + Email/password login, signup (passes `shop_name` metadata), password show/hide toggle, password reset, Google OAuth trigger, `ThemeQuickToggle`.
 - `src/app/auth/callback/route.ts`: PKCE code exchange (`exchangeCodeForSession`).
-- `src/app/(app)/layout.tsx`: Server auth guard + `shop_profiles` fallback upsert + wraps children in `PosDataProvider` & `AppShell`.
-- `src/app/(app)/loading.tsx`: Skeleton loader for app tab navigation.
-- `src/app/(app)/page.tsx`: **POS Workspace** — product catalog, quick item, mobile cart sheet / desktop split-pane (`CartPanel`), checkout (`CheckoutModal`), missing-bank onboarding banner.
-- `src/app/(app)/debts/page.tsx`: **Debt Ledger** — KPI strip, filters (`debtors` / `due` / `all`), search, deep-links (`?customer=`, `?filter=due`), opens `DebtCustomerDrawer`.
-- `src/app/(app)/orders/page.tsx`: **Order History** — status filter, search, item breakdown modal, `InvoicePreviewModal`, `VietQRModal`, `cancel_order` confirmation.
-- `src/app/(app)/stats/page.tsx`: **Analytics** — date presets (`today`, `7d`, `30d`, `month`, `custom`), KPI cards, `RevenueCashChart`, `PaymentBreakdownChart`, `DebtAgingCard`, top products & top debtors.
-- `src/app/(app)/settings/page.tsx`: **Settings** — `PushNotificationSetup`, shop profile, VietQR bank config (`VIETNAM_BANKS`), digest time & invoice defaults, logout.
+- `src/app/(app)/layout.tsx`: Server auth guard + `shop_profiles` fallback upsert + reads `user.user_metadata?.welcome_v2_seen` + wraps children in `PosDataProvider` & `AppShell`.
+- `src/app/(app)/loading.tsx`: App shell route skeleton (`PosWorkspaceSkeleton`).
+- `src/app/(app)/page.tsx`: **POS Workspace** — `DailyWelcomeBanner`, `PosWorkspaceSkeleton`, `FetchErrorCard`, product catalog, quick item, mobile cart sheet / desktop split-pane (`CartPanel`), checkout (`CheckoutModal`).
+- `src/app/(app)/debts/page.tsx`: **Debt Ledger** — `DebtsPageSkeleton`, `FetchErrorCard`, `EmptyStateCard`, KPI strip, filters (`debtors` / `due` / `all`), search, deep-links (`?customer=`, `?filter=due`), opens `DebtCustomerDrawer`.
+- `src/app/(app)/orders/page.tsx`: **Order History** — `OrdersPageSkeleton`, `FetchErrorCard`, `EmptyStateCard`, status filter, search, item breakdown modal, `InvoicePreviewModal`, `VietQRModal`, `cancel_order` confirmation.
+- `src/app/(app)/stats/page.tsx`: **Analytics** — `StatsPageSkeleton`, `FetchErrorCard`, `EmptyStateCard`, date presets (`today`, `7d`, `30d`, `month`, `custom`), KPI cards with plain Vietnamese subtitles, `RevenueCashChart`, `PaymentBreakdownChart`, `DebtAgingCard`, top products & top debtors.
+- `src/app/(app)/settings/page.tsx`: **Settings** — `SettingsPageSkeleton`, `FetchErrorCard`, `SettingsThemeSelector` (Section 1), numbered sections (`PushNotificationSetup`, shop profile, VietQR bank config `VIETNAM_BANKS`, digest & invoice defaults, replayable onboarding trigger, logout).
 
 ### API Routes & Service Worker
 - `src/app/api/push/subscribe/route.ts`: `GET` (registered devices + pending reminders count), `POST` upsert, `DELETE` remove user's `push_subscriptions`.
@@ -90,21 +91,26 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 - `src/types/database.ts`: Shared TS interfaces (`ShopProfile`, `Product`, `Customer`, `Order`, `OrderItem`, `DebtPayment`, `DebtReminder`, `PushSubscriptionRecord`, `CartItem`, `AnalyticsSummary`).
 - `src/lib/vietnamese.ts`: `stripVietnamese`, `formatVND`, `computeLineTotal`, `computeOrderTotals`, `formatDateTimeVN`, `formatDateVN`, `getTodayVN`, `buildZaloDebtMessage`.
 - `src/lib/vietqr.ts`: `VIETNAM_BANKS`, `sanitizeVietQRMemo`, `computeCRC16CCITT`, `buildVietQRPayload` (EMVCo / Napas 247 dynamic QR).
+- `src/lib/theme.ts`: Pure theme utilities (`ThemePreference`, `resolveTheme`, `getNextThemePreference`, `readStoredThemePreference`/`writeStoredThemePreference`, `THEME_BOOTSTRAP_SCRIPT`).
+- `src/lib/welcome.ts`: Pure Vietnam time-of-day greeting (`getTimeOfDayGreetingVN` in `Asia/Ho_Chi_Minh`), onboarding mirror & daily greeting collapse storage helpers.
 - `src/lib/push.ts`: `sendPushToSubscriptions` (VAPID setup + auto-purges `410`/`404` dead endpoints).
 - `src/lib/reminders-cron.ts`: `runReminderCron()`, `getCurrentTimeHHMM_VN()` — dispatches due custom `debt_reminders` & morning digests; only marks `sent` / `last_digest_sent_date` when `res.sent > 0` (`customFailed` / `digestFailed` otherwise).
 - `src/lib/supabase/client.ts`: Browser client (`createBrowserClient`).
 - `src/lib/supabase/server.ts`: Server component/route client (`createServerClient` with Next `cookies()`).
 - `src/lib/supabase/admin.ts`: **Server-only** service-role client (`createAdminClient`) — NEVER import in client components.
 - `src/hooks/useRealtimeSync.ts`: Subscribes to Supabase `postgres_changes` + `online`/`offline` events (`synced` / `connecting` / `offline`).
-- `src/components/providers/PosDataProvider.tsx`: App-level shared tab cache & in-flight request deduplication (`products`, `customers`, `orders`, `profile`, `analyticsCacheRef`, realtime sync).
+- `src/components/providers/ThemeProvider.tsx`: Device-scoped Light / Dark / System provider using `useSyncExternalStore` + `matchMedia` listener + `320ms` `.theme-transitioning` smooth transition window.
+- `src/components/providers/PosDataProvider.tsx`: App-level shared tab cache, explicit fetch error states (`catalogError`, `customersError`, `ordersError`, `profileError`), & in-flight request deduplication (`products`, `customers`, `orders`, `profile`, `analyticsCacheRef`, realtime sync).
 
 ### Components
-- `src/components/shell/AppShell.tsx`: Desktop left rail (`228px`) + mobile top/bottom 5-tab bar + SW registration + sync pill + offline alert.
+- `src/components/shell/AppShell.tsx`: Desktop left rail (`228px`) + mobile top/bottom 5-tab bar + `ThemeQuickToggle` + SW registration + sync pill + offline alert + `WelcomeOnboardingModal` host + `useAppUser()` context.
+- `src/components/ui/`: `ThemeToggle.tsx` (`ThemeQuickToggle`, `SettingsThemeSelector`), `BrandLoadingScreen.tsx`, `PageSkeletons.tsx` (5 layout-matched skeletons + `FetchErrorCard`), `EmptyStateCard.tsx`.
+- `src/components/welcome/`: `WelcomeOnboardingModal.tsx` (Layer 2 3-step guided setup synced to `user_metadata.welcome_v2_seen`), `DailyWelcomeBanner.tsx` (Layer 3 collapsible greeting strip).
 - `src/components/pos/`: `ProductCatalog.tsx`, `ProductFormModal.tsx`, `QuickItemModal.tsx`, `CartPanel.tsx`, `CustomerPicker.tsx`, `CheckoutModal.tsx`.
 - `src/components/debts/`: `DebtCustomerDrawer.tsx`, `CollectDebtModal.tsx`, `ReminderModal.tsx`.
-- `src/components/qr/VietQRModal.tsx`: Total debt / single order / custom amount dynamic QR card, PNG download/share, Zalo reminder message copy.
-- `src/components/invoice/`: `InvoicePreviewModal.tsx` (A5 / 80mm toggle, cumulative debt toggle, QR toggle, PNG download/share, `window.print()`), `ReceiptTemplate.tsx`.
-- `src/components/stats/`: `RevenueCashChart.tsx`, `PaymentBreakdownChart.tsx`, `DebtAgingCard.tsx`.
+- `src/components/qr/VietQRModal.tsx`: Total debt / single order / custom amount dynamic QR card (`.print-surface-light`), PNG download/share, Zalo reminder message copy.
+- `src/components/invoice/`: `InvoicePreviewModal.tsx` (A5 / 80mm toggle, cumulative debt toggle, QR toggle, PNG download/share, `window.print()`, `.print-surface-light`), `ReceiptTemplate.tsx`.
+- `src/components/stats/`: `RevenueCashChart.tsx`, `PaymentBreakdownChart.tsx`, `DebtAgingCard.tsx` (CSS-variable theme-safe charts).
 - `src/components/pwa/PushNotificationSetup.tsx`: iOS Safari "Add to Home Screen" guide + Web Push subscribe/test/unsubscribe.
 
 ### Unit Tests (`tests/unit/`)
@@ -113,13 +119,16 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 - `tests/unit/reminders-cron.test.ts` (scheduled push dispatch, failure retry preservation, digest timing, VN midnight `00:` handling).
 - `tests/unit/tab-cache-architecture.test.ts` (shared `PosDataProvider` cache & deduplication checks).
 - `tests/unit/mobile-overflow-guards.test.ts` (mobile horizontal overflow CSS/layout guards).
+- `tests/unit/theme-and-welcome.test.ts` (theme resolution/storage fallback, Vietnam time-of-day greetings, welcome storage keys).
+- `tests/unit/ux-guards.test.ts` (dark tokens, `.theme-transitioning`, `.print-surface-light`, `prefers-reduced-motion`, zero-flash `<head>` script, 5 route skeletons/retries, Anti-AI-Slop checks, CSS `var(--*)` token completeness, `>= 16px` form control guard, and `>= 44px` interactive control guard).
 
 ---
 
 ## 5. Non-Negotiable Conventions & Workflows
 
 1. **Design & Anti-AI-Slop (`DESIGN.md`)**:
-   - Palette: `#F8F9FA` canvas, `#FFFFFF` sheets, `#DDE2E7` 1px borders, `#0E6B4E` primary Jade, `#B45309` debt, `#B91C1C` overdue.
+   - Light Palette: `#F8F9FA` canvas, `#FFFFFF` sheets, `#DDE2E7` 1px borders, `#0E6B4E` primary Jade, `#B45309` debt, `#B91C1C` overdue.
+   - Dark Palette (`:root[data-theme="dark"]`): `#0E1317` canvas, `#161D24` surface, `#1F2933` subtle, `#2A3642` borders, `#F1F5F9` ink, `#15805E` primary Jade (`#4CC39B` Jade text via `--brand-jade-text`), `.print-surface-light` on receipts/VietQR export cards.
    - Banned tokens: `backdrop-blur`, `shadow-lg`, `rounded-2xl`, `rounded-3xl`, `indigo-`, `purple-`, `bg-clip-text`, `Sparkles`, `animate-bounce`, `tracking-widest`.
    - Mobile ergonomics: `>= 16px` input font-size (prevents iOS zoom), `>= 48px` primary touch targets, natural Vietnamese retail copy.
 2. **Data Integrity**:
@@ -139,11 +148,13 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 
 ## 6. Current Status & Open Backlog
 
-- **Completed**: MVP (`T001`–`T043`) + `v1.0.1` fixes (hardened scheduled push reminders, `PosDataProvider` shared tab cache, mobile overflow guards), deployed live on Vercel (`https://paytrack-pos.vercel.app`, region `sin1`).
+- **Completed**:
+  - MVP (`T001`–`T043`) + `v1.0.1` fixes deployed live on Vercel (`https://paytrack-pos.vercel.app`, region `sin1`).
+  - Feature `002-ux-polish-theme` (`T001`–`T046` on `feat/002-ux-polish-theme`): Branded loading splash + 5 context skeletons + offline retry cards, 3-layer Welcome experience, low-tech Vietnamese UX across all 5 tabs & `/login`, smooth Light/Dark/System theme (`280ms` transition + zero-flash bootstrap + `.print-surface-light`), pure CSS micro-animations (`prefers-reduced-motion`), convergence hardening (`--status-*-border` tokens, `>= 16px` form controls, `>= 44px` interactive touch targets, accurate `todayOrderCount` greeting), and unit/structural guard tests. Verification Gate passed (`tsc --noEmit`, `eslint .`, `vitest run` 7/7 files / 37/37 tests, `next build`).
 - **Pending Verification / Infra Sync**:
-  - `T044` manual iPhone Safari PWA + Windows E2E test (`specs/001-paytrack-pos/quickstart.md`).
+  - Manual visual & device walkthrough (`specs/001-paytrack-pos/quickstart.md` + `specs/002-ux-polish-theme/quickstart.md`: iPhone Safari PWA / dark-mode receipt & VietQR check / `375px` & `1280px` layout).
   - Confirm Supabase `pg_cron` job `paytrack_reminder_dispatch` schedule (`* * * * *` per updated `0003_reminder_cron.sql`) matches production if still on `*/5 * * * *`.
-- **Branch / PR State**: PR #2 and PR #1 merged into `main`. Use new branches from `main` for subsequent fixes/features.
+- **Branch / PR State**: PR #2 and PR #1 merged into `main`. Feature `002-ux-polish-theme` verified locally on `feat/002-ux-polish-theme` (ready to commit & open PR).
 
 ---
 
@@ -165,3 +176,4 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 |---|---|---|
 | 2026-11-17 | `v1.0.0` MVP | Built & converged MVP (`T001`–`T043`), deployed Vercel + Supabase (`0001`–`0003` + `pg_cron`), added `bug` extension `v1.0.2`. |
 | 2026-11-17 | `v1.0.1` Bug Fixes + Context | Hardened `runReminderCron`, added `PosDataProvider` shared tab cache & mobile overflow guards; added `PROJECT_CONTEXT.md`, `AGENTS.md`, and persistent `paytrack-pos-context` skill. |
+| 2026-11-17 | `v1.1.0` UX Polish & Theme (`002-ux-polish-theme`) | Completed `T001`–`T046`: smooth Light/Dark/System theme (`280ms`, zero-flash bootstrap, `.print-surface-light`, complete `--status-*-border` tokens), `BrandLoadingScreen` + 5 skeletons + `FetchErrorCard`, 3-layer Welcome (`login`, `WelcomeOnboardingModal`, `DailyWelcomeBanner` with `ordersLoaded`), low-tech Vietnamese UX + `>= 16px` controls & `>= 44px` hit targets, CSS micro-animations (`prefers-reduced-motion`), and `theme-and-welcome` + `ux-guards` tests (`37/37` pass). |

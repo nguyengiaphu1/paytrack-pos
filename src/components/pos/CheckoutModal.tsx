@@ -48,6 +48,7 @@ function CheckoutModalBody({
   const { total } = computeOrderTotals(items, discount);
 
   const [choice, setChoice] = useState<PayChoice>('full_cash');
+  const [cashTendered, setCashTendered] = useState<string>('');
   const [paidInput, setPaidInput] = useState<string>(String(total));
   const [partialMethod, setPartialMethod] = useState<'cash' | 'transfer'>('cash');
   const [dueDate, setDueDate] = useState<string>(getTodayVN());
@@ -68,6 +69,11 @@ function CheckoutModalBody({
         : Math.max(0, Math.min(total, Math.round(Number(paidInput) || 0)));
 
   const remaining = Math.max(0, total - computedPaid);
+  const tenderedAmount =
+    choice === 'full_cash' && cashTendered.trim()
+      ? Math.max(0, Math.round(Number(cashTendered) || 0))
+      : computedPaid;
+  const changeDue = choice === 'full_cash' ? Math.max(0, tenderedAmount - total) : 0;
 
   const paymentMethod: PaymentMethod =
     choice === 'full_cash'
@@ -84,10 +90,11 @@ function CheckoutModalBody({
 
   async function handleConfirm(e: FormEvent) {
     e.preventDefault();
+    if (submitting) return;
     setError(null);
 
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      setError('Mất kết nối mạng — không thể lưu đơn lên cloud. Vui lòng kiểm tra Wi-Fi/4G.');
+      setError('Mất kết nối mạng — chưa thể lưu đơn. Vui lòng bật lại Wi-Fi hoặc 4G.');
       return;
     }
 
@@ -140,21 +147,21 @@ function CheckoutModalBody({
   return (
     <>
       <div
-        className="fixed inset-0 z-40 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"
+        className="animate-backdrop-in fixed inset-0 z-40 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"
         role="dialog"
         aria-modal="true"
         aria-label="Xác nhận thanh toán"
       >
-        <div className="max-h-[92dvh] w-full max-w-[480px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
+        <div className="animate-sheet-up sm:animate-modal-in max-h-[92dvh] w-full max-w-[480px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
           <div className="flex items-center justify-between gap-2 border-b border-[var(--border-default)] px-4 py-3.5">
-            <h2 className="min-w-0 flex-1 truncate text-[17px] font-bold">
-              {savedOrder ? 'Đã lưu đơn lên Cloud' : 'Xác nhận thanh toán'}
+            <h2 className="min-w-0 flex-1 truncate text-[17px] font-bold text-[var(--text-primary)]">
+              {savedOrder ? 'Đã lưu đơn thành công' : 'Thu tiền & lưu đơn'}
             </h2>
             <button
               type="button"
               onClick={onClose}
               aria-label="Đóng"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
             >
               <X className="h-5 w-5" />
             </button>
@@ -162,18 +169,20 @@ function CheckoutModalBody({
 
           {savedOrder ? (
             <div className="space-y-4 p-5">
-              <div className="rounded-lg border border-[#5EEAD4] bg-[var(--status-paid-bg)] p-4 text-center">
-                <CheckCircle2 className="mx-auto h-9 w-9 text-[var(--brand-jade)]" />
+              <div className="rounded-lg border border-[var(--status-paid-border)] bg-[var(--status-paid-bg)] p-4 text-center">
+                <CheckCircle2 className="mx-auto h-9 w-9 text-[var(--brand-jade-text)]" />
                 <p className="mt-2 font-mono-tabular text-[15px] font-bold text-[var(--text-primary)]">
                   {savedOrder.order_code}
                 </p>
                 <p className="mt-1 break-words text-[14px] text-[var(--text-secondary)]">
                   Khách: <strong>{savedOrder.customer_name_snapshot}</strong> · Tổng:{' '}
-                  <strong className="font-mono-tabular">{formatVND(savedOrder.total_amount)}</strong>
+                  <strong className="font-mono-tabular text-[var(--text-primary)]">
+                    {formatVND(savedOrder.total_amount)}
+                  </strong>
                 </p>
                 {savedOrder.remaining_amount > 0 && (
                   <p className="mt-1 font-mono-tabular text-[14px] font-bold text-[var(--status-debt)]">
-                    Ghi nợ: {formatVND(savedOrder.remaining_amount)}
+                    Còn ghi nợ: {formatVND(savedOrder.remaining_amount)}
                   </p>
                 )}
               </div>
@@ -182,15 +191,15 @@ function CheckoutModalBody({
                 <button
                   type="button"
                   onClick={() => setInvoiceOpen(true)}
-                  className="flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-2.5 text-[13px] font-semibold hover:bg-[var(--bg-subtle)] sm:text-[14px]"
+                  className="press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-2.5 text-[13px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] sm:text-[14px]"
                 >
-                  <ReceiptText className="h-4 w-4 shrink-0 text-[var(--brand-jade)]" />
-                  <span className="truncate">Xuất hóa đơn</span>
+                  <ReceiptText className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
+                  <span className="truncate">Xem &amp; In hóa đơn</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setQrOpen(true)}
-                  className="flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-2.5 text-[13px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] sm:text-[14px]"
+                  className="press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-2.5 text-[13px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] sm:text-[14px]"
                 >
                   <QrCode className="h-4 w-4 shrink-0" />
                   <span className="truncate">Tạo mã QR</span>
@@ -200,7 +209,7 @@ function CheckoutModalBody({
               <button
                 type="button"
                 onClick={onClose}
-                className="flex min-h-[48px] w-full items-center justify-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] text-[15px] font-semibold text-[var(--text-primary)]"
+                className="press-tactile flex min-h-[48px] w-full items-center justify-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] text-[15px] font-semibold text-[var(--text-primary)]"
               >
                 Bán đơn tiếp theo
               </button>
@@ -208,30 +217,56 @@ function CheckoutModalBody({
           ) : (
             <form onSubmit={handleConfirm} className="space-y-4 p-4">
               {error && (
-                <div className="rounded-lg border border-[#FCA5A5] bg-[var(--status-overdue-bg)] px-3 py-2.5 text-[14px] font-medium text-[var(--status-overdue)]">
+                <div
+                  role="alert"
+                  className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3 py-2.5 text-[14px] font-medium text-[var(--status-overdue)]"
+                >
                   {error}
                 </div>
               )}
 
-              <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-3.5">
+              {/* Transparent Order Preview */}
+              <div className="space-y-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-3.5">
                 <div className="flex flex-wrap justify-between gap-2 text-[14px]">
                   <span className="text-[var(--text-secondary)]">Khách hàng</span>
-                  <span className="min-w-0 break-words font-semibold">
-                    {selectedCustomer ? selectedCustomer.name : 'Khách lẻ'}
+                  <span className="min-w-0 break-words font-semibold text-[var(--text-primary)]">
+                    {selectedCustomer ? selectedCustomer.name : 'Khách lẻ (trả ngay)'}
                   </span>
                 </div>
-                <div className="mt-1.5 flex flex-wrap items-baseline justify-between gap-2">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <span className="text-[14px] font-medium text-[var(--text-secondary)]">
-                    Tổng đơn hàng
+                    Tổng tiền đơn
                   </span>
                   <span className="font-mono-tabular shrink-0 text-[20px] font-bold text-[var(--text-primary)] sm:text-[22px]">
                     {formatVND(total)}
                   </span>
                 </div>
+                <div className="flex flex-wrap items-baseline justify-between gap-2 border-t border-[var(--border-default)] pt-1.5 text-[13px]">
+                  <span className="text-[var(--text-secondary)]">
+                    {remaining > 0 ? 'Khách trả ngay' : 'Khách đưa'}
+                  </span>
+                  <span className="font-mono-tabular font-semibold text-[var(--brand-jade-text)]">
+                    {formatVND(choice === 'full_cash' ? Math.max(total, tenderedAmount) : computedPaid)}
+                  </span>
+                </div>
+                {changeDue > 0 && (
+                  <div className="flex flex-wrap items-baseline justify-between gap-2 text-[14px] font-bold text-[var(--brand-jade-text)]">
+                    <span>Tiền thối lại cho khách</span>
+                    <span className="font-mono-tabular text-[17px]">{formatVND(changeDue)}</span>
+                  </div>
+                )}
+                {remaining > 0 && (
+                  <div className="flex flex-wrap items-baseline justify-between gap-2 text-[14px] font-bold text-[var(--status-debt)]">
+                    <span>Còn ghi nợ</span>
+                    <span className="font-mono-tabular text-[17px]">{formatVND(remaining)}</span>
+                  </div>
+                )}
               </div>
 
               <div>
-                <p className="mb-2 text-[14px] font-semibold">Hình thức thanh toán</p>
+                <p className="mb-2 text-[14px] font-semibold text-[var(--text-primary)]">
+                  Chọn cách khách trả tiền
+                </p>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
@@ -239,63 +274,85 @@ function CheckoutModalBody({
                       setChoice('full_cash');
                       setPaidInput(String(total));
                     }}
-                    className={`min-h-[48px] rounded-lg border px-2 text-[13px] font-semibold leading-tight sm:px-3 sm:text-[14px] ${
+                    className={`press-tactile min-h-[48px] rounded-lg border px-2 text-[13px] font-semibold leading-tight sm:px-3 sm:text-[14px] ${
                       choice === 'full_cash'
-                        ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade)]'
-                        : 'border-[var(--border-default)] bg-[var(--bg-surface)]'
+                        ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]'
+                        : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)]'
                     }`}
                   >
-                    Đủ — Tiền mặt
+                    Khách trả đủ (Tiền mặt)
                   </button>
                   <button
                     type="button"
                     onClick={() => {
                       setChoice('full_transfer');
                       setPaidInput(String(total));
+                      setCashTendered('');
                     }}
-                    className={`min-h-[48px] rounded-lg border px-2 text-[13px] font-semibold leading-tight sm:px-3 sm:text-[14px] ${
+                    className={`press-tactile min-h-[48px] rounded-lg border px-2 text-[13px] font-semibold leading-tight sm:px-3 sm:text-[14px] ${
                       choice === 'full_transfer'
-                        ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade)]'
-                        : 'border-[var(--border-default)] bg-[var(--bg-surface)]'
+                        ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]'
+                        : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)]'
                     }`}
                   >
-                    Đủ — Chuyển khoản
+                    Khách trả đủ (Chuyển khoản)
                   </button>
                   <button
                     type="button"
                     onClick={() => {
                       setChoice('partial');
                       setPaidInput('');
+                      setCashTendered('');
                     }}
-                    className={`min-h-[48px] rounded-lg border px-2 text-[13px] font-semibold leading-tight sm:px-3 sm:text-[14px] ${
+                    className={`press-tactile min-h-[48px] rounded-lg border px-2 text-[13px] font-semibold leading-tight sm:px-3 sm:text-[14px] ${
                       choice === 'partial'
                         ? 'border-[var(--status-debt)] bg-[var(--status-debt-bg)] text-[var(--status-debt)]'
-                        : 'border-[var(--border-default)] bg-[var(--bg-surface)]'
+                        : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)]'
                     }`}
                   >
-                    Trả trước 1 phần
+                    Trả một phần
                   </button>
                   <button
                     type="button"
                     onClick={() => {
                       setChoice('unpaid');
                       setPaidInput('0');
+                      setCashTendered('');
                     }}
-                    className={`min-h-[48px] rounded-lg border px-2 text-[13px] font-semibold leading-tight sm:px-3 sm:text-[14px] ${
+                    className={`press-tactile min-h-[48px] rounded-lg border px-2 text-[13px] font-semibold leading-tight sm:px-3 sm:text-[14px] ${
                       choice === 'unpaid'
                         ? 'border-[var(--status-debt)] bg-[var(--status-debt-bg)] text-[var(--status-debt)]'
-                        : 'border-[var(--border-default)] bg-[var(--bg-surface)]'
+                        : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)]'
                     }`}
                   >
-                    Ghi nợ toàn bộ
+                    Ghi nợ hết
                   </button>
                 </div>
               </div>
 
+              {choice === 'full_cash' && (
+                <div>
+                  <label className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">
+                    Tiền khách đưa để tính tiền thối <span className="text-[var(--text-secondary)]">(không bắt buộc)</span>
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    step={1000}
+                    value={cashTendered}
+                    onChange={(e) => setCashTendered(e.target.value)}
+                    placeholder={`Mặc định đúng ${formatVND(total)}`}
+                    className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                  />
+                </div>
+              )}
+
               {choice === 'partial' && (
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                   <div className="min-w-0">
-                    <label className="mb-1 block text-[13px] font-medium">Khách trả trước (đ)</label>
+                    <label className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">
+                      Khách đưa trước (đ)
+                    </label>
                     <input
                       type="number"
                       min={0}
@@ -304,15 +361,17 @@ function CheckoutModalBody({
                       value={paidInput}
                       onChange={(e) => setPaidInput(e.target.value)}
                       placeholder="VD: 100000"
-                      className="font-mono-tabular min-h-[46px] w-full min-w-0 rounded-lg border border-[var(--border-default)] px-3 outline-none focus:border-[var(--brand-jade)]"
+                      className="font-mono-tabular min-h-[46px] w-full min-w-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
                     />
                   </div>
                   <div className="min-w-0">
-                    <label className="mb-1 block text-[13px] font-medium">Nhận bằng</label>
+                    <label className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">
+                      Nhận bằng
+                    </label>
                     <select
                       value={partialMethod}
                       onChange={(e) => setPartialMethod(e.target.value as 'cash' | 'transfer')}
-                      className="min-h-[46px] w-full min-w-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3"
+                      className="min-h-[46px] w-full min-w-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)]"
                     >
                       <option value="cash">Tiền mặt</option>
                       <option value="transfer">Chuyển khoản</option>
@@ -322,7 +381,7 @@ function CheckoutModalBody({
               )}
 
               {remaining > 0 && (
-                <div className="space-y-3 rounded-lg border border-[#FCD34D] bg-[var(--status-debt-bg)] p-3.5">
+                <div className="space-y-3 rounded-lg border border-[var(--status-debt-border)] bg-[var(--status-debt-bg)] p-3.5">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="text-[14px] font-semibold text-[var(--status-debt)]">
                       Số tiền ghi nợ đơn này
@@ -334,7 +393,7 @@ function CheckoutModalBody({
 
                   {!selectedCustomer && (
                     <p className="text-[13px] font-semibold text-[var(--status-overdue)]">
-                      Vui lòng đóng cửa sổ này và chọn khách hàng trước khi ghi nợ.
+                      Vui lòng đóng cửa sổ này và chọn tên khách hàng trước khi ghi nợ.
                     </p>
                   )}
 
@@ -346,30 +405,32 @@ function CheckoutModalBody({
                       type="date"
                       value={dueDate}
                       onChange={(e) => setDueDate(e.target.value)}
-                      className="font-mono-tabular min-h-[44px] w-full min-w-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3"
+                      className="font-mono-tabular min-h-[44px] w-full min-w-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)]"
                     />
                   </div>
                 </div>
               )}
 
               <div>
-                <label className="mb-1 block text-[13px] font-medium">Ghi chú đơn (tùy chọn)</label>
+                <label className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">
+                  Ghi chú đơn (tùy chọn)
+                </label>
                 <input
                   type="text"
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="VD: Giao chiều, túi riêng..."
-                  className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] px-3.5 outline-none focus:border-[var(--brand-jade)]"
+                  className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={submitting || (remaining > 0 && !selectedCustomer)}
-                className="flex min-h-[50px] w-full items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[16px] font-bold text-white hover:bg-[var(--brand-jade-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+                className="press-tactile flex min-h-[52px] w-full items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[16px] font-bold text-white hover:bg-[var(--brand-jade-hover)] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {submitting && <Loader2 className="h-5 w-5 animate-spin" />}
-                <span>Lưu đơn hàng lên Cloud</span>
+                <span>{submitting ? 'Đang lưu đơn...' : 'Hoàn tất & Lưu đơn'}</span>
               </button>
             </form>
           )}
