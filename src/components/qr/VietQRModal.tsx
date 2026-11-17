@@ -222,15 +222,15 @@ function VietQRModalBody({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"
+      className="animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-label="Tạo mã VietQR động"
     >
-      <div className="max-h-[92dvh] w-full max-w-[460px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
+      <div className="animate-sheet-up sm:animate-modal-in max-h-[92dvh] w-full max-w-[460px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
         <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
           <div className="flex min-w-0 flex-1 items-center gap-2">
-            <QrCode className="h-5 w-5 shrink-0 text-[var(--brand-jade)]" />
+            <QrCode className="h-5 w-5 shrink-0 text-[var(--brand-jade-text)]" />
             <h2 className="min-w-0 truncate text-[17px] font-bold text-[var(--text-primary)]">
               Mã VietQR thu tiền
             </h2>
@@ -239,7 +239,7 @@ function VietQRModalBody({
             type="button"
             onClick={onClose}
             aria-label="Đóng"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+            className="press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
           >
             <X className="h-5 w-5" />
           </button>
@@ -257,7 +257,7 @@ function VietQRModalBody({
               <Link
                 href="/settings#bank"
                 onClick={onClose}
-                className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-5 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
+                className="press-tactile inline-flex min-h-[48px] items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-5 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
               >
                 <Settings className="h-4 w-4 shrink-0" />
                 <span>Cài đặt ngân hàng ngay</span>
@@ -271,9 +271,9 @@ function VietQRModalBody({
                     type="button"
                     disabled={totalCustomerDebt <= 0}
                     onClick={() => setMode('total_debt')}
-                    className={`min-h-[42px] truncate rounded-md px-1.5 text-[12px] font-semibold transition-colors disabled:opacity-40 sm:px-2 sm:text-[13px] ${
+                    className={`press-tactile min-h-[44px] truncate rounded-md px-1.5 text-[12px] font-semibold transition-colors disabled:opacity-40 sm:px-2 sm:text-[13px] ${
                       mode === 'total_debt'
-                        ? 'bg-[var(--bg-surface)] text-[var(--brand-jade)] border border-[var(--border-default)]'
+                        ? 'border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--brand-jade-text)]'
                         : 'text-[var(--text-secondary)]'
                     }`}
                   >
@@ -283,9 +283,9 @@ function VietQRModalBody({
                     type="button"
                     disabled={unpaidOrders.length === 0}
                     onClick={() => setMode('single_order')}
-                    className={`min-h-[42px] truncate rounded-md px-1.5 text-[12px] font-semibold transition-colors disabled:opacity-40 sm:px-2 sm:text-[13px] ${
+                    className={`press-tactile min-h-[44px] truncate rounded-md px-1.5 text-[12px] font-semibold transition-colors disabled:opacity-40 sm:px-2 sm:text-[13px] ${
                       mode === 'single_order'
-                        ? 'bg-[var(--bg-surface)] text-[var(--brand-jade)] border border-[var(--border-default)]'
+                        ? 'border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--brand-jade-text)]'
                         : 'text-[var(--text-secondary)]'
                     }`}
                   >
@@ -297,9 +297,9 @@ function VietQRModalBody({
                       setCustomAmountStr(String(effectiveAmount));
                       setMode('custom');
                     }}
-                    className={`min-h-[42px] truncate rounded-md px-1.5 text-[12px] font-semibold transition-colors sm:px-2 sm:text-[13px] ${
+                    className={`press-tactile min-h-[44px] truncate rounded-md px-1.5 text-[12px] font-semibold transition-colors sm:px-2 sm:text-[13px] ${
                       mode === 'custom'
-                        ? 'bg-[var(--bg-surface)] text-[var(--brand-jade)] border border-[var(--border-default)]'
+                        ? 'border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--brand-jade-text)]'
                         : 'text-[var(--text-secondary)]'
                     }`}
                   >
@@ -316,7 +316,7 @@ function VietQRModalBody({
                   <select
                     value={activeOrder?.id ?? ''}
                     onChange={(e) => setSelectedOrderId(e.target.value)}
-                    className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[15px]"
+                    className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[16px] text-[var(--text-primary)]"
                   >
                     {unpaidOrders.map((ord) => (
                       <option key={ord.id} value={ord.id}>
@@ -345,7 +345,7 @@ function VietQRModalBody({
                       setMode('custom');
                       setCustomAmountStr(e.target.value);
                     }}
-                    className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3.5 text-[16px] font-semibold outline-none focus:border-[var(--brand-jade)]"
+                    className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[16px] font-semibold text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
                   />
                 </div>
               )}
@@ -353,7 +353,7 @@ function VietQRModalBody({
               {/* Shareable QR Card */}
               <div
                 ref={cardRef}
-                className="rounded-[10px] border border-[var(--border-default)] bg-white p-4 text-center"
+                className="print-surface-light rounded-[10px] border border-[var(--border-default)] bg-white p-4 text-center"
               >
                 <p className="break-words text-[14px] font-bold uppercase tracking-wide text-[var(--brand-jade)]">
                   {profile?.shop_name ?? 'PayTrack POS'}
@@ -407,31 +407,31 @@ function VietQRModalBody({
                   type="button"
                   disabled={!qrDataUrl || exporting}
                   onClick={handleDownloadPng}
-                  className="flex min-h-[48px] items-center justify-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[14px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] disabled:opacity-50"
+                  className="press-tactile flex min-h-[48px] items-center justify-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[14px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] disabled:opacity-50"
                 >
                   <Download className="h-4 w-4" />
-                  <span>Tải ảnh QR</span>
+                  <span>{exporting ? 'Đang xuất ảnh...' : 'Tải ảnh QR'}</span>
                 </button>
                 <button
                   type="button"
                   disabled={!qrDataUrl || exporting}
                   onClick={handleShareCard}
-                  className="flex min-h-[48px] items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-3 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-50"
+                  className="press-tactile flex min-h-[48px] items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-3 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-50"
                 >
                   <Share2 className="h-4 w-4" />
-                  <span>Chia sẻ ảnh</span>
+                  <span>{exporting ? 'Đang chuẩn bị...' : 'Chia sẻ ảnh'}</span>
                 </button>
               </div>
 
               <button
                 type="button"
                 onClick={handleCopyZalo}
-                className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] px-4 text-[14px] font-semibold text-[var(--text-primary)] hover:bg-[#E5E9EE]"
+                className="press-tactile flex min-h-[48px] w-full items-center justify-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] px-4 text-[14px] font-semibold text-[var(--text-primary)] hover:border-[var(--brand-jade)]"
               >
                 {copiedZalo ? (
                   <>
-                    <Check className="h-4 w-4 text-[var(--brand-jade)]" />
-                    <span className="text-[var(--brand-jade)]">Đã copy tin nhắn nhắc nợ!</span>
+                    <Check className="h-4 w-4 text-[var(--brand-jade-text)]" />
+                    <span className="text-[var(--brand-jade-text)]">Đã copy tin nhắn nhắc nợ!</span>
                   </>
                 ) : (
                   <>

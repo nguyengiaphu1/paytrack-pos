@@ -46,13 +46,16 @@ function CollectDebtModalBody({
 
   const selectedOrder = unpaidOrders.find((o) => o.id === targetOrderId) ?? null;
   const maxAllowed = selectedOrder ? selectedOrder.remaining_amount : customer.total_debt;
+  const parsedPreview = Math.max(0, Math.min(maxAllowed, Math.round(Number(amountInput) || 0)));
+  const remainingAfter = Math.max(0, maxAllowed - parsedPreview);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (submitting) return;
     setError(null);
 
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      setError('Đang mất kết nối mạng — không thể ghi nhận thu nợ lên cloud.');
+      setError('Đang mất kết nối mạng — chưa thể lưu thu tiền. Vui lòng kiểm tra Wi-Fi hoặc 4G.');
       return;
     }
 
@@ -91,24 +94,24 @@ function CollectDebtModalBody({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"
+      className="animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-label="Thu nợ khách hàng"
     >
-      <div className="w-full max-w-[460px] rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
+      <div className="animate-sheet-up sm:animate-modal-in w-full max-w-[460px] rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
         <div className="flex items-center justify-between gap-2 border-b border-[var(--border-default)] px-4 py-3.5">
           <div className="flex min-w-0 flex-1 items-center gap-2">
-            <Banknote className="h-5 w-5 shrink-0 text-[var(--brand-jade)]" />
-            <h2 className="min-w-0 truncate text-[17px] font-bold">
-              Thu nợ — {customer.name}
+            <Banknote className="h-5 w-5 shrink-0 text-[var(--brand-jade-text)]" />
+            <h2 className="min-w-0 truncate text-[17px] font-bold text-[var(--text-primary)]">
+              Thu tiền nợ — {customer.name}
             </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Đóng"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
           >
             <X className="h-5 w-5" />
           </button>
@@ -116,18 +119,37 @@ function CollectDebtModalBody({
 
         <form onSubmit={handleSubmit} className="space-y-4 p-4">
           {error && (
-            <div className="rounded-lg border border-[#FCA5A5] bg-[var(--status-overdue-bg)] px-3 py-2.5 text-[14px] font-medium text-[var(--status-overdue)]">
+            <div className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3 py-2.5 text-[14px] font-medium text-[var(--status-overdue)]">
               {error}
             </div>
           )}
 
-          <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-3.5">
+          {/* Transparent Before / After Debt Preview */}
+          <div className="space-y-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-3.5 text-[14px]">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="min-w-0 text-[14px] text-[var(--text-secondary)]">
-                {selectedOrder ? `Còn nợ đơn ${selectedOrder.order_code}` : 'Tổng nợ khách hàng'}
+              <span className="min-w-0 text-[var(--text-secondary)]">
+                {selectedOrder ? `Nợ hiện tại của đơn ${selectedOrder.order_code}` : 'Tổng nợ trước khi thu'}
               </span>
-              <span className="font-mono-tabular shrink-0 text-[19px] font-bold text-[var(--status-debt)]">
+              <span className="font-mono-tabular shrink-0 text-[18px] font-bold text-[var(--status-debt)]">
                 {formatVND(maxAllowed)}
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-[var(--text-secondary)]">Thu hôm nay</span>
+              <span className="font-mono-tabular shrink-0 font-bold text-[var(--brand-jade-text)]">
+                − {formatVND(parsedPreview)}
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-default)] pt-1.5">
+              <span className="font-semibold text-[var(--text-primary)]">Còn nợ sau khi thu</span>
+              <span
+                className={`font-mono-tabular shrink-0 text-[17px] font-bold ${
+                  remainingAfter === 0
+                    ? 'text-[var(--brand-jade-text)]'
+                    : 'text-[var(--status-debt)]'
+                }`}
+              >
+                {formatVND(remainingAfter)}
               </span>
             </div>
           </div>
@@ -135,7 +157,7 @@ function CollectDebtModalBody({
           {unpaidOrders.length > 1 && (
             <div>
               <label className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]">
-                Phân bổ tiền thu vào
+                Trừ vào đơn nào?
               </label>
               <select
                 value={targetOrderId}
@@ -145,7 +167,7 @@ function CollectDebtModalBody({
                   const found = unpaidOrders.find((o) => o.id === nextId);
                   setAmountInput(String(found ? found.remaining_amount : customer.total_debt));
                 }}
-                className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3"
+                className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)]"
               >
                 <option value="">Tự động trừ đơn cũ nhất trước (FIFO)</option>
                 {unpaidOrders.map((o) => (
@@ -159,11 +181,13 @@ function CollectDebtModalBody({
 
           <div>
             <div className="mb-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-              <label className="text-[14px] font-medium">Số tiền khách trả (VND) *</label>
+              <label className="text-[14px] font-medium text-[var(--text-primary)]">
+                Số tiền khách trả hôm nay (VND) *
+              </label>
               <button
                 type="button"
                 onClick={() => setAmountInput(String(maxAllowed))}
-                className="shrink-0 text-[13px] font-semibold text-[var(--brand-jade)] hover:underline"
+                className="shrink-0 text-[13px] font-semibold text-[var(--brand-jade-text)] hover:underline"
               >
                 Trả hết ({formatVND(maxAllowed)})
               </button>
@@ -175,20 +199,22 @@ function CollectDebtModalBody({
               max={maxAllowed}
               value={amountInput}
               onChange={(e) => setAmountInput(e.target.value)}
-              className="font-mono-tabular min-h-[48px] w-full rounded-lg border border-[var(--border-default)] px-3.5 text-[17px] font-bold outline-none focus:border-[var(--brand-jade)]"
+              className="font-mono-tabular min-h-[48px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[17px] font-bold text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-[14px] font-medium">Phương thức nhận tiền</label>
+            <label className="mb-1.5 block text-[14px] font-medium text-[var(--text-primary)]">
+              Nhận bằng cách nào?
+            </label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setMethod('cash')}
-                className={`min-h-[46px] rounded-lg border text-[14px] font-semibold ${
+                className={`press-tactile min-h-[48px] rounded-lg border text-[14px] font-semibold ${
                   method === 'cash'
-                    ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade)]'
-                    : 'border-[var(--border-default)] bg-[var(--bg-surface)]'
+                    ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]'
+                    : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)]'
                 }`}
               >
                 Tiền mặt
@@ -196,10 +222,10 @@ function CollectDebtModalBody({
               <button
                 type="button"
                 onClick={() => setMethod('transfer')}
-                className={`min-h-[46px] rounded-lg border text-[14px] font-semibold ${
+                className={`press-tactile min-h-[48px] rounded-lg border text-[14px] font-semibold ${
                   method === 'transfer'
-                    ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade)]'
-                    : 'border-[var(--border-default)] bg-[var(--bg-surface)]'
+                    ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]'
+                    : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)]'
                 }`}
               >
                 Chuyển khoản
@@ -208,23 +234,25 @@ function CollectDebtModalBody({
           </div>
 
           <div>
-            <label className="mb-1 block text-[13px] font-medium">Ghi chú (tùy chọn)</label>
+            <label className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">
+              Ghi chú (tùy chọn)
+            </label>
             <input
               type="text"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="VD: Chuyển VCB / Trả tiền mặt tại quầy"
-              className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] px-3.5 outline-none focus:border-[var(--brand-jade)]"
+              placeholder="VD: Chuyển khoản ngân hàng / Trả tiền mặt tại quầy"
+              className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
             />
           </div>
 
           <button
             type="submit"
             disabled={submitting}
-            className="flex min-h-[50px] w-full items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[16px] font-bold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+            className="press-tactile flex min-h-[50px] w-full items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[16px] font-bold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
           >
             {submitting && <Loader2 className="h-5 w-5 animate-spin" />}
-            <span>Xác nhận đã thu nợ</span>
+            <span>{submitting ? 'Đang ghi nhận...' : 'Xác nhận đã thu tiền'}</span>
           </button>
         </form>
       </div>

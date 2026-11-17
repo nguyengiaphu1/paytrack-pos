@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Be_Vietnam_Pro, JetBrains_Mono } from "next/font/google";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
 const beVietnamPro = Be_Vietnam_Pro({
@@ -51,9 +53,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" className={`${beVietnamPro.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-dvh bg-[var(--bg-canvas)] text-[var(--text-primary)] antialiased selection:bg-[#CCFBF1] selection:text-[#0E6B4E]">
-        {children}
+    <html
+      lang="vi"
+      suppressHydrationWarning
+      className={`${beVietnamPro.variable} ${jetbrainsMono.variable}`}
+    >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: THEME_BOOTSTRAP_SCRIPT,
+          }}
+        />
+      </head>
+      <body className="min-h-dvh bg-[var(--bg-canvas)] text-[var(--text-primary)] antialiased selection:bg-[var(--status-paid-bg)] selection:text-[var(--brand-jade-text)]">
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

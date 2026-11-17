@@ -35,6 +35,17 @@ Distilled from community design-engineering repositories ([`impeccable`](https:/
 | **Unpaid / Debt Due** | `--status-debt` | `#B45309` / `#FEF3C7` | *"Còn nợ"*, *"Trả một phần"*, upcoming reminder badge |
 | **Overdue / Error** | `--status-overdue` | `#B91C1C` / `#FEE2E2` | *"Quá hạn thu"*, destructive actions, validation error |
 
+### Dark Mode Ledger Extension (`:root[data-theme="dark"]`) & Print Isolation
+
+- **Default preference**: `'system'` (**Theo thiết bị**), stored per device under `localStorage['paytrack-theme']` (`'system' | 'light' | 'dark'`) and resolved synchronously before hydration in `src/app/layout.tsx` via `THEME_BOOTSTRAP_SCRIPT` (zero reload flash).
+- **Smooth theme transitions**: Switching Light ↔ Dark adds `.theme-transitioning` to `<html>` for `320ms` (`280ms cubic-bezier(0.22, 1, 0.36, 1)` on colors/borders only, never slowing regular counter taps; respects `prefers-reduced-motion: reduce`).
+- **Dark surface palette (WCAG AA)**:
+  - `--bg-canvas`: `#0E1317` | `--bg-surface`: `#161D24` | `--bg-subtle`: `#1F2933` | `--border-default`: `#2A3642`
+  - `--text-primary`: `#F1F5F9` | `--text-secondary`: `#9CA3AF`
+  - `--brand-jade`: `#15805E` (solid buttons with white text) | `--brand-jade-text`: `#4CC39B` (Jade text/icons on dark surfaces)
+  - `--status-paid`: `#4CC39B` / `#12352C` | `--status-debt`: `#FBBF24` / `#33250C` | `--status-overdue`: `#F87171` / `#3A1619`
+- **Receipt & VietQR Light-Paper Lock (`.print-surface-light`)**: Printable invoices (`ReceiptTemplate`, `InvoicePreviewModal`) and shareable QR cards (`VietQRModal`) lock light-paper tokens (`#FFFFFF` / `#141A21`) even when the app is in Dark mode.
+
 ---
 
 ## 3. Typography Scale & Numeric Rules

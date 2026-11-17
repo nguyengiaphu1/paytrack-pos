@@ -43,6 +43,7 @@ export function CustomerPicker({
 
   async function handleCreateCustomer(e: FormEvent) {
     e.preventDefault();
+    if (saving) return;
     setError(null);
     const trimmed = newName.trim();
     if (!trimmed) {
@@ -95,10 +96,10 @@ export function CustomerPicker({
           setCreating(false);
           setQuery('');
         }}
-        className="flex min-h-[48px] w-full items-center justify-between gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-left transition-colors hover:border-[var(--brand-jade)]"
+        className="press-tactile flex min-h-[48px] w-full items-center justify-between gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-left transition-colors hover:border-[var(--brand-jade)]"
       >
         <div className="flex min-w-0 items-center gap-2.5">
-          <UserCheck className="h-4 w-4 shrink-0 text-[var(--brand-jade)]" />
+          <UserCheck className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
           <div className="min-w-0">
             <p className="truncate text-[14px] font-semibold text-[var(--text-primary)]">
               {selectedCustomer ? selectedCustomer.name : 'Khách lẻ (không ghi nợ)'}
@@ -110,19 +111,19 @@ export function CustomerPicker({
             )}
           </div>
         </div>
-        <span className="shrink-0 text-[13px] font-semibold text-[var(--brand-jade)]">
+        <span className="shrink-0 text-[13px] font-semibold text-[var(--brand-jade-text)]">
           Đổi khách
         </span>
       </button>
 
       {modalOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"
+          className="animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
           role="dialog"
           aria-modal="true"
           aria-label="Chọn khách hàng"
         >
-          <div className="max-h-[90dvh] w-full max-w-[460px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
+          <div className="animate-sheet-up sm:animate-modal-in max-h-[90dvh] w-full max-w-[460px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
             <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
               <h3 className="min-w-0 flex-1 truncate text-[17px] font-bold">
                 {creating ? 'Thêm khách hàng mới' : 'Chọn khách hàng'}
@@ -131,7 +132,7 @@ export function CustomerPicker({
                 type="button"
                 onClick={() => setModalOpen(false)}
                 aria-label="Đóng"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+                className="press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -140,7 +141,7 @@ export function CustomerPicker({
             {creating ? (
               <form onSubmit={handleCreateCustomer} className="space-y-3.5 p-4">
                 {error && (
-                  <div className="rounded-lg border border-[#FCA5A5] bg-[var(--status-overdue-bg)] px-3 py-2 text-[14px] text-[var(--status-overdue)]">
+                  <div className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3 py-2 text-[14px] text-[var(--status-overdue)]">
                     {error}
                   </div>
                 )}
@@ -152,7 +153,7 @@ export function CustomerPicker({
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                     placeholder="VD: Cô Lan, Chú Tư"
-                    className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3.5 outline-none focus:border-[var(--brand-jade)]"
+                    className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
                   />
                 </div>
                 <div>
@@ -162,7 +163,7 @@ export function CustomerPicker({
                     value={newPhone}
                     onChange={(e) => setNewPhone(e.target.value)}
                     placeholder="0901234567"
-                    className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3.5 outline-none focus:border-[var(--brand-jade)]"
+                    className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
                   />
                 </div>
                 <div>
@@ -172,24 +173,26 @@ export function CustomerPicker({
                     value={newNote}
                     onChange={(e) => setNewNote(e.target.value)}
                     placeholder="VD: Nhà đầu ngõ, trả cuối tháng"
-                    className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3.5 outline-none focus:border-[var(--brand-jade)]"
+                    className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
                   />
                 </div>
                 <div className="flex gap-2.5 pt-1">
                   <button
                     type="button"
                     onClick={() => setCreating(false)}
-                    className="min-h-[48px] shrink-0 rounded-lg border border-[var(--border-default)] px-4 text-[14px] font-semibold"
+                    className="press-tactile min-h-[48px] shrink-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 text-[14px] font-semibold"
                   >
                     Quay lại
                   </button>
                   <button
                     type="submit"
                     disabled={saving}
-                    className="flex min-h-[48px] min-w-0 flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+                    className="press-tactile flex min-h-[48px] min-w-0 flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
                   >
                     {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                    <span className="truncate">Lưu &amp; Chọn khách</span>
+                    <span className="truncate">
+                      {saving ? 'Đang lưu khách...' : 'Lưu & Chọn khách'}
+                    </span>
                   </button>
                 </div>
               </form>
@@ -203,13 +206,13 @@ export function CustomerPicker({
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
                       placeholder="Tìm tên hoặc SĐT..."
-                      className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] pr-3 pl-9 outline-none focus:border-[var(--brand-jade)]"
+                      className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] pr-3 pl-9 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => setCreating(true)}
-                    className="flex min-h-[46px] shrink-0 items-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-3.5 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
+                    className="press-tactile flex min-h-[46px] shrink-0 items-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-3.5 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
                   >
                     <UserPlus className="h-4 w-4" />
                     <span>Khách mới</span>
@@ -231,7 +234,7 @@ export function CustomerPicker({
                       Khách lẻ (trả ngay)
                     </span>
                     {selectedCustomerId === null && (
-                      <span className="shrink-0 text-[12px] font-semibold text-[var(--brand-jade)]">
+                      <span className="shrink-0 text-[12px] font-semibold text-[var(--brand-jade-text)]">
                         Đang chọn
                       </span>
                     )}
@@ -280,7 +283,7 @@ export function CustomerPicker({
                           setNewName(query);
                           setCreating(true);
                         }}
-                        className="inline-flex items-center gap-1 font-semibold text-[var(--brand-jade)] hover:underline"
+                        className="inline-flex items-center gap-1 font-semibold text-[var(--brand-jade-text)] hover:underline"
                       >
                         <Plus className="h-3.5 w-3.5" /> Thêm &ldquo;{query || 'khách mới'}&rdquo;
                       </button>

@@ -53,11 +53,11 @@ export function RevenueCashChart({ data }: RevenueCashChartProps) {
         <div className="h-[260px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#DDE2E7" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default)" vertical={false} />
               <XAxis
                 dataKey="label"
-                tick={{ fontSize: 12, fill: '#4B5563' }}
-                axisLine={{ stroke: '#DDE2E7' }}
+                tick={{ fontSize: 12, fill: 'var(--text-secondary)' }}
+                axisLine={{ stroke: 'var(--border-default)' }}
                 tickLine={false}
               />
               <YAxis
@@ -68,7 +68,7 @@ export function RevenueCashChart({ data }: RevenueCashChartProps) {
                       ? `${Math.round(val / 1_000)}k`
                       : String(val)
                 }
-                tick={{ fontSize: 12, fill: '#4B5563' }}
+                tick={{ fontSize: 12, fill: 'var(--text-secondary)' }}
                 axisLine={false}
                 tickLine={false}
                 width={48}
@@ -79,8 +79,9 @@ export function RevenueCashChart({ data }: RevenueCashChartProps) {
                   name === 'revenue' ? 'Doanh thu' : 'Thực thu',
                 ]}
                 contentStyle={{
-                  backgroundColor: '#FFFFFF',
-                  borderColor: '#DDE2E7',
+                  backgroundColor: 'var(--bg-surface)',
+                  borderColor: 'var(--border-default)',
+                  color: 'var(--text-primary)',
                   borderRadius: '8px',
                   fontFamily: 'var(--font-mono), monospace',
                   fontSize: '13px',
@@ -88,10 +89,10 @@ export function RevenueCashChart({ data }: RevenueCashChartProps) {
               />
               <Legend
                 formatter={(value) => (value === 'revenue' ? 'Doanh thu' : 'Thực thu')}
-                wrapperStyle={{ fontSize: '13px' }}
+                wrapperStyle={{ fontSize: '13px', color: 'var(--text-primary)' }}
               />
-              <Bar dataKey="revenue" fill="#0E6B4E" radius={[4, 4, 0, 0]} maxBarSize={28} />
-              <Bar dataKey="collected" fill="#D97706" radius={[4, 4, 0, 0]} maxBarSize={28} />
+              <Bar dataKey="revenue" fill="var(--brand-jade)" radius={[4, 4, 0, 0]} maxBarSize={28} />
+              <Bar dataKey="collected" fill="var(--status-debt)" radius={[4, 4, 0, 0]} maxBarSize={28} />
             </BarChart>
           </ResponsiveContainer>
         </div>

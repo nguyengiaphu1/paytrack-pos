@@ -2,7 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react';
 import {
   BarChart3,
   BookOpenCheck,
@@ -13,6 +22,25 @@ import {
   WifiOff,
 } from 'lucide-react';
 import { usePosData } from '@/components/providers/PosDataProvider';
+import { ThemeQuickToggle } from '@/components/ui/ThemeToggle';
+import { WelcomeOnboardingModal } from '@/components/welcome/WelcomeOnboardingModal';
+import { readOnboardingMirror } from '@/lib/welcome';
+
+interface AppUserContextValue {
+  userId: string;
+  openOnboarding: () => void;
+}
+
+const AppUserContext = createContext<AppUserContextValue>({
+  userId: '',
+  openOnboarding: () => {},
+});
+
+export function useAppUser(): AppUserContextValue {
+  return useContext(AppUserContext);
+}
+
+const emptySubscribe = () => () => {};
 
 const NAV_ITEMS = [
   { href: '/', label: 'Bán hàng', icon: ShoppingBag },
@@ -23,16 +51,58 @@ const NAV_ITEMS = [
 ] as const;
 
 interface AppShellProps {
+  userId: string;
+  initialWelcomeSeen: boolean;
   shopName: string;
   userEmail: string;
   children: ReactNode;
 }
 
-export function AppShell({ shopName, userEmail, children }: AppShellProps) {
+export function AppShell({
+  userId,
+  initialWelcomeSeen,
+  shopName,
+  userEmail,
+  children,
+}: AppShellProps) {
   const pathname = usePathname();
   const [swRegistered, setSwRegistered] = useState(false);
-  const { syncStatus: status, profile } = usePosData();
+  const [forceOnboardingOpen, setForceOnboardingOpen] = useState(false);
+  const [dismissedInSession, setDismissedInSession] = useState(false);
+  const {
+    syncStatus: status,
+    profile,
+    products,
+    setProfileLocal,
+    upsertProductLocal,
+  } = usePosData();
   const displayShopName = profile?.shop_name || shopName;
+
+  const hydrated = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+
+  const mirrorSeen = hydrated && userId ? readOnboardingMirror(userId) : false;
+  const onboardingOpen =
+    forceOnboardingOpen ||
+    (hydrated && Boolean(userId) && !initialWelcomeSeen && !mirrorSeen && !dismissedInSession);
+
+  const openOnboarding = useCallback(() => {
+    setForceOnboardingOpen(true);
+  }, []);
+
+  const handleCloseOnboarding = useCallback(() => {
+    setForceOnboardingOpen(false);
+    setDismissedInSession(true);
+  }, []);
+
+  useEffect(() => {
+    const onOpenEvent = () => setForceOnboardingOpen(true);
+    window.addEventListener('paytrack:open-onboarding', onOpenEvent);
+    return () => window.removeEventListener('paytrack:open-onboarding', onOpenEvent);
+  }, []);
 
   useEffect(() => {
     if (swRegistered || typeof window === 'undefined') return;
@@ -46,8 +116,14 @@ export function AppShell({ shopName, userEmail, children }: AppShellProps) {
     }
   }, [swRegistered]);
 
+  const userCtxValue = useMemo(
+    () => ({ userId, openOnboarding }),
+    [userId, openOnboarding]
+  );
+
   return (
-    <div className="flex min-h-dvh bg-[var(--bg-canvas)] text-[var(--text-primary)]">
+    <AppUserContext.Provider value={userCtxValue}>
+      <div className="flex min-h-dvh bg-[var(--bg-canvas)] text-[var(--text-primary)]">
       {/* Desktop Left Rail Sidebar (>= 1024px) */}
       <aside className="no-print hidden lg:flex lg:w-[228px] lg:shrink-0 lg:flex-col lg:border-r lg:border-[var(--border-default)] lg:bg-[var(--bg-surface)]">
         <div className="flex items-center gap-2.5 border-b border-[var(--border-default)] px-4 py-4">
@@ -75,9 +151,9 @@ export function AppShell({ shopName, userEmail, children }: AppShellProps) {
                 key={item.href}
                 href={item.href}
                 prefetch={true}
-                className={`flex min-h-[46px] items-center gap-3 rounded-lg px-3 text-[15px] font-medium transition-colors ${
+                className={`press-tactile flex min-h-[46px] items-center gap-3 rounded-lg px-3 text-[15px] font-medium transition-colors ${
                   active
-                    ? 'bg-[var(--status-paid-bg)] font-semibold text-[var(--brand-jade)]'
+                    ? 'bg-[var(--status-paid-bg)] font-semibold text-[var(--brand-jade-text)]'
                     : 'text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]'
                 }`}
               >
@@ -88,7 +164,8 @@ export function AppShell({ shopName, userEmail, children }: AppShellProps) {
           })}
         </nav>
 
-        <div className="border-t border-[var(--border-default)] p-3">
+        <div className="space-y-2.5 border-t border-[var(--border-default)] p-3">
+          <ThemeQuickToggle fullWidth />
           <SyncStatusPill status={status} />
         </div>
       </aside>
@@ -96,7 +173,7 @@ export function AppShell({ shopName, userEmail, children }: AppShellProps) {
       {/* Main Content Area */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile Top Bar (< 1024px) */}
-        <header className="no-print sticky top-0 z-20 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-2.5 lg:hidden">
+        <header className="no-print sticky top-0 z-20 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-3 py-2 sm:px-4 lg:hidden">
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-jade)] text-white">
               <BookOpenCheck className="h-4 w-4" />
@@ -105,17 +182,20 @@ export function AppShell({ shopName, userEmail, children }: AppShellProps) {
               {displayShopName}
             </span>
           </div>
-          <SyncStatusPill status={status} compact />
+          <div className="flex shrink-0 items-center gap-1.5">
+            <ThemeQuickToggle compact />
+            <SyncStatusPill status={status} compact />
+          </div>
         </header>
 
         {/* Offline Banner */}
         {status === 'offline' && (
           <div
             role="alert"
-            className="no-print flex items-center justify-center gap-2 border-b border-[#FCA5A5] bg-[var(--status-overdue-bg)] px-4 py-2 text-[13px] font-medium text-[var(--status-overdue)]"
+            className="no-print flex items-center justify-center gap-2 border-b border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-4 py-2 text-[13px] font-medium text-[var(--status-overdue)]"
           >
             <WifiOff className="h-4 w-4 shrink-0" />
-            <span>Mất kết nối — chưa lưu lên cloud. Kiểm tra Wi-Fi/4G trước khi lưu đơn.</span>
+            <span>Mất mạng — đơn chưa thể lưu. Vui lòng bật lại Wi-Fi hoặc 4G trước khi lưu đơn.</span>
           </div>
         )}
 
@@ -138,9 +218,9 @@ export function AppShell({ shopName, userEmail, children }: AppShellProps) {
                 key={item.href}
                 href={item.href}
                 prefetch={true}
-                className={`flex min-h-[60px] w-full min-w-0 flex-col items-center justify-center gap-0.5 px-1 text-[11px] font-medium transition-colors ${
+                className={`press-tactile flex min-h-[60px] w-full min-w-0 flex-col items-center justify-center gap-0.5 px-1 text-[11px] font-medium transition-colors ${
                   active
-                    ? 'font-semibold text-[var(--brand-jade)]'
+                    ? 'font-semibold text-[var(--brand-jade-text)]'
                     : 'text-[var(--text-secondary)]'
                 }`}
               >
@@ -152,6 +232,18 @@ export function AppShell({ shopName, userEmail, children }: AppShellProps) {
         </div>
       </nav>
     </div>
+    {onboardingOpen && (
+      <WelcomeOnboardingModal
+        open={onboardingOpen}
+        userId={userId}
+        profile={profile}
+        productsCount={products.length}
+        onClose={handleCloseOnboarding}
+        setProfileLocal={setProfileLocal}
+        upsertProductLocal={upsertProductLocal}
+      />
+    )}
+    </AppUserContext.Provider>
   );
 }
 
@@ -160,7 +252,7 @@ function SyncStatusPill({ status, compact = false }: { status: 'synced' | 'conne
     return (
       <div className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--status-overdue-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-overdue)]">
         <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-overdue)]" />
-        <span>{compact ? 'Mất mạng' : 'Mất kết nối'}</span>
+        <span>{compact ? 'Mất mạng' : 'Mất kết nối mạng'}</span>
       </div>
     );
   }
@@ -169,7 +261,7 @@ function SyncStatusPill({ status, compact = false }: { status: 'synced' | 'conne
     return (
       <div className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--status-debt-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-debt)]">
         <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-debt)]" />
-        <span>{compact ? 'Đang nối' : 'Đang kết nối cloud...'}</span>
+        <span>{compact ? 'Đang nối' : 'Đang kết nối lại...'}</span>
       </div>
     );
   }
@@ -177,7 +269,7 @@ function SyncStatusPill({ status, compact = false }: { status: 'synced' | 'conne
   return (
     <div className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--status-paid-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-paid)]">
       <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-paid)]" />
-      <span>{compact ? 'Cloud OK' : 'Đã đồng bộ Cloud'}</span>
+      <span>{compact ? 'Đã lưu' : 'Đã lưu tự động'}</span>
     </div>
   );
 }

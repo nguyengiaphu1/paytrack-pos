@@ -18,19 +18,19 @@ export function DebtAgingCard({ aging }: DebtAgingCardProps) {
       label: 'Quá hạn thu',
       amount: aging.overdue,
       badgeBg: 'bg-[var(--status-overdue-bg)] text-[var(--status-overdue)]',
-      barColor: '#B91C1C',
+      barColor: 'var(--status-overdue)',
     },
     {
       label: 'Trong hạn / Hẹn thu',
       amount: aging.due_or_upcoming,
       badgeBg: 'bg-[var(--status-debt-bg)] text-[var(--status-debt)]',
-      barColor: '#B45309',
+      barColor: 'var(--status-debt)',
     },
     {
       label: 'Chưa đặt ngày hẹn',
       amount: aging.no_due_date,
       badgeBg: 'bg-[var(--bg-subtle)] text-[var(--text-secondary)]',
-      barColor: '#6B7280',
+      barColor: 'var(--text-secondary)',
     },
   ];
 

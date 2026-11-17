@@ -47,6 +47,8 @@ export default async function AppLayout({
   return (
     <PosDataProvider initialProfile={typedProfile}>
       <AppShell
+        userId={user.id}
+        initialWelcomeSeen={Boolean(user.user_metadata?.welcome_v2_seen)}
         shopName={typedProfile?.shop_name || 'Tạp Hóa Mẹ'}
         userEmail={user.email || ''}
       >
