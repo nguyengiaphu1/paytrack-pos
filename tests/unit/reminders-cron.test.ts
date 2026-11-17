@@ -50,6 +50,7 @@ function makeFakeAdmin(seed: {
   subscriptionsByUser?: Record<string, PushSubscriptionRecord[]>;
   profiles?: ShopProfile[];
   dueCustomersByUser?: Record<string, DueCustomerRow[]>;
+  errors?: Partial<Record<'debt_reminders' | 'push_subscriptions' | 'shop_profiles' | 'customers', string>>;
 }) {
   const updates: UpdateCall[] = [];
   const deletes: DeleteCall[] = [];
@@ -76,27 +77,39 @@ function makeFakeAdmin(seed: {
             limit() {
               return resolveSelect();
             },
-            then(onFulfilled: (value: { data: unknown[] }) => unknown) {
+            then(onFulfilled: (value: { data: unknown[] | null; error: { message: string } | null }) => unknown) {
               return Promise.resolve(resolveSelect()).then(onFulfilled);
             },
           };
 
-          function resolveSelect(): { data: unknown[] } {
+          function resolveSelect(): { data: unknown[] | null; error: { message: string } | null } {
+            const errMessage = seed.errors?.[table as keyof NonNullable<typeof seed.errors>];
+            if (errMessage) {
+              return { data: null, error: { message: errMessage } };
+            }
             if (table === 'debt_reminders') {
-              return { data: seed.pendingReminders ?? [] };
+              const rows = seed.pendingReminders ?? [];
+              const filtered = filters.user_id
+                ? rows.filter((r) => r.user_id === filters.user_id)
+                : rows;
+              return { data: filtered, error: null };
             }
             if (table === 'push_subscriptions') {
               const userId = String(filters.user_id ?? '');
-              return { data: seed.subscriptionsByUser?.[userId] ?? [] };
+              return { data: seed.subscriptionsByUser?.[userId] ?? [], error: null };
             }
             if (table === 'shop_profiles') {
-              return { data: seed.profiles ?? [] };
+              const rows = seed.profiles ?? [];
+              const filtered = filters.user_id
+                ? rows.filter((p) => p.user_id === filters.user_id)
+                : rows;
+              return { data: filtered, error: null };
             }
             if (table === 'customers') {
               const userId = String(filters.user_id ?? '');
-              return { data: seed.dueCustomersByUser?.[userId] ?? [] };
+              return { data: seed.dueCustomersByUser?.[userId] ?? [], error: null };
             }
-            return { data: [] };
+            return { data: [], error: null };
           }
 
           return builder;
