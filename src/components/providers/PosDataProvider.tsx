@@ -1,0 +1,366 @@
+'use client';
+
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { useRealtimeSync, type SyncStatus } from '@/hooks/useRealtimeSync';
+import type { AnalyticsSummary, Customer, Order, Product, ShopProfile } from '@/types/database';
+
+interface PosDataContextValue {
+  syncStatus: SyncStatus;
+  products: Product[];
+  productsLoaded: boolean;
+  customers: Customer[];
+  customersLoaded: boolean;
+  orders: Order[];
+  ordersLoaded: boolean;
+  profile: ShopProfile | null;
+  profileLoaded: boolean;
+  analyticsVersion: number;
+  ensurePosCatalog: () => Promise<void>;
+  refreshPosCatalog: () => Promise<void>;
+  ensureCustomers: () => Promise<void>;
+  refreshCustomers: () => Promise<void>;
+  ensureOrders: () => Promise<void>;
+  refreshOrders: () => Promise<void>;
+  ensureProfile: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
+  fetchAnalytics: (
+    startIso: string,
+    endIso: string,
+    options?: { force?: boolean }
+  ) => Promise<{ data: AnalyticsSummary | null; error: string | null }>;
+  getCachedAnalytics: (startIso: string, endIso: string) => AnalyticsSummary | null;
+  upsertProductLocal: (product: Product) => void;
+  upsertCustomerLocal: (customer: Customer) => void;
+  setProfileLocal: (profile: ShopProfile) => void;
+  invalidateAfterMutation: () => void;
+}
+
+const PosDataContext = createContext<PosDataContextValue | null>(null);
+
+interface PosDataProviderProps {
+  initialProfile: ShopProfile | null;
+  children: ReactNode;
+}
+
+export function PosDataProvider({ initialProfile, children }: PosDataProviderProps) {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productsLoaded, setProductsLoaded] = useState(false);
+
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [customersLoaded, setCustomersLoaded] = useState(false);
+
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoaded, setOrdersLoaded] = useState(false);
+
+  const [profile, setProfile] = useState<ShopProfile | null>(initialProfile);
+  const [profileLoaded, setProfileLoaded] = useState<boolean>(Boolean(initialProfile));
+
+  const analyticsCacheRef = useRef<Map<string, AnalyticsSummary>>(new Map());
+  const [analyticsVersion, setAnalyticsVersion] = useState(0);
+
+  const loadedFlagsRef = useRef({
+    products: false,
+    customers: false,
+    orders: false,
+    profile: Boolean(initialProfile),
+  });
+
+  const inflightRef = useRef<{
+    posCatalog: Promise<void> | null;
+    customers: Promise<void> | null;
+    orders: Promise<void> | null;
+    profile: Promise<void> | null;
+  }>({
+    posCatalog: null,
+    customers: null,
+    orders: null,
+    profile: null,
+  });
+
+  const refreshProfile = useCallback(async () => {
+    if (inflightRef.current.profile) return inflightRef.current.profile;
+    const task = (async () => {
+      const supabase = createClient();
+      const { data } = await supabase.from('shop_profiles').select('*').maybeSingle();
+      if (data) setProfile(data as ShopProfile);
+      loadedFlagsRef.current.profile = true;
+      setProfileLoaded(true);
+    })().finally(() => {
+      inflightRef.current.profile = null;
+    });
+    inflightRef.current.profile = task;
+    return task;
+  }, []);
+
+  const refreshPosCatalog = useCallback(async () => {
+    if (inflightRef.current.posCatalog) return inflightRef.current.posCatalog;
+    const task = (async () => {
+      const supabase = createClient();
+      const [{ data: prods }, { data: custs }, { data: prof }] = await Promise.all([
+        supabase.from('products').select('*').order('name', { ascending: true }),
+        supabase
+          .from('customers')
+          .select('*')
+          .order('total_debt', { ascending: false })
+          .order('name', { ascending: true }),
+        loadedFlagsRef.current.profile
+          ? Promise.resolve({ data: null })
+          : supabase.from('shop_profiles').select('*').maybeSingle(),
+      ]);
+      if (prods) {
+        setProducts(prods as Product[]);
+        loadedFlagsRef.current.products = true;
+        setProductsLoaded(true);
+      }
+      if (custs) {
+        setCustomers(custs as Customer[]);
+        loadedFlagsRef.current.customers = true;
+        setCustomersLoaded(true);
+      }
+      if (prof) {
+        setProfile(prof as ShopProfile);
+        loadedFlagsRef.current.profile = true;
+        setProfileLoaded(true);
+      }
+    })().finally(() => {
+      inflightRef.current.posCatalog = null;
+    });
+    inflightRef.current.posCatalog = task;
+    return task;
+  }, []);
+
+  const refreshCustomers = useCallback(async () => {
+    if (inflightRef.current.customers) return inflightRef.current.customers;
+    const task = (async () => {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('customers')
+        .select('*')
+        .order('total_debt', { ascending: false })
+        .order('name', { ascending: true });
+      if (data) {
+        setCustomers(data as Customer[]);
+        loadedFlagsRef.current.customers = true;
+        setCustomersLoaded(true);
+      }
+    })().finally(() => {
+      inflightRef.current.customers = null;
+    });
+    inflightRef.current.customers = task;
+    return task;
+  }, []);
+
+  const refreshOrders = useCallback(async () => {
+    if (inflightRef.current.orders) return inflightRef.current.orders;
+    const task = (async () => {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(200);
+      if (data) {
+        setOrders(data as Order[]);
+        loadedFlagsRef.current.orders = true;
+        setOrdersLoaded(true);
+      }
+    })().finally(() => {
+      inflightRef.current.orders = null;
+    });
+    inflightRef.current.orders = task;
+    return task;
+  }, []);
+
+  const ensurePosCatalog = useCallback(async () => {
+    if (loadedFlagsRef.current.products && loadedFlagsRef.current.customers) return;
+    await refreshPosCatalog();
+  }, [refreshPosCatalog]);
+
+  const ensureCustomers = useCallback(async () => {
+    if (loadedFlagsRef.current.customers) return;
+    await refreshCustomers();
+  }, [refreshCustomers]);
+
+  const ensureOrders = useCallback(async () => {
+    if (loadedFlagsRef.current.orders) return;
+    await refreshOrders();
+  }, [refreshOrders]);
+
+  const ensureProfile = useCallback(async () => {
+    if (loadedFlagsRef.current.profile) return;
+    await refreshProfile();
+  }, [refreshProfile]);
+
+  const getCachedAnalytics = useCallback((startIso: string, endIso: string) => {
+    return analyticsCacheRef.current.get(`${startIso}|${endIso}`) ?? null;
+  }, []);
+
+  const fetchAnalytics = useCallback(
+    async (startIso: string, endIso: string, options?: { force?: boolean }) => {
+      const key = `${startIso}|${endIso}`;
+      if (!options?.force && analyticsCacheRef.current.has(key)) {
+        return { data: analyticsCacheRef.current.get(key) ?? null, error: null };
+      }
+      const supabase = createClient();
+      const { data, error } = await supabase.rpc('get_analytics_summary', {
+        p_start: startIso,
+        p_end: endIso,
+      });
+      if (error) {
+        return { data: null, error: error.message };
+      }
+      const summary = data as AnalyticsSummary;
+      analyticsCacheRef.current.set(key, summary);
+      return { data: summary, error: null };
+    },
+    []
+  );
+
+  const upsertProductLocal = useCallback((product: Product) => {
+    setProducts((prev) => {
+      const exists = prev.some((p) => p.id === product.id);
+      const next = exists
+        ? prev.map((p) => (p.id === product.id ? product : p))
+        : [...prev, product];
+      return next.sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+    });
+    loadedFlagsRef.current.products = true;
+    setProductsLoaded(true);
+  }, []);
+
+  const upsertCustomerLocal = useCallback((customer: Customer) => {
+    setCustomers((prev) => {
+      const exists = prev.some((c) => c.id === customer.id);
+      return exists
+        ? prev.map((c) => (c.id === customer.id ? customer : c))
+        : [customer, ...prev];
+    });
+    loadedFlagsRef.current.customers = true;
+    setCustomersLoaded(true);
+  }, []);
+
+  const setProfileLocal = useCallback((nextProfile: ShopProfile) => {
+    setProfile(nextProfile);
+    loadedFlagsRef.current.profile = true;
+    setProfileLoaded(true);
+  }, []);
+
+  const refreshLoadedSlices = useCallback(() => {
+    analyticsCacheRef.current.clear();
+    setAnalyticsVersion((v) => v + 1);
+
+    const tasks: Array<Promise<void>> = [];
+    if (loadedFlagsRef.current.products) {
+      tasks.push(refreshPosCatalog());
+    } else if (loadedFlagsRef.current.customers) {
+      tasks.push(refreshCustomers());
+    }
+    if (loadedFlagsRef.current.orders) {
+      tasks.push(refreshOrders());
+    }
+    if (loadedFlagsRef.current.profile) {
+      tasks.push(refreshProfile());
+    }
+    void Promise.all(tasks);
+  }, [refreshCustomers, refreshOrders, refreshPosCatalog, refreshProfile]);
+
+  const invalidateAfterMutation = useCallback(() => {
+    refreshLoadedSlices();
+  }, [refreshLoadedSlices]);
+
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleRealtimeChange = useCallback(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      refreshLoadedSlices();
+      window.dispatchEvent(new CustomEvent('paytrack:realtime-update'));
+    }, 250);
+  }, [refreshLoadedSlices]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  const { status: syncStatus } = useRealtimeSync({
+    tables: ['products', 'customers', 'orders', 'debt_payments', 'debt_reminders', 'shop_profiles'],
+    onDataChange: handleRealtimeChange,
+    channelName: 'shell-sync',
+  });
+
+  const value = useMemo<PosDataContextValue>(
+    () => ({
+      syncStatus,
+      products,
+      productsLoaded,
+      customers,
+      customersLoaded,
+      orders,
+      ordersLoaded,
+      profile,
+      profileLoaded,
+      analyticsVersion,
+      ensurePosCatalog,
+      refreshPosCatalog,
+      ensureCustomers,
+      refreshCustomers,
+      ensureOrders,
+      refreshOrders,
+      ensureProfile,
+      refreshProfile,
+      fetchAnalytics,
+      getCachedAnalytics,
+      upsertProductLocal,
+      upsertCustomerLocal,
+      setProfileLocal,
+      invalidateAfterMutation,
+    }),
+    [
+      syncStatus,
+      products,
+      productsLoaded,
+      customers,
+      customersLoaded,
+      orders,
+      ordersLoaded,
+      profile,
+      profileLoaded,
+      analyticsVersion,
+      ensurePosCatalog,
+      refreshPosCatalog,
+      ensureCustomers,
+      refreshCustomers,
+      ensureOrders,
+      refreshOrders,
+      ensureProfile,
+      refreshProfile,
+      fetchAnalytics,
+      getCachedAnalytics,
+      upsertProductLocal,
+      upsertCustomerLocal,
+      setProfileLocal,
+      invalidateAfterMutation,
+    ]
+  );
+
+  return <PosDataContext.Provider value={value}>{children}</PosDataContext.Provider>;
+}
+
+export function usePosData(): PosDataContextValue {
+  const ctx = useContext(PosDataContext);
+  if (!ctx) {
+    throw new Error('usePosData must be used inside PosDataProvider');
+  }
+  return ctx;
+}

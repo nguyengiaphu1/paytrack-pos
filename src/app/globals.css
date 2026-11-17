@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+:root {
+  --bg-canvas: #F8F9FA;
+  --bg-surface: #FFFFFF;
+  --bg-subtle: #EFF2F5;
+  --border-default: #DDE2E7;
+  --text-primary: #141A21;
+  --text-secondary: #4B5563;
+  --brand-jade: #0E6B4E;
+  --brand-jade-hover: #0A543D;
+  --status-paid: #0F766E;
+  --status-paid-bg: #CCFBF1;
+  --status-debt: #B45309;
+  --status-debt-bg: #FEF3C7;
+  --status-overdue: #B91C1C;
+  --status-overdue-bg: #FEE2E2;
+}
+
+@layer base {
+  html,
+  body {
+    font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    overflow-x: clip;
+  }
+
+  /* Ngăn iOS Safari tự zoom khi chạm vào ô nhập liệu */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+.font-mono-tabular {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Chế độ in hóa đơn PDF / Máy in nhiệt 80mm / Khổ A5 */
+@media print {
+  @page {
+    margin: 8mm;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only-sheet {
+    position: static !important;
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  .print-format-80mm {
+    width: 72mm !important;
+    max-width: 72mm !important;
+    font-size: 11px !important;
+  }
+
+  .print-format-a5 {
+    width: 100% !important;
+    max-width: 148mm !important;
+    font-size: 13px !important;
+  }
+}
