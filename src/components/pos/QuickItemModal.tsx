@@ -114,16 +114,16 @@ export function QuickItemModal({
       aria-label="Thêm món nhanh"
     >
       <div className="w-full max-w-[440px] rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
-        <div className="flex items-center justify-between border-b border-[var(--border-default)] px-4 py-3.5">
-          <div className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-[var(--brand-jade)]" />
-            <h2 className="text-[17px] font-bold">Thêm món nhanh vào đơn</h2>
+        <div className="flex items-center justify-between gap-2 border-b border-[var(--border-default)] px-4 py-3.5">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <Zap className="h-5 w-5 shrink-0 text-[var(--brand-jade)]" />
+            <h2 className="min-w-0 truncate text-[17px] font-bold">Thêm món nhanh vào đơn</h2>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Đóng"
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
           >
             <X className="h-5 w-5" />
           </button>
@@ -148,8 +148,8 @@ export function QuickItemModal({
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-2.5">
-            <div className="col-span-1">
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+            <div className="min-w-0">
               <label className="mb-1 block text-[14px] font-medium">Số lượng</label>
               <input
                 type="number"
@@ -158,19 +158,19 @@ export function QuickItemModal({
                 required
                 value={qty}
                 onChange={(e) => setQty(e.target.value)}
-                className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3 outline-none focus:border-[var(--brand-jade)]"
+                className="font-mono-tabular min-h-[46px] w-full min-w-0 rounded-lg border border-[var(--border-default)] px-3 outline-none focus:border-[var(--brand-jade)]"
               />
             </div>
-            <div className="col-span-1">
+            <div className="min-w-0">
               <label className="mb-1 block text-[14px] font-medium">Đơn vị</label>
               <input
                 type="text"
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
-                className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3 outline-none focus:border-[var(--brand-jade)]"
+                className="min-h-[46px] w-full min-w-0 rounded-lg border border-[var(--border-default)] px-3 outline-none focus:border-[var(--brand-jade)]"
               />
             </div>
-            <div className="col-span-1">
+            <div className="col-span-2 min-w-0 sm:col-span-1">
               <label className="mb-1 block text-[14px] font-medium">Đơn giá *</label>
               <input
                 type="number"
@@ -179,7 +179,7 @@ export function QuickItemModal({
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="15000"
-                className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3 outline-none focus:border-[var(--brand-jade)]"
+                className="font-mono-tabular min-h-[46px] w-full min-w-0 rounded-lg border border-[var(--border-default)] px-3 outline-none focus:border-[var(--brand-jade)]"
               />
             </div>
           </div>

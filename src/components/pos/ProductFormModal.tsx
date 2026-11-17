@@ -127,15 +127,15 @@ function ProductFormModalBody({
       aria-label={product ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}
     >
       <div className="max-h-[92dvh] w-full max-w-[460px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
-        <div className="flex items-center justify-between border-b border-[var(--border-default)] px-4 py-3.5">
-          <h2 className="text-[17px] font-bold text-[var(--text-primary)]">
+        <div className="flex items-center justify-between gap-2 border-b border-[var(--border-default)] px-4 py-3.5">
+          <h2 className="min-w-0 flex-1 truncate text-[17px] font-bold text-[var(--text-primary)]">
             {product ? 'Sửa sản phẩm' : 'Thêm sản phẩm mới'}
           </h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Đóng"
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
           >
             <X className="h-5 w-5" />
           </button>
@@ -161,7 +161,7 @@ function ProductFormModalBody({
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div>
+            <div className="min-w-0">
               <label className="mb-1 block text-[14px] font-medium">Giá bán (VND) *</label>
               <input
                 type="number"
@@ -173,7 +173,7 @@ function ProductFormModalBody({
                 className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3.5 outline-none focus:border-[var(--brand-jade)]"
               />
             </div>
-            <div>
+            <div className="min-w-0">
               <label className="mb-1 block text-[14px] font-medium">Đơn vị tính</label>
               <input
                 type="text"
@@ -186,7 +186,7 @@ function ProductFormModalBody({
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div>
+            <div className="min-w-0">
               <label className="mb-1 block text-[14px] font-medium">
                 Giá vốn <span className="text-[12px] text-[var(--text-secondary)]">(tùy chọn)</span>
               </label>
@@ -199,7 +199,7 @@ function ProductFormModalBody({
                 className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3.5 outline-none focus:border-[var(--brand-jade)]"
               />
             </div>
-            <div>
+            <div className="min-w-0">
               <label className="mb-1 block text-[14px] font-medium">Danh mục</label>
               <input
                 type="text"

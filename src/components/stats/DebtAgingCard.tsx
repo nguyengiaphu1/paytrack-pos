@@ -48,11 +48,11 @@ export function DebtAgingCard({ aging }: DebtAgingCardProps) {
           const pct = total > 0 ? Math.round((b.amount / total) * 100) : 0;
           return (
             <div key={b.label}>
-              <div className="mb-1 flex items-center justify-between text-[14px]">
+              <div className="mb-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-[14px]">
                 <span className={`rounded-md px-2 py-0.5 text-[12px] font-semibold ${b.badgeBg}`}>
                   {b.label}
                 </span>
-                <span className="font-mono-tabular font-bold text-[var(--text-primary)]">
+                <span className="font-mono-tabular shrink-0 font-bold text-[var(--text-primary)]">
                   {formatVND(b.amount)}
                 </span>
               </div>

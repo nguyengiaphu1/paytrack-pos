@@ -97,16 +97,18 @@ function CollectDebtModalBody({
       aria-label="Thu nợ khách hàng"
     >
       <div className="w-full max-w-[460px] rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
-        <div className="flex items-center justify-between border-b border-[var(--border-default)] px-4 py-3.5">
-          <div className="flex items-center gap-2">
-            <Banknote className="h-5 w-5 text-[var(--brand-jade)]" />
-            <h2 className="text-[17px] font-bold">Thu nợ — {customer.name}</h2>
+        <div className="flex items-center justify-between gap-2 border-b border-[var(--border-default)] px-4 py-3.5">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <Banknote className="h-5 w-5 shrink-0 text-[var(--brand-jade)]" />
+            <h2 className="min-w-0 truncate text-[17px] font-bold">
+              Thu nợ — {customer.name}
+            </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Đóng"
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
           >
             <X className="h-5 w-5" />
           </button>
@@ -120,11 +122,11 @@ function CollectDebtModalBody({
           )}
 
           <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-3.5">
-            <div className="flex items-center justify-between">
-              <span className="text-[14px] text-[var(--text-secondary)]">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="min-w-0 text-[14px] text-[var(--text-secondary)]">
                 {selectedOrder ? `Còn nợ đơn ${selectedOrder.order_code}` : 'Tổng nợ khách hàng'}
               </span>
-              <span className="font-mono-tabular text-[19px] font-bold text-[var(--status-debt)]">
+              <span className="font-mono-tabular shrink-0 text-[19px] font-bold text-[var(--status-debt)]">
                 {formatVND(maxAllowed)}
               </span>
             </div>
@@ -156,12 +158,12 @@ function CollectDebtModalBody({
           )}
 
           <div>
-            <div className="mb-1 flex items-center justify-between">
+            <div className="mb-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
               <label className="text-[14px] font-medium">Số tiền khách trả (VND) *</label>
               <button
                 type="button"
                 onClick={() => setAmountInput(String(maxAllowed))}
-                className="text-[13px] font-semibold text-[var(--brand-jade)] hover:underline"
+                className="shrink-0 text-[13px] font-semibold text-[var(--brand-jade)] hover:underline"
               >
                 Trả hết ({formatVND(maxAllowed)})
               </button>

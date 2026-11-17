@@ -12,6 +12,39 @@ interface SubscribeBody {
   deviceLabel?: string;
 }
 
+export async function GET() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Chưa đăng nhập' }, { status: 401 });
+  }
+
+  const [{ data: subs, error: subErr }, { count: pendingCount }] = await Promise.all([
+    supabase
+      .from('push_subscriptions')
+      .select('id, endpoint, device_label, last_seen_at, created_at')
+      .eq('user_id', user.id)
+      .order('last_seen_at', { ascending: false }),
+    supabase
+      .from('debt_reminders')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('status', 'pending'),
+  ]);
+
+  if (subErr) {
+    return NextResponse.json({ error: subErr.message }, { status: 500 });
+  }
+
+  return NextResponse.json({
+    devices: subs ?? [],
+    pendingReminders: pendingCount ?? 0,
+  });
+}
+
 export async function POST(request: Request) {
   const supabase = await createClient();
   const {

@@ -110,10 +110,10 @@ function InvoicePreviewModalBody({
       <div className="max-h-[94dvh] w-full max-w-[600px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-canvas)] sm:rounded-[10px]">
         {/* Header & Toggles (hidden during window.print) */}
         <div className="no-print sticky top-0 z-10 border-b border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <ReceiptText className="h-5 w-5 text-[var(--brand-jade)]" />
-              <h2 className="text-[17px] font-bold text-[var(--text-primary)]">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <ReceiptText className="h-5 w-5 shrink-0 text-[var(--brand-jade)]" />
+              <h2 className="min-w-0 truncate text-[17px] font-bold text-[var(--text-primary)]">
                 Xuất hóa đơn {order.order_code}
               </h2>
             </div>
@@ -121,14 +121,14 @@ function InvoicePreviewModalBody({
               type="button"
               onClick={onClose}
               aria-label="Đóng"
-              className="flex h-10 w-10 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
 
           {/* Live Customization Controls */}
-          <div className="mt-3 flex flex-wrap items-center gap-3 text-[13px]">
+          <div className="mt-3 flex flex-wrap items-center gap-2.5 text-[13px]">
             <div className="inline-flex rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-0.5">
               <button
                 type="button"
@@ -160,7 +160,7 @@ function InvoicePreviewModalBody({
                   type="checkbox"
                   checked={showCumulativeDebt}
                   onChange={(e) => setShowCumulativeDebt(e.target.checked)}
-                  className="h-4 w-4 accent-[var(--brand-jade)]"
+                  className="h-4 w-4 shrink-0 accent-[var(--brand-jade)]"
                 />
                 <span>Hiện công nợ lũy kế</span>
               </label>
@@ -171,7 +171,7 @@ function InvoicePreviewModalBody({
                 type="checkbox"
                 checked={showQr}
                 onChange={(e) => setShowQr(e.target.checked)}
-                className="h-4 w-4 accent-[var(--brand-jade)]"
+                className="h-4 w-4 shrink-0 accent-[var(--brand-jade)]"
               />
               <span>Hiện mã VietQR</span>
             </label>
@@ -179,7 +179,7 @@ function InvoicePreviewModalBody({
         </div>
 
         {/* Receipt Preview Sheet */}
-        <div className="p-4">
+        <div className="p-3 sm:p-4">
           <div
             ref={sheetRef}
             className={`print-only-sheet ${
@@ -198,32 +198,32 @@ function InvoicePreviewModalBody({
         </div>
 
         {/* Footer Actions */}
-        <div className="no-print sticky bottom-0 grid grid-cols-3 gap-2 border-t border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
+        <div className="no-print sticky bottom-0 grid grid-cols-3 gap-1.5 border-t border-[var(--border-default)] bg-[var(--bg-surface)] p-3 sm:gap-2 sm:p-4">
           <button
             type="button"
             disabled={exporting}
             onClick={handleDownloadPng}
-            className="flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-2 text-[14px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] disabled:opacity-50"
+            className="flex min-h-[48px] items-center justify-center gap-1 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-1.5 text-[12px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] disabled:opacity-50 sm:gap-1.5 sm:px-2 sm:text-[14px]"
           >
             <Download className="h-4 w-4 shrink-0" />
-            <span>Tải PNG</span>
+            <span className="truncate">Tải PNG</span>
           </button>
           <button
             type="button"
             disabled={exporting}
             onClick={handleSharePng}
-            className="flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-2 text-[14px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] disabled:opacity-50"
+            className="flex min-h-[48px] items-center justify-center gap-1 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-1.5 text-[12px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] disabled:opacity-50 sm:gap-1.5 sm:px-2 sm:text-[14px]"
           >
             <Share2 className="h-4 w-4 shrink-0" />
-            <span>Gửi ảnh</span>
+            <span className="truncate">Gửi ảnh</span>
           </button>
           <button
             type="button"
             onClick={handlePrint}
-            className="flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-2 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
+            className="flex min-h-[48px] items-center justify-center gap-1 rounded-lg bg-[var(--brand-jade)] px-1.5 text-[12px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] sm:gap-1.5 sm:px-2 sm:text-[14px]"
           >
             <Printer className="h-4 w-4 shrink-0" />
-            <span>In / PDF</span>
+            <span className="truncate">In / PDF</span>
           </button>
         </div>
       </div>

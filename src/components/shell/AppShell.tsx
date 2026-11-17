@@ -12,7 +12,7 @@ import {
   Users,
   WifiOff,
 } from 'lucide-react';
-import { useRealtimeSync } from '@/hooks/useRealtimeSync';
+import { usePosData } from '@/components/providers/PosDataProvider';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Bán hàng', icon: ShoppingBag },
@@ -31,14 +31,8 @@ interface AppShellProps {
 export function AppShell({ shopName, userEmail, children }: AppShellProps) {
   const pathname = usePathname();
   const [swRegistered, setSwRegistered] = useState(false);
-
-  const { status } = useRealtimeSync({
-    tables: ['products', 'customers', 'orders', 'debt_payments'],
-    onDataChange: () => {
-      window.dispatchEvent(new CustomEvent('paytrack:realtime-update'));
-    },
-    channelName: 'shell-sync',
-  });
+  const { syncStatus: status, profile } = usePosData();
+  const displayShopName = profile?.shop_name || shopName;
 
   useEffect(() => {
     if (swRegistered || typeof window === 'undefined') return;
@@ -62,7 +56,7 @@ export function AppShell({ shopName, userEmail, children }: AppShellProps) {
           </div>
           <div className="min-w-0">
             <p className="truncate text-[15px] font-bold text-[var(--text-primary)]">
-              {shopName}
+              {displayShopName}
             </p>
             <p className="truncate text-[12px] text-[var(--text-secondary)]">
               {userEmail}
@@ -80,6 +74,7 @@ export function AppShell({ shopName, userEmail, children }: AppShellProps) {
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={true}
                 className={`flex min-h-[46px] items-center gap-3 rounded-lg px-3 text-[15px] font-medium transition-colors ${
                   active
                     ? 'bg-[var(--status-paid-bg)] font-semibold text-[var(--brand-jade)]'
@@ -101,13 +96,13 @@ export function AppShell({ shopName, userEmail, children }: AppShellProps) {
       {/* Main Content Area */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile Top Bar (< 1024px) */}
-        <header className="no-print sticky top-0 z-20 flex items-center justify-between border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-2.5 lg:hidden">
-          <div className="flex min-w-0 items-center gap-2">
+        <header className="no-print sticky top-0 z-20 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-2.5 lg:hidden">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-jade)] text-white">
               <BookOpenCheck className="h-4 w-4" />
             </div>
             <span className="truncate text-[15px] font-bold text-[var(--text-primary)]">
-              {shopName}
+              {displayShopName}
             </span>
           </div>
           <SyncStatusPill status={status} compact />
@@ -124,7 +119,7 @@ export function AppShell({ shopName, userEmail, children }: AppShellProps) {
           </div>
         )}
 
-        <main className="flex-1 pb-[84px] lg:pb-6">{children}</main>
+        <main className="min-w-0 flex-1 pb-[84px] lg:pb-6">{children}</main>
       </div>
 
       {/* Mobile Bottom Navigation Bar (< 1024px) */}
@@ -142,14 +137,15 @@ export function AppShell({ shopName, userEmail, children }: AppShellProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex min-h-[60px] flex-col items-center justify-center gap-0.5 px-1 text-[11px] font-medium transition-colors ${
+                prefetch={true}
+                className={`flex min-h-[60px] w-full min-w-0 flex-col items-center justify-center gap-0.5 px-1 text-[11px] font-medium transition-colors ${
                   active
                     ? 'font-semibold text-[var(--brand-jade)]'
                     : 'text-[var(--text-secondary)]'
                 }`}
               >
-                <Icon className="h-5 w-5" />
-                <span className="truncate">{item.label}</span>
+                <Icon className="h-5 w-5 shrink-0" />
+                <span className="max-w-full truncate">{item.label}</span>
               </Link>
             );
           })}
@@ -162,8 +158,8 @@ export function AppShell({ shopName, userEmail, children }: AppShellProps) {
 function SyncStatusPill({ status, compact = false }: { status: 'synced' | 'connecting' | 'offline'; compact?: boolean }) {
   if (status === 'offline') {
     return (
-      <div className="inline-flex items-center gap-1.5 rounded-full bg-[var(--status-overdue-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-overdue)]">
-        <span className="h-2 w-2 rounded-full bg-[var(--status-overdue)]" />
+      <div className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--status-overdue-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-overdue)]">
+        <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-overdue)]" />
         <span>{compact ? 'Mất mạng' : 'Mất kết nối'}</span>
       </div>
     );
@@ -171,16 +167,16 @@ function SyncStatusPill({ status, compact = false }: { status: 'synced' | 'conne
 
   if (status === 'connecting') {
     return (
-      <div className="inline-flex items-center gap-1.5 rounded-full bg-[var(--status-debt-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-debt)]">
-        <span className="h-2 w-2 rounded-full bg-[var(--status-debt)]" />
+      <div className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--status-debt-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-debt)]">
+        <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-debt)]" />
         <span>{compact ? 'Đang nối' : 'Đang kết nối cloud...'}</span>
       </div>
     );
   }
 
   return (
-    <div className="inline-flex items-center gap-1.5 rounded-full bg-[var(--status-paid-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-paid)]">
-      <span className="h-2 w-2 rounded-full bg-[var(--status-paid)]" />
+    <div className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--status-paid-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-paid)]">
+      <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-paid)]" />
       <span>{compact ? 'Cloud OK' : 'Đã đồng bộ Cloud'}</span>
     </div>
   );

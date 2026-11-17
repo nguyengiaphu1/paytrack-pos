@@ -154,25 +154,25 @@ export function ProductCatalog({
           {filtered.map((product) => (
             <div
               key={product.id}
-              className={`group flex items-stretch justify-between rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] transition-colors hover:border-[var(--brand-jade)] ${
+              className={`group flex min-w-0 items-stretch justify-between rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] transition-colors hover:border-[var(--brand-jade)] ${
                 !product.is_active ? 'opacity-60' : ''
               }`}
             >
               <button
                 type="button"
                 onClick={() => onAddToCart(product)}
-                className="flex min-h-[64px] flex-1 flex-col justify-between p-3 text-left active:bg-[var(--bg-subtle)]"
+                className="flex min-h-[64px] min-w-0 flex-1 flex-col justify-between p-3 text-left active:bg-[var(--bg-subtle)]"
               >
-                <div className="flex items-start justify-between gap-2">
-                  <span className="line-clamp-2 text-[15px] font-semibold text-[var(--text-primary)]">
+                <div className="flex w-full items-start justify-between gap-2">
+                  <span className="line-clamp-2 break-words text-[15px] font-semibold text-[var(--text-primary)]">
                     {product.name}
                   </span>
                 </div>
-                <div className="mt-2 flex items-baseline justify-between gap-2">
-                  <span className="font-mono-tabular text-[15px] font-bold text-[var(--brand-jade)]">
+                <div className="mt-2 flex w-full items-baseline justify-between gap-2">
+                  <span className="font-mono-tabular truncate text-[15px] font-bold text-[var(--brand-jade)]">
                     {formatVND(product.price)}
                   </span>
-                  <span className="text-[12px] text-[var(--text-secondary)]">
+                  <span className="shrink-0 text-[12px] text-[var(--text-secondary)]">
                     / {product.unit}
                   </span>
                 </div>

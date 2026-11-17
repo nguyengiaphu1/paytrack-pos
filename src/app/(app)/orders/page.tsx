@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
   Loader2,
@@ -12,8 +12,8 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { formatDateTimeVN, formatVND, stripVietnamese } from '@/lib/vietnamese';
-import { useRealtimeSync } from '@/hooks/useRealtimeSync';
-import type { Order, OrderItem, PaymentStatus, ShopProfile } from '@/types/database';
+import { usePosData } from '@/components/providers/PosDataProvider';
+import type { Order, OrderItem, PaymentStatus } from '@/types/database';
 import { VietQRModal } from '@/components/qr/VietQRModal';
 import { InvoicePreviewModal } from '@/components/invoice/InvoicePreviewModal';
 
@@ -37,9 +37,14 @@ const STATUS_LABELS: Record<PaymentStatus, { label: string; className: string }>
 };
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [profile, setProfile] = useState<ShopProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const {
+    orders,
+    ordersLoaded,
+    profile,
+    ensureOrders,
+    invalidateAfterMutation,
+  } = usePosData();
+
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | PaymentStatus>('ALL');
 
@@ -54,33 +59,9 @@ export default function OrdersPage() {
   const [qrOpen, setQrOpen] = useState(false);
   const [invoiceOpen, setInvoiceOpen] = useState(false);
 
-  const loadOrders = useCallback(async () => {
-    const supabase = createClient();
-    const [{ data: ordRows }, { data: prof }] = await Promise.all([
-      supabase
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(200),
-      supabase.from('shop_profiles').select('*').maybeSingle(),
-    ]);
-    if (ordRows) setOrders(ordRows as Order[]);
-    if (prof) setProfile(prof as ShopProfile);
-    setLoading(false);
-  }, []);
-
   useEffect(() => {
-    const id = setTimeout(() => {
-      void loadOrders();
-    }, 0);
-    return () => clearTimeout(id);
-  }, [loadOrders]);
-
-  useRealtimeSync({
-    tables: ['orders', 'debt_payments'],
-    onDataChange: loadOrders,
-    channelName: 'orders-page',
-  });
+    void ensureOrders();
+  }, [ensureOrders]);
 
   async function openOrderDetail(order: Order) {
     setSelectedOrder(order);
@@ -109,13 +90,15 @@ export default function OrdersPage() {
 
       setCancelConfirmOpen(false);
       setSelectedOrder((prev) => (prev ? { ...prev, payment_status: 'cancelled' } : null));
-      await loadOrders();
+      invalidateAfterMutation();
     } catch (err) {
       setCancelError(err instanceof Error ? err.message : 'Không thể hủy đơn hàng');
     } finally {
       setCancelling(false);
     }
   }
+
+  const loading = !ordersLoaded;
 
   const filtered = useMemo(() => {
     const q = stripVietnamese(query);
@@ -199,7 +182,7 @@ export default function OrdersPage() {
                 onClick={() => openOrderDetail(order)}
                 className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left transition-colors hover:bg-[var(--bg-subtle)]"
               >
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-mono-tabular text-[14px] font-bold text-[var(--text-primary)]">
                       {order.order_code}
@@ -243,12 +226,12 @@ export default function OrdersPage() {
           aria-label={`Chi tiết đơn ${selectedOrder.order_code}`}
         >
           <div className="max-h-[92dvh] w-full max-w-[520px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
-              <div>
-                <h2 className="font-mono-tabular text-[17px] font-bold">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
+              <div className="min-w-0 flex-1">
+                <h2 className="truncate font-mono-tabular text-[17px] font-bold">
                   {selectedOrder.order_code}
                 </h2>
-                <p className="text-[12px] text-[var(--text-secondary)]">
+                <p className="truncate text-[12px] text-[var(--text-secondary)]">
                   {formatDateTimeVN(selectedOrder.created_at)} ·{' '}
                   {selectedOrder.customer_name_snapshot}
                 </p>
@@ -257,7 +240,7 @@ export default function OrdersPage() {
                 type="button"
                 onClick={() => setSelectedOrder(null)}
                 aria-label="Đóng"
-                className="flex h-10 w-10 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -271,15 +254,15 @@ export default function OrdersPage() {
                   {selectedItems.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between gap-2 px-3.5 py-2.5 text-[14px]"
+                      className="flex items-center justify-between gap-3 px-3.5 py-2.5 text-[14px]"
                     >
-                      <div>
-                        <p className="font-semibold">{item.product_name}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="break-words font-semibold">{item.product_name}</p>
                         <p className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
                           {Number(item.quantity)} {item.unit} × {formatVND(item.unit_price)}
                         </p>
                       </div>
-                      <span className="font-mono-tabular font-bold">
+                      <span className="shrink-0 font-mono-tabular font-bold">
                         {formatVND(item.line_total)}
                       </span>
                     </div>
@@ -288,22 +271,22 @@ export default function OrdersPage() {
               )}
 
               <div className="space-y-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-3.5 text-[14px]">
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-2">
                   <span className="text-[var(--text-secondary)]">Tổng cộng</span>
-                  <span className="font-mono-tabular font-bold">
+                  <span className="shrink-0 font-mono-tabular font-bold">
                     {formatVND(selectedOrder.total_amount)}
                   </span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-2">
                   <span className="text-[var(--text-secondary)]">Đã thu</span>
-                  <span className="font-mono-tabular font-semibold text-[var(--brand-jade)]">
+                  <span className="shrink-0 font-mono-tabular font-semibold text-[var(--brand-jade)]">
                     {formatVND(selectedOrder.paid_amount)}
                   </span>
                 </div>
                 {selectedOrder.remaining_amount > 0 && (
-                  <div className="flex justify-between font-bold text-[var(--status-debt)]">
+                  <div className="flex justify-between gap-2 font-bold text-[var(--status-debt)]">
                     <span>Còn nợ</span>
-                    <span className="font-mono-tabular">
+                    <span className="shrink-0 font-mono-tabular">
                       {formatVND(selectedOrder.remaining_amount)}
                     </span>
                   </div>
@@ -315,18 +298,18 @@ export default function OrdersPage() {
                   <button
                     type="button"
                     onClick={() => setInvoiceOpen(true)}
-                    className="flex min-h-[48px] items-center justify-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[14px] font-semibold hover:bg-[var(--bg-subtle)]"
+                    className="flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-2.5 text-[13px] font-semibold hover:bg-[var(--bg-subtle)] sm:text-[14px]"
                   >
-                    <ReceiptText className="h-4 w-4 text-[var(--brand-jade)]" />
-                    <span>Xuất hóa đơn</span>
+                    <ReceiptText className="h-4 w-4 shrink-0 text-[var(--brand-jade)]" />
+                    <span className="truncate">Xuất hóa đơn</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setQrOpen(true)}
-                    className="flex min-h-[48px] items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-3 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
+                    className="flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-2.5 text-[13px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] sm:text-[14px]"
                   >
-                    <QrCode className="h-4 w-4" />
-                    <span>Tạo mã QR</span>
+                    <QrCode className="h-4 w-4 shrink-0" />
+                    <span className="truncate">Tạo mã QR</span>
                   </button>
                 </div>
               )}
@@ -340,14 +323,14 @@ export default function OrdersPage() {
                       onClick={() => setCancelConfirmOpen(true)}
                       className="flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg border border-[#FCA5A5] text-[14px] font-semibold text-[var(--status-overdue)] hover:bg-[var(--status-overdue-bg)]"
                     >
-                      <XCircle className="h-4 w-4" />
+                      <XCircle className="h-4 w-4 shrink-0" />
                       <span>Hủy đơn hàng này</span>
                     </button>
                   ) : (
                     <div className="space-y-3 rounded-lg border border-[#FCA5A5] bg-[var(--status-overdue-bg)] p-3.5">
                       <div className="flex items-start gap-2 text-[13px] text-[var(--status-overdue)]">
                         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-                        <div>
+                        <div className="min-w-0 flex-1 break-words">
                           <p className="font-bold">Xác nhận hủy đơn {selectedOrder.order_code}?</p>
                           {selectedOrder.paid_amount > 0 ? (
                             <p className="mt-1">
@@ -376,11 +359,11 @@ export default function OrdersPage() {
                         </p>
                       )}
 
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         <button
                           type="button"
                           onClick={() => setCancelConfirmOpen(false)}
-                          className="min-h-[44px] flex-1 rounded-lg border border-[var(--border-default)] bg-white text-[14px] font-semibold"
+                          className="min-h-[44px] flex-1 rounded-lg border border-[var(--border-default)] bg-white px-3 text-[13px] font-semibold sm:text-[14px]"
                         >
                           Giữ lại đơn
                         </button>
@@ -388,7 +371,7 @@ export default function OrdersPage() {
                           type="button"
                           disabled={cancelling}
                           onClick={handleConfirmCancel}
-                          className="flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-[var(--status-overdue)] text-[14px] font-semibold text-white disabled:opacity-60"
+                          className="flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-[var(--status-overdue)] px-3 text-[13px] font-semibold text-white disabled:opacity-60 sm:text-[14px]"
                         >
                           {cancelling && <Loader2 className="h-4 w-4 animate-spin" />}
                           <span>Xác nhận hủy</span>

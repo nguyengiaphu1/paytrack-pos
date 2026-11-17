@@ -15,10 +15,10 @@ WHERE EXISTS (
   SELECT 1 FROM cron.job WHERE jobname = 'paytrack_reminder_dispatch'
 );
 
--- Gọi endpoint /api/cron/reminders mỗi 5 phút để gửi nhắc nợ đúng giờ & tổng hợp sáng
+-- Gọi endpoint /api/cron/reminders mỗi phút để gửi nhắc nợ đúng giờ & tổng hợp sáng
 SELECT cron.schedule(
   'paytrack_reminder_dispatch',
-  '*/5 * * * *',
+  '* * * * *',
   $$
   SELECT net.http_post(
     url := 'https://<YOUR_VERCEL_DOMAIN>/api/cron/reminders',
@@ -30,3 +30,7 @@ SELECT cron.schedule(
   );
   $$
 );
+
+-- Kiểm tra trạng thái chạy thực tế trên Supabase SQL Editor:
+-- SELECT * FROM cron.job_run_details ORDER BY start_time DESC LIMIT 10;
+-- SELECT status_code, content, error_msg FROM net._http_response ORDER BY created DESC LIMIT 10;

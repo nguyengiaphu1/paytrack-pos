@@ -5,108 +5,18 @@ import { useRouter } from 'next/navigation';
 import { CheckCircle2, Loader2, LogOut, Save } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { VIETNAM_BANKS } from '@/lib/vietqr';
+import { usePosData } from '@/components/providers/PosDataProvider';
 import type { InvoiceFormat, ShopProfile } from '@/types/database';
 import { PushNotificationSetup } from '@/components/pwa/PushNotificationSetup';
 
 export default function SettingsPage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [savedMsg, setSavedMsg] = useState<string | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  const [shopName, setShopName] = useState('Tạp Hóa Mẹ');
-  const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
-  const [bankBin, setBankBin] = useState('');
-  const [bankName, setBankName] = useState('');
-  const [bankAccountNo, setBankAccountNo] = useState('');
-  const [bankAccountName, setBankAccountName] = useState('');
-  const [digestEnabled, setDigestEnabled] = useState(true);
-  const [digestHour, setDigestHour] = useState('08:30');
-  const [invoiceFormat, setInvoiceFormat] = useState<InvoiceFormat>('a5');
-  const [showCumulativeDebt, setShowCumulativeDebt] = useState(true);
-  const [showQrOnInvoice, setShowQrOnInvoice] = useState(true);
+  const { profile, profileLoaded, ensureProfile, setProfileLocal } = usePosData();
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase
-      .from('shop_profiles')
-      .select('*')
-      .maybeSingle()
-      .then(({ data }) => {
-        const p = data as ShopProfile | null;
-        if (p) {
-          setShopName(p.shop_name);
-          setPhone(p.phone ?? '');
-          setAddress(p.address ?? '');
-          setBankBin(p.bank_bin ?? '');
-          setBankName(p.bank_name ?? '');
-          setBankAccountNo(p.bank_account_no ?? '');
-          setBankAccountName(p.bank_account_name ?? '');
-          setDigestEnabled(p.reminder_digest_enabled);
-          setDigestHour(p.reminder_default_hour || '08:30');
-          setInvoiceFormat(p.default_invoice_format || 'a5');
-          setShowCumulativeDebt(p.default_show_cumulative_debt);
-          setShowQrOnInvoice(p.default_show_qr_on_invoice);
-        }
-        setLoading(false);
-      });
-  }, []);
+    void ensureProfile();
+  }, [ensureProfile]);
 
-  async function handleSave(e: FormEvent) {
-    e.preventDefault();
-    setErrorMsg(null);
-    setSavedMsg(null);
-
-    if (bankBin.trim() && !/^\d{6}$/.test(bankBin.trim())) {
-      setErrorMsg('Mã BIN ngân hàng phải gồm đúng 6 chữ số (chọn từ danh sách ngân hàng).');
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error('Phiên đăng nhập hết hạn');
-
-      const { error } = await supabase.from('shop_profiles').upsert(
-        {
-          user_id: user.id,
-          shop_name: shopName.trim() || 'Tạp Hóa Mẹ',
-          phone: phone.trim() || null,
-          address: address.trim() || null,
-          bank_bin: bankBin.trim() || null,
-          bank_name: bankName.trim() || null,
-          bank_account_no: bankAccountNo.replace(/\s+/g, '').trim() || null,
-          bank_account_name: bankAccountName.trim().toUpperCase() || null,
-          reminder_digest_enabled: digestEnabled,
-          reminder_default_hour: digestHour || '08:30',
-          default_invoice_format: invoiceFormat,
-          default_show_cumulative_debt: showCumulativeDebt,
-          default_show_qr_on_invoice: showQrOnInvoice,
-        },
-        { onConflict: 'user_id' }
-      );
-
-      if (error) throw error;
-      setSavedMsg('Đã lưu cài đặt cửa hàng lên Cloud!');
-      router.refresh();
-    } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : 'Không thể lưu cài đặt');
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleLogout() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push('/login');
-    router.refresh();
-  }
+  const loading = !profileLoaded;
 
   return (
     <div className="mx-auto max-w-[760px] px-3 py-4 sm:px-6 lg:py-5">
@@ -128,7 +38,109 @@ export default function SettingsPage() {
             Đang tải cài đặt...
           </div>
         ) : (
-          <form onSubmit={handleSave} className="space-y-5">
+          <SettingsFormBody
+            key={profile?.updated_at ?? 'new-profile'}
+            profile={profile}
+            setProfileLocal={setProfileLocal}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SettingsFormBody({
+  profile,
+  setProfileLocal,
+}: {
+  profile: ShopProfile | null;
+  setProfileLocal: (profile: ShopProfile) => void;
+}) {
+  const router = useRouter();
+  const [saving, setSaving] = useState(false);
+  const [savedMsg, setSavedMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const [shopName, setShopName] = useState(profile?.shop_name ?? 'Tạp Hóa Mẹ');
+  const [phone, setPhone] = useState(profile?.phone ?? '');
+  const [address, setAddress] = useState(profile?.address ?? '');
+  const [bankBin, setBankBin] = useState(profile?.bank_bin ?? '');
+  const [bankName, setBankName] = useState(profile?.bank_name ?? '');
+  const [bankAccountNo, setBankAccountNo] = useState(profile?.bank_account_no ?? '');
+  const [bankAccountName, setBankAccountName] = useState(profile?.bank_account_name ?? '');
+  const [digestEnabled, setDigestEnabled] = useState(profile?.reminder_digest_enabled ?? true);
+  const [digestHour, setDigestHour] = useState(profile?.reminder_default_hour || '08:30');
+  const [invoiceFormat, setInvoiceFormat] = useState<InvoiceFormat>(
+    profile?.default_invoice_format || 'a5'
+  );
+  const [showCumulativeDebt, setShowCumulativeDebt] = useState(
+    profile?.default_show_cumulative_debt ?? true
+  );
+  const [showQrOnInvoice, setShowQrOnInvoice] = useState(
+    profile?.default_show_qr_on_invoice ?? true
+  );
+
+  async function handleSave(e: FormEvent) {
+    e.preventDefault();
+    setErrorMsg(null);
+    setSavedMsg(null);
+
+    if (bankBin.trim() && !/^\d{6}$/.test(bankBin.trim())) {
+      setErrorMsg('Mã BIN ngân hàng phải gồm đúng 6 chữ số (chọn từ danh sách ngân hàng).');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error('Phiên đăng nhập hết hạn');
+
+      const { data: savedRow, error } = await supabase
+        .from('shop_profiles')
+        .upsert(
+          {
+            user_id: user.id,
+            shop_name: shopName.trim() || 'Tạp Hóa Mẹ',
+            phone: phone.trim() || null,
+            address: address.trim() || null,
+            bank_bin: bankBin.trim() || null,
+            bank_name: bankName.trim() || null,
+            bank_account_no: bankAccountNo.replace(/\s+/g, '').trim() || null,
+            bank_account_name: bankAccountName.trim().toUpperCase() || null,
+            reminder_digest_enabled: digestEnabled,
+            reminder_default_hour: digestHour || '08:30',
+            default_invoice_format: invoiceFormat,
+            default_show_cumulative_debt: showCumulativeDebt,
+            default_show_qr_on_invoice: showQrOnInvoice,
+          },
+          { onConflict: 'user_id' }
+        )
+        .select('*')
+        .single();
+
+      if (error) throw error;
+      if (savedRow) setProfileLocal(savedRow as ShopProfile);
+      setSavedMsg('Đã lưu cài đặt cửa hàng lên Cloud!');
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Không thể lưu cài đặt');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/login');
+    router.refresh();
+  }
+
+  return (
+    <>
+      <form onSubmit={handleSave} className="space-y-5">
             {errorMsg && (
               <div className="rounded-lg border border-[#FCA5A5] bg-[var(--status-overdue-bg)] px-4 py-3 text-[14px] font-medium text-[var(--status-overdue)]">
                 {errorMsg}
@@ -156,7 +168,7 @@ export default function SettingsPage() {
                 />
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <div>
+                <div className="min-w-0">
                   <label className="mb-1 block text-[14px] font-medium">Số điện thoại</label>
                   <input
                     type="tel"
@@ -166,7 +178,7 @@ export default function SettingsPage() {
                     className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3.5 outline-none focus:border-[var(--brand-jade)]"
                   />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <label className="mb-1 block text-[14px] font-medium">Địa chỉ</label>
                   <input
                     type="text"
@@ -206,7 +218,7 @@ export default function SettingsPage() {
                 </select>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <div>
+                <div className="min-w-0">
                   <label className="mb-1 block text-[14px] font-medium">Số tài khoản</label>
                   <input
                     type="text"
@@ -216,7 +228,7 @@ export default function SettingsPage() {
                     className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3.5 outline-none focus:border-[var(--brand-jade)]"
                   />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <label className="mb-1 block text-[14px] font-medium">
                     Tên chủ tài khoản (không dấu)
                   </label>
@@ -236,21 +248,23 @@ export default function SettingsPage() {
               <h2 className="text-[16px] font-bold">Mặc định nhắc nợ &amp; hóa đơn</h2>
 
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border-default)] pb-3">
-                <label className="flex cursor-pointer items-center gap-2.5 text-[14px] font-medium">
+                <label className="flex min-w-0 flex-1 cursor-pointer items-start gap-2.5 text-[14px] font-medium sm:items-center">
                   <input
                     type="checkbox"
                     checked={digestEnabled}
                     onChange={(e) => setDigestEnabled(e.target.checked)}
-                    className="h-4 w-4 accent-[var(--brand-jade)]"
+                    className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--brand-jade)] sm:mt-0"
                   />
-                  <span>Gửi thông báo tổng hợp đầu ngày các khoản đến hạn/quá hạn</span>
+                  <span className="min-w-0 break-words">
+                    Gửi thông báo tổng hợp đầu ngày các khoản đến hạn/quá hạn
+                  </span>
                 </label>
                 <input
                   type="time"
                   value={digestHour}
                   onChange={(e) => setDigestHour(e.target.value)}
                   aria-label="Giờ gửi tổng hợp sáng"
-                  className="font-mono-tabular min-h-[42px] rounded-lg border border-[var(--border-default)] px-3"
+                  className="font-mono-tabular min-h-[42px] shrink-0 rounded-lg border border-[var(--border-default)] px-3"
                 />
               </div>
 
@@ -269,24 +283,28 @@ export default function SettingsPage() {
                   </select>
                 </div>
 
-                <label className="flex cursor-pointer items-center gap-2.5 text-[14px]">
+                <label className="flex cursor-pointer items-start gap-2.5 text-[14px] sm:items-center">
                   <input
                     type="checkbox"
                     checked={showCumulativeDebt}
                     onChange={(e) => setShowCumulativeDebt(e.target.checked)}
-                    className="h-4 w-4 accent-[var(--brand-jade)]"
+                    className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--brand-jade)] sm:mt-0"
                   />
-                  <span>Mặc định hiển thị công nợ lũy kế (Nợ cũ + Đơn này − Đã trả)</span>
+                  <span className="min-w-0 break-words">
+                    Mặc định hiển thị công nợ lũy kế (Nợ cũ + Đơn này − Đã trả)
+                  </span>
                 </label>
 
-                <label className="flex cursor-pointer items-center gap-2.5 text-[14px]">
+                <label className="flex cursor-pointer items-start gap-2.5 text-[14px] sm:items-center">
                   <input
                     type="checkbox"
                     checked={showQrOnInvoice}
                     onChange={(e) => setShowQrOnInvoice(e.target.checked)}
-                    className="h-4 w-4 accent-[var(--brand-jade)]"
+                    className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--brand-jade)] sm:mt-0"
                   />
-                  <span>Mặc định kèm mã VietQR trên hóa đơn</span>
+                  <span className="min-w-0 break-words">
+                    Mặc định kèm mã VietQR trên hóa đơn
+                  </span>
                 </label>
               </div>
             </section>
@@ -300,12 +318,11 @@ export default function SettingsPage() {
               <span>Lưu tất cả cài đặt</span>
             </button>
           </form>
-        )}
 
         {/* Logout */}
         <section className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="text-[15px] font-bold">Tài khoản đăng nhập</p>
               <p className="text-[13px] text-[var(--text-secondary)]">
                 Đăng xuất khỏi thiết bị này (dữ liệu vẫn an toàn trên Cloud).
@@ -314,14 +331,13 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={handleLogout}
-              className="flex min-h-[46px] items-center gap-2 rounded-lg border border-[#FCA5A5] px-4 text-[14px] font-semibold text-[var(--status-overdue)] hover:bg-[var(--status-overdue-bg)]"
+              className="flex min-h-[46px] shrink-0 items-center gap-2 rounded-lg border border-[#FCA5A5] px-4 text-[14px] font-semibold text-[var(--status-overdue)] hover:bg-[var(--status-overdue-bg)]"
             >
               <LogOut className="h-4 w-4" />
               <span>Đăng xuất</span>
             </button>
           </div>
         </section>
-      </div>
-    </div>
+    </>
   );
 }

@@ -146,15 +146,15 @@ function CheckoutModalBody({
         aria-label="Xác nhận thanh toán"
       >
         <div className="max-h-[92dvh] w-full max-w-[480px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
-          <div className="flex items-center justify-between border-b border-[var(--border-default)] px-4 py-3.5">
-            <h2 className="text-[17px] font-bold">
+          <div className="flex items-center justify-between gap-2 border-b border-[var(--border-default)] px-4 py-3.5">
+            <h2 className="min-w-0 flex-1 truncate text-[17px] font-bold">
               {savedOrder ? 'Đã lưu đơn lên Cloud' : 'Xác nhận thanh toán'}
             </h2>
             <button
               type="button"
               onClick={onClose}
               aria-label="Đóng"
-              className="flex h-10 w-10 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
             >
               <X className="h-5 w-5" />
             </button>
@@ -167,7 +167,7 @@ function CheckoutModalBody({
                 <p className="mt-2 font-mono-tabular text-[15px] font-bold text-[var(--text-primary)]">
                   {savedOrder.order_code}
                 </p>
-                <p className="mt-1 text-[14px] text-[var(--text-secondary)]">
+                <p className="mt-1 break-words text-[14px] text-[var(--text-secondary)]">
                   Khách: <strong>{savedOrder.customer_name_snapshot}</strong> · Tổng:{' '}
                   <strong className="font-mono-tabular">{formatVND(savedOrder.total_amount)}</strong>
                 </p>
@@ -182,18 +182,18 @@ function CheckoutModalBody({
                 <button
                   type="button"
                   onClick={() => setInvoiceOpen(true)}
-                  className="flex min-h-[48px] items-center justify-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[14px] font-semibold hover:bg-[var(--bg-subtle)]"
+                  className="flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-2.5 text-[13px] font-semibold hover:bg-[var(--bg-subtle)] sm:text-[14px]"
                 >
-                  <ReceiptText className="h-4 w-4 text-[var(--brand-jade)]" />
-                  <span>Xuất hóa đơn</span>
+                  <ReceiptText className="h-4 w-4 shrink-0 text-[var(--brand-jade)]" />
+                  <span className="truncate">Xuất hóa đơn</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setQrOpen(true)}
-                  className="flex min-h-[48px] items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-3 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
+                  className="flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-2.5 text-[13px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] sm:text-[14px]"
                 >
-                  <QrCode className="h-4 w-4" />
-                  <span>Tạo mã QR</span>
+                  <QrCode className="h-4 w-4 shrink-0" />
+                  <span className="truncate">Tạo mã QR</span>
                 </button>
               </div>
 
@@ -214,17 +214,17 @@ function CheckoutModalBody({
               )}
 
               <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-3.5">
-                <div className="flex justify-between text-[14px]">
+                <div className="flex flex-wrap justify-between gap-2 text-[14px]">
                   <span className="text-[var(--text-secondary)]">Khách hàng</span>
-                  <span className="font-semibold">
+                  <span className="min-w-0 break-words font-semibold">
                     {selectedCustomer ? selectedCustomer.name : 'Khách lẻ'}
                   </span>
                 </div>
-                <div className="mt-1.5 flex items-baseline justify-between">
+                <div className="mt-1.5 flex flex-wrap items-baseline justify-between gap-2">
                   <span className="text-[14px] font-medium text-[var(--text-secondary)]">
                     Tổng đơn hàng
                   </span>
-                  <span className="font-mono-tabular text-[22px] font-bold text-[var(--text-primary)]">
+                  <span className="font-mono-tabular shrink-0 text-[20px] font-bold text-[var(--text-primary)] sm:text-[22px]">
                     {formatVND(total)}
                   </span>
                 </div>
@@ -239,7 +239,7 @@ function CheckoutModalBody({
                       setChoice('full_cash');
                       setPaidInput(String(total));
                     }}
-                    className={`min-h-[48px] rounded-lg border px-3 text-[14px] font-semibold ${
+                    className={`min-h-[48px] rounded-lg border px-2 text-[13px] font-semibold leading-tight sm:px-3 sm:text-[14px] ${
                       choice === 'full_cash'
                         ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade)]'
                         : 'border-[var(--border-default)] bg-[var(--bg-surface)]'
@@ -253,7 +253,7 @@ function CheckoutModalBody({
                       setChoice('full_transfer');
                       setPaidInput(String(total));
                     }}
-                    className={`min-h-[48px] rounded-lg border px-3 text-[14px] font-semibold ${
+                    className={`min-h-[48px] rounded-lg border px-2 text-[13px] font-semibold leading-tight sm:px-3 sm:text-[14px] ${
                       choice === 'full_transfer'
                         ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade)]'
                         : 'border-[var(--border-default)] bg-[var(--bg-surface)]'
@@ -267,7 +267,7 @@ function CheckoutModalBody({
                       setChoice('partial');
                       setPaidInput('');
                     }}
-                    className={`min-h-[48px] rounded-lg border px-3 text-[14px] font-semibold ${
+                    className={`min-h-[48px] rounded-lg border px-2 text-[13px] font-semibold leading-tight sm:px-3 sm:text-[14px] ${
                       choice === 'partial'
                         ? 'border-[var(--status-debt)] bg-[var(--status-debt-bg)] text-[var(--status-debt)]'
                         : 'border-[var(--border-default)] bg-[var(--bg-surface)]'
@@ -281,7 +281,7 @@ function CheckoutModalBody({
                       setChoice('unpaid');
                       setPaidInput('0');
                     }}
-                    className={`min-h-[48px] rounded-lg border px-3 text-[14px] font-semibold ${
+                    className={`min-h-[48px] rounded-lg border px-2 text-[13px] font-semibold leading-tight sm:px-3 sm:text-[14px] ${
                       choice === 'unpaid'
                         ? 'border-[var(--status-debt)] bg-[var(--status-debt-bg)] text-[var(--status-debt)]'
                         : 'border-[var(--border-default)] bg-[var(--bg-surface)]'
@@ -293,8 +293,8 @@ function CheckoutModalBody({
               </div>
 
               {choice === 'partial' && (
-                <div className="grid grid-cols-2 gap-2.5">
-                  <div>
+                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                  <div className="min-w-0">
                     <label className="mb-1 block text-[13px] font-medium">Khách trả trước (đ)</label>
                     <input
                       type="number"
@@ -304,15 +304,15 @@ function CheckoutModalBody({
                       value={paidInput}
                       onChange={(e) => setPaidInput(e.target.value)}
                       placeholder="VD: 100000"
-                      className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3 outline-none focus:border-[var(--brand-jade)]"
+                      className="font-mono-tabular min-h-[46px] w-full min-w-0 rounded-lg border border-[var(--border-default)] px-3 outline-none focus:border-[var(--brand-jade)]"
                     />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <label className="mb-1 block text-[13px] font-medium">Nhận bằng</label>
                     <select
                       value={partialMethod}
                       onChange={(e) => setPartialMethod(e.target.value as 'cash' | 'transfer')}
-                      className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3"
+                      className="min-h-[46px] w-full min-w-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3"
                     >
                       <option value="cash">Tiền mặt</option>
                       <option value="transfer">Chuyển khoản</option>
@@ -323,11 +323,11 @@ function CheckoutModalBody({
 
               {remaining > 0 && (
                 <div className="space-y-3 rounded-lg border border-[#FCD34D] bg-[var(--status-debt-bg)] p-3.5">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="text-[14px] font-semibold text-[var(--status-debt)]">
                       Số tiền ghi nợ đơn này
                     </span>
-                    <span className="font-mono-tabular text-[18px] font-bold text-[var(--status-debt)]">
+                    <span className="font-mono-tabular shrink-0 text-[18px] font-bold text-[var(--status-debt)]">
                       {formatVND(remaining)}
                     </span>
                   </div>
@@ -338,7 +338,7 @@ function CheckoutModalBody({
                     </p>
                   )}
 
-                  <div>
+                  <div className="min-w-0">
                     <label className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">
                       Ngày hẹn thu nợ
                     </label>
@@ -346,7 +346,7 @@ function CheckoutModalBody({
                       type="date"
                       value={dueDate}
                       onChange={(e) => setDueDate(e.target.value)}
-                      className="font-mono-tabular min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3"
+                      className="font-mono-tabular min-h-[44px] w-full min-w-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3"
                     />
                   </div>
                 </div>

@@ -172,23 +172,23 @@ function DebtCustomerDrawerBody({
         aria-label={`Chi tiết công nợ ${customer.name}`}
       >
         <div className="max-h-[93dvh] w-full max-w-[560px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
-          <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
-            <div className="min-w-0">
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
+            <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <h2 className="truncate text-[18px] font-bold">{customer.name}</h2>
+                <h2 className="min-w-0 truncate text-[18px] font-bold">{customer.name}</h2>
                 <button
                   type="button"
                   onClick={() => setEditingInfo((v) => !v)}
                   aria-label="Sửa thông tin khách"
-                  className="flex h-8 w-8 items-center justify-center rounded-md text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
                 >
                   <Pencil className="h-4 w-4" />
                 </button>
               </div>
               {customer.phone && (
                 <p className="font-mono-tabular flex items-center gap-1 text-[13px] text-[var(--text-secondary)]">
-                  <Phone className="h-3.5 w-3.5" />
-                  <span>{customer.phone}</span>
+                  <Phone className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{customer.phone}</span>
                 </p>
               )}
             </div>
@@ -196,7 +196,7 @@ function DebtCustomerDrawerBody({
               type="button"
               onClick={onClose}
               aria-label="Đóng"
-              className="flex h-10 w-10 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
             >
               <X className="h-5 w-5" />
             </button>
@@ -252,18 +252,18 @@ function DebtCustomerDrawerBody({
             )}
 
             {customer.note && !editingInfo && (
-              <p className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] px-3.5 py-2 text-[13px] text-[var(--text-secondary)]">
+              <p className="break-words rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] px-3.5 py-2 text-[13px] text-[var(--text-secondary)]">
                 Ghi chú: {customer.note}
               </p>
             )}
 
             <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-subtle)] p-4">
-              <div className="flex items-baseline justify-between">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="text-[14px] font-medium text-[var(--text-secondary)]">
                   Tổng công nợ hiện tại
                 </span>
                 <span
-                  className={`font-mono-tabular text-[24px] font-bold ${
+                  className={`font-mono-tabular text-[20px] font-bold sm:text-[24px] ${
                     customer.total_debt > 0 ? 'text-[var(--status-debt)]' : 'text-[var(--brand-jade)]'
                   }`}
                 >
@@ -280,33 +280,33 @@ function DebtCustomerDrawerBody({
               )}
 
               {customer.total_debt > 0 && (
-                <div className="mt-3 grid grid-cols-3 gap-2">
+                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
                   <button
                     type="button"
                     onClick={() => {
                       setCollectOrderId(null);
                       setCollectOpen(true);
                     }}
-                    className="flex min-h-[46px] items-center justify-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-2 text-[13px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
+                    className="flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-2.5 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
                   >
                     <Banknote className="h-4 w-4 shrink-0" />
-                    <span>Thu nợ</span>
+                    <span className="truncate">Thu nợ</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setQrOpen(true)}
-                    className="flex min-h-[46px] items-center justify-center gap-1.5 rounded-lg border border-[var(--brand-jade)] bg-white px-2 text-[13px] font-semibold text-[var(--brand-jade)] hover:bg-[var(--status-paid-bg)]"
+                    className="flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--brand-jade)] bg-white px-2.5 text-[14px] font-semibold text-[var(--brand-jade)] hover:bg-[var(--status-paid-bg)]"
                   >
                     <QrCode className="h-4 w-4 shrink-0" />
-                    <span>Tạo QR</span>
+                    <span className="truncate">Tạo QR</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setReminderOpen(true)}
-                    className="flex min-h-[46px] items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-white px-2 text-[13px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
+                    className="col-span-2 flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-white px-2.5 text-[14px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] sm:col-span-1"
                   >
                     <BellPlus className="h-4 w-4 shrink-0" />
-                    <span>Hẹn nhắc</span>
+                    <span className="truncate">Hẹn nhắc</span>
                   </button>
                 </div>
               )}
@@ -327,12 +327,14 @@ function DebtCustomerDrawerBody({
                           key={rem.id}
                           className="flex items-center justify-between gap-2 px-3.5 py-2.5 text-[13px]"
                         >
-                          <div>
+                          <div className="min-w-0 flex-1">
                             <p className="font-mono-tabular font-semibold text-[var(--brand-jade)]">
                               {formatDateTimeVN(rem.scheduled_for)}
                             </p>
                             {rem.message && (
-                              <p className="text-[var(--text-secondary)]">{rem.message}</p>
+                              <p className="break-words text-[var(--text-secondary)]">
+                                {rem.message}
+                              </p>
                             )}
                           </div>
                           <button
@@ -362,17 +364,17 @@ function DebtCustomerDrawerBody({
                       {unpaidOrders.map((ord) => (
                         <div
                           key={ord.id}
-                          className="flex items-center justify-between gap-2 px-3.5 py-3"
+                          className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-3"
                         >
-                          <div>
-                            <p className="font-mono-tabular text-[13px] font-bold">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-mono-tabular truncate text-[13px] font-bold">
                               {ord.order_code}
                             </p>
                             <p className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
                               {formatDateTimeVN(ord.created_at)} · Tổng {formatVND(ord.total_amount)}
                             </p>
                           </div>
-                          <div className="flex items-center gap-2.5">
+                          <div className="flex shrink-0 items-center gap-2">
                             <span className="font-mono-tabular text-[14px] font-bold text-[var(--status-debt)]">
                               {formatVND(ord.remaining_amount)}
                             </span>
@@ -382,7 +384,7 @@ function DebtCustomerDrawerBody({
                                 setCollectOrderId(ord.id);
                                 setCollectOpen(true);
                               }}
-                              className="min-h-[36px] rounded-md border border-[var(--brand-jade)] px-2.5 text-[12px] font-semibold text-[var(--brand-jade)] hover:bg-[var(--status-paid-bg)]"
+                              className="min-h-[36px] shrink-0 rounded-md border border-[var(--brand-jade)] px-2.5 text-[12px] font-semibold text-[var(--brand-jade)] hover:bg-[var(--status-paid-bg)]"
                             >
                               Thu đơn
                             </button>
@@ -408,15 +410,15 @@ function DebtCustomerDrawerBody({
                           key={pay.id}
                           className="flex items-center justify-between gap-2 px-3.5 py-2.5 text-[13px]"
                         >
-                          <div>
-                            <p className="font-medium text-[var(--text-primary)]">
+                          <div className="min-w-0 flex-1">
+                            <p className="break-words font-medium text-[var(--text-primary)]">
                               {pay.note || 'Thu tiền'} ({pay.payment_method === 'transfer' ? 'CK' : 'Tiền mặt'})
                             </p>
                             <p className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
                               {formatDateTimeVN(pay.paid_at)}
                             </p>
                           </div>
-                          <span className="font-mono-tabular font-bold text-[var(--brand-jade)]">
+                          <span className="shrink-0 font-mono-tabular font-bold text-[var(--brand-jade)]">
                             +{formatVND(pay.amount)}
                           </span>
                         </div>

@@ -77,8 +77,8 @@ export function CartPanel({
             return (
               <div key={item.key} className="py-3">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="text-[14px] font-semibold text-[var(--text-primary)]">
+                  <div className="min-w-0 flex-1">
+                    <p className="break-words text-[14px] font-semibold text-[var(--text-primary)]">
                       {item.product_name}
                     </p>
                     <p className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
@@ -96,7 +96,7 @@ export function CartPanel({
                 </div>
 
                 <div className="mt-2 flex items-center justify-between gap-2">
-                  <div className="inline-flex items-center rounded-lg border border-[var(--border-default)]">
+                  <div className="inline-flex shrink-0 items-center rounded-lg border border-[var(--border-default)]">
                     <button
                       type="button"
                       onClick={() => {
@@ -131,7 +131,7 @@ export function CartPanel({
                     </button>
                   </div>
 
-                  <span className="font-mono-tabular text-[15px] font-bold text-[var(--text-primary)]">
+                  <span className="font-mono-tabular shrink-0 text-[15px] font-bold text-[var(--text-primary)]">
                     {formatVND(lineTotal)}
                   </span>
                 </div>
@@ -143,9 +143,9 @@ export function CartPanel({
 
       {/* Totals + Checkout CTA */}
       <div className="space-y-2.5 border-t border-[var(--border-default)] bg-[var(--bg-subtle)] p-3.5">
-        <div className="flex items-center justify-between text-[14px]">
+        <div className="flex items-center justify-between gap-2 text-[14px]">
           <span className="text-[var(--text-secondary)]">Tạm tính</span>
-          <span className="font-mono-tabular font-semibold">{formatVND(subtotal)}</span>
+          <span className="font-mono-tabular shrink-0 font-semibold">{formatVND(subtotal)}</span>
         </div>
 
         <div className="flex items-center justify-between gap-3 text-[14px]">
@@ -160,13 +160,13 @@ export function CartPanel({
             value={discount || ''}
             placeholder="0"
             onChange={(e) => onChangeDiscount(Math.max(0, Math.round(Number(e.target.value) || 0)))}
-            className="font-mono-tabular min-h-[40px] w-32 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-2.5 text-right text-[15px] font-semibold outline-none focus:border-[var(--brand-jade)]"
+            className="font-mono-tabular min-h-[40px] w-32 shrink-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-2.5 text-right text-[15px] font-semibold outline-none focus:border-[var(--brand-jade)]"
           />
         </div>
 
-        <div className="flex items-baseline justify-between border-t border-[var(--border-default)] pt-2">
+        <div className="flex flex-wrap items-baseline justify-between gap-2 border-t border-[var(--border-default)] pt-2">
           <span className="text-[15px] font-bold">Tổng thanh toán</span>
-          <span className="font-mono-tabular text-[22px] font-bold text-[var(--brand-jade)]">
+          <span className="font-mono-tabular shrink-0 text-[20px] font-bold text-[var(--brand-jade)] sm:text-[22px]">
             {formatVND(total)}
           </span>
         </div>
@@ -181,7 +181,7 @@ export function CartPanel({
           type="button"
           disabled={items.length === 0}
           onClick={onOpenCheckout}
-          className="flex min-h-[50px] w-full items-center justify-center rounded-lg bg-[var(--brand-jade)] px-4 text-[16px] font-bold text-white transition-colors hover:bg-[var(--brand-jade-hover)] disabled:cursor-not-allowed disabled:opacity-45"
+          className="flex min-h-[50px] w-full items-center justify-center rounded-lg bg-[var(--brand-jade)] px-3 text-center text-[15px] font-bold text-white transition-colors hover:bg-[var(--brand-jade-hover)] disabled:cursor-not-allowed disabled:opacity-45 sm:px-4 sm:text-[16px]"
         >
           Thanh toán / Ghi nợ ({formatVND(total)})
         </button>

@@ -84,16 +84,16 @@ export function ReceiptTemplate({
   return (
     <div
       className={`mx-auto bg-white text-[#141A21] border border-[var(--border-default)] ${
-        is80mm ? 'w-[304px] p-4 text-[12px]' : 'w-full max-w-[460px] p-6 text-[14px]'
+        is80mm ? 'w-full max-w-[304px] p-4 text-[12px]' : 'w-full max-w-[460px] p-4 text-[13px] sm:p-6 sm:text-[14px]'
       }`}
     >
       {/* Shop Header */}
       <div className="border-b border-dashed border-[#CBD5E1] pb-3 text-center">
-        <h3 className={`font-bold uppercase ${is80mm ? 'text-[15px]' : 'text-[18px]'}`}>
+        <h3 className={`break-words font-bold uppercase ${is80mm ? 'text-[15px]' : 'text-[18px]'}`}>
           {profile?.shop_name ?? 'Tạp Hóa Mẹ'}
         </h3>
         {profile?.address && (
-          <p className="mt-0.5 text-[12px] text-[#4B5563]">{profile.address}</p>
+          <p className="mt-0.5 break-words text-[12px] text-[#4B5563]">{profile.address}</p>
         )}
         {profile?.phone && (
           <p className="font-mono-tabular text-[12px] text-[#4B5563]">ĐT: {profile.phone}</p>
@@ -107,34 +107,40 @@ export function ReceiptTemplate({
         </p>
         <div className="mt-2 space-y-1 text-[12px]">
           <div className="flex justify-between gap-2">
-            <span className="text-[#4B5563]">Mã đơn:</span>
-            <span className="font-mono-tabular font-semibold">{order.order_code}</span>
+            <span className="shrink-0 text-[#4B5563]">Mã đơn:</span>
+            <span className="font-mono-tabular min-w-0 break-all text-right font-semibold">
+              {order.order_code}
+            </span>
           </div>
           <div className="flex justify-between gap-2">
-            <span className="text-[#4B5563]">Ngày giờ:</span>
-            <span className="font-mono-tabular">{formatDateTimeVN(order.created_at)}</span>
+            <span className="shrink-0 text-[#4B5563]">Ngày giờ:</span>
+            <span className="font-mono-tabular shrink-0 text-right">
+              {formatDateTimeVN(order.created_at)}
+            </span>
           </div>
           <div className="flex justify-between gap-2">
-            <span className="text-[#4B5563]">Khách hàng:</span>
-            <span className="font-semibold">{order.customer_name_snapshot}</span>
+            <span className="shrink-0 text-[#4B5563]">Khách hàng:</span>
+            <span className="min-w-0 break-words text-right font-semibold">
+              {order.customer_name_snapshot}
+            </span>
           </div>
         </div>
       </div>
 
       {/* Line Items */}
-      <table className="w-full border-collapse py-2">
+      <table className="w-full table-fixed border-collapse py-2">
         <thead>
           <tr className="border-b border-[#DDE2E7] text-left text-[11px] uppercase text-[#4B5563]">
-            <th className="py-2 font-semibold">Mặt hàng</th>
-            <th className="py-2 text-right font-semibold">SL</th>
-            <th className="py-2 text-right font-semibold">Đ.Giá</th>
-            <th className="py-2 text-right font-semibold">T.Tiền</th>
+            <th className="w-[42%] py-2 font-semibold">Mặt hàng</th>
+            <th className="w-[12%] py-2 text-right font-semibold">SL</th>
+            <th className="w-[21%] py-2 text-right font-semibold">Đ.Giá</th>
+            <th className="w-[25%] py-2 text-right font-semibold">T.Tiền</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-dashed divide-[#E5E7EB]">
           {items.map((item) => (
             <tr key={item.id}>
-              <td className="py-2 pr-2 align-top font-medium">
+              <td className="break-words py-2 pr-1.5 align-top font-medium">
                 {item.product_name}
                 <span className="ml-1 text-[11px] text-[#4B5563]">({item.unit})</span>
               </td>

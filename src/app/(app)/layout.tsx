@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { AppShell } from '@/components/shell/AppShell';
+import { PosDataProvider } from '@/components/providers/PosDataProvider';
+import type { ShopProfile } from '@/types/database';
 
 export default async function AppLayout({
   children,
@@ -19,7 +21,7 @@ export default async function AppLayout({
   // Safe upsert fallback in case trigger was added after account creation
   let { data: profile } = await supabase
     .from('shop_profiles')
-    .select('shop_name')
+    .select('*')
     .eq('user_id', user.id)
     .maybeSingle();
 
@@ -35,17 +37,21 @@ export default async function AppLayout({
         },
         { onConflict: 'user_id' }
       )
-      .select('shop_name')
+      .select('*')
       .maybeSingle();
     profile = inserted;
   }
 
+  const typedProfile = (profile as ShopProfile | null) ?? null;
+
   return (
-    <AppShell
-      shopName={profile?.shop_name || 'Tạp Hóa Mẹ'}
-      userEmail={user.email || ''}
-    >
-      {children}
-    </AppShell>
+    <PosDataProvider initialProfile={typedProfile}>
+      <AppShell
+        shopName={typedProfile?.shop_name || 'Tạp Hóa Mẹ'}
+        userEmail={user.email || ''}
+      >
+        {children}
+      </AppShell>
+    </PosDataProvider>
   );
 }

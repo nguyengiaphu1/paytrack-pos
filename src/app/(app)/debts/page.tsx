@@ -1,12 +1,10 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { AlertCircle, Banknote, QrCode, Search, Users } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 import { formatDateVN, formatVND, getTodayVN, stripVietnamese } from '@/lib/vietnamese';
-import { useRealtimeSync } from '@/hooks/useRealtimeSync';
-import type { Customer, ShopProfile } from '@/types/database';
+import { usePosData } from '@/components/providers/PosDataProvider';
 import { DebtCustomerDrawer } from '@/components/debts/DebtCustomerDrawer';
 
 type DebtFilter = 'debtors' | 'due' | 'all';
@@ -16,9 +14,14 @@ function DebtsContent() {
   const deepCustomerId = searchParams.get('customer');
   const deepFilter = searchParams.get('filter');
 
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [profile, setProfile] = useState<ShopProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const {
+    customers,
+    customersLoaded,
+    profile,
+    ensureCustomers,
+    invalidateAfterMutation,
+  } = usePosData();
+
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<DebtFilter>(
     deepFilter === 'due' ? 'due' : 'debtors'
@@ -27,27 +30,9 @@ function DebtsContent() {
     deepCustomerId
   );
 
-  const loadDebts = useCallback(async () => {
-    const supabase = createClient();
-    const [{ data: custRows }, { data: prof }] = await Promise.all([
-      supabase
-        .from('customers')
-        .select('*')
-        .order('total_debt', { ascending: false })
-        .order('name', { ascending: true }),
-      supabase.from('shop_profiles').select('*').maybeSingle(),
-    ]);
-    if (custRows) setCustomers(custRows as Customer[]);
-    if (prof) setProfile(prof as ShopProfile);
-    setLoading(false);
-  }, []);
-
   useEffect(() => {
-    const id = setTimeout(() => {
-      void loadDebts();
-    }, 0);
-    return () => clearTimeout(id);
-  }, [loadDebts]);
+    void ensureCustomers();
+  }, [ensureCustomers]);
 
   useEffect(() => {
     if (!deepCustomerId && deepFilter !== 'due') return;
@@ -58,12 +43,7 @@ function DebtsContent() {
     return () => clearTimeout(id);
   }, [deepCustomerId, deepFilter]);
 
-  useRealtimeSync({
-    tables: ['customers', 'orders', 'debt_payments', 'debt_reminders'],
-    onDataChange: loadDebts,
-    channelName: 'debts-ledger',
-  });
-
+  const loading = !customersLoaded;
   const todayVN = getTodayVN();
 
   const summary = useMemo(() => {
@@ -112,21 +92,21 @@ function DebtsContent() {
 
       {/* KPI Strip */}
       <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div className="col-span-2 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:col-span-1">
+        <div className="col-span-2 min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:col-span-1">
           <p className="text-[13px] text-[var(--text-secondary)]">Tổng công nợ toàn shop</p>
-          <p className="font-mono-tabular mt-1 text-[24px] font-bold text-[var(--status-debt)]">
+          <p className="font-mono-tabular mt-1 break-words text-[22px] font-bold text-[var(--status-debt)] sm:text-[24px]">
             {formatVND(summary.totalShopDebt)}
           </p>
         </div>
-        <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
+        <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
           <p className="text-[13px] text-[var(--text-secondary)]">Khách đang nợ</p>
-          <p className="font-mono-tabular mt-1 text-[22px] font-bold text-[var(--text-primary)]">
+          <p className="font-mono-tabular mt-1 text-[20px] font-bold text-[var(--text-primary)] sm:text-[22px]">
             {summary.debtorCount}
           </p>
         </div>
-        <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
+        <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
           <p className="text-[13px] text-[var(--text-secondary)]">Đến hạn / Quá hạn</p>
-          <p className="font-mono-tabular mt-1 text-[22px] font-bold text-[var(--status-overdue)]">
+          <p className="font-mono-tabular mt-1 text-[20px] font-bold text-[var(--status-overdue)] sm:text-[22px]">
             {summary.dueOrOverdueCount}
           </p>
         </div>
@@ -202,26 +182,26 @@ function DebtsContent() {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') setSelectedCustomerId(cust.id);
                 }}
-                className="flex cursor-pointer flex-wrap items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-[var(--bg-subtle)]"
+                className="flex cursor-pointer items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-[var(--bg-subtle)]"
               >
                 <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[16px] font-bold text-[var(--text-primary)]">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="max-w-full break-words text-[16px] font-bold text-[var(--text-primary)]">
                       {cust.name}
                     </span>
                     {isOverdue && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-[var(--status-overdue-bg)] px-2 py-0.5 text-[11px] font-semibold text-[var(--status-overdue)]">
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--status-overdue-bg)] px-2 py-0.5 text-[11px] font-semibold text-[var(--status-overdue)]">
                         <AlertCircle className="h-3 w-3" />
                         Quá hạn ({formatDateVN(cust.next_due_date)})
                       </span>
                     )}
                     {isDueToday && (
-                      <span className="rounded-full bg-[var(--status-debt-bg)] px-2 py-0.5 text-[11px] font-semibold text-[var(--status-debt)]">
+                      <span className="shrink-0 rounded-full bg-[var(--status-debt-bg)] px-2 py-0.5 text-[11px] font-semibold text-[var(--status-debt)]">
                         Hẹn thu hôm nay
                       </span>
                     )}
                   </div>
-                  <p className="mt-0.5 font-mono-tabular text-[13px] text-[var(--text-secondary)]">
+                  <p className="mt-0.5 break-words font-mono-tabular text-[13px] text-[var(--text-secondary)]">
                     {cust.phone || 'Chưa có SĐT'}
                     {cust.next_due_date && !isOverdue && !isDueToday && cust.total_debt > 0
                       ? ` · Hẹn ${formatDateVN(cust.next_due_date)}`
@@ -229,9 +209,9 @@ function DebtsContent() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex shrink-0 items-center gap-3">
                   <span
-                    className={`font-mono-tabular text-[17px] font-bold ${
+                    className={`font-mono-tabular text-[16px] font-bold sm:text-[17px] ${
                       cust.total_debt > 0 ? 'text-[var(--status-debt)]' : 'text-[var(--brand-jade)]'
                     }`}
                   >
@@ -262,7 +242,7 @@ function DebtsContent() {
         onClose={() => setSelectedCustomerId(null)}
         customer={activeCustomer}
         profile={profile}
-        onDataUpdated={loadDebts}
+        onDataUpdated={invalidateAfterMutation}
       />
     </div>
   );

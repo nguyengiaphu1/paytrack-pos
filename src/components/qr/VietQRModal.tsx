@@ -228,10 +228,10 @@ function VietQRModalBody({
       aria-label="Tạo mã VietQR động"
     >
       <div className="max-h-[92dvh] w-full max-w-[460px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
-          <div className="flex items-center gap-2">
-            <QrCode className="h-5 w-5 text-[var(--brand-jade)]" />
-            <h2 className="text-[17px] font-bold text-[var(--text-primary)]">
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <QrCode className="h-5 w-5 shrink-0 text-[var(--brand-jade)]" />
+            <h2 className="min-w-0 truncate text-[17px] font-bold text-[var(--text-primary)]">
               Mã VietQR thu tiền
             </h2>
           </div>
@@ -239,7 +239,7 @@ function VietQRModalBody({
             type="button"
             onClick={onClose}
             aria-label="Đóng"
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
           >
             <X className="h-5 w-5" />
           </button>
@@ -259,7 +259,7 @@ function VietQRModalBody({
                 onClick={onClose}
                 className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-5 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
               >
-                <Settings className="h-4 w-4" />
+                <Settings className="h-4 w-4 shrink-0" />
                 <span>Cài đặt ngân hàng ngay</span>
               </Link>
             </div>
@@ -271,7 +271,7 @@ function VietQRModalBody({
                     type="button"
                     disabled={totalCustomerDebt <= 0}
                     onClick={() => setMode('total_debt')}
-                    className={`min-h-[42px] rounded-md px-2 text-[13px] font-semibold transition-colors disabled:opacity-40 ${
+                    className={`min-h-[42px] truncate rounded-md px-1.5 text-[12px] font-semibold transition-colors disabled:opacity-40 sm:px-2 sm:text-[13px] ${
                       mode === 'total_debt'
                         ? 'bg-[var(--bg-surface)] text-[var(--brand-jade)] border border-[var(--border-default)]'
                         : 'text-[var(--text-secondary)]'
@@ -283,7 +283,7 @@ function VietQRModalBody({
                     type="button"
                     disabled={unpaidOrders.length === 0}
                     onClick={() => setMode('single_order')}
-                    className={`min-h-[42px] rounded-md px-2 text-[13px] font-semibold transition-colors disabled:opacity-40 ${
+                    className={`min-h-[42px] truncate rounded-md px-1.5 text-[12px] font-semibold transition-colors disabled:opacity-40 sm:px-2 sm:text-[13px] ${
                       mode === 'single_order'
                         ? 'bg-[var(--bg-surface)] text-[var(--brand-jade)] border border-[var(--border-default)]'
                         : 'text-[var(--text-secondary)]'
@@ -297,7 +297,7 @@ function VietQRModalBody({
                       setCustomAmountStr(String(effectiveAmount));
                       setMode('custom');
                     }}
-                    className={`min-h-[42px] rounded-md px-2 text-[13px] font-semibold transition-colors ${
+                    className={`min-h-[42px] truncate rounded-md px-1.5 text-[12px] font-semibold transition-colors sm:px-2 sm:text-[13px] ${
                       mode === 'custom'
                         ? 'bg-[var(--bg-surface)] text-[var(--brand-jade)] border border-[var(--border-default)]'
                         : 'text-[var(--text-secondary)]'
@@ -355,10 +355,10 @@ function VietQRModalBody({
                 ref={cardRef}
                 className="rounded-[10px] border border-[var(--border-default)] bg-white p-4 text-center"
               >
-                <p className="text-[14px] font-bold uppercase tracking-wide text-[var(--brand-jade)]">
+                <p className="break-words text-[14px] font-bold uppercase tracking-wide text-[var(--brand-jade)]">
                   {profile?.shop_name ?? 'PayTrack POS'}
                 </p>
-                <p className="mt-0.5 text-[13px] text-[var(--text-secondary)]">
+                <p className="mt-0.5 break-words text-[13px] text-[var(--text-secondary)]">
                   Khách hàng: <strong className="text-[var(--text-primary)]">{customerName}</strong>
                 </p>
 
@@ -372,28 +372,28 @@ function VietQRModalBody({
                     <img
                       src={qrDataUrl}
                       alt={`Mã VietQR thu ${formatVND(effectiveAmount)}`}
-                      className="h-[228px] w-[228px] rounded-lg border border-[var(--border-default)]"
+                      className="h-[228px] w-[228px] max-w-full rounded-lg border border-[var(--border-default)]"
                     />
                   ) : (
-                    <div className="h-[228px] w-[228px] rounded-lg bg-[var(--bg-subtle)]" />
+                    <div className="h-[228px] w-[228px] max-w-full rounded-lg bg-[var(--bg-subtle)]" />
                   )}
                 </div>
 
-                <p className="font-mono-tabular text-[26px] font-bold text-[var(--text-primary)]">
+                <p className="font-mono-tabular break-words text-[24px] font-bold text-[var(--text-primary)] sm:text-[26px]">
                   {formatVND(effectiveAmount)}
                 </p>
 
                 <div className="mt-3 space-y-1 border-t border-dashed border-[var(--border-default)] pt-3 text-[13px]">
-                  <p className="font-semibold text-[var(--text-primary)]">
+                  <p className="break-words font-semibold text-[var(--text-primary)]">
                     {profile?.bank_name || `BIN ${profile?.bank_bin}`} ·{' '}
                     <span className="font-mono-tabular">{profile?.bank_account_no}</span>
                   </p>
                   {profile?.bank_account_name && (
-                    <p className="text-[12px] uppercase text-[var(--text-secondary)]">
+                    <p className="break-words text-[12px] uppercase text-[var(--text-secondary)]">
                       {profile.bank_account_name}
                     </p>
                   )}
-                  <p className="text-[12px] text-[var(--text-secondary)]">
+                  <p className="break-words text-[12px] text-[var(--text-secondary)]">
                     Nội dung CK:{' '}
                     <span className="font-mono-tabular font-semibold text-[var(--text-primary)]">
                       {memo}

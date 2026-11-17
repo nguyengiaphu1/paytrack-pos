@@ -1,12 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronUp, Landmark, ShoppingBag, X } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 import { computeOrderTotals, formatVND } from '@/lib/vietnamese';
-import { useRealtimeSync } from '@/hooks/useRealtimeSync';
-import type { CartItem, Customer, Product, ShopProfile } from '@/types/database';
+import { usePosData } from '@/components/providers/PosDataProvider';
+import type { CartItem, Product } from '@/types/database';
 import { ProductCatalog } from '@/components/pos/ProductCatalog';
 import { ProductFormModal } from '@/components/pos/ProductFormModal';
 import { QuickItemModal } from '@/components/pos/QuickItemModal';
@@ -14,10 +13,17 @@ import { CartPanel } from '@/components/pos/CartPanel';
 import { CheckoutModal } from '@/components/pos/CheckoutModal';
 
 export default function PosWorkspacePage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [profile, setProfile] = useState<ShopProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const {
+    products,
+    productsLoaded,
+    customers,
+    profile,
+    ensurePosCatalog,
+    refreshPosCatalog,
+    upsertProductLocal,
+    upsertCustomerLocal,
+    invalidateAfterMutation,
+  } = usePosData();
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [discount, setDiscount] = useState(0);
@@ -30,31 +36,9 @@ export default function PosWorkspacePage() {
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
 
-  const loadData = useCallback(async () => {
-    const supabase = createClient();
-    const [{ data: prods }, { data: custs }, { data: prof }] = await Promise.all([
-      supabase.from('products').select('*').order('name', { ascending: true }),
-      supabase.from('customers').select('*').order('name', { ascending: true }),
-      supabase.from('shop_profiles').select('*').maybeSingle(),
-    ]);
-    if (prods) setProducts(prods as Product[]);
-    if (custs) setCustomers(custs as Customer[]);
-    if (prof) setProfile(prof as ShopProfile);
-    setLoading(false);
-  }, []);
-
   useEffect(() => {
-    const id = setTimeout(() => {
-      void loadData();
-    }, 0);
-    return () => clearTimeout(id);
-  }, [loadData]);
-
-  useRealtimeSync({
-    tables: ['products', 'customers', 'shop_profiles'],
-    onDataChange: loadData,
-    channelName: 'pos-workspace',
-  });
+    void ensurePosCatalog();
+  }, [ensurePosCatalog]);
 
   function handleAddProductToCart(product: Product) {
     setCart((prev) => {
@@ -95,9 +79,10 @@ export default function PosWorkspacePage() {
     setCart([]);
     setDiscount(0);
     setMobileCartOpen(false);
-    loadData();
+    invalidateAfterMutation();
   }
 
+  const loading = !productsLoaded;
   const selectedCustomer = customers.find((c) => c.id === selectedCustomerId) ?? null;
   const { total } = computeOrderTotals(cart, discount);
   const missingBankConfig = profile && (!profile.bank_bin || !profile.bank_account_no);
@@ -106,7 +91,7 @@ export default function PosWorkspacePage() {
     <div className="mx-auto max-w-[1380px] px-3 py-4 sm:px-6 lg:py-5">
       {/* Page Title */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <div>
+        <div className="min-w-0">
           <h1 className="text-[20px] font-bold tracking-[-0.015em] lg:text-[24px]">
             Bán hàng POS
           </h1>
@@ -119,16 +104,16 @@ export default function PosWorkspacePage() {
       {/* Guided Onboarding Banner when bank account is not yet configured */}
       {!loading && missingBankConfig && (
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3">
-          <div className="flex items-center gap-2.5 text-[14px]">
+          <div className="flex min-w-0 flex-1 items-center gap-2.5 text-[14px]">
             <Landmark className="h-5 w-5 shrink-0 text-[var(--brand-jade)]" />
-            <span>
+            <span className="min-w-0 break-words">
               Chưa nhập tài khoản ngân hàng? Thêm 1 lần để tạo <strong>VietQR động</strong> và in
               QR trên hóa đơn.
             </span>
           </div>
           <Link
             href="/settings#bank"
-            className="inline-flex min-h-[38px] items-center rounded-lg border border-[var(--brand-jade)] px-3.5 text-[13px] font-semibold text-[var(--brand-jade)] hover:bg-[var(--status-paid-bg)]"
+            className="inline-flex min-h-[38px] shrink-0 items-center rounded-lg border border-[var(--brand-jade)] px-3.5 text-[13px] font-semibold text-[var(--brand-jade)] hover:bg-[var(--status-paid-bg)]"
           >
             Cài đặt ngân hàng
           </Link>
@@ -137,7 +122,7 @@ export default function PosWorkspacePage() {
 
       {/* Desktop Split-Pane / Mobile Product Catalog */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
-        <div className="lg:col-span-7 xl:col-span-7">
+        <div className="min-w-0 lg:col-span-7 xl:col-span-7">
           {loading ? (
             <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-8 text-center text-[14px] text-[var(--text-secondary)]">
               Đang tải danh mục sản phẩm...
@@ -175,7 +160,7 @@ export default function PosWorkspacePage() {
               customers={customers}
               selectedCustomerId={selectedCustomerId}
               onSelectCustomer={(c) => setSelectedCustomerId(c?.id ?? null)}
-              onCustomerCreated={(c) => setCustomers((prev) => [...prev, c])}
+              onCustomerCreated={upsertCustomerLocal}
               onOpenCheckout={() => setCheckoutOpen(true)}
             />
           </div>
@@ -188,15 +173,17 @@ export default function PosWorkspacePage() {
           <button
             type="button"
             onClick={() => setMobileCartOpen(true)}
-            className="flex min-h-[54px] w-full items-center justify-between rounded-[10px] bg-[var(--brand-jade)] px-4 text-white shadow-sm active:bg-[var(--brand-jade-hover)]"
+            className="flex min-h-[54px] w-full items-center justify-between gap-2 rounded-[10px] bg-[var(--brand-jade)] px-4 text-white shadow-sm active:bg-[var(--brand-jade-hover)]"
           >
-            <div className="flex items-center gap-2.5">
-              <ShoppingBag className="h-5 w-5" />
-              <span className="text-[15px] font-semibold">{cart.length} món trong giỏ</span>
+            <div className="flex min-w-0 items-center gap-2">
+              <ShoppingBag className="h-5 w-5 shrink-0" />
+              <span className="truncate text-[15px] font-semibold">{cart.length} món trong giỏ</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-mono-tabular text-[17px] font-bold">{formatVND(total)}</span>
-              <ChevronUp className="h-5 w-5" />
+            <div className="flex shrink-0 items-center gap-1.5">
+              <span className="font-mono-tabular text-[16px] font-bold sm:text-[17px]">
+                {formatVND(total)}
+              </span>
+              <ChevronUp className="h-5 w-5 shrink-0" />
             </div>
           </button>
         </div>
@@ -211,12 +198,15 @@ export default function PosWorkspacePage() {
           aria-label="Chi tiết giỏ hàng"
         >
           <div className="max-h-[90dvh] w-full overflow-y-auto rounded-t-[14px] bg-[var(--bg-canvas)] p-3">
-            <div className="mb-2 flex items-center justify-between px-1">
-              <span className="text-[16px] font-bold">Kiểm tra giỏ hàng</span>
+            <div className="mb-2 flex items-center justify-between gap-2 px-1">
+              <span className="min-w-0 flex-1 truncate text-[16px] font-bold">
+                Kiểm tra giỏ hàng
+              </span>
               <button
                 type="button"
                 onClick={() => setMobileCartOpen(false)}
-                className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--bg-surface)] text-[var(--text-secondary)]"
+                aria-label="Đóng"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--bg-surface)] text-[var(--text-secondary)]"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -235,7 +225,7 @@ export default function PosWorkspacePage() {
               customers={customers}
               selectedCustomerId={selectedCustomerId}
               onSelectCustomer={(c) => setSelectedCustomerId(c?.id ?? null)}
-              onCustomerCreated={(c) => setCustomers((prev) => [...prev, c])}
+              onCustomerCreated={upsertCustomerLocal}
               onOpenCheckout={() => {
                 setMobileCartOpen(false);
                 setCheckoutOpen(true);
@@ -249,14 +239,14 @@ export default function PosWorkspacePage() {
         open={productModalOpen}
         onClose={() => setProductModalOpen(false)}
         product={editingProduct}
-        onSaved={loadData}
+        onSaved={() => void refreshPosCatalog()}
       />
 
       <QuickItemModal
         open={quickItemOpen}
         onClose={() => setQuickItemOpen(false)}
         onAddItem={handleAddQuickItem}
-        onSavedToCatalog={(prod) => setProducts((prev) => [...prev, prod])}
+        onSavedToCatalog={upsertProductLocal}
       />
 
       <CheckoutModal

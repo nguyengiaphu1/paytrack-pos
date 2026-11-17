@@ -1,7 +1,23 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Bell, BellOff, CheckCircle2, Loader2, Send, Share, Smartphone } from 'lucide-react';
+import {
+  Bell,
+  BellOff,
+  CheckCircle2,
+  Info,
+  Loader2,
+  Send,
+  Share,
+  Smartphone,
+} from 'lucide-react';
+
+interface RegisteredDevice {
+  id: string;
+  endpoint: string;
+  device_label: string | null;
+  last_seen_at: string;
+}
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -19,6 +35,7 @@ function detectDeviceLabel(): string {
   if (typeof navigator === 'undefined') return 'Thiết bị web';
   const ua = navigator.userAgent;
   if (/iPhone|iPad|iPod/i.test(ua)) return 'iPhone / iPad PWA';
+  if (/Android/i.test(ua)) return 'Android Chrome/PWA';
   if (/Edg\//i.test(ua)) return 'Windows Edge';
   if (/Chrome/i.test(ua)) return 'Windows Chrome';
   return 'Trình duyệt web';
@@ -32,6 +49,8 @@ export function PushNotificationSetup() {
     subscribed: false,
     loading: true,
   });
+  const [devices, setDevices] = useState<RegisteredDevice[]>([]);
+  const [pendingReminders, setPendingReminders] = useState(0);
   const [busy, setBusy] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -49,32 +68,8 @@ export function PushNotificationSetup() {
       'PushManager' in window &&
       'Notification' in window;
 
-    if (supported) {
-      navigator.serviceWorker
-        .register('/sw.js', { scope: '/' })
-        .then((reg) => reg.pushManager.getSubscription())
-        .then((sub) => {
-          if (!active) return;
-          setEnvState({
-            isIOS: iosDevice,
-            isStandalone: standaloneMode,
-            pushSupported: true,
-            subscribed: Boolean(sub),
-            loading: false,
-          });
-        })
-        .catch(() => {
-          if (!active) return;
-          setEnvState({
-            isIOS: iosDevice,
-            isStandalone: standaloneMode,
-            pushSupported: true,
-            subscribed: false,
-            loading: false,
-          });
-        });
-    } else {
-      queueMicrotask(() => {
+    async function syncAndCheck() {
+      if (!supported) {
         if (!active) return;
         setEnvState({
           isIOS: iosDevice,
@@ -83,13 +78,93 @@ export function PushNotificationSetup() {
           subscribed: false,
           loading: false,
         });
-      });
+        return;
+      }
+
+      try {
+        const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        const sub = await reg.pushManager.getSubscription();
+
+        const serverRes = await fetch('/api/push/subscribe').catch(() => null);
+        let serverDevices: RegisteredDevice[] = [];
+        let pending = 0;
+
+        if (serverRes && serverRes.ok) {
+          const json = (await serverRes.json().catch(() => ({}))) as {
+            devices?: RegisteredDevice[];
+            pendingReminders?: number;
+          };
+          serverDevices = json.devices ?? [];
+          pending = json.pendingReminders ?? 0;
+        }
+
+        // Nếu trình duyệt đã có subscription nhưng server chưa lưu (hoặc hết phiên cũ), tự đồng bộ lại
+        if (sub && Notification.permission === 'granted') {
+          const alreadySynced = serverDevices.some((d) => d.endpoint === sub.endpoint);
+          if (!alreadySynced) {
+            const syncRes = await fetch('/api/push/subscribe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                subscription: sub.toJSON(),
+                deviceLabel: detectDeviceLabel(),
+              }),
+            }).catch(() => null);
+
+            if (syncRes && syncRes.ok) {
+              const refreshed = await fetch('/api/push/subscribe').catch(() => null);
+              if (refreshed && refreshed.ok) {
+                const json = (await refreshed.json().catch(() => ({}))) as {
+                  devices?: RegisteredDevice[];
+                  pendingReminders?: number;
+                };
+                serverDevices = json.devices ?? serverDevices;
+                pending = json.pendingReminders ?? pending;
+              }
+            }
+          }
+        }
+
+        if (!active) return;
+        setDevices(serverDevices);
+        setPendingReminders(pending);
+        setEnvState({
+          isIOS: iosDevice,
+          isStandalone: standaloneMode,
+          pushSupported: true,
+          subscribed: Boolean(sub) && Notification.permission === 'granted',
+          loading: false,
+        });
+      } catch {
+        if (!active) return;
+        setEnvState({
+          isIOS: iosDevice,
+          isStandalone: standaloneMode,
+          pushSupported: true,
+          subscribed: false,
+          loading: false,
+        });
+      }
     }
+
+    void syncAndCheck();
 
     return () => {
       active = false;
     };
   }, []);
+
+  async function refreshDevicesFromServer() {
+    const res = await fetch('/api/push/subscribe').catch(() => null);
+    if (res && res.ok) {
+      const json = (await res.json().catch(() => ({}))) as {
+        devices?: RegisteredDevice[];
+        pendingReminders?: number;
+      };
+      setDevices(json.devices ?? []);
+      setPendingReminders(json.pendingReminders ?? 0);
+    }
+  }
 
   async function handleEnablePush() {
     setErrorMsg(null);
@@ -129,6 +204,7 @@ export function PushNotificationSetup() {
         throw new Error(body.error || 'Không thể lưu đăng ký thông báo');
       }
 
+      await refreshDevicesFromServer();
       setEnvState((prev) => ({ ...prev, subscribed: true }));
       setStatusMsg('Đã bật thông báo nhắc thu nợ cho thiết bị này!');
     } catch (err) {
@@ -153,6 +229,7 @@ export function PushNotificationSetup() {
         });
         await sub.unsubscribe();
       }
+      await refreshDevicesFromServer();
       setEnvState((prev) => ({ ...prev, subscribed: false }));
       setStatusMsg('Đã tắt thông báo trên thiết bị này.');
     } catch (err) {
@@ -186,8 +263,8 @@ export function PushNotificationSetup() {
 
   return (
     <div className="space-y-3 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
+      <div className="flex flex-wrap items-start justify-between gap-2.5">
+        <div className="min-w-0 flex-1">
           <h3 className="text-[16px] font-bold text-[var(--text-primary)]">
             Thông báo nhắc thu nợ trên thiết bị này
           </h3>
@@ -280,6 +357,33 @@ export function PushNotificationSetup() {
           )}
         </div>
       )}
+
+      {/* Trạng thái thiết bị đã đăng ký & hướng dẫn nhận thông báo khi đóng app */}
+      <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-3 text-[12px] text-[var(--text-secondary)]">
+        <div className="flex flex-wrap items-center justify-between gap-2 font-semibold text-[var(--text-primary)]">
+          <span>Thiết bị đang nhận nhắc nợ ({devices.length})</span>
+          {pendingReminders > 0 && (
+            <span className="font-mono-tabular text-[var(--brand-jade)]">
+              {pendingReminders} lịch hẹn đang chờ
+            </span>
+          )}
+        </div>
+        {devices.length > 0 && (
+          <p className="mt-1 break-words">
+            {devices.map((d) => d.device_label || 'Thiết bị web').join(' · ')}
+          </p>
+        )}
+        <div className="mt-2 flex items-start gap-1.5 border-t border-[var(--border-default)] pt-2">
+          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--brand-jade)]" />
+          <p className="leading-relaxed">
+            <strong>Để nhận thông báo cả khi không mở app:</strong> Trên iPhone giữ icon{' '}
+            <em>PayTrack POS</em> ngoài Màn hình chính (không cần mở sẵn app). Trên Windows, hãy{' '}
+            <strong>Cài đặt ứng dụng (Install app)</strong> từ thanh địa chỉ Chrome/Edge hoặc bật{' '}
+            <em>&ldquo;Tiếp tục chạy ứng dụng nền khi đóng trình duyệt&rdquo;</em> trong cài đặt
+            Chrome/Edge.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

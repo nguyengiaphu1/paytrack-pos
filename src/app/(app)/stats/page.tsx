@@ -1,10 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { useEffect, useState } from 'react';
 import { formatDateVN, formatVND, getTodayVN } from '@/lib/vietnamese';
-import { useRealtimeSync } from '@/hooks/useRealtimeSync';
+import { usePosData } from '@/components/providers/PosDataProvider';
 import type { AnalyticsSummary } from '@/types/database';
 import { RevenueCashChart } from '@/components/stats/RevenueCashChart';
 import { PaymentBreakdownChart } from '@/components/stats/PaymentBreakdownChart';
@@ -51,43 +50,40 @@ function computeDateRange(
 
 export default function StatsPage() {
   const todayVN = getTodayVN();
+  const { analyticsVersion, fetchAnalytics, getCachedAnalytics } = usePosData();
+
   const [preset, setPreset] = useState<DatePreset>('7d');
   const [customStart, setCustomStart] = useState(todayVN);
   const [customEnd, setCustomEnd] = useState(todayVN);
-  const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
-  const [loading, setLoading] = useState(true);
+
+  const { startIso, endIso } = computeDateRange(preset, customStart, customEnd);
+  const rangeKey = `${startIso}|${endIso}`;
+  const cached = getCachedAnalytics(startIso, endIso);
+
+  const [fetched, setFetched] = useState<{ key: string; data: AnalyticsSummary } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const loadAnalytics = useCallback(async () => {
-    setError(null);
-    const { startIso, endIso } = computeDateRange(preset, customStart, customEnd);
-    const supabase = createClient();
-    const { data, error: rpcErr } = await supabase.rpc('get_analytics_summary', {
-      p_start: startIso,
-      p_end: endIso,
-    });
-    if (rpcErr) {
-      setError(rpcErr.message);
-    } else {
-      setSummary(data as AnalyticsSummary);
-    }
-    setLoading(false);
-  }, [preset, customStart, customEnd]);
-
   useEffect(() => {
-    const id = setTimeout(() => {
-      void loadAnalytics();
-    }, 0);
-    return () => clearTimeout(id);
-  }, [loadAnalytics]);
+    let active = true;
 
-  useRealtimeSync({
-    tables: ['orders', 'debt_payments', 'customers'],
-    onDataChange: loadAnalytics,
-    channelName: 'stats-page',
-  });
+    fetchAnalytics(startIso, endIso).then(({ data, error: rpcErr }) => {
+      if (!active) return;
+      if (rpcErr) {
+        setError(rpcErr);
+      } else if (data) {
+        setError(null);
+        setFetched({ key: rangeKey, data });
+      }
+    });
 
-  const kpis = summary?.kpis;
+    return () => {
+      active = false;
+    };
+  }, [startIso, endIso, rangeKey, analyticsVersion, fetchAnalytics]);
+
+  const activeSummary = cached ?? (fetched?.key === rangeKey ? fetched.data : null);
+  const kpis = activeSummary?.kpis;
+  const loading = !activeSummary;
 
   return (
     <div className="mx-auto max-w-[1220px] px-3 py-4 sm:px-6 lg:py-5">
@@ -129,23 +125,23 @@ export default function StatsPage() {
       </div>
 
       {preset === 'custom' && (
-        <div className="mb-4 flex flex-wrap items-center gap-2.5 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3">
-          <div className="flex items-center gap-2">
-            <label className="text-[13px] font-medium">Từ ngày</label>
+        <div className="mb-4 grid grid-cols-1 gap-2.5 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3 sm:flex sm:flex-wrap sm:items-center">
+          <div className="flex min-w-0 items-center justify-between gap-2 sm:justify-start">
+            <label className="shrink-0 text-[13px] font-medium">Từ ngày</label>
             <input
               type="date"
               value={customStart}
               onChange={(e) => setCustomStart(e.target.value)}
-              className="font-mono-tabular min-h-[40px] rounded-lg border border-[var(--border-default)] px-2.5"
+              className="font-mono-tabular min-h-[40px] min-w-0 flex-1 rounded-lg border border-[var(--border-default)] px-2.5 sm:flex-initial"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <label className="text-[13px] font-medium">Đến ngày</label>
+          <div className="flex min-w-0 items-center justify-between gap-2 sm:justify-start">
+            <label className="shrink-0 text-[13px] font-medium">Đến ngày</label>
             <input
               type="date"
               value={customEnd}
               onChange={(e) => setCustomEnd(e.target.value)}
-              className="font-mono-tabular min-h-[40px] rounded-lg border border-[var(--border-default)] px-2.5"
+              className="font-mono-tabular min-h-[40px] min-w-0 flex-1 rounded-lg border border-[var(--border-default)] px-2.5 sm:flex-initial"
             />
           </div>
         </div>
@@ -157,7 +153,7 @@ export default function StatsPage() {
         </div>
       )}
 
-      {loading || !summary || !kpis ? (
+      {loading || !activeSummary || !kpis ? (
         <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-8 text-center text-[14px] text-[var(--text-secondary)]">
           Đang tổng hợp số liệu...
         </div>
@@ -165,78 +161,82 @@ export default function StatsPage() {
         <div className="space-y-5">
           {/* KPI Grid */}
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
-            <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
+            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
               <p className="text-[12px] text-[var(--text-secondary)]">Doanh thu</p>
-              <p className="font-mono-tabular mt-1 text-[20px] font-bold text-[var(--text-primary)]">
+              <p className="font-mono-tabular mt-1 break-words text-[17px] font-bold text-[var(--text-primary)] sm:text-[20px]">
                 {formatVND(kpis.total_revenue)}
               </p>
             </div>
-            <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
+            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
               <p className="text-[12px] text-[var(--text-secondary)]">Tiền thực thu</p>
-              <p className="font-mono-tabular mt-1 text-[20px] font-bold text-[var(--brand-jade)]">
+              <p className="font-mono-tabular mt-1 break-words text-[17px] font-bold text-[var(--brand-jade)] sm:text-[20px]">
                 {formatVND(kpis.cash_collected)}
               </p>
             </div>
-            <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
+            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
               <p className="text-[12px] text-[var(--text-secondary)]">
                 Lợi nhuận ước tính
               </p>
-              <p className="font-mono-tabular mt-1 text-[20px] font-bold text-[var(--status-paid)]">
-                {kpis.estimated_gross_profit !== null
-                  ? formatVND(kpis.estimated_gross_profit)
-                  : 'Chưa có giá vốn'}
-              </p>
+              {kpis.estimated_gross_profit !== null ? (
+                <p className="font-mono-tabular mt-1 break-words text-[17px] font-bold text-[var(--status-paid)] sm:text-[20px]">
+                  {formatVND(kpis.estimated_gross_profit)}
+                </p>
+              ) : (
+                <p className="mt-1 break-words text-[14px] font-semibold text-[var(--text-secondary)] sm:text-[15px]">
+                  Chưa có giá vốn
+                </p>
+              )}
               {kpis.estimated_gross_profit !== null && kpis.profit_tracked_ratio < 1 && (
                 <p className="mt-0.5 text-[11px] text-[var(--text-secondary)]">
                   Tính trên {Math.round(kpis.profit_tracked_ratio * 100)}% doanh thu có giá vốn
                 </p>
               )}
             </div>
-            <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
+            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
               <p className="text-[12px] text-[var(--text-secondary)]">Nợ mới phát sinh</p>
-              <p className="font-mono-tabular mt-1 text-[20px] font-bold text-[var(--status-debt)]">
+              <p className="font-mono-tabular mt-1 break-words text-[17px] font-bold text-[var(--status-debt)] sm:text-[20px]">
                 {formatVND(kpis.new_debt_created)}
               </p>
             </div>
-            <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
+            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
               <p className="text-[12px] text-[var(--text-secondary)]">Tổng nợ toàn shop</p>
-              <p className="font-mono-tabular mt-1 text-[20px] font-bold text-[var(--status-overdue)]">
+              <p className="font-mono-tabular mt-1 break-words text-[17px] font-bold text-[var(--status-overdue)] sm:text-[20px]">
                 {formatVND(kpis.total_outstanding_debt)}
               </p>
             </div>
-            <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
+            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
               <p className="text-[12px] text-[var(--text-secondary)]">Số đơn hợp lệ</p>
-              <p className="font-mono-tabular mt-1 text-[20px] font-bold text-[var(--text-primary)]">
+              <p className="font-mono-tabular mt-1 text-[17px] font-bold text-[var(--text-primary)] sm:text-[20px]">
                 {kpis.order_count}
               </p>
             </div>
           </div>
 
           {/* Primary Chart */}
-          <RevenueCashChart data={summary.daily_series} />
+          <RevenueCashChart data={activeSummary.daily_series} />
 
           {/* Secondary Charts */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <PaymentBreakdownChart breakdown={summary.payment_breakdown} />
-            <DebtAgingCard aging={summary.debt_aging} />
+            <PaymentBreakdownChart breakdown={activeSummary.payment_breakdown} />
+            <DebtAgingCard aging={activeSummary.debt_aging} />
           </div>
 
           {/* Top Products & Top Debtors */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
+            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
               <h3 className="mb-3 text-[16px] font-bold">Top sản phẩm bán chạy</h3>
-              {summary.top_products.length === 0 ? (
+              {activeSummary.top_products.length === 0 ? (
                 <p className="text-[14px] text-[var(--text-secondary)]">
                   Chưa có sản phẩm bán ra trong kỳ này.
                 </p>
               ) : (
                 <div className="divide-y divide-[var(--border-default)]">
-                  {summary.top_products.map((prod, idx) => (
+                  {activeSummary.top_products.map((prod, idx) => (
                     <div
                       key={`${prod.product_name}-${idx}`}
                       className="flex items-center justify-between gap-2 py-2.5 text-[14px]"
                     >
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="truncate font-semibold">{prod.product_name}</p>
                         <p className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
                           SL: {Number(prod.qty)}
@@ -251,21 +251,21 @@ export default function StatsPage() {
               )}
             </div>
 
-            <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
+            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
               <h3 className="mb-3 text-[16px] font-bold">Khách hàng dư nợ cao</h3>
-              {summary.top_debtors.length === 0 ? (
+              {activeSummary.top_debtors.length === 0 ? (
                 <p className="text-[14px] text-[var(--text-secondary)]">
                   Hiện tại không có khách hàng nào còn nợ.
                 </p>
               ) : (
                 <div className="divide-y divide-[var(--border-default)]">
-                  {summary.top_debtors.map((deb) => (
+                  {activeSummary.top_debtors.map((deb) => (
                     <Link
                       key={deb.customer_id}
                       href={`/debts?customer=${deb.customer_id}`}
                       className="flex items-center justify-between gap-2 py-2.5 text-[14px] hover:bg-[var(--bg-subtle)]"
                     >
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="truncate font-semibold text-[var(--text-primary)]">
                           {deb.name}
                         </p>

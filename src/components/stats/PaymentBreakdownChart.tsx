@@ -48,10 +48,10 @@ export function PaymentBreakdownChart({ breakdown }: PaymentBreakdownChartProps)
         {rows.map((r) => {
           const pct = total > 0 ? Math.round((r.amount / total) * 100) : 0;
           return (
-            <div key={r.label} className="flex items-center justify-between text-[14px]">
-              <div className="flex items-center gap-2">
+            <div key={r.label} className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-[14px]">
+              <div className="flex min-w-0 items-center gap-2">
                 <span
-                  className="h-3 w-3 rounded-sm"
+                  className="h-3 w-3 shrink-0 rounded-sm"
                   style={{ backgroundColor: r.color }}
                 />
                 <span className="font-medium text-[var(--text-primary)]">{r.label}</span>
@@ -59,7 +59,7 @@ export function PaymentBreakdownChart({ breakdown }: PaymentBreakdownChartProps)
                   ({pct}%)
                 </span>
               </div>
-              <span className="font-mono-tabular font-bold text-[var(--text-primary)]">
+              <span className="font-mono-tabular shrink-0 font-bold text-[var(--text-primary)]">
                 {formatVND(r.amount)}
               </span>
             </div>

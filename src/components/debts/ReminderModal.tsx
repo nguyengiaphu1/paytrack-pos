@@ -83,16 +83,18 @@ function ReminderModalBody({
       aria-label="Hẹn giờ nhắc thu nợ"
     >
       <div className="w-full max-w-[440px] rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
-        <div className="flex items-center justify-between border-b border-[var(--border-default)] px-4 py-3.5">
-          <div className="flex items-center gap-2">
-            <BellPlus className="h-5 w-5 text-[var(--brand-jade)]" />
-            <h2 className="text-[17px] font-bold">Hẹn nhắc thu — {customer.name}</h2>
+        <div className="flex items-center justify-between gap-2 border-b border-[var(--border-default)] px-4 py-3.5">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <BellPlus className="h-5 w-5 shrink-0 text-[var(--brand-jade)]" />
+            <h2 className="min-w-0 truncate text-[17px] font-bold">
+              Hẹn nhắc thu — {customer.name}
+            </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Đóng"
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
           >
             <X className="h-5 w-5" />
           </button>
@@ -105,25 +107,25 @@ function ReminderModalBody({
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-2.5">
-            <div>
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            <div className="min-w-0">
               <label className="mb-1 block text-[13px] font-medium">Ngày nhắc</label>
               <input
                 type="date"
                 required
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3"
+                className="font-mono-tabular min-h-[46px] w-full min-w-0 rounded-lg border border-[var(--border-default)] px-3"
               />
             </div>
-            <div>
+            <div className="min-w-0">
               <label className="mb-1 block text-[13px] font-medium">Giờ nhắc (VN)</label>
               <input
                 type="time"
                 required
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] px-3"
+                className="font-mono-tabular min-h-[46px] w-full min-w-0 rounded-lg border border-[var(--border-default)] px-3"
               />
             </div>
           </div>

@@ -123,15 +123,15 @@ export function CustomerPicker({
           aria-label="Chọn khách hàng"
         >
           <div className="max-h-[90dvh] w-full max-w-[460px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
-              <h3 className="text-[17px] font-bold">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
+              <h3 className="min-w-0 flex-1 truncate text-[17px] font-bold">
                 {creating ? 'Thêm khách hàng mới' : 'Chọn khách hàng'}
               </h3>
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
                 aria-label="Đóng"
-                className="flex h-10 w-10 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -179,24 +179,24 @@ export function CustomerPicker({
                   <button
                     type="button"
                     onClick={() => setCreating(false)}
-                    className="min-h-[48px] rounded-lg border border-[var(--border-default)] px-4 text-[14px] font-semibold"
+                    className="min-h-[48px] shrink-0 rounded-lg border border-[var(--border-default)] px-4 text-[14px] font-semibold"
                   >
                     Quay lại
                   </button>
                   <button
                     type="submit"
                     disabled={saving}
-                    className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+                    className="flex min-h-[48px] min-w-0 flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
                   >
                     {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                    <span>Lưu &amp; Chọn khách</span>
+                    <span className="truncate">Lưu &amp; Chọn khách</span>
                   </button>
                 </div>
               </form>
             ) : (
               <div className="space-y-3 p-4">
                 <div className="flex gap-2">
-                  <div className="relative flex-1">
+                  <div className="relative min-w-0 flex-1">
                     <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
                     <input
                       type="search"
@@ -209,7 +209,7 @@ export function CustomerPicker({
                   <button
                     type="button"
                     onClick={() => setCreating(true)}
-                    className="flex min-h-[46px] items-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-3.5 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
+                    className="flex min-h-[46px] shrink-0 items-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-3.5 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
                   >
                     <UserPlus className="h-4 w-4" />
                     <span>Khách mới</span>
@@ -223,15 +223,15 @@ export function CustomerPicker({
                       onSelect(null);
                       setModalOpen(false);
                     }}
-                    className={`flex min-h-[52px] w-full items-center justify-between px-3.5 py-2.5 text-left hover:bg-[var(--bg-subtle)] ${
+                    className={`flex min-h-[52px] w-full items-center justify-between gap-2 px-3.5 py-2.5 text-left hover:bg-[var(--bg-subtle)] ${
                       selectedCustomerId === null ? 'bg-[var(--status-paid-bg)]' : ''
                     }`}
                   >
-                    <span className="font-semibold text-[var(--text-primary)]">
+                    <span className="min-w-0 flex-1 truncate font-semibold text-[var(--text-primary)]">
                       Khách lẻ (trả ngay)
                     </span>
                     {selectedCustomerId === null && (
-                      <span className="text-[12px] font-semibold text-[var(--brand-jade)]">
+                      <span className="shrink-0 text-[12px] font-semibold text-[var(--brand-jade)]">
                         Đang chọn
                       </span>
                     )}
@@ -249,7 +249,7 @@ export function CustomerPicker({
                         selectedCustomerId === c.id ? 'bg-[var(--status-paid-bg)]' : ''
                       }`}
                     >
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="truncate font-semibold text-[var(--text-primary)]">
                           {c.name}
                         </p>
