@@ -75,6 +75,60 @@ export function getTodayVN(now: Date = new Date()): string {
   return `${year}-${month}-${day}`;
 }
 
+export function getCurrentTimeHHMM_VN(now: Date = new Date()): string {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(now);
+
+  const rawHour = parts.find((p) => p.type === 'hour')?.value ?? '00';
+  const hour = rawHour === '24' ? '00' : rawHour;
+  const minute = parts.find((p) => p.type === 'minute')?.value ?? '00';
+  return `${hour}:${minute}`;
+}
+
+export function normalizeHHMM(value: string | null | undefined, fallback = '08:30'): string {
+  const raw = (value ?? '').trim();
+  const ampmMatch = raw.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (ampmMatch) {
+    let h = Number(ampmMatch[1]);
+    const m = ampmMatch[2];
+    const period = ampmMatch[3].toUpperCase();
+    if (period === 'PM' && h < 12) h += 12;
+    if (period === 'AM' && h === 12) h = 0;
+    return `${String(h).padStart(2, '0')}:${m}`;
+  }
+  const match = raw.match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return fallback;
+  const h = match[1].padStart(2, '0');
+  const m = match[2];
+  return `${h}:${m}`;
+}
+
+export function shouldResetDigestSentDate(params: {
+  prevEnabled: boolean;
+  nextEnabled: boolean;
+  prevHour: string | null | undefined;
+  nextHour: string | null | undefined;
+  lastDigestSentDate: string | null | undefined;
+  now?: Date;
+}): boolean {
+  if (!params.nextEnabled) return false;
+  const now = params.now ?? new Date();
+  const todayVN = getTodayVN(now);
+  if (params.lastDigestSentDate !== todayVN) return false;
+
+  const prevHHMM = normalizeHHMM(params.prevHour, '08:30');
+  const nextHHMM = normalizeHHMM(params.nextHour, '08:30');
+  const scheduleChanged = nextHHMM !== prevHHMM || !params.prevEnabled;
+  if (!scheduleChanged) return false;
+
+  const nowHHMM = getCurrentTimeHHMM_VN(now);
+  return nextHHMM >= nowHHMM;
+}
+
 export interface ZaloReminderParams {
   shopName: string;
   customerName: string;

@@ -1,9 +1,15 @@
 'use client';
 
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { BookOpenCheck, CheckCircle2, Loader2, LogOut, Save } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import {
+  getCurrentTimeHHMM_VN,
+  getTodayVN,
+  normalizeHHMM,
+  shouldResetDigestSentDate,
+} from '@/lib/vietnamese';
 import { VIETNAM_BANKS } from '@/lib/vietqr';
 import { usePosData } from '@/components/providers/PosDataProvider';
 import { useAppUser } from '@/components/shell/AppShell';
@@ -57,7 +63,6 @@ export default function SettingsPage() {
           <SettingsPageSkeleton />
         ) : (
           <SettingsFormBody
-            key={profile?.updated_at ?? 'new-profile'}
             profile={profile}
             setProfileLocal={setProfileLocal}
             onReplayOnboarding={openOnboarding}
@@ -82,6 +87,7 @@ function SettingsFormBody({
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const syncedProfileIdRef = useRef<string | null>(profile?.id ?? null);
   const [shopName, setShopName] = useState(profile?.shop_name ?? 'Tạp Hóa Mẹ');
   const [phone, setPhone] = useState(profile?.phone ?? '');
   const [address, setAddress] = useState(profile?.address ?? '');
@@ -90,7 +96,9 @@ function SettingsFormBody({
   const [bankAccountNo, setBankAccountNo] = useState(profile?.bank_account_no ?? '');
   const [bankAccountName, setBankAccountName] = useState(profile?.bank_account_name ?? '');
   const [digestEnabled, setDigestEnabled] = useState(profile?.reminder_digest_enabled ?? true);
-  const [digestHour, setDigestHour] = useState(profile?.reminder_default_hour || '08:30');
+  const [digestHour, setDigestHour] = useState(
+    normalizeHHMM(profile?.reminder_default_hour, '08:30')
+  );
   const [invoiceFormat, setInvoiceFormat] = useState<InvoiceFormat>(
     profile?.default_invoice_format || 'a5'
   );
@@ -100,6 +108,24 @@ function SettingsFormBody({
   const [showQrOnInvoice, setShowQrOnInvoice] = useState(
     profile?.default_show_qr_on_invoice ?? true
   );
+
+  useEffect(() => {
+    if (!profile) return;
+    if (syncedProfileIdRef.current === profile.id) return;
+    syncedProfileIdRef.current = profile.id;
+    setShopName(profile.shop_name ?? 'Tạp Hóa Mẹ');
+    setPhone(profile.phone ?? '');
+    setAddress(profile.address ?? '');
+    setBankBin(profile.bank_bin ?? '');
+    setBankName(profile.bank_name ?? '');
+    setBankAccountNo(profile.bank_account_no ?? '');
+    setBankAccountName(profile.bank_account_name ?? '');
+    setDigestEnabled(profile.reminder_digest_enabled ?? true);
+    setDigestHour(normalizeHHMM(profile.reminder_default_hour, '08:30'));
+    setInvoiceFormat(profile.default_invoice_format || 'a5');
+    setShowCumulativeDebt(profile.default_show_cumulative_debt ?? true);
+    setShowQrOnInvoice(profile.default_show_qr_on_invoice ?? true);
+  }, [profile]);
 
   async function handleSave(e: FormEvent) {
     e.preventDefault();
@@ -112,6 +138,19 @@ function SettingsFormBody({
       return;
     }
 
+    const now = new Date();
+    const normalizedHour = normalizeHHMM(digestHour, '08:30');
+    const resetSentDate = shouldResetDigestSentDate({
+      prevEnabled: profile?.reminder_digest_enabled ?? true,
+      nextEnabled: digestEnabled,
+      prevHour: profile?.reminder_default_hour,
+      nextHour: normalizedHour,
+      lastDigestSentDate: profile?.last_digest_sent_date,
+      now,
+    });
+    const todayVN = getTodayVN(now);
+    const nowHHMM = getCurrentTimeHHMM_VN(now);
+
     setSaving(true);
     try {
       const supabase = createClient();
@@ -120,32 +159,56 @@ function SettingsFormBody({
       } = await supabase.auth.getUser();
       if (!user) throw new Error('Phiên đăng nhập hết hạn');
 
+      const upsertPayload: Record<string, unknown> = {
+        user_id: user.id,
+        shop_name: shopName.trim() || 'Tạp Hóa Mẹ',
+        phone: phone.trim() || null,
+        address: address.trim() || null,
+        bank_bin: bankBin.trim() || null,
+        bank_name: bankName.trim() || null,
+        bank_account_no: bankAccountNo.replace(/\s+/g, '').trim() || null,
+        bank_account_name: bankAccountName.trim().toUpperCase() || null,
+        reminder_digest_enabled: digestEnabled,
+        reminder_default_hour: normalizedHour,
+        default_invoice_format: invoiceFormat,
+        default_show_cumulative_debt: showCumulativeDebt,
+        default_show_qr_on_invoice: showQrOnInvoice,
+      };
+
+      if (resetSentDate) {
+        upsertPayload.last_digest_sent_date = null;
+      }
+
       const { data: savedRow, error } = await supabase
         .from('shop_profiles')
-        .upsert(
-          {
-            user_id: user.id,
-            shop_name: shopName.trim() || 'Tạp Hóa Mẹ',
-            phone: phone.trim() || null,
-            address: address.trim() || null,
-            bank_bin: bankBin.trim() || null,
-            bank_name: bankName.trim() || null,
-            bank_account_no: bankAccountNo.replace(/\s+/g, '').trim() || null,
-            bank_account_name: bankAccountName.trim().toUpperCase() || null,
-            reminder_digest_enabled: digestEnabled,
-            reminder_default_hour: digestHour || '08:30',
-            default_invoice_format: invoiceFormat,
-            default_show_cumulative_debt: showCumulativeDebt,
-            default_show_qr_on_invoice: showQrOnInvoice,
-          },
-          { onConflict: 'user_id' }
-        )
+        .upsert(upsertPayload, { onConflict: 'user_id' })
         .select('*')
         .single();
 
       if (error) throw error;
-      if (savedRow) setProfileLocal(savedRow as ShopProfile);
-      setSavedMsg('Đã lưu toàn bộ cài đặt cửa hàng thành công!');
+      if (savedRow) {
+        const typedRow = savedRow as ShopProfile;
+        syncedProfileIdRef.current = typedRow.id;
+        setProfileLocal(typedRow);
+        setDigestHour(normalizeHHMM(typedRow.reminder_default_hour, '08:30'));
+        window.dispatchEvent(new CustomEvent('paytrack:profile-saved'));
+      }
+
+      if (resetSentDate) {
+        setSavedMsg(
+          `Đã lưu cài đặt! Hệ thống sẽ gửi thông báo tổng hợp hôm nay vào lúc ${normalizedHour}.`
+        );
+      } else if (
+        digestEnabled &&
+        profile?.last_digest_sent_date === todayVN &&
+        normalizedHour < nowHHMM
+      ) {
+        setSavedMsg(
+          `Đã lưu cài đặt! Khung giờ ${normalizedHour} hôm nay đã qua nên hệ thống sẽ gửi từ ngày mai.`
+        );
+      } else {
+        setSavedMsg('Đã lưu toàn bộ cài đặt cửa hàng thành công!');
+      }
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Không thể lưu cài đặt');
     } finally {
@@ -159,6 +222,9 @@ function SettingsFormBody({
     router.push('/login');
     router.refresh();
   }
+
+  const todayVN = getTodayVN();
+  const digestAlreadySentToday = profile?.last_digest_sent_date === todayVN;
 
   return (
     <>
@@ -307,31 +373,45 @@ function SettingsFormBody({
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border-default)] pb-3.5">
-            <label className="flex min-w-0 flex-1 cursor-pointer items-start gap-2.5">
+          <div className="space-y-2 border-b border-[var(--border-default)] pb-3.5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <label className="flex min-w-0 flex-1 cursor-pointer items-start gap-2.5">
+                <input
+                  type="checkbox"
+                  checked={digestEnabled}
+                  onChange={(e) => {
+                    setDigestEnabled(e.target.checked);
+                    setSavedMsg(null);
+                  }}
+                  className="mt-1 h-4 w-4 shrink-0 accent-[var(--brand-jade)]"
+                />
+                <span className="min-w-0">
+                  <span className="block text-[14px] font-semibold text-[var(--text-primary)]">
+                    Báo tổng hợp khách đến hạn mỗi ngày
+                  </span>
+                  <span className="block text-[12px] text-[var(--text-secondary)]">
+                    Đến khung giờ đã chọn, tự gửi 1 thông báo nếu có khách còn nợ với &ldquo;Ngày hẹn
+                    thu&rdquo; hôm nay hoặc đã quá hạn.
+                  </span>
+                </span>
+              </label>
               <input
-                type="checkbox"
-                checked={digestEnabled}
-                onChange={(e) => setDigestEnabled(e.target.checked)}
-                className="mt-1 h-4 w-4 shrink-0 accent-[var(--brand-jade)]"
+                type="time"
+                value={digestHour}
+                onChange={(e) => {
+                  setDigestHour(e.target.value);
+                  setSavedMsg(null);
+                }}
+                aria-label="Giờ gửi tổng hợp mỗi ngày"
+                className="font-mono-tabular min-h-[44px] shrink-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
               />
-              <span className="min-w-0">
-                <span className="block text-[14px] font-semibold text-[var(--text-primary)]">
-                  Báo tổng hợp khách đến hạn mỗi ngày
-                </span>
-                <span className="block text-[12px] text-[var(--text-secondary)]">
-                  Đến khung giờ đã chọn, tự gửi 1 thông báo nếu có khách còn nợ với &ldquo;Ngày hẹn
-                  thu&rdquo; hôm nay hoặc đã quá hạn.
-                </span>
-              </span>
-            </label>
-            <input
-              type="time"
-              value={digestHour}
-              onChange={(e) => setDigestHour(e.target.value)}
-              aria-label="Giờ gửi tổng hợp sáng"
-              className="font-mono-tabular min-h-[44px] shrink-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-            />
+            </div>
+            {digestEnabled && digestAlreadySentToday && (
+              <p className="text-[12px] font-medium text-[var(--brand-jade-text)]">
+                Hôm nay hệ thống đã gửi thông báo tổng hợp rồi. Nếu bạn đổi sang một giờ sắp tới
+                trong hôm nay và bấm Lưu, hệ thống sẽ gửi lại theo giờ mới.
+              </p>
+            )}
           </div>
 
           <div className="space-y-3">
@@ -341,7 +421,10 @@ function SettingsFormBody({
               </label>
               <select
                 value={invoiceFormat}
-                onChange={(e) => setInvoiceFormat(e.target.value as InvoiceFormat)}
+                onChange={(e) => {
+                  setInvoiceFormat(e.target.value as InvoiceFormat);
+                  setSavedMsg(null);
+                }}
                 className="min-h-[48px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] sm:w-72"
               >
                 <option value="a5">Khổ A5 / Tải ảnh gửi Zalo (Khuyên dùng)</option>
@@ -353,7 +436,10 @@ function SettingsFormBody({
               <input
                 type="checkbox"
                 checked={showCumulativeDebt}
-                onChange={(e) => setShowCumulativeDebt(e.target.checked)}
+                onChange={(e) => {
+                  setShowCumulativeDebt(e.target.checked);
+                  setSavedMsg(null);
+                }}
                 className="mt-1 h-4 w-4 shrink-0 accent-[var(--brand-jade)]"
               />
               <span className="min-w-0">
@@ -370,7 +456,10 @@ function SettingsFormBody({
               <input
                 type="checkbox"
                 checked={showQrOnInvoice}
-                onChange={(e) => setShowQrOnInvoice(e.target.checked)}
+                onChange={(e) => {
+                  setShowQrOnInvoice(e.target.checked);
+                  setSavedMsg(null);
+                }}
                 className="mt-1 h-4 w-4 shrink-0 accent-[var(--brand-jade)]"
               />
               <span className="min-w-0">
@@ -384,6 +473,25 @@ function SettingsFormBody({
             </label>
           </div>
         </section>
+
+        {errorMsg && (
+          <div
+            role="alert"
+            className="animate-fade-in rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-4 py-3 text-[14px] font-medium text-[var(--status-overdue)]"
+          >
+            {errorMsg}
+          </div>
+        )}
+
+        {savedMsg && (
+          <div
+            role="status"
+            className="animate-fade-in flex items-center gap-2 rounded-lg border border-[var(--status-paid-border)] bg-[var(--status-paid-bg)] px-4 py-3 text-[14px] font-semibold text-[var(--status-paid)]"
+          >
+            <CheckCircle2 className="h-5 w-5 shrink-0" />
+            <span>{savedMsg}</span>
+          </div>
+        )}
 
         <button
           type="submit"
