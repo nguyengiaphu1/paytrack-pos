@@ -456,4 +456,90 @@ describe('scheduled push notifications & reminder cron', () => {
     expect(res.digestSent).toBe(1);
     expect(fake.updates.map((u) => u.id)).toEqual(['rem-u1', 'p1']);
   });
+
+  it('resets last_digest_sent_date only when rescheduling or re-enabling digest for an upcoming VN hour today', async () => {
+    const { normalizeHHMM, shouldResetDigestSentDate } = await import('@/lib/vietnamese');
+
+    expect(normalizeHHMM('07:30 PM')).toBe('19:30');
+    expect(normalizeHHMM('12:05 AM')).toBe('00:05');
+
+    // 2026-11-17T10:00:00Z = 17:00 Asia/Ho_Chi_Minh on 2026-11-17
+    const afternoonVN = new Date('2026-11-17T10:00:00.000Z');
+
+    // Changed from 08:30 to 19:30 after 08:30 digest already ran -> must reset
+    expect(
+      shouldResetDigestSentDate({
+        prevEnabled: true,
+        nextEnabled: true,
+        prevHour: '08:30',
+        nextHour: '19:30',
+        lastDigestSentDate: '2026-11-17',
+        now: afternoonVN,
+      })
+    ).toBe(true);
+
+    // Same hour kept while editing shop name/bank -> must NOT reset (avoids duplicate digest)
+    expect(
+      shouldResetDigestSentDate({
+        prevEnabled: true,
+        nextEnabled: true,
+        prevHour: '08:30',
+        nextHour: '08:30',
+        lastDigestSentDate: '2026-11-17',
+        now: afternoonVN,
+      })
+    ).toBe(false);
+
+    // Changed to an hour that already passed today (15:00 < 17:00) -> must NOT reset
+    expect(
+      shouldResetDigestSentDate({
+        prevEnabled: true,
+        nextEnabled: true,
+        prevHour: '08:30',
+        nextHour: '15:00',
+        lastDigestSentDate: '2026-11-17',
+        now: afternoonVN,
+      })
+    ).toBe(false);
+
+    // Re-enabled for 19:30 when already sent earlier today -> must reset
+    expect(
+      shouldResetDigestSentDate({
+        prevEnabled: false,
+        nextEnabled: true,
+        prevHour: '19:30',
+        nextHour: '19:30',
+        lastDigestSentDate: '2026-11-17',
+        now: afternoonVN,
+      })
+    ).toBe(true);
+  });
+
+  it('fires daily digest at 19:30 VN (07:30 PM) once last_digest_sent_date is cleared', async () => {
+    mocks.sendNotification.mockResolvedValueOnce({});
+    // 2026-11-17T12:30:00Z = 19:30 Asia/Ho_Chi_Minh (07:30 PM)
+    const eveningVN = new Date('2026-11-17T12:30:00.000Z');
+    const fake = makeFakeAdmin({
+      pendingReminders: [],
+      profiles: [makeProfile({ reminder_default_hour: '19:30', last_digest_sent_date: null })],
+      dueCustomersByUser: {
+        'user-1': [{ id: 'c1', name: 'Cô Lan', total_debt: 350000, next_due_date: '2026-11-17' }],
+      },
+      subscriptionsByUser: { 'user-1': [makeSub('sub-1')] },
+    });
+    mocks.createAdminClient.mockReturnValue(fake.client);
+
+    const { runReminderCron } = await import('@/lib/reminders-cron');
+    const res = await runReminderCron(eveningVN);
+    expect(res.nowHHMM).toBe('19:30');
+    expect(res.digestSent).toBe(1);
+    expect(fake.updates).toEqual([
+      {
+        table: 'shop_profiles',
+        id: 'prof-1',
+        payload: { last_digest_sent_date: '2026-11-17' },
+      },
+    ]);
+  });
 });
+

@@ -1,7 +1,7 @@
 # PayTrack POS — Project Context & Agent Quickstart
 
 > **Purpose**: Single-source-of-truth context file for AI assistants and developers. Read this file first in a new session instead of scanning the entire repository.
-> **Last Updated**: 2026-11-17 (`v1.1.1` — Web Push Cron Reliability, Heartbeat Diagnostics, Overdue Warning & Live Verification)
+> **Last Updated**: 2026-11-17 (`fix/daily-digest-not-firing` — Settings Save Confirmation & Daily Digest In-Day Reschedule Reset)
 
 ---
 
@@ -80,10 +80,10 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 - `src/app/(app)/debts/page.tsx`: **Debt Ledger** — `DebtsPageSkeleton`, `FetchErrorCard`, `EmptyStateCard`, KPI strip, filters (`debtors` / `due` / `all`), search, deep-links (`?customer=`, `?filter=due`), opens `DebtCustomerDrawer`.
 - `src/app/(app)/orders/page.tsx`: **Order History** — `OrdersPageSkeleton`, `FetchErrorCard`, `EmptyStateCard`, status filter, search, item breakdown modal, `InvoicePreviewModal`, `VietQRModal`, `cancel_order` confirmation.
 - `src/app/(app)/stats/page.tsx`: **Analytics** — `StatsPageSkeleton`, `FetchErrorCard`, `EmptyStateCard`, date presets (`today`, `7d`, `30d`, `month`, `custom`), KPI cards with plain Vietnamese subtitles, `RevenueCashChart`, `PaymentBreakdownChart`, `DebtAgingCard`, top products & top debtors.
-- `src/app/(app)/settings/page.tsx`: **Settings** — `SettingsPageSkeleton`, `FetchErrorCard`, `SettingsThemeSelector` (Section 1), numbered sections (`PushNotificationSetup`, shop profile, VietQR bank config `VIETNAM_BANKS`, digest & invoice defaults, replayable onboarding trigger, logout).
+- `src/app/(app)/settings/page.tsx`: **Settings** — `SettingsPageSkeleton`, `FetchErrorCard`, `SettingsThemeSelector` (Section 1), numbered sections (`PushNotificationSetup`, shop profile, VietQR bank config `VIETNAM_BANKS`, digest & invoice defaults with in-day `last_digest_sent_date` reschedule reset & inline save confirmation near submit button, replayable onboarding trigger, logout).
 
 ### API Routes & Service Worker
-- `src/app/api/push/subscribe/route.ts`: `GET` (registered devices + `pendingReminders` + `overdueReminders` + `dueCustomersToday` + `cronHeartbeat`), `POST` upsert, `DELETE` remove user's `push_subscriptions`.
+- `src/app/api/push/subscribe/route.ts`: `GET` (registered devices + `pendingReminders` + `overdueReminders` + `dueCustomersToday` + `cronHeartbeat` + `digestStatus`), `POST` upsert, `DELETE` remove user's `push_subscriptions`.
 - `src/app/api/push/test/route.ts`: `POST` sends test Web Push notification to current user's subscribed devices.
 - `src/app/api/push/dispatch-due/route.ts`: `POST` authenticated single-user dispatch (`runReminderCron(now, { userId })`) to flush due reminders/digest on demand from Settings.
 - `src/app/api/cron/reminders/route.ts`: `GET` / `POST` (`Authorization: Bearer $CRON_SECRET`, trimmed) delegates to `runReminderCron()` and records `cron_heartbeats`.
@@ -91,12 +91,12 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 
 ### Libraries, Hooks, Providers & Types
 - `src/types/database.ts`: Shared TS interfaces (`ShopProfile`, `Product`, `Customer`, `Order`, `OrderItem`, `DebtPayment`, `DebtReminder`, `PushSubscriptionRecord`, `CartItem`, `AnalyticsSummary`).
-- `src/lib/vietnamese.ts`: `stripVietnamese`, `formatVND`, `computeLineTotal`, `computeOrderTotals`, `formatDateTimeVN`, `formatDateVN`, `getTodayVN(now?)`, `buildZaloDebtMessage`.
+- `src/lib/vietnamese.ts`: `stripVietnamese`, `formatVND`, `computeLineTotal`, `computeOrderTotals`, `formatDateTimeVN`, `formatDateVN`, `getTodayVN(now?)`, `getCurrentTimeHHMM_VN(now?)`, `normalizeHHMM()`, `shouldResetDigestSentDate()`, `buildZaloDebtMessage`.
 - `src/lib/vietqr.ts`: `VIETNAM_BANKS`, `sanitizeVietQRMemo`, `computeCRC16CCITT`, `buildVietQRPayload` (EMVCo / Napas 247 dynamic QR).
 - `src/lib/theme.ts`: Pure theme utilities (`ThemePreference`, `resolveTheme`, `getNextThemePreference`, `readStoredThemePreference`/`writeStoredThemePreference`, `THEME_BOOTSTRAP_SCRIPT`).
 - `src/lib/welcome.ts`: Pure Vietnam time-of-day greeting (`getTimeOfDayGreetingVN` in `Asia/Ho_Chi_Minh`), onboarding mirror & daily greeting collapse storage helpers.
 - `src/lib/push.ts`: `sendPushToSubscriptions` (VAPID setup + auto-purges `410`/`404` dead endpoints).
-- `src/lib/reminders-cron.ts`: `runReminderCron(now?, { userId? })`, `recordCronHeartbeat()`, `normalizeHHMM()`, `getCurrentTimeHHMM_VN()` — checks DB errors explicitly, dispatches due custom `debt_reminders` & morning digests; only marks `sent` / `last_digest_sent_date` when `res.sent > 0`.
+- `src/lib/reminders-cron.ts`: `runReminderCron(now?, { userId? })`, `recordCronHeartbeat()`, re-exports `normalizeHHMM()`, `getCurrentTimeHHMM_VN()` — checks DB errors explicitly, dispatches due custom `debt_reminders` & morning digests; only marks `sent` / `last_digest_sent_date` when `res.sent > 0`.
 - `src/lib/supabase/client.ts`: Browser client (`createBrowserClient`).
 - `src/lib/supabase/server.ts`: Server component/route client (`createServerClient` with Next `cookies()`).
 - `src/lib/supabase/admin.ts`: **Server-only** service-role client (`createAdminClient`) — NEVER import in client components.
@@ -153,10 +153,11 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 - **Completed**:
   - MVP (`T001`–`T043`) + `v1.0.1` fixes + `v1.1.0` (`002-ux-polish-theme` PR #3) + `v1.1.1` (`cron-reminders-not-firing` PR #4) merged into `main` and deployed live on Vercel (`https://paytrack-pos.vercel.app`, region `sin1`).
   - Bug fix `cron-reminders-not-firing` (PR #4, `9eaf3da`, **verified** live on Production + Supabase `pg_cron`): Added `0004_cron_heartbeat.sql` + `cron_heartbeats` recording in `/api/cron/reminders`, `overdueReminders`/`dueCustomersToday`/`cronHeartbeat` diagnostics in `/api/push/subscribe`, authenticated `POST /api/push/dispatch-due` + UI button & warning banner in `PushNotificationSetup`, explicit Supabase error checking + `getTodayVN(now)` + `normalizeHHMM` + `userId` scoping in `runReminderCron`, `timeout_milliseconds := 10000` in `0003_reminder_cron.sql`, and daily Vercel Cron fallback `0 1 * * *` in `vercel.json`. Confirmed live that both scheduled customer debt reminders and daily auto digest push notifications when the app is closed.
+  - Bug fix `daily-digest-not-firing` (`fix/daily-digest-not-firing`, applied — pending `/speckit-bug-test`): Fixed `SettingsFormBody` remounting on `profile?.updated_at` that wiped save confirmation (`savedMsg`), added save confirmation right above the bottom submit button, added `shouldResetDigestSentDate()` in `src/lib/vietnamese.ts` to clear `last_digest_sent_date` when rescheduling/re-enabling daily digest to an upcoming VN hour today, and exposed `digestStatus` diagnostics in `GET /api/push/subscribe` + `PushNotificationSetup`.
 - **Pending Verification / Infra Sync**:
   - Run `npm ci && npm run typecheck && npm run lint && npm test && npm run build` in an environment with `registry.npmjs.org` access to lock automated Vitest/ESLint regression checks (blocked in sandbox VM by proxy `403`).
   - Manual visual & device walkthrough (`specs/001-paytrack-pos/quickstart.md` + `specs/002-ux-polish-theme/quickstart.md`: dark-mode receipt & VietQR check / `375px` & `1280px` layout).
-- **Branch / PR State**: PR #1, #2, #3, #4 merged into `main`; release `v1.1.1` prepared from `main`.
+- **Branch / PR State**: PR #1–#5 merged into `main` (`v1.1.1`); active fix branch `fix/daily-digest-not-firing`.
 
 ---
 
@@ -180,3 +181,4 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 | 2026-11-17 | `v1.0.1` Bug Fixes + Context | Hardened `runReminderCron`, added `PosDataProvider` shared tab cache & mobile overflow guards; added `PROJECT_CONTEXT.md`, `AGENTS.md`, and persistent `paytrack-pos-context` skill. |
 | 2026-11-17 | `v1.1.0` UX Polish & Theme (`002-ux-polish-theme`) | Completed `T001`–`T046`: smooth Light/Dark/System theme (`280ms`, zero-flash bootstrap, `.print-surface-light`, complete `--status-*-border` tokens), `BrandLoadingScreen` + 5 skeletons + `FetchErrorCard`, 3-layer Welcome (`login`, `WelcomeOnboardingModal`, `DailyWelcomeBanner` with `ordersLoaded`), low-tech Vietnamese UX + `>= 16px` controls & `>= 44px` hit targets, CSS micro-animations (`prefers-reduced-motion`), and `theme-and-welcome` + `ux-guards` tests (`37/37` pass). |
 | 2026-11-17 | `v1.1.1` Push Cron Fix & Release (`PR #4`) | Merged `fix/cron-reminders-not-firing` (`PR #4`): added `0004_cron_heartbeat.sql`, `POST /api/push/dispatch-due`, overdue/cron diagnostics in `PushNotificationSetup`, explicit query error checks + `getTodayVN(now)` + `userId` scoping in `runReminderCron`, `timeout_milliseconds := 10000` in `0003_reminder_cron.sql`, and Vercel daily cron fallback (`0 1 * * *`). Applied `0003` + `0004` on live Supabase and verified scheduled + daily auto Web Push notifications end-to-end when app is closed (`cron-reminders-not-firing` -> `verified`). |
+| 2026-11-17 | `fix/daily-digest-not-firing` | Fixed Settings form remount on `updated_at` hiding save feedback, added inline save banner above submit button, reset `last_digest_sent_date` when rescheduling daily digest to an upcoming VN hour today, and added `digestStatus` diagnostics in `/api/push/subscribe` & `PushNotificationSetup`. |

@@ -32,6 +32,7 @@ export async function GET() {
     { count: overdueCount },
     { count: dueCustomersCount },
     heartbeatRes,
+    profileRes,
   ] = await Promise.all([
     supabase
       .from('push_subscriptions')
@@ -61,6 +62,11 @@ export async function GET() {
       .select('job_name, last_run_at, last_status, last_error')
       .eq('job_name', 'paytrack_reminder_dispatch')
       .maybeSingle(),
+    supabase
+      .from('shop_profiles')
+      .select('reminder_digest_enabled, reminder_default_hour, last_digest_sent_date')
+      .eq('user_id', user.id)
+      .maybeSingle(),
   ]);
 
   if (subErr) {
@@ -68,6 +74,14 @@ export async function GET() {
   }
 
   const cronHeartbeat = heartbeatRes.error ? null : heartbeatRes.data;
+  const digestStatus =
+    !profileRes.error && profileRes.data
+      ? {
+          enabled: Boolean(profileRes.data.reminder_digest_enabled),
+          hour: profileRes.data.reminder_default_hour || '08:30',
+          sentToday: profileRes.data.last_digest_sent_date === todayVN,
+        }
+      : null;
 
   return NextResponse.json({
     devices: subs ?? [],
@@ -75,6 +89,7 @@ export async function GET() {
     overdueReminders: overdueCount ?? 0,
     dueCustomersToday: dueCustomersCount ?? 0,
     cronHeartbeat,
+    digestStatus,
   });
 }
 

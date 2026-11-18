@@ -172,4 +172,15 @@ describe('ux-polish-theme design, dark-mode, and welcome architectural guards', 
       }
     }
   });
+
+  it('does not remount SettingsFormBody on profile.updated_at and keeps save feedback by submit button', () => {
+    const settings = readRel('src/app/(app)/settings/page.tsx');
+    expect(settings).not.toContain('key={profile?.updated_at');
+    const submitIdx = settings.indexOf('Lưu tất cả cài đặt');
+    const lastSavedMsgIdx = settings.lastIndexOf('{savedMsg && (');
+    expect(submitIdx).toBeGreaterThan(-1);
+    expect(lastSavedMsgIdx).toBeGreaterThan(-1);
+    expect(lastSavedMsgIdx).toBeLessThan(submitIdx);
+  });
 });
+

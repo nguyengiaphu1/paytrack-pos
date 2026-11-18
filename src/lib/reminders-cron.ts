@@ -1,30 +1,14 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sendPushToSubscriptions } from '@/lib/push';
-import { formatVND, getTodayVN } from '@/lib/vietnamese';
+import {
+  formatVND,
+  getCurrentTimeHHMM_VN,
+  getTodayVN,
+  normalizeHHMM,
+} from '@/lib/vietnamese';
 import type { PushSubscriptionRecord, ShopProfile } from '@/types/database';
 
-export function getCurrentTimeHHMM_VN(now: Date = new Date()): string {
-  const parts = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Asia/Ho_Chi_Minh',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).formatToParts(now);
-
-  const rawHour = parts.find((p) => p.type === 'hour')?.value ?? '00';
-  const hour = rawHour === '24' ? '00' : rawHour;
-  const minute = parts.find((p) => p.type === 'minute')?.value ?? '00';
-  return `${hour}:${minute}`;
-}
-
-export function normalizeHHMM(value: string | null | undefined, fallback = '08:30'): string {
-  const raw = (value ?? '').trim();
-  const match = raw.match(/^(\d{1,2}):(\d{2})/);
-  if (!match) return fallback;
-  const h = match[1].padStart(2, '0');
-  const m = match[2];
-  return `${h}:${m}`;
-}
+export { getCurrentTimeHHMM_VN, normalizeHHMM };
 
 export interface CronRemindersSummary {
   ok: true;

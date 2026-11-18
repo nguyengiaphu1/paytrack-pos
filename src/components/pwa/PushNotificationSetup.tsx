@@ -29,12 +29,19 @@ interface CronHeartbeat {
   last_error: string | null;
 }
 
+interface DigestStatus {
+  enabled: boolean;
+  hour: string;
+  sentToday: boolean;
+}
+
 interface SubscribeStatusPayload {
   devices?: RegisteredDevice[];
   pendingReminders?: number;
   overdueReminders?: number;
   dueCustomersToday?: number;
   cronHeartbeat?: CronHeartbeat | null;
+  digestStatus?: DigestStatus | null;
 }
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
@@ -72,6 +79,7 @@ export function PushNotificationSetup() {
   const [overdueReminders, setOverdueReminders] = useState(0);
   const [dueCustomersToday, setDueCustomersToday] = useState(0);
   const [cronHeartbeat, setCronHeartbeat] = useState<CronHeartbeat | null>(null);
+  const [digestStatus, setDigestStatus] = useState<DigestStatus | null>(null);
   const [busy, setBusy] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -82,6 +90,7 @@ export function PushNotificationSetup() {
     setOverdueReminders(json.overdueReminders ?? 0);
     setDueCustomersToday(json.dueCustomersToday ?? 0);
     setCronHeartbeat(json.cronHeartbeat ?? null);
+    setDigestStatus(json.digestStatus ?? null);
   }
 
   useEffect(() => {
@@ -146,11 +155,7 @@ export function PushNotificationSetup() {
         }
 
         if (!active) return;
-        setDevices(serverPayload.devices ?? []);
-        setPendingReminders(serverPayload.pendingReminders ?? 0);
-        setOverdueReminders(serverPayload.overdueReminders ?? 0);
-        setDueCustomersToday(serverPayload.dueCustomersToday ?? 0);
-        setCronHeartbeat(serverPayload.cronHeartbeat ?? null);
+        applyStatusPayload(serverPayload);
         setEnvState({
           isIOS: iosDevice,
           isStandalone: standaloneMode,
@@ -170,19 +175,27 @@ export function PushNotificationSetup() {
       }
     }
 
+    const handleProfileSaved = () => {
+      void refreshDevicesFromServer();
+    };
+
     void syncAndCheck();
+    window.addEventListener('paytrack:profile-saved', handleProfileSaved);
 
     return () => {
       active = false;
+      window.removeEventListener('paytrack:profile-saved', handleProfileSaved);
     };
   }, []);
 
-  async function refreshDevicesFromServer() {
+  async function refreshDevicesFromServer(): Promise<SubscribeStatusPayload | null> {
     const res = await fetch('/api/push/subscribe').catch(() => null);
     if (res && res.ok) {
       const json = (await res.json().catch(() => ({}))) as SubscribeStatusPayload;
       applyStatusPayload(json);
+      return json;
     }
+    return null;
   }
 
   async function handleEnablePush() {
@@ -296,7 +309,7 @@ export function PushNotificationSetup() {
       if (!res.ok) {
         throw new Error(data.error || 'Không thể kiểm tra lịch nhắc đến hạn');
       }
-      await refreshDevicesFromServer();
+      const latestStatus = await refreshDevicesFromServer();
       const totalSent = (data.customSent ?? 0) + (data.digestSent ?? 0);
       const totalFailed = (data.customFailed ?? 0) + (data.digestFailed ?? 0);
       if (totalSent > 0) {
@@ -308,9 +321,29 @@ export function PushNotificationSetup() {
           'Có lịch đến hạn nhưng không gửi được tới thiết bị (hãy bấm "Bật thông báo" lại trên thiết bị).'
         );
       } else {
-        setStatusMsg(
-          'Hiện chưa có lịch hẹn nào quá giờ hoặc chưa tới giờ tổng hợp / chưa có khách đến hạn hôm nay.'
-        );
+        const currentDigest = latestStatus?.digestStatus ?? digestStatus;
+        const currentDue = latestStatus?.dueCustomersToday ?? dueCustomersToday;
+        if (currentDigest && !currentDigest.enabled) {
+          setStatusMsg(
+            'Chưa có lịch hẹn riêng quá giờ. Mục "Báo tổng hợp khách đến hạn mỗi ngày" đang tắt.'
+          );
+        } else if (currentDigest?.sentToday) {
+          setStatusMsg(
+            'Hôm nay đã gửi thông báo tổng hợp ngày rồi và hiện chưa có lịch hẹn riêng nào quá giờ.'
+          );
+        } else if (currentDue === 0) {
+          setStatusMsg(
+            'Chưa có lịch hẹn riêng quá giờ và hiện có 0 khách có "Ngày hẹn thu" hôm nay hoặc quá hạn.'
+          );
+        } else if (currentDigest) {
+          setStatusMsg(
+            `Chưa có lịch hẹn riêng quá giờ và chưa tới khung giờ tổng hợp (${currentDigest.hour}).`
+          );
+        } else {
+          setStatusMsg(
+            'Hiện chưa có lịch hẹn nào quá giờ hoặc chưa tới giờ tổng hợp / chưa có khách đến hạn hôm nay.'
+          );
+        }
       }
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Kiểm tra lịch nhắc thất bại');
@@ -477,6 +510,15 @@ export function PushNotificationSetup() {
         {devices.length > 0 && (
           <p className="mt-1 break-words">
             {devices.map((d) => d.device_label || 'Thiết bị web').join(' · ')}
+          </p>
+        )}
+        {digestStatus && (
+          <p className="mt-1 font-mono-tabular text-[11px] text-[var(--text-secondary)]">
+            {digestStatus.enabled
+              ? `Tổng hợp mỗi ngày: ${digestStatus.hour} (${
+                  digestStatus.sentToday ? 'Đã gửi hôm nay' : 'Đang chờ tới giờ'
+                })`
+              : 'Tổng hợp mỗi ngày: Đang tắt'}
           </p>
         )}
         {cronHeartbeat?.last_status === 'ok' && (
