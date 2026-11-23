@@ -17,11 +17,25 @@ export interface FullVndMistakeWarning {
   suggestedVnd: number;
 }
 
+const DOT_THOUSANDS_FULL_RE = /^[1-9]\d{0,2}(\.\d{3})+$/;
+const DOT_THOUSANDS_PARTIAL_RE = /^[1-9]\d{0,2}(\.\d{3})+\.\d{0,3}$/;
+
 /**
- * Sanitize user-typed K input while typing (keeps digits and at most one decimal separator).
+ * Sanitize user-typed K input while typing.
+ * Keeps digits and a single decimal separator, while preserving Vietnamese dot-grouped
+ * thousands patterns (e.g. "125.000", "1.250.000") so detectLikelyFullVndMistake can warn
+ * safely instead of silently truncating to 1/1000x.
  */
 export function sanitizeKInput(raw: string): string {
-  const normalized = raw.replace(/\s+/g, '').replace(/,/g, '.');
+  const compact = raw.replace(/\s+/g, '');
+  if (
+    !compact.includes(',') &&
+    (DOT_THOUSANDS_FULL_RE.test(compact) || DOT_THOUSANDS_PARTIAL_RE.test(compact))
+  ) {
+    return compact;
+  }
+
+  const normalized = compact.replace(/,/g, '.');
   let out = '';
   let seenDot = false;
   for (const ch of normalized) {
@@ -82,11 +96,32 @@ export function formatVndToKInput(vnd: number | null | undefined): string {
 }
 
 /**
- * Detects when a user habituated to typing full VND accidentally enters e.g. "50000"
- * (which in K-unit becomes 50.000.000 đ) instead of "50".
+ * Detects when a user habituated to typing full VND accidentally enters:
+ * - Pure full VND digits >= 10000 divisible by 1000 (e.g. "50000" -> 50.000.000đ instead of "50")
+ * - Dot-grouped Vietnamese thousands (e.g. "125.000", "12.500", "1.250.000")
  */
 export function detectLikelyFullVndMistake(raw: string): FullVndMistakeWarning | null {
   const trimmed = raw.trim().replace(/\s+/g, '');
+
+  // Case 1: Vietnamese dot-grouped thousands (e.g. "125.000", "12.500", "1.250.000")
+  if (DOT_THOUSANDS_FULL_RE.test(trimmed)) {
+    const dotCount = (trimmed.match(/\./g) ?? []).length;
+    const groupedVnd = Number(trimmed.replace(/\./g, ''));
+    if (
+      Number.isFinite(groupedVnd) &&
+      groupedVnd >= 1000 &&
+      (dotCount >= 2 || groupedVnd % 500 === 0)
+    ) {
+      return {
+        enteredVnd: groupedVnd,
+        suggestedK: formatVndToKInput(groupedVnd),
+        suggestedVnd: groupedVnd,
+      };
+    }
+    return null;
+  }
+
+  // Case 2: Pure integer full VND (e.g. "50000", "125000")
   if (!/^\d+$/.test(trimmed)) return null;
 
   const numericK = Number(trimmed);

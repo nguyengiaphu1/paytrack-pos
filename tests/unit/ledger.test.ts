@@ -5,9 +5,11 @@ import {
   computeItemsCostTotal,
   computeLedgerTotals,
   computeOrderProfit,
+  computeVnDatePresetRange,
   dateInputToVnIso,
   formatPaymentAccount,
   hasMissingCostPrice,
+  isOrderInVnDateRange,
   isPaymentAccount,
   resolveOrderPaidAt,
   summarizeOrderItems,
@@ -196,5 +198,39 @@ describe('12-field sales ledger utilities', () => {
     expect(lines[1]).toContain('"Số 5, ngõ ""Xanh"""');
     expect(lines[1]).toContain('"Khác: Tiền mặt, cô Ba"');
     expect(lines[1]).toContain('180000,250000,70000');
+  });
+
+  it('computes Asia/Ho_Chi_Minh date preset ranges and filters order timestamps accurately', () => {
+    // 2026-11-23 11:00 VN time
+    const refNow = new Date('2026-11-23T04:00:00.000Z');
+    expect(computeVnDatePresetRange('all', undefined, undefined, refNow)).toEqual({
+      start: null,
+      end: null,
+    });
+    expect(computeVnDatePresetRange('today', undefined, undefined, refNow)).toEqual({
+      start: '2026-11-23',
+      end: '2026-11-23',
+    });
+    expect(computeVnDatePresetRange('7d', undefined, undefined, refNow)).toEqual({
+      start: '2026-11-17',
+      end: '2026-11-23',
+    });
+    expect(computeVnDatePresetRange('month', undefined, undefined, refNow)).toEqual({
+      start: '2026-11-01',
+      end: '2026-11-23',
+    });
+    // Auto-swaps reversed custom bounds
+    expect(computeVnDatePresetRange('custom', '2026-11-25', '2026-11-20', refNow)).toEqual({
+      start: '2026-11-20',
+      end: '2026-11-25',
+    });
+
+    const weekRange = computeVnDatePresetRange('7d', undefined, undefined, refNow);
+    // 2026-11-16T18:00Z is 2026-11-17 01:00 VN -> inside 7d range
+    expect(isOrderInVnDateRange('2026-11-16T18:00:00.000Z', weekRange)).toBe(true);
+    // 2026-11-16T16:59Z is 2026-11-16 23:59 VN -> outside 7d range
+    expect(isOrderInVnDateRange('2026-11-16T16:59:00.000Z', weekRange)).toBe(false);
+    expect(isOrderInVnDateRange('2026-11-23T03:00:00.000Z', weekRange)).toBe(true);
+    expect(isOrderInVnDateRange('2026-11-24T03:00:00.000Z', weekRange)).toBe(false);
   });
 });

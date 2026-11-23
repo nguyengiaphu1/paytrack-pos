@@ -28,9 +28,12 @@ import {
   buildLedgerCsv,
   computeLedgerTotals,
   computeOrderProfit,
+  computeVnDatePresetRange,
   formatPaymentAccount,
   hasMissingCostPrice,
+  isOrderInVnDateRange,
   summarizeOrderItems,
+  type LedgerDatePreset,
 } from '@/lib/ledger';
 import { usePosData } from '@/components/providers/PosDataProvider';
 import type {
@@ -69,6 +72,7 @@ const STATUS_LABELS: Record<PaymentStatus, { label: string; className: string }>
 type AccountFilter = 'ALL' | 'NONE' | PaymentAccount;
 
 export default function OrdersPage() {
+  const todayVN = getTodayVN();
   const {
     orders,
     ordersLoaded,
@@ -88,6 +92,9 @@ export default function OrdersPage() {
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | PaymentStatus>('ALL');
   const [accountFilter, setAccountFilter] = useState<AccountFilter>('ALL');
+  const [datePreset, setDatePreset] = useState<LedgerDatePreset>('all');
+  const [customStart, setCustomStart] = useState<string>(todayVN);
+  const [customEnd, setCustomEnd] = useState<string>(todayVN);
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [selectedItems, setSelectedItems] = useState<OrderItem[]>([]);
@@ -147,12 +154,20 @@ export default function OrdersPage() {
 
   const loading = !ordersLoaded && !ordersError;
 
+  const activeDateRange = useMemo(
+    () => computeVnDatePresetRange(datePreset, customStart, customEnd),
+    [datePreset, customStart, customEnd]
+  );
+
   const filtered = useMemo(() => {
     const q = stripVietnamese(query);
     return orders.filter((o) => {
       if (statusFilter !== 'ALL' && o.payment_status !== statusFilter) return false;
       if (accountFilter === 'NONE' && o.payment_account !== null) return false;
       if (accountFilter !== 'ALL' && accountFilter !== 'NONE' && o.payment_account !== accountFilter) {
+        return false;
+      }
+      if (!isOrderInVnDateRange(o.purchased_at || o.created_at, activeDateRange)) {
         return false;
       }
       if (q) {
@@ -164,11 +179,14 @@ export default function OrdersPage() {
       }
       return true;
     });
-  }, [orders, query, statusFilter, accountFilter]);
+  }, [orders, query, statusFilter, accountFilter, activeDateRange]);
 
   const totals = useMemo(() => computeLedgerTotals(filtered), [filtered]);
   const hasActiveFilter =
-    Boolean(query.trim()) || statusFilter !== 'ALL' || accountFilter !== 'ALL';
+    Boolean(query.trim()) ||
+    statusFilter !== 'ALL' ||
+    accountFilter !== 'ALL' ||
+    datePreset !== 'all';
 
   function handleExportCsv() {
     const csv = buildLedgerCsv(filtered);
@@ -348,6 +366,69 @@ export default function OrdersPage() {
             Chưa có TK
           </button>
         </div>
+
+        {/* Date Range Filter (purchased_at) */}
+        <div className="flex flex-col gap-2 border-t border-[var(--border-default)] pt-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-1.5">
+            {(
+              [
+                ['all', 'Tất cả ngày'],
+                ['today', 'Hôm nay'],
+                ['7d', '7 ngày'],
+                ['month', 'Tháng này'],
+                ['custom', 'Tùy chọn'],
+              ] as const
+            ).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setDatePreset(key)}
+                className={`press-tactile min-h-[44px] rounded-[10px] border px-2.5 text-[13px] font-medium transition-colors ${
+                  datePreset === key
+                    ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] font-semibold text-[var(--brand-jade-text)]'
+                    : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {datePreset === 'custom' && (
+            <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:items-center">
+              <div className="flex min-w-0 items-center justify-between gap-2 sm:justify-start">
+                <label
+                  htmlFor="orders-date-start"
+                  className="shrink-0 text-[13px] font-medium text-[var(--text-secondary)]"
+                >
+                  Từ
+                </label>
+                <input
+                  id="orders-date-start"
+                  type="date"
+                  value={customStart}
+                  onChange={(e) => setCustomStart(e.target.value)}
+                  className="font-mono-tabular min-h-[44px] min-w-0 flex-1 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-2.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)] sm:flex-initial"
+                />
+              </div>
+              <div className="flex min-w-0 items-center justify-between gap-2 sm:justify-start">
+                <label
+                  htmlFor="orders-date-end"
+                  className="shrink-0 text-[13px] font-medium text-[var(--text-secondary)]"
+                >
+                  Đến
+                </label>
+                <input
+                  id="orders-date-end"
+                  type="date"
+                  value={customEnd}
+                  onChange={(e) => setCustomEnd(e.target.value)}
+                  className="font-mono-tabular min-h-[44px] min-w-0 flex-1 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-2.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)] sm:flex-initial"
+                />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Ledger Table / Cards */}
@@ -371,6 +452,7 @@ export default function OrdersPage() {
                   setQuery('');
                   setStatusFilter('ALL');
                   setAccountFilter('ALL');
+                  setDatePreset('all');
                 }}
                 className="press-tactile inline-flex min-h-[48px] items-center justify-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-5 text-[15px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
               >
@@ -389,7 +471,7 @@ export default function OrdersPage() {
       ) : (
         <>
           {/* Desktop 12-Column Table (>= 1024px) */}
-          <div className="animate-fade-in hidden overflow-x-auto rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] lg:block">
+          <div className="animate-fade-in hidden overflow-x-auto overflow-y-auto max-h-[calc(100dvh-260px)] rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] lg:block">
             <table className="w-full border-collapse text-left text-[13px]">
               <thead className="sticky top-0 z-10 border-b border-[var(--border-default)] bg-[var(--bg-subtle)] text-[12px] font-semibold text-[var(--text-secondary)]">
                 <tr>
@@ -452,7 +534,7 @@ export default function OrdersPage() {
                         <div>{formatVND(order.total_cost ?? 0)}</div>
                         {missingCost && (
                           <span className="text-[11px] font-medium text-[var(--status-debt)]">
-                            Chưa đủ vốn
+                            Chưa nhập vốn
                           </span>
                         )}
                       </td>
@@ -573,7 +655,7 @@ export default function OrdersPage() {
                       </span>
                       {missingCost && (
                         <span className="text-[10px] font-semibold text-[var(--status-debt)]">
-                          Thiếu vốn
+                          Chưa nhập vốn
                         </span>
                       )}
                     </div>
@@ -785,18 +867,27 @@ export default function OrdersPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="grid grid-cols-2 gap-2.5">
+              {selectedOrder.payment_status === 'cancelled' ? (
                 <button
                   type="button"
                   onClick={() => setEditOpen(true)}
-                  className="press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-2.5 text-[13px] font-semibold hover:bg-[var(--bg-subtle)] sm:text-[14px]"
+                  className="press-tactile flex min-h-[48px] w-full items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[14px] font-semibold hover:bg-[var(--bg-subtle)]"
                 >
                   <Pencil className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
-                  <span className="truncate">Sửa sổ</span>
+                  <span>Sửa sổ</span>
                 </button>
-                {(selectedOrder.payment_status === 'unpaid' ||
+              ) : (selectedOrder.payment_status === 'unpaid' ||
                   selectedOrder.payment_status === 'partial') &&
                 selectedOrder.customer_id ? (
+                <div className="grid grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setEditOpen(true)}
+                    className="press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-2.5 text-[13px] font-semibold hover:bg-[var(--bg-subtle)] sm:text-[14px]"
+                  >
+                    <Pencil className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
+                    <span className="truncate">Sửa sổ</span>
+                  </button>
                   <button
                     type="button"
                     onClick={() => setCollectTargetOrder(selectedOrder)}
@@ -805,22 +896,6 @@ export default function OrdersPage() {
                     <Banknote className="h-4 w-4 shrink-0" />
                     <span className="truncate">Thu tiền</span>
                   </button>
-                ) : (
-                  selectedOrder.payment_status !== 'cancelled' && (
-                    <button
-                      type="button"
-                      onClick={() => setQrOpen(true)}
-                      className="press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-2.5 text-[13px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] sm:text-[14px]"
-                    >
-                      <QrCode className="h-4 w-4 shrink-0" />
-                      <span className="truncate">Tạo QR</span>
-                    </button>
-                  )
-                )}
-              </div>
-
-              {selectedOrder.payment_status !== 'cancelled' && (
-                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     type="button"
                     onClick={() => setInvoiceOpen(true)}
@@ -833,6 +908,33 @@ export default function OrdersPage() {
                     type="button"
                     onClick={() => setQrOpen(true)}
                     className="press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--brand-jade)] bg-[var(--bg-surface)] px-2.5 text-[13px] font-semibold text-[var(--brand-jade-text)] hover:bg-[var(--status-paid-bg)] sm:text-[14px]"
+                  >
+                    <QrCode className="h-4 w-4 shrink-0" />
+                    <span className="truncate">Mã VietQR</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+                  <button
+                    type="button"
+                    onClick={() => setEditOpen(true)}
+                    className="press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-2.5 text-[13px] font-semibold hover:bg-[var(--bg-subtle)] sm:text-[14px]"
+                  >
+                    <Pencil className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
+                    <span className="truncate">Sửa sổ</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInvoiceOpen(true)}
+                    className="press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-2.5 text-[13px] font-semibold hover:bg-[var(--bg-subtle)] sm:text-[14px]"
+                  >
+                    <ReceiptText className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
+                    <span className="truncate">Hóa đơn</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQrOpen(true)}
+                    className="press-tactile col-span-2 flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-2.5 text-[13px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] sm:col-span-1 sm:text-[14px]"
                   >
                     <QrCode className="h-4 w-4 shrink-0" />
                     <span className="truncate">Mã VietQR</span>
