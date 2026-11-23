@@ -1,13 +1,13 @@
 # PayTrack POS — Project Context & Agent Quickstart
 
 > **Purpose**: Single-source-of-truth context file for AI assistants and developers. Read this file first in a new session instead of scanning the entire repository.
-> **Last Updated**: 2026-11-23 (`v2.0.0` — 12-Field Sales Ledger, Thousand-VND Input, Exposed POS Customer Bar & Floating Glass Dock UI Overhaul)
+> **Last Updated**: 2026-11-23 (`v2.0.1` — Phase 8 Convergence Polish: Orders Date-Range Filter, Dot-Thousands K Guard, Sticky Table & Multi-Meta Theme Sync)
 
 ---
 
 ## 1. Project Overview & Tech Stack
 
-**PayTrack POS** (`v2.0.0`) is a responsive Vietnamese retail POS, 12-field sales ledger with cost/profit & 9 payment accounts, FIFO customer debt ledger, multi-device Web Push reminder (iPhone Safari PWA + Windows Chrome/Edge), dynamic VietQR, customizable e-invoice (`PNG` / `A5` / `80mm`), Excel-safe CSV export, and visual analytics web app.
+**PayTrack POS** (`v2.0.1`) is a responsive Vietnamese retail POS, 12-field sales ledger with cost/profit & 9 payment accounts, FIFO customer debt ledger, multi-device Web Push reminder (iPhone Safari PWA + Windows Chrome/Edge), dynamic VietQR, customizable e-invoice (`PNG` / `A5` / `80mm`), Excel-safe CSV export, and visual analytics web app.
 
 - **Framework**: Next.js `^16.4.6` (App Router, Turbopack dev), React `^19.3.1`, TypeScript `^5.9.0`
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`), 60–30–10 Light/Dark WCAG AA CSS custom properties + intentional `.glass-dock`/`.glass-surface` utilities (`prefers-reduced-transparency` + `prefers-reduced-motion` compliant) in `src/app/globals.css`, fonts `Be Vietnam Pro` + `JetBrains Mono`
@@ -20,8 +20,8 @@
 ## 2. Environments, Git & Live Deployment (Non-Secret)
 
 ### Git Topology
-- `main`: Active production branch (`v2.0.0` via PR #1–#8). Create feature/fix/chore branches from `main` — **do not commit directly to `main`**.
-- Previous branches: `feat/spec-kit-foundation` (PR #1), `feat/001-paytrack-pos-mvp` (PR #2), `feat/002-ux-polish-theme` (PR #3), `fix/cron-reminders-not-firing` (PR #4), `chore/release-1.1.1` (PR #5), `fix/daily-digest-not-firing` (PR #6), `chore/release-1.1.2` (PR #7), `feat/003-mom-ledger-glass-dock` (PR #8). Tags: `v1.0.0`–`v2.0.0`.
+- `main`: Active production branch (`v2.0.1` via PR #1–#9). Create feature/fix/chore branches from `main` — **do not commit directly to `main`**.
+- Previous branches: `feat/spec-kit-foundation` (PR #1), `feat/001-paytrack-pos-mvp` (PR #2), `feat/002-ux-polish-theme` (PR #3), `fix/cron-reminders-not-firing` (PR #4), `chore/release-1.1.1` (PR #5), `fix/daily-digest-not-firing` (PR #6), `chore/release-1.1.2` (PR #7), `feat/003-mom-ledger-glass-dock` (PR #8), `fix/003-converge-polish` (PR #9). Tags: `v1.0.0`–`v2.0.1`.
 
 ### Live Infrastructure
 - **Vercel Production**: `https://paytrack-pos.vercel.app` (team `phu-nguyen4`, project `paytrack-pos`, preset `nextjs`, Node `24.x`, region `sin1`, plus daily fallback cron `0 1 * * *` via `vercel.json`).
@@ -133,12 +133,9 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 
 ## 6. Current Status & Open Backlog
 
-- **Live in Production (`v2.0.0` via PR #8 on `main`, deployed to `https://paytrack-pos.vercel.app`)**:
+- **Live in Production (`v2.0.1` via PR #8–#9 on `main`, deployed to `https://paytrack-pos.vercel.app`)**:
   - Live Supabase (`mezuxaqvbtjbbtugsohm`) migrated through `0005_mom_ledger_fields.sql`.
-  - Track A: Spec Kit artifacts (`specs/003-mom-ledger-glass-dock/`), migration `0005_mom_ledger_fields.sql`, updated & new RPCs (`update_order_ledger_fields`), `VndKInput` + 1000x guard, 9 payment accounts + `Khác: ...`, exposed POS Customer Bar, inline `-`/`+` product steppers, 12-column Sales Ledger + manual edit + inline collect + UTF-8 BOM CSV export, and unit tests (`currency-k.test.ts`, `ledger.test.ts`).
-  - Track B & C: Constitution `v1.1.0`, `PRODUCT.md`, `DESIGN.md`, 60–30–10 Light/Dark tokens + `.glass-dock`/`.glass-surface`, full PWA icon suite (`favicon.svg`, `favicon.ico`, `180/192/512/maskable`) + zero-flash `AppBootSplash`, unified bottom Floating Glass Dock in `AppShell`, simplified 4-section Settings (`PushNotificationSetup` diagnostics in `<details>`), full AI-slop & filler copy purge across all 5 pages/modals, and `ux-guards.test.ts` update.
-- **Completed on `fix/003-converge-polish` (Phase 8 Convergence `T032`–`T037`)**:
-  - Added `/orders` date-range filter (`Tất cả ngày`, `Hôm nay`, `7 ngày`, `Tháng này`, `Tùy chọn` `Từ`/`Đến` on `purchased_at`), extended `currency-k.ts`/`VndKInput` to detect Vietnamese dot-grouped thousands (`"125.000"`, `"1.250.000"`), removed duplicate VietQR CTA on paid order detail modal, fixed multi-tag `meta[name="theme-color"]` sync, bounded desktop 12-column sticky table height, and unified `Chưa nhập vốn` badge label (`59/59` unit tests).
+  - Feature `003-mom-ledger-glass-dock` **100% converged** (`T001`–`T037`, `0` remaining findings): 12-field sales ledger + 9 payment accounts + VN date-range filter + UTF-8 BOM CSV + sticky 12-col desktop table + unified `Chưa nhập vốn` badge, `VndKInput` (`K` / `.000đ` + 1000x & Vietnamese dot-thousands guard), exposed POS Customer Bar, `-`/`+` product steppers, 60–30–10 Floating Glass Dock, crisp PWA icons + zero-flash `AppBootSplash`, multi-tag `meta[name="theme-color"]` sync, and 4-section simplified Settings (`59/59` unit tests pass).
 
 ---
 
@@ -164,4 +161,4 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 | 2026-11-17 | `v1.1.1` Push Cron Fix & Release (`PR #4`) | Added `0004_cron_heartbeat.sql`, `POST /api/push/dispatch-due`, cron diagnostics, and verified scheduled + daily auto Web Push live. |
 | 2026-11-17 | `v1.1.2` Settings & Daily Digest Fix (`PR #6`, `PR #7`) | Fixed Settings form remount hiding save banner, added `shouldResetDigestSentDate()` in-day reschedule reset, and added `digestStatus` diagnostics. |
 | 2026-11-23 | `v2.0.0` 12-Field Ledger & Floating Glass Dock (`PR #8`) | Applied migration `0005` live, merged PR #8 & tagged `v2.0.0`: RPCs (`update_order_ledger_fields`, 9 payment accounts, cost/profit, `purchased_at`/`paid_at`), `VndKInput` (`K` / `.000đ` + 1000x guard), inline `-`/`+` steppers, exposed POS Customer Bar, 12-col Sales Ledger + inline debt collect + UTF-8 BOM CSV export, 60–30–10 Floating Glass Dock, crisp PWA icons + zero-flash `AppBootSplash`, 4-section simplified Settings, and full AI-slop copy purge (`58/58` tests pass). |
-| 2026-11-23 | `003` Phase 8 Convergence (`fix/003-converge-polish`) | Completed `T032`–`T037`: added `/orders` date-range filter (`purchased_at`), dot-grouped thousands safeguard (`"125.000"`/`"1.250.000"`), deduplicated paid-order VietQR CTA, multi-tag `meta[name="theme-color"]` sync, sticky 12-col desktop table scroll bound, and unified `Chưa nhập vốn` badge (`59/59` tests pass). |
+| 2026-11-23 | `v2.0.1` Phase 8 Convergence Polish (`PR #9`) | Merged PR #9 & tagged `v2.0.1` (`T032`–`T037`, converged 0 findings): added `/orders` date-range filter (`purchased_at`), dot-grouped thousands safeguard (`"125.000"`/`"1.250.000"`), deduplicated paid-order VietQR CTA, multi-tag `meta[name="theme-color"]` sync, sticky 12-col desktop table scroll bound, and unified `Chưa nhập vốn` badge (`59/59` tests pass). |
