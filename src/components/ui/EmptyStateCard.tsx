@@ -4,7 +4,7 @@ import type { LucideIcon } from 'lucide-react';
 interface EmptyStateCardProps {
   icon: LucideIcon;
   title: string;
-  description: string;
+  description?: string;
   action?: ReactNode;
   secondaryHint?: string;
 }
@@ -22,9 +22,11 @@ export function EmptyStateCard({
         <Icon className="h-6 w-6" />
       </div>
       <h3 className="text-[16px] font-bold text-[var(--text-primary)]">{title}</h3>
-      <p className="mx-auto mt-1.5 max-w-[420px] text-[14px] leading-relaxed text-[var(--text-secondary)]">
-        {description}
-      </p>
+      {description && (
+        <p className="mx-auto mt-1.5 max-w-[420px] text-[14px] leading-relaxed text-[var(--text-secondary)]">
+          {description}
+        </p>
+      )}
       {action && <div className="mt-4 flex flex-wrap justify-center gap-2.5">{action}</div>}
       {secondaryHint && (
         <p className="mt-3 text-[12px] text-[var(--text-secondary)]">{secondaryHint}</p>

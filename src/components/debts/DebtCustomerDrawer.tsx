@@ -6,6 +6,7 @@ import {
   BellPlus,
   Check,
   Loader2,
+  MapPin,
   Pencil,
   Phone,
   QrCode,
@@ -19,6 +20,7 @@ import {
   formatVND,
   stripVietnamese,
 } from '@/lib/vietnamese';
+import { formatPaymentAccount } from '@/lib/ledger';
 import type {
   Customer,
   DebtPayment,
@@ -63,6 +65,7 @@ function DebtCustomerDrawerBody({
   const [editingInfo, setEditingInfo] = useState(false);
   const [editName, setEditName] = useState(customer.name);
   const [editPhone, setEditPhone] = useState(customer.phone ?? '');
+  const [editAddress, setEditAddress] = useState(customer.address ?? '');
   const [editNote, setEditNote] = useState(customer.note ?? '');
   const [savingInfo, setSavingInfo] = useState(false);
 
@@ -79,7 +82,7 @@ function DebtCustomerDrawerBody({
         .select('*')
         .eq('customer_id', customerId)
         .in('payment_status', ['unpaid', 'partial'])
-        .order('created_at', { ascending: true }),
+        .order('purchased_at', { ascending: true }),
       supabase
         .from('debt_payments')
         .select('*')
@@ -109,7 +112,7 @@ function DebtCustomerDrawerBody({
         .select('*')
         .eq('customer_id', customer.id)
         .in('payment_status', ['unpaid', 'partial'])
-        .order('created_at', { ascending: true }),
+        .order('purchased_at', { ascending: true }),
       supabase
         .from('debt_payments')
         .select('*')
@@ -144,8 +147,11 @@ function DebtCustomerDrawerBody({
         .from('customers')
         .update({
           name: editName.trim(),
-          search_text: stripVietnamese(`${editName.trim()} ${editPhone.trim()}`),
+          search_text: stripVietnamese(
+            `${editName.trim()} ${editPhone.trim()} ${editAddress.trim()}`
+          ),
           phone: editPhone.trim() || null,
+          address: editAddress.trim() || null,
           note: editNote.trim() || null,
         })
         .eq('id', customer.id);
@@ -187,12 +193,20 @@ function DebtCustomerDrawerBody({
                   <Pencil className="h-4 w-4" />
                 </button>
               </div>
-              {customer.phone && (
-                <p className="font-mono-tabular flex items-center gap-1 text-[13px] text-[var(--text-secondary)]">
-                  <Phone className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate">{customer.phone}</span>
-                </p>
-              )}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[13px] text-[var(--text-secondary)]">
+                {customer.phone && (
+                  <span className="font-mono-tabular inline-flex items-center gap-1">
+                    <Phone className="h-3.5 w-3.5 shrink-0" />
+                    {customer.phone}
+                  </span>
+                )}
+                {customer.address && (
+                  <span className="inline-flex min-w-0 items-center gap-1 truncate">
+                    <MapPin className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{customer.address}</span>
+                  </span>
+                )}
+              </div>
             </div>
             <button
               type="button"
@@ -211,14 +225,14 @@ function DebtCustomerDrawerBody({
                 className="animate-fade-in space-y-2.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-3.5"
               >
                 <p className="text-[13px] font-bold text-[var(--text-primary)]">
-                  Sửa tên / số điện thoại khách
+                  Sửa thông tin khách
                 </p>
                 <input
                   type="text"
                   required
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  placeholder="Tên khách hàng"
+                  placeholder="Họ tên"
                   className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
                 />
                 <input
@@ -230,9 +244,16 @@ function DebtCustomerDrawerBody({
                 />
                 <input
                   type="text"
+                  value={editAddress}
+                  onChange={(e) => setEditAddress(e.target.value)}
+                  placeholder="Địa chỉ"
+                  className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                />
+                <input
+                  type="text"
                   value={editNote}
                   onChange={(e) => setEditNote(e.target.value)}
-                  placeholder="Địa chỉ / Ghi chú"
+                  placeholder="Ghi chú"
                   className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
                 />
                 <div className="flex justify-end gap-2">
@@ -264,7 +285,7 @@ function DebtCustomerDrawerBody({
             <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-subtle)] p-4">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="text-[14px] font-medium text-[var(--text-secondary)]">
-                  Tổng tiền khách đang nợ
+                  Đang nợ
                 </span>
                 <span
                   className={`font-mono-tabular text-[20px] font-bold sm:text-[24px] ${
@@ -278,7 +299,7 @@ function DebtCustomerDrawerBody({
               </div>
               {customer.next_due_date && customer.total_debt > 0 && (
                 <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
-                  Hẹn thu gần nhất:{' '}
+                  Hẹn thu:{' '}
                   <strong className="font-mono-tabular text-[var(--text-primary)]">
                     {formatDateVN(customer.next_due_date)}
                   </strong>
@@ -304,7 +325,7 @@ function DebtCustomerDrawerBody({
                     className="press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--brand-jade)] bg-[var(--bg-surface)] px-2.5 text-[14px] font-semibold text-[var(--brand-jade-text)] hover:bg-[var(--status-paid-bg)]"
                   >
                     <QrCode className="h-4 w-4 shrink-0" />
-                    <span className="truncate">Tạo mã QR</span>
+                    <span className="truncate">Tạo QR</span>
                   </button>
                   <button
                     type="button"
@@ -320,14 +341,14 @@ function DebtCustomerDrawerBody({
 
             {loading ? (
               <p className="py-4 text-center text-[14px] text-[var(--text-secondary)]">
-                Đang tải chi tiết công nợ...
+                Đang tải...
               </p>
             ) : (
               <>
                 {reminders.length > 0 && (
                   <div>
                     <h3 className="mb-2 text-[14px] font-bold text-[var(--text-primary)]">
-                      Lịch hẹn nhắc sắp tới
+                      Lịch nhắc ({reminders.length})
                     </h3>
                     <div className="divide-y divide-[var(--border-default)] rounded-lg border border-[var(--border-default)]">
                       {reminders.map((rem) => (
@@ -361,11 +382,11 @@ function DebtCustomerDrawerBody({
 
                 <div>
                   <h3 className="mb-2 text-[14px] font-bold text-[var(--text-primary)]">
-                    Đơn hàng còn nợ ({unpaidOrders.length})
+                    Đơn còn nợ ({unpaidOrders.length})
                   </h3>
                   {unpaidOrders.length === 0 ? (
                     <p className="rounded-lg border border-[var(--border-default)] p-3.5 text-[13px] text-[var(--text-secondary)]">
-                      Khách không còn đơn nào chưa thanh toán.
+                      Không còn đơn nợ.
                     </p>
                   ) : (
                     <div className="divide-y divide-[var(--border-default)] rounded-lg border border-[var(--border-default)]">
@@ -379,7 +400,8 @@ function DebtCustomerDrawerBody({
                               {ord.order_code}
                             </p>
                             <p className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
-                              {formatDateTimeVN(ord.created_at)} · Tổng {formatVND(ord.total_amount)}
+                              {formatDateVN(ord.purchased_at || ord.created_at)} · Tổng{' '}
+                              {formatVND(ord.total_amount)}
                             </p>
                           </div>
                           <div className="flex shrink-0 items-center gap-2">
@@ -405,11 +427,11 @@ function DebtCustomerDrawerBody({
 
                 <div>
                   <h3 className="mb-2 text-[14px] font-bold text-[var(--text-primary)]">
-                    Lịch sử khách đã trả ({payments.length})
+                    Lịch sử thu ({payments.length})
                   </h3>
                   {payments.length === 0 ? (
                     <p className="rounded-lg border border-[var(--border-default)] p-3.5 text-[13px] text-[var(--text-secondary)]">
-                      Chưa có lịch sử thu tiền.
+                      Chưa có đợt thu nào.
                     </p>
                   ) : (
                     <div className="divide-y divide-[var(--border-default)] rounded-lg border border-[var(--border-default)]">
@@ -420,10 +442,14 @@ function DebtCustomerDrawerBody({
                         >
                           <div className="min-w-0 flex-1">
                             <p className="break-words font-medium text-[var(--text-primary)]">
-                              {pay.note || 'Thu tiền'} ({pay.payment_method === 'transfer' ? 'Chuyển khoản' : 'Tiền mặt'})
+                              {pay.note || 'Thu tiền'}
+                              {pay.payment_account
+                                ? ` · TK ${formatPaymentAccount(pay.payment_account, pay.payment_account_note)}`
+                                : ''}
                             </p>
                             <p className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
-                              {formatDateTimeVN(pay.paid_at)}
+                              {formatDateVN(pay.paid_at)} ·{' '}
+                              {pay.payment_method === 'transfer' ? 'CK' : 'Tiền mặt'}
                             </p>
                           </div>
                           <span className="shrink-0 font-mono-tabular font-bold text-[var(--brand-jade-text)]">

@@ -7,6 +7,7 @@ import { computeOrderTotals, formatVND, getTodayVN } from '@/lib/vietnamese';
 import { usePosData } from '@/components/providers/PosDataProvider';
 import { useAppUser } from '@/components/shell/AppShell';
 import type { CartItem, Product } from '@/types/database';
+import { CustomerPicker } from '@/components/pos/CustomerPicker';
 import { ProductCatalog } from '@/components/pos/ProductCatalog';
 import { ProductFormModal } from '@/components/pos/ProductFormModal';
 import { QuickItemModal } from '@/components/pos/QuickItemModal';
@@ -70,6 +71,30 @@ export default function PosWorkspacePage() {
     });
   }
 
+  function handleSetProductQty(product: Product, nextQty: number) {
+    setCart((prev) => {
+      if (nextQty <= 0) {
+        return prev.filter((i) => i.key !== product.id);
+      }
+      const idx = prev.findIndex((i) => i.key === product.id);
+      if (idx >= 0) {
+        return prev.map((item, i) => (i === idx ? { ...item, quantity: nextQty } : item));
+      }
+      return [
+        ...prev,
+        {
+          key: product.id,
+          product_id: product.id,
+          product_name: product.name,
+          unit: product.unit,
+          unit_price: product.price,
+          cost_price: product.cost_price,
+          quantity: nextQty,
+        },
+      ];
+    });
+  }
+
   function handleAddQuickItem(item: CartItem) {
     setCart((prev) => [...prev, item]);
   }
@@ -94,6 +119,16 @@ export default function PosWorkspacePage() {
   const { total } = computeOrderTotals(cart, discount);
   const missingBankConfig = profile && (!profile.bank_bin || !profile.bank_account_no);
 
+  const cartQtyByProductId = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const item of cart) {
+      if (item.product_id && item.key === item.product_id) {
+        map[item.product_id] = item.quantity;
+      }
+    }
+    return map;
+  }, [cart]);
+
   const todayVN = getTodayVN();
   const dueDebtorsCount = useMemo(
     () =>
@@ -114,7 +149,7 @@ export default function PosWorkspacePage() {
     return orders.filter(
       (o) =>
         o.payment_status !== 'cancelled' &&
-        vnDateFmt.format(new Date(o.created_at)) === todayVN
+        vnDateFmt.format(new Date(o.purchased_at || o.created_at)) === todayVN
     ).length;
   }, [orders, ordersLoaded, todayVN]);
 
@@ -126,15 +161,10 @@ export default function PosWorkspacePage() {
   return (
     <div className="mx-auto max-w-[1380px] px-3 py-4 sm:px-6 lg:py-5">
       {/* Page Title */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <div className="min-w-0">
-          <h1 className="text-[20px] font-bold tracking-[-0.015em] text-[var(--text-primary)] lg:text-[24px]">
-            Bán hàng
-          </h1>
-          <p className="text-[13px] text-[var(--text-secondary)]">
-            Chạm vào món để lên đơn nhanh, tự động đồng bộ giữa điện thoại &amp; máy tính
-          </p>
-        </div>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-[20px] font-bold tracking-[-0.015em] text-[var(--text-primary)] lg:text-[24px]">
+          Bán hàng
+        </h1>
       </div>
 
       {/* Layer 3 Daily Welcome Banner */}
@@ -147,21 +177,18 @@ export default function PosWorkspacePage() {
         />
       )}
 
-      {/* Guided Onboarding Banner when bank account is not yet configured */}
+      {/* Bank setup reminder */}
       {!loading && !catalogError && missingBankConfig && (
-        <div className="animate-fade-in mb-4 flex flex-wrap items-center justify-between gap-3 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3">
-          <div className="flex min-w-0 flex-1 items-center gap-2.5 text-[14px] text-[var(--text-primary)]">
-            <Landmark className="h-5 w-5 shrink-0 text-[var(--brand-jade-text)]" />
-            <span className="min-w-0 break-words">
-              Chưa nhập tài khoản ngân hàng? Thêm 1 lần để tự tạo mã <strong>VietQR</strong> và
-              gắn lên hóa đơn cho khách quét.
-            </span>
+        <div className="animate-fade-in mb-3 flex flex-wrap items-center justify-between gap-2 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 py-2.5">
+          <div className="flex min-w-0 flex-1 items-center gap-2 text-[14px] text-[var(--text-primary)]">
+            <Landmark className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
+            <span className="min-w-0 truncate">Chưa cài STK VietQR</span>
           </div>
           <Link
             href="/settings#bank"
-            className="press-tactile inline-flex min-h-[44px] shrink-0 items-center rounded-lg border border-[var(--brand-jade)] px-3.5 text-[13px] font-semibold text-[var(--brand-jade-text)] hover:bg-[var(--status-paid-bg)]"
+            className="press-tactile inline-flex min-h-[44px] shrink-0 items-center rounded-lg border border-[var(--brand-jade)] px-3 text-[13px] font-semibold text-[var(--brand-jade-text)] hover:bg-[var(--status-paid-bg)]"
           >
-            Cài đặt ngân hàng
+            Cài đặt
           </Link>
         </div>
       )}
@@ -169,49 +196,58 @@ export default function PosWorkspacePage() {
       {/* Error / Skeleton / Split-Pane Workspace */}
       {catalogError && !productsLoaded ? (
         <FetchErrorCard
-          title="Chưa tải được danh sách hàng hóa"
+          title="Chưa tải được danh sách hàng"
           message={catalogError}
           onRetry={() => void refreshPosCatalog()}
         />
       ) : loading ? (
         <PosWorkspaceSkeleton />
       ) : (
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
-          <div className="min-w-0 lg:col-span-7 xl:col-span-7">
-            <ProductCatalog
-              products={products}
-              onAddToCart={handleAddProductToCart}
-              onOpenNewProduct={() => {
-                setEditingProduct(null);
-                setProductModalOpen(true);
-              }}
-              onEditProduct={(prod) => {
-                setEditingProduct(prod);
-                setProductModalOpen(true);
-              }}
-              onOpenQuickItem={() => setQuickItemOpen(true)}
-            />
-          </div>
+        <div className="space-y-3">
+          {/* Exposed Customer Bar (always directly visible on 375px mobile & 1280px desktop) */}
+          <CustomerPicker
+            customers={customers}
+            selectedCustomerId={selectedCustomerId}
+            onSelect={(c) => setSelectedCustomerId(c?.id ?? null)}
+            onCustomerCreated={upsertCustomerLocal}
+          />
 
-          {/* Desktop Sticky Cart Column */}
-          <div className="hidden lg:col-span-5 lg:block xl:col-span-5">
-            <div className="sticky top-5">
-              <CartPanel
-                items={cart}
-                discount={discount}
-                onChangeDiscount={setDiscount}
-                onUpdateQty={handleUpdateQty}
-                onRemoveItem={handleRemoveItem}
-                onClearCart={() => {
-                  setCart([]);
-                  setDiscount(0);
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+            <div className="min-w-0 lg:col-span-7 xl:col-span-7">
+              <ProductCatalog
+                products={products}
+                cartQtyByProductId={cartQtyByProductId}
+                onAddToCart={handleAddProductToCart}
+                onSetProductQty={handleSetProductQty}
+                onOpenNewProduct={() => {
+                  setEditingProduct(null);
+                  setProductModalOpen(true);
                 }}
-                customers={customers}
-                selectedCustomerId={selectedCustomerId}
-                onSelectCustomer={(c) => setSelectedCustomerId(c?.id ?? null)}
-                onCustomerCreated={upsertCustomerLocal}
-                onOpenCheckout={() => setCheckoutOpen(true)}
+                onEditProduct={(prod) => {
+                  setEditingProduct(prod);
+                  setProductModalOpen(true);
+                }}
+                onOpenQuickItem={() => setQuickItemOpen(true)}
               />
+            </div>
+
+            {/* Desktop Sticky Cart Column */}
+            <div className="hidden lg:col-span-5 lg:block xl:col-span-5">
+              <div className="sticky top-5">
+                <CartPanel
+                  items={cart}
+                  discount={discount}
+                  onChangeDiscount={setDiscount}
+                  onUpdateQty={handleUpdateQty}
+                  onRemoveItem={handleRemoveItem}
+                  onClearCart={() => {
+                    setCart([]);
+                    setDiscount(0);
+                  }}
+                  selectedCustomer={selectedCustomer}
+                  onOpenCheckout={() => setCheckoutOpen(true)}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -231,7 +267,7 @@ export default function PosWorkspacePage() {
                 key={`${cart.length}-${totalItemUnits}`}
                 className="animate-badge-pop truncate text-[15px] font-semibold"
               >
-                {cart.length} món trong giỏ
+                {cart.length} món{selectedCustomer ? ` · ${selectedCustomer.name}` : ''}
               </span>
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
@@ -255,7 +291,7 @@ export default function PosWorkspacePage() {
           <div className="animate-sheet-up max-h-[90dvh] w-full overflow-y-auto rounded-t-[14px] bg-[var(--bg-canvas)] p-3">
             <div className="mb-2 flex items-center justify-between gap-2 px-1">
               <span className="min-w-0 flex-1 truncate text-[16px] font-bold text-[var(--text-primary)]">
-                Kiểm tra đơn hàng
+                Đơn hàng
               </span>
               <button
                 type="button"
@@ -277,10 +313,7 @@ export default function PosWorkspacePage() {
                 setDiscount(0);
                 setMobileCartOpen(false);
               }}
-              customers={customers}
-              selectedCustomerId={selectedCustomerId}
-              onSelectCustomer={(c) => setSelectedCustomerId(c?.id ?? null)}
-              onCustomerCreated={upsertCustomerLocal}
+              selectedCustomer={selectedCustomer}
               onOpenCheckout={() => {
                 setMobileCartOpen(false);
                 setCheckoutOpen(true);
@@ -312,6 +345,7 @@ export default function PosWorkspacePage() {
         selectedCustomer={selectedCustomer}
         profile={profile}
         onOrderCreated={handleOrderCreated}
+        onCustomerUpdated={upsertCustomerLocal}
       />
     </div>
   );

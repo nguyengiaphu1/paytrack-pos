@@ -5,6 +5,17 @@ export type InvoiceFormat = 'a5' | '80mm';
 export type ReminderType = 'digest' | 'custom';
 export type ReminderStatus = 'pending' | 'sent' | 'dismissed';
 
+export type PaymentAccount =
+  | 'Thanh'
+  | 'Phú'
+  | 'Trang'
+  | 'Trang Lê'
+  | 'Thuỳ Trang'
+  | 'Thuỷ'
+  | 'Kiều Thương'
+  | 'Vận chuyển'
+  | 'Khác';
+
 export interface ShopProfile {
   id: string;
   user_id: string;
@@ -46,6 +57,7 @@ export interface Customer {
   name: string;
   search_text: string;
   phone: string | null;
+  address: string | null;
   note: string | null;
   total_debt: number;
   next_due_date: string | null;
@@ -72,14 +84,21 @@ export interface Order {
   order_code: string;
   customer_id: string | null;
   customer_name_snapshot: string;
+  customer_address_snapshot: string | null;
+  customer_phone_snapshot: string | null;
+  purchased_at: string;
   subtotal: number;
   discount_amount: number;
   total_amount: number;
+  total_cost: number;
   paid_amount: number;
   remaining_amount: number;
   previous_customer_debt: number;
   payment_status: PaymentStatus;
   payment_method: PaymentMethod;
+  payment_account: PaymentAccount | null;
+  payment_account_note: string | null;
+  paid_at: string | null;
   debt_due_date: string | null;
   note: string | null;
   created_at: string;
@@ -94,6 +113,8 @@ export interface DebtPayment {
   order_id: string | null;
   amount: number;
   payment_method: DebtPaymentMethod;
+  payment_account: PaymentAccount | null;
+  payment_account_note: string | null;
   note: string | null;
   paid_at: string;
 }
@@ -136,6 +157,8 @@ export interface CartItem {
 export interface AnalyticsSummary {
   kpis: {
     total_revenue: number;
+    total_cost: number;
+    total_profit: number;
     cash_collected: number;
     estimated_gross_profit: number | null;
     profit_tracked_ratio: number;

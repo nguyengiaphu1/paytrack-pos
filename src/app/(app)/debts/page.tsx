@@ -74,8 +74,9 @@ function DebtsContent() {
       if (filter === 'due' && (c.total_debt <= 0 || !c.next_due_date || c.next_due_date > todayVN)) {
         return false;
       }
-      if (q && !c.search_text.includes(q) && !(c.phone && c.phone.includes(query.trim()))) {
-        return false;
+      if (q) {
+        const hay = stripVietnamese(`${c.name} ${c.phone ?? ''} ${c.address ?? ''}`);
+        if (!hay.includes(q) && !c.search_text.includes(q)) return false;
       }
       return true;
     });
@@ -88,16 +89,13 @@ function DebtsContent() {
     <div className="mx-auto max-w-[1160px] px-3 py-4 sm:px-6 lg:py-5">
       <div className="mb-4">
         <h1 className="text-[20px] font-bold tracking-[-0.015em] text-[var(--text-primary)] lg:text-[24px]">
-          Sổ nợ khách hàng
+          Công nợ
         </h1>
-        <p className="text-[13px] text-[var(--text-secondary)]">
-          Chạm vào tên khách để thu tiền (tự trừ đơn cũ trước), hẹn lịch nhắc hoặc tạo mã QR gửi khách
-        </p>
       </div>
 
       {customersError && !customersLoaded ? (
         <FetchErrorCard
-          title="Chưa tải được sổ nợ khách hàng"
+          title="Chưa tải được công nợ"
           message={customersError}
           onRetry={() => void refreshCustomers()}
         />
@@ -108,19 +106,19 @@ function DebtsContent() {
           {/* KPI Strip */}
           <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
             <div className="col-span-2 min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:col-span-1">
-              <p className="text-[13px] text-[var(--text-secondary)]">Tổng tiền khách đang nợ</p>
+              <p className="text-[13px] text-[var(--text-secondary)]">Tổng công nợ</p>
               <p className="font-mono-tabular mt-1 break-words text-[22px] font-bold text-[var(--status-debt)] sm:text-[24px]">
                 {formatVND(summary.totalShopDebt)}
               </p>
             </div>
             <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
-              <p className="text-[13px] text-[var(--text-secondary)]">Số khách đang nợ</p>
+              <p className="text-[13px] text-[var(--text-secondary)]">Khách đang nợ</p>
               <p className="font-mono-tabular mt-1 text-[20px] font-bold text-[var(--text-primary)] sm:text-[22px]">
                 {summary.debtorCount}
               </p>
             </div>
             <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
-              <p className="text-[13px] text-[var(--text-secondary)]">Tới hẹn / Quá hạn</p>
+              <p className="text-[13px] text-[var(--text-secondary)]">Đến hạn / Quá hạn</p>
               <p className="font-mono-tabular mt-1 text-[20px] font-bold text-[var(--status-overdue)] sm:text-[22px]">
                 {summary.dueOrOverdueCount}
               </p>
@@ -135,7 +133,7 @@ function DebtsContent() {
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Tìm tên khách hoặc số điện thoại..."
+                placeholder="Tìm tên, SĐT, địa chỉ..."
                 className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] pr-3.5 pl-10 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
               />
             </div>
@@ -143,9 +141,9 @@ function DebtsContent() {
             <div className="flex flex-wrap gap-1.5">
               {(
                 [
-                  ['debtors', 'Khách đang nợ'],
-                  ['due', 'Tới hẹn thu'],
-                  ['all', 'Tất cả khách'],
+                  ['debtors', 'Đang nợ'],
+                  ['due', 'Đến hạn'],
+                  ['all', 'Tất cả'],
                 ] as const
               ).map(([key, label]) => (
                 <button
@@ -164,32 +162,18 @@ function DebtsContent() {
             </div>
           </div>
 
-          {/* Plain filter explanation */}
-          <p className="mb-3 text-[12px] text-[var(--text-secondary)]">
-            {filter === 'debtors'
-              ? 'Đang hiện những khách còn số tiền chưa trả. Bấm vào từng khách để thu tiền hoặc tạo mã QR.'
-              : filter === 'due'
-                ? 'Đang lọc những khách có ngày hẹn trả rơi vào hôm nay hoặc đã trễ hạn.'
-                : 'Đang hiện toàn bộ khách đã từng lưu (bao gồm cả khách đã trả hết nợ).'}
-          </p>
-
           {/* Customer Debt List */}
           {filtered.length === 0 ? (
             <EmptyStateCard
               icon={Users}
               title={
                 query.trim()
-                  ? `Không tìm thấy khách nào khớp "${query}"`
+                  ? `Không thấy "${query}"`
                   : filter === 'debtors'
-                    ? 'Hiện không có khách nào đang nợ'
+                    ? 'Không có khách nợ'
                     : filter === 'due'
-                      ? 'Hôm nay chưa có khách nào tới hạn thu nợ'
-                      : 'Sổ khách hàng chưa có ai'
-              }
-              description={
-                filter === 'debtors'
-                  ? 'Khi bạn tạo đơn "Ghi nợ hết" hoặc "Trả một phần" ở màn hình Bán hàng, tên khách và số nợ sẽ tự hiện ở đây.'
-                  : 'Bạn có thể chuyển sang xem Tất cả khách hoặc quay lại màn hình Bán hàng để tạo đơn mới.'
+                      ? 'Không có khách đến hạn'
+                      : 'Chưa có khách hàng'
               }
               action={
                 filter !== 'all' ? (
@@ -202,7 +186,7 @@ function DebtsContent() {
                     className="press-tactile inline-flex min-h-[48px] items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-5 text-[14px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
                   >
                     <Users className="h-4 w-4 text-[var(--brand-jade-text)]" />
-                    <span>Xem tất cả khách</span>
+                    <span>Xem tất cả</span>
                   </button>
                 ) : (
                   <Link
@@ -210,7 +194,7 @@ function DebtsContent() {
                     className="press-tactile inline-flex min-h-[48px] items-center gap-2 rounded-lg bg-[var(--brand-jade)] px-5 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
                   >
                     <ShoppingBag className="h-4 w-4" />
-                    <span>Về màn hình Bán hàng</span>
+                    <span>Bán hàng</span>
                   </Link>
                 )
               }
@@ -247,14 +231,15 @@ function DebtsContent() {
                         )}
                         {isDueToday && (
                           <span className="shrink-0 rounded-full bg-[var(--status-debt-bg)] px-2 py-0.5 text-[11px] font-semibold text-[var(--status-debt)]">
-                            Hẹn thu hôm nay
+                            Hôm nay
                           </span>
                         )}
                       </div>
-                      <p className="mt-0.5 break-words font-mono-tabular text-[13px] text-[var(--text-secondary)]">
-                        {cust.phone || 'Chưa có SĐT'}
+                      <p className="mt-0.5 truncate text-[13px] text-[var(--text-secondary)]">
+                        <span className="font-mono-tabular">{cust.phone || '—'}</span>
+                        {cust.address ? ` · ${cust.address}` : ''}
                         {cust.next_due_date && !isOverdue && !isDueToday && cust.total_debt > 0
-                          ? ` · Hẹn thu ${formatDateVN(cust.next_due_date)}`
+                          ? ` · Hẹn ${formatDateVN(cust.next_due_date)}`
                           : ''}
                       </p>
                     </div>
@@ -274,11 +259,11 @@ function DebtsContent() {
                         <div className="hidden items-center gap-1.5 sm:flex">
                           <span className="inline-flex min-h-[36px] items-center gap-1 rounded-md border border-[var(--border-default)] bg-[var(--bg-canvas)] px-2.5 text-[12px] font-semibold text-[var(--text-primary)]">
                             <Banknote className="h-3.5 w-3.5 text-[var(--brand-jade-text)]" />
-                            Thu tiền
+                            Thu
                           </span>
                           <span className="inline-flex min-h-[36px] items-center gap-1 rounded-md border border-[var(--border-default)] bg-[var(--bg-canvas)] px-2.5 text-[12px] font-semibold text-[var(--brand-jade-text)]">
                             <QrCode className="h-3.5 w-3.5" />
-                            Tạo mã QR
+                            QR
                           </span>
                         </div>
                       )}

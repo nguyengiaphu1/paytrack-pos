@@ -3,7 +3,7 @@
 import { Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react';
 import { computeLineTotal, computeOrderTotals, formatVND } from '@/lib/vietnamese';
 import type { CartItem, Customer } from '@/types/database';
-import { CustomerPicker } from './CustomerPicker';
+import { VndKInput } from '@/components/ui/VndKInput';
 
 interface CartPanelProps {
   items: CartItem[];
@@ -12,10 +12,7 @@ interface CartPanelProps {
   onUpdateQty: (key: string, nextQty: number) => void;
   onRemoveItem: (key: string) => void;
   onClearCart: () => void;
-  customers: Customer[];
-  selectedCustomerId: string | null;
-  onSelectCustomer: (customer: Customer | null) => void;
-  onCustomerCreated: (customer: Customer) => void;
+  selectedCustomer: Customer | null;
   onOpenCheckout: () => void;
 }
 
@@ -26,10 +23,7 @@ export function CartPanel({
   onUpdateQty,
   onRemoveItem,
   onClearCart,
-  customers,
-  selectedCustomerId,
-  onSelectCustomer,
-  onCustomerCreated,
+  selectedCustomer,
   onOpenCheckout,
 }: CartPanelProps) {
   const { subtotal, discount: safeDiscount, total } = computeOrderTotals(items, discount);
@@ -38,14 +32,14 @@ export function CartPanel({
     <div className="flex flex-col rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)]">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[var(--border-default)] px-4 py-3">
-        <div className="flex items-center gap-2">
-          <ShoppingCart className="h-5 w-5 text-[var(--brand-jade-text)]" />
-          <h2 className="text-[16px] font-bold text-[var(--text-primary)]">
-            Đơn hiện tại
+        <div className="flex min-w-0 items-center gap-2">
+          <ShoppingCart className="h-5 w-5 shrink-0 text-[var(--brand-jade-text)]" />
+          <h2 className="truncate text-[16px] font-bold text-[var(--text-primary)]">
+            Giỏ hàng
           </h2>
           <span
             key={items.length}
-            className="animate-badge-pop font-mono-tabular inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-[var(--status-paid-bg)] px-2 text-[12px] font-bold text-[var(--brand-jade-text)]"
+            className="animate-badge-pop font-mono-tabular inline-flex h-6 min-w-[24px] shrink-0 items-center justify-center rounded-full bg-[var(--status-paid-bg)] px-2 text-[12px] font-bold text-[var(--brand-jade-text)]"
           >
             {items.length}
           </span>
@@ -54,28 +48,26 @@ export function CartPanel({
           <button
             type="button"
             onClick={onClearCart}
-            className="text-[13px] font-semibold text-[var(--status-overdue)] hover:underline"
+            className="min-h-[44px] shrink-0 px-1 text-[13px] font-semibold text-[var(--status-overdue)] hover:underline"
           >
-            Xóa hết giỏ
+            Xóa giỏ
           </button>
         )}
       </div>
 
-      {/* Customer Picker */}
-      <div className="border-b border-[var(--border-default)] p-3">
-        <CustomerPicker
-          customers={customers}
-          selectedCustomerId={selectedCustomerId}
-          onSelect={onSelectCustomer}
-          onCustomerCreated={onCustomerCreated}
-        />
+      {/* Selected Buyer Snapshot Line */}
+      <div className="flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-subtle)] px-4 py-2 text-[13px]">
+        <span className="text-[var(--text-secondary)]">Khách:</span>
+        <span className="truncate font-semibold text-[var(--text-primary)]">
+          {selectedCustomer ? selectedCustomer.name : 'Khách lẻ'}
+        </span>
       </div>
 
       {/* Cart Items */}
       <div className="max-h-[42vh] flex-1 divide-y divide-[var(--border-default)] overflow-y-auto px-3">
         {items.length === 0 ? (
           <div className="py-10 text-center text-[14px] text-[var(--text-secondary)]">
-            Chạm vào món hàng bên trái để đưa vào đơn.
+            Chưa chọn món nào.
           </div>
         ) : (
           items.map((item) => {
@@ -150,30 +142,29 @@ export function CartPanel({
       {/* Totals + Checkout CTA */}
       <div className="space-y-2.5 border-t border-[var(--border-default)] bg-[var(--bg-subtle)] p-3.5">
         <div className="flex items-center justify-between gap-2 text-[14px]">
-          <span className="text-[var(--text-secondary)]">Tiền hàng (tạm tính)</span>
+          <span className="text-[var(--text-secondary)]">Tạm tính</span>
           <span className="font-mono-tabular shrink-0 font-semibold text-[var(--text-primary)]">
             {formatVND(subtotal)}
           </span>
         </div>
 
         <div className="flex items-center justify-between gap-3 text-[14px]">
-          <label htmlFor="cart-discount" className="text-[var(--text-secondary)]">
-            Bớt / Giảm giá (đ)
+          <label htmlFor="cart-discount" className="shrink-0 text-[var(--text-secondary)]">
+            Giảm giá
           </label>
-          <input
+          <VndKInput
             id="cart-discount"
-            type="number"
-            min={0}
-            step={1000}
-            value={discount || ''}
+            compact
+            align="right"
+            valueVnd={discount > 0 ? discount : null}
+            onChangeVnd={(val) => onChangeDiscount(val ?? 0)}
             placeholder="0"
-            onChange={(e) => onChangeDiscount(Math.max(0, Math.round(Number(e.target.value) || 0)))}
-            className="font-mono-tabular min-h-[44px] w-32 shrink-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-2.5 text-right text-[16px] font-semibold text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+            className="w-36 shrink-0"
           />
         </div>
 
         <div className="flex flex-wrap items-baseline justify-between gap-2 border-t border-[var(--border-default)] pt-2">
-          <span className="text-[15px] font-bold text-[var(--text-primary)]">Khách cần trả</span>
+          <span className="text-[15px] font-bold text-[var(--text-primary)]">Tổng cộng</span>
           <span className="font-mono-tabular shrink-0 text-[20px] font-bold text-[var(--brand-jade-text)] sm:text-[22px]">
             {formatVND(total)}
           </span>
@@ -181,7 +172,7 @@ export function CartPanel({
 
         {safeDiscount !== discount && (
           <p className="text-[12px] text-[var(--status-debt)]">
-            Số tiền giảm giá đã tự giới hạn bằng tổng tiền đơn.
+            Giảm giá tối đa bằng tổng tiền đơn.
           </p>
         )}
 
@@ -191,7 +182,7 @@ export function CartPanel({
           onClick={onOpenCheckout}
           className="press-tactile flex min-h-[50px] w-full items-center justify-center rounded-lg bg-[var(--brand-jade)] px-3 text-center text-[15px] font-bold text-white transition-colors hover:bg-[var(--brand-jade-hover)] disabled:cursor-not-allowed disabled:opacity-45 sm:px-4 sm:text-[16px]"
         >
-          Thu tiền / Ghi nợ ({formatVND(total)})
+          Thanh toán ({formatVND(total)})
         </button>
       </div>
     </div>
