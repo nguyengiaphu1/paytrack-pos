@@ -14,6 +14,8 @@ import { createClient } from '@/lib/supabase/client';
 import { useRealtimeSync, type SyncStatus } from '@/hooks/useRealtimeSync';
 import type { AnalyticsSummary, Customer, Order, Product, ShopProfile } from '@/types/database';
 
+const ORDERS_PAGE_SIZE = 200;
+
 interface PosDataContextValue {
   syncStatus: SyncStatus;
   products: Product[];
@@ -22,6 +24,8 @@ interface PosDataContextValue {
   customersLoaded: boolean;
   orders: Order[];
   ordersLoaded: boolean;
+  hasMoreOrders: boolean;
+  loadingMoreOrders: boolean;
   profile: ShopProfile | null;
   profileLoaded: boolean;
   catalogError: string | null;
@@ -35,16 +39,22 @@ interface PosDataContextValue {
   refreshCustomers: () => Promise<void>;
   ensureOrders: () => Promise<void>;
   refreshOrders: () => Promise<void>;
+  loadMoreOrders: () => Promise<void>;
   ensureProfile: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   fetchAnalytics: (
     startIso: string,
     endIso: string,
-    options?: { force?: boolean }
+    options?: { force?: boolean; paymentAccount?: string | null }
   ) => Promise<{ data: AnalyticsSummary | null; error: string | null }>;
-  getCachedAnalytics: (startIso: string, endIso: string) => AnalyticsSummary | null;
+  getCachedAnalytics: (
+    startIso: string,
+    endIso: string,
+    paymentAccount?: string | null
+  ) => AnalyticsSummary | null;
   upsertProductLocal: (product: Product) => void;
   upsertCustomerLocal: (customer: Customer) => void;
+  upsertOrderLocal: (order: Order) => void;
   setProfileLocal: (profile: ShopProfile) => void;
   invalidateAfterMutation: () => void;
 }
@@ -65,6 +75,8 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoaded, setOrdersLoaded] = useState(false);
+  const [hasMoreOrders, setHasMoreOrders] = useState(false);
+  const [loadingMoreOrders, setLoadingMoreOrders] = useState(false);
 
   const [profile, setProfile] = useState<ShopProfile | null>(initialProfile);
   const [profileLoaded, setProfileLoaded] = useState<boolean>(Boolean(initialProfile));
@@ -76,6 +88,7 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
 
   const analyticsCacheRef = useRef<Map<string, AnalyticsSummary>>(new Map());
   const [analyticsVersion, setAnalyticsVersion] = useState(0);
+  const ordersLimitRef = useRef(ORDERS_PAGE_SIZE);
 
   const loadedFlagsRef = useRef({
     products: false,
@@ -203,20 +216,26 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
       try {
         setOrdersError(null);
         const supabase = createClient();
+        const limit = ordersLimitRef.current;
         const { data, error } = await supabase
           .from('orders')
-          .select('*')
+          .select(
+            '*, order_items(id, user_id, order_id, product_id, product_name, unit, unit_price, cost_price, quantity, line_total)'
+          )
+          .order('purchased_at', { ascending: false })
           .order('created_at', { ascending: false })
-          .limit(200);
+          .limit(limit + 1);
         if (error) throw error;
         if (data) {
-          setOrders(data as Order[]);
+          const rows = data as Order[];
+          setHasMoreOrders(rows.length > limit);
+          setOrders(rows.slice(0, limit));
           loadedFlagsRef.current.orders = true;
           setOrdersLoaded(true);
         }
       } catch (err) {
         setOrdersError(
-          err instanceof Error ? err.message : 'Không tải được lịch sử đơn hàng.'
+          err instanceof Error ? err.message : 'Không tải được sổ bán hàng.'
         );
       }
     })().finally(() => {
@@ -225,6 +244,17 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
     inflightRef.current.orders = task;
     return task;
   }, []);
+
+  const loadMoreOrders = useCallback(async () => {
+    if (loadingMoreOrders) return;
+    setLoadingMoreOrders(true);
+    ordersLimitRef.current += ORDERS_PAGE_SIZE;
+    try {
+      await refreshOrders();
+    } finally {
+      setLoadingMoreOrders(false);
+    }
+  }, [loadingMoreOrders, refreshOrders]);
 
   const ensurePosCatalog = useCallback(async () => {
     if (loadedFlagsRef.current.products && loadedFlagsRef.current.customers) return;
@@ -246,21 +276,34 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
     await refreshProfile();
   }, [refreshProfile]);
 
-  const getCachedAnalytics = useCallback((startIso: string, endIso: string) => {
-    return analyticsCacheRef.current.get(`${startIso}|${endIso}`) ?? null;
-  }, []);
+  const getCachedAnalytics = useCallback(
+    (startIso: string, endIso: string, paymentAccount?: string | null) => {
+      const key = `${startIso}|${endIso}|${paymentAccount ?? ''}`;
+      return analyticsCacheRef.current.get(key) ?? null;
+    },
+    []
+  );
 
   const fetchAnalytics = useCallback(
-    async (startIso: string, endIso: string, options?: { force?: boolean }) => {
-      const key = `${startIso}|${endIso}`;
+    async (
+      startIso: string,
+      endIso: string,
+      options?: { force?: boolean; paymentAccount?: string | null }
+    ) => {
+      const account = options?.paymentAccount || null;
+      const key = `${startIso}|${endIso}|${account ?? ''}`;
       if (!options?.force && analyticsCacheRef.current.has(key)) {
         return { data: analyticsCacheRef.current.get(key) ?? null, error: null };
       }
       const supabase = createClient();
-      const { data, error } = await supabase.rpc('get_analytics_summary', {
+      const params: Record<string, string | null> = {
         p_start: startIso,
         p_end: endIso,
-      });
+      };
+      if (account) {
+        params.p_payment_account = account;
+      }
+      const { data, error } = await supabase.rpc('get_analytics_summary', params);
       if (error) {
         return { data: null, error: error.message };
       }
@@ -292,6 +335,24 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
     });
     loadedFlagsRef.current.customers = true;
     setCustomersLoaded(true);
+  }, []);
+
+  const upsertOrderLocal = useCallback((order: Order) => {
+    setOrders((prev) => {
+      const exists = prev.some((o) => o.id === order.id);
+      const next = exists
+        ? prev.map((o) =>
+            o.id === order.id ? { ...o, ...order, order_items: order.order_items ?? o.order_items } : o
+          )
+        : [order, ...prev];
+      return next.sort((a, b) => {
+        const tA = new Date(a.purchased_at || a.created_at).getTime();
+        const tB = new Date(b.purchased_at || b.created_at).getTime();
+        return tB - tA;
+      });
+    });
+    loadedFlagsRef.current.orders = true;
+    setOrdersLoaded(true);
   }, []);
 
   const setProfileLocal = useCallback((nextProfile: ShopProfile) => {
@@ -353,6 +414,8 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
       customersLoaded,
       orders,
       ordersLoaded,
+      hasMoreOrders,
+      loadingMoreOrders,
       profile,
       profileLoaded,
       catalogError,
@@ -366,12 +429,14 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
       refreshCustomers,
       ensureOrders,
       refreshOrders,
+      loadMoreOrders,
       ensureProfile,
       refreshProfile,
       fetchAnalytics,
       getCachedAnalytics,
       upsertProductLocal,
       upsertCustomerLocal,
+      upsertOrderLocal,
       setProfileLocal,
       invalidateAfterMutation,
     }),
@@ -383,6 +448,8 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
       customersLoaded,
       orders,
       ordersLoaded,
+      hasMoreOrders,
+      loadingMoreOrders,
       profile,
       profileLoaded,
       catalogError,
@@ -396,12 +463,14 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
       refreshCustomers,
       ensureOrders,
       refreshOrders,
+      loadMoreOrders,
       ensureProfile,
       refreshProfile,
       fetchAnalytics,
       getCachedAnalytics,
       upsertProductLocal,
       upsertCustomerLocal,
+      upsertOrderLocal,
       setProfileLocal,
       invalidateAfterMutation,
     ]

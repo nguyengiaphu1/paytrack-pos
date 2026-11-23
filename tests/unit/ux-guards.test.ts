@@ -21,11 +21,8 @@ function collectSourceFiles(dir: string): string[] {
   return results;
 }
 
+// Strict permanent Anti-AI-Slop bans (semantic .glass-dock / .glass-surface live in globals.css)
 const BANNED_AI_SLOP_TOKENS = [
-  'backdrop-blur',
-  'shadow-lg',
-  'rounded-2xl',
-  'rounded-3xl',
   'indigo-',
   'purple-',
   'bg-clip-text',
@@ -34,10 +31,22 @@ const BANNED_AI_SLOP_TOKENS = [
   'tracking-widest',
 ];
 
-describe('ux-polish-theme design, dark-mode, and welcome architectural guards', () => {
-  it('defines dark-mode palette, smooth transition window, print light isolation, and reduced-motion rules in globals.css', () => {
+// Raw unrestrained glass/card slop classes must not scatter across TSX files
+const BANNED_SCATTERED_SLOP_IN_TSX = [
+  'backdrop-blur',
+  'shadow-lg',
+  'rounded-2xl',
+  'rounded-3xl',
+];
+
+describe('PayTrack POS 60-30-10 Floating Glass Dock, PWA, and Anti-AI-Slop architectural guards', () => {
+  it('defines 60-30-10 Light/Dark tokens, .glass-dock, .glass-surface, print light lock, and reduced motion/transparency fallbacks in globals.css', () => {
     const css = readRel('src/app/globals.css');
     expect(css).toContain(':root[data-theme="dark"]');
+    expect(css).toContain('.glass-dock');
+    expect(css).toContain('.glass-surface');
+    expect(css).toContain('backdrop-filter: blur(');
+    expect(css).toContain('@media (prefers-reduced-transparency: reduce)');
     expect(css).toContain('.theme-transitioning');
     expect(css).toContain('280ms');
     expect(css).toContain('.print-surface-light');
@@ -47,11 +56,42 @@ describe('ux-polish-theme design, dark-mode, and welcome architectural guards', 
     expect(css).toContain('@media (prefers-reduced-motion: reduce)');
   });
 
-  it('wires pre-hydration THEME_BOOTSTRAP_SCRIPT and ThemeProvider in root layout', () => {
+  it('wires pre-hydration THEME_BOOTSTRAP_SCRIPT, AppBootSplash, dynamic themeColor, and full PWA icons in root layout & manifest', () => {
     const layout = readRel('src/app/layout.tsx');
     expect(layout).toContain('THEME_BOOTSTRAP_SCRIPT');
     expect(layout).toContain('suppressHydrationWarning');
     expect(layout).toContain('<ThemeProvider>');
+    expect(layout).toContain('<AppBootSplash />');
+    expect(layout).toContain('/favicon.svg');
+    expect(layout).toContain('/favicon.ico');
+    expect(layout).toContain('/icons/apple-touch-icon.png');
+
+    const manifest = readRel('src/app/manifest.ts');
+    expect(manifest).toContain('icon-192.png');
+    expect(manifest).toContain('icon-512.png');
+    expect(manifest).toContain('icon-512-maskable.png');
+
+    expect(fs.existsSync(path.join(ROOT, 'public/favicon.svg'))).toBe(true);
+    expect(fs.existsSync(path.join(ROOT, 'public/favicon.ico'))).toBe(true);
+    expect(fs.existsSync(path.join(ROOT, 'public/icons/apple-touch-icon.png'))).toBe(true);
+    expect(fs.existsSync(path.join(ROOT, 'public/icons/icon-192.png'))).toBe(true);
+    expect(fs.existsSync(path.join(ROOT, 'public/icons/icon-512.png'))).toBe(true);
+    expect(fs.existsSync(path.join(ROOT, 'public/icons/icon-512-maskable.png'))).toBe(true);
+  });
+
+  it('uses Floating Glass Dock without legacy 228px desktop left rail in AppShell', () => {
+    const shell = readRel('src/components/shell/AppShell.tsx');
+    expect(shell).toContain('glass-dock');
+    expect(shell).toContain('ThemeQuickToggle');
+    expect(shell).toContain('WelcomeOnboardingModal');
+    expect(shell).not.toContain('lg:w-[228px]');
+  });
+
+  it('exposes CustomerPicker directly on main POS screen (not hidden inside CartPanel)', () => {
+    const pos = readRel('src/app/(app)/page.tsx');
+    expect(pos).toContain('<CustomerPicker');
+    const cartPanel = readRel('src/components/pos/CartPanel.tsx');
+    expect(cartPanel).not.toContain('<CustomerPicker');
   });
 
   it('wires BrandLoadingScreen and layout-matched page skeletons + FetchErrorCard retry across all 5 routes', () => {
@@ -82,32 +122,34 @@ describe('ux-polish-theme design, dark-mode, and welcome architectural guards', 
     expect(readRel('src/components/qr/VietQRModal.tsx')).toContain('print-surface-light');
   });
 
-  it('wires 3-layer Welcome architecture safely without blocking returning sales', () => {
-    const login = readRel('src/app/login/page.tsx');
-    expect(login).toContain('ThemeQuickToggle');
-
-    const appLayout = readRel('src/app/(app)/layout.tsx');
-    expect(appLayout).toContain('welcome_v2_seen');
-
-    const shell = readRel('src/components/shell/AppShell.tsx');
-    expect(shell).toContain('WelcomeOnboardingModal');
-    expect(shell).toContain('ThemeQuickToggle');
-
-    const home = readRel('src/app/(app)/page.tsx');
-    expect(home).toContain('DailyWelcomeBanner');
-
+  it('keeps Settings simplified, avoids updated_at remount, and keeps save feedback by submit button', () => {
     const settings = readRel('src/app/(app)/settings/page.tsx');
     expect(settings).toContain('SettingsThemeSelector');
-    expect(settings).toContain('Xem lại hướng dẫn bắt đầu');
+    expect(settings).not.toContain('key={profile?.updated_at');
+    const submitIdx = settings.indexOf('Lưu cài đặt');
+    const lastSavedMsgIdx = settings.lastIndexOf('{savedMsg && (');
+    expect(submitIdx).toBeGreaterThan(-1);
+    expect(lastSavedMsgIdx).toBeGreaterThan(-1);
+    expect(lastSavedMsgIdx).toBeLessThan(submitIdx);
   });
 
-  it('contains zero banned AI-slop tokens anywhere inside src/', () => {
+  it('contains zero banned AI-slop tokens anywhere inside src/ and routes all glass styling through semantic utilities', () => {
     const files = collectSourceFiles(path.join(ROOT, 'src'));
     for (const file of files) {
       const content = fs.readFileSync(file, 'utf8');
       const rel = path.relative(ROOT, file);
       for (const token of BANNED_AI_SLOP_TOKENS) {
-        expect(content, `${rel} must not contain banned token "${token}"`).not.toContain(token);
+        expect(content, `${rel} must not contain banned AI-slop token "${token}"`).not.toContain(
+          token
+        );
+      }
+      if (/\.(ts|tsx)$/.test(file)) {
+        for (const token of BANNED_SCATTERED_SLOP_IN_TSX) {
+          expect(
+            content,
+            `${rel} must use semantic .glass-dock/.glass-surface instead of raw "${token}"`
+          ).not.toContain(token);
+        }
       }
     }
   });
@@ -172,15 +214,4 @@ describe('ux-polish-theme design, dark-mode, and welcome architectural guards', 
       }
     }
   });
-
-  it('does not remount SettingsFormBody on profile.updated_at and keeps save feedback by submit button', () => {
-    const settings = readRel('src/app/(app)/settings/page.tsx');
-    expect(settings).not.toContain('key={profile?.updated_at');
-    const submitIdx = settings.indexOf('Lưu tất cả cài đặt');
-    const lastSavedMsgIdx = settings.lastIndexOf('{savedMsg && (');
-    expect(submitIdx).toBeGreaterThan(-1);
-    expect(lastSavedMsgIdx).toBeGreaterThan(-1);
-    expect(lastSavedMsgIdx).toBeLessThan(submitIdx);
-  });
 });
-

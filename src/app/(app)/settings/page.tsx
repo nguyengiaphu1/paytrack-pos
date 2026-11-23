@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { BookOpenCheck, CheckCircle2, Loader2, LogOut, Save } from 'lucide-react';
+import { CheckCircle2, Loader2, LogOut, Save } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import {
   getCurrentTimeHHMM_VN,
@@ -13,7 +13,7 @@ import {
 import { VIETNAM_BANKS } from '@/lib/vietqr';
 import { usePosData } from '@/components/providers/PosDataProvider';
 import { useAppUser } from '@/components/shell/AppShell';
-import type { InvoiceFormat, ShopProfile } from '@/types/database';
+import type { ShopProfile } from '@/types/database';
 import { PushNotificationSetup } from '@/components/pwa/PushNotificationSetup';
 import { SettingsThemeSelector } from '@/components/ui/ThemeToggle';
 import { FetchErrorCard, SettingsPageSkeleton } from '@/components/ui/PageSkeletons';
@@ -27,7 +27,7 @@ export default function SettingsPage() {
     refreshProfile,
     setProfileLocal,
   } = usePosData();
-  const { openOnboarding } = useAppUser();
+  const { userEmail } = useAppUser();
 
   useEffect(() => {
     void ensureProfile();
@@ -36,26 +36,17 @@ export default function SettingsPage() {
   const loading = !profileLoaded && !profileError;
 
   return (
-    <div className="mx-auto max-w-[760px] px-3 py-4 sm:px-6 lg:py-5">
+    <div className="mx-auto max-w-[720px] px-3 py-4 sm:px-6 lg:py-5">
       <div className="mb-4">
         <h1 className="text-[20px] font-bold tracking-[-0.015em] text-[var(--text-primary)] lg:text-[24px]">
-          Cài đặt cửa hàng
+          Cài đặt
         </h1>
-        <p className="text-[13px] text-[var(--text-secondary)]">
-          Chỉnh giao diện Sáng/Tối, tên tiệm in hóa đơn, ngân hàng VietQR &amp; nhắc nợ tự động
-        </p>
       </div>
 
-      <div className="space-y-5">
-        {/* 1. Giao diện Sáng / Tối (Theo thiết bị / Sáng / Tối) */}
-        <SettingsThemeSelector />
-
-        {/* 2. Thông báo nhắc nợ trên thiết bị */}
-        <PushNotificationSetup />
-
+      <div className="space-y-4">
         {profileError && !profile ? (
           <FetchErrorCard
-            title="Chưa tải được cài đặt cửa hàng"
+            title="Chưa tải được cài đặt"
             message={profileError}
             onRetry={() => void refreshProfile()}
           />
@@ -64,8 +55,8 @@ export default function SettingsPage() {
         ) : (
           <SettingsFormBody
             profile={profile}
+            userEmail={userEmail}
             setProfileLocal={setProfileLocal}
-            onReplayOnboarding={openOnboarding}
           />
         )}
       </div>
@@ -75,12 +66,12 @@ export default function SettingsPage() {
 
 function SettingsFormBody({
   profile,
+  userEmail,
   setProfileLocal,
-  onReplayOnboarding,
 }: {
   profile: ShopProfile | null;
+  userEmail: string;
   setProfileLocal: (profile: ShopProfile) => void;
-  onReplayOnboarding: () => void;
 }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
@@ -99,15 +90,6 @@ function SettingsFormBody({
   const [digestHour, setDigestHour] = useState(
     normalizeHHMM(profile?.reminder_default_hour, '08:30')
   );
-  const [invoiceFormat, setInvoiceFormat] = useState<InvoiceFormat>(
-    profile?.default_invoice_format || 'a5'
-  );
-  const [showCumulativeDebt, setShowCumulativeDebt] = useState(
-    profile?.default_show_cumulative_debt ?? true
-  );
-  const [showQrOnInvoice, setShowQrOnInvoice] = useState(
-    profile?.default_show_qr_on_invoice ?? true
-  );
 
   useEffect(() => {
     if (!profile) return;
@@ -122,9 +104,6 @@ function SettingsFormBody({
     setBankAccountName(profile.bank_account_name ?? '');
     setDigestEnabled(profile.reminder_digest_enabled ?? true);
     setDigestHour(normalizeHHMM(profile.reminder_default_hour, '08:30'));
-    setInvoiceFormat(profile.default_invoice_format || 'a5');
-    setShowCumulativeDebt(profile.default_show_cumulative_debt ?? true);
-    setShowQrOnInvoice(profile.default_show_qr_on_invoice ?? true);
   }, [profile]);
 
   async function handleSave(e: FormEvent) {
@@ -134,7 +113,7 @@ function SettingsFormBody({
     setSavedMsg(null);
 
     if (bankBin.trim() && !/^\d{6}$/.test(bankBin.trim())) {
-      setErrorMsg('Mã BIN ngân hàng phải gồm đúng 6 chữ số (chọn từ danh sách ngân hàng).');
+      setErrorMsg('Chọn ngân hàng hợp lệ từ danh sách.');
       return;
     }
 
@@ -170,9 +149,6 @@ function SettingsFormBody({
         bank_account_name: bankAccountName.trim().toUpperCase() || null,
         reminder_digest_enabled: digestEnabled,
         reminder_default_hour: normalizedHour,
-        default_invoice_format: invoiceFormat,
-        default_show_cumulative_debt: showCumulativeDebt,
-        default_show_qr_on_invoice: showQrOnInvoice,
       };
 
       if (resetSentDate) {
@@ -195,19 +171,15 @@ function SettingsFormBody({
       }
 
       if (resetSentDate) {
-        setSavedMsg(
-          `Đã lưu cài đặt! Hệ thống sẽ gửi thông báo tổng hợp hôm nay vào lúc ${normalizedHour}.`
-        );
+        setSavedMsg(`Đã lưu — sẽ nhắc hôm nay lúc ${normalizedHour}.`);
       } else if (
         digestEnabled &&
         profile?.last_digest_sent_date === todayVN &&
         normalizedHour < nowHHMM
       ) {
-        setSavedMsg(
-          `Đã lưu cài đặt! Khung giờ ${normalizedHour} hôm nay đã qua nên hệ thống sẽ gửi từ ngày mai.`
-        );
+        setSavedMsg(`Đã lưu — khung giờ ${normalizedHour} áp dụng từ ngày mai.`);
       } else {
-        setSavedMsg('Đã lưu toàn bộ cài đặt cửa hàng thành công!');
+        setSavedMsg('Đã lưu cài đặt.');
       }
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Không thể lưu cài đặt');
@@ -223,261 +195,169 @@ function SettingsFormBody({
     router.refresh();
   }
 
-  const todayVN = getTodayVN();
-  const digestAlreadySentToday = profile?.last_digest_sent_date === todayVN;
-
   return (
-    <>
-      <form onSubmit={handleSave} className="space-y-5">
-        {errorMsg && (
-          <div
-            role="alert"
-            className="animate-fade-in rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-4 py-3 text-[14px] font-medium text-[var(--status-overdue)]"
-          >
-            {errorMsg}
-          </div>
-        )}
-
-        {savedMsg && (
-          <div
-            role="status"
-            className="animate-fade-in flex items-center gap-2 rounded-lg border border-[var(--status-paid-border)] bg-[var(--status-paid-bg)] px-4 py-3 text-[14px] font-semibold text-[var(--status-paid)]"
-          >
-            <CheckCircle2 className="h-5 w-5 shrink-0" />
-            <span>{savedMsg}</span>
-          </div>
-        )}
-
-        {/* 3. Thông tin cửa hàng */}
-        <section className="space-y-3 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:p-5">
-          <div>
-            <h2 className="text-[16px] font-bold text-[var(--text-primary)]">
-              3. Thông tin cửa hàng (in lên hóa đơn)
-            </h2>
-            <p className="text-[13px] text-[var(--text-secondary)]">
-              Tên tiệm và số điện thoại sẽ hiện ở đầu phiếu tính tiền gửi cho khách.
-            </p>
-          </div>
-          <div>
-            <label className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]">
-              Tên cửa hàng *
-            </label>
-            <input
-              type="text"
-              required
-              value={shopName}
-              onChange={(e) => setShopName(e.target.value)}
-              className="min-h-[48px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-            />
-          </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="min-w-0">
-              <label className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]">
-                Số điện thoại cửa hàng
-              </label>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="0901234567"
-                className="font-mono-tabular min-h-[48px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-              />
-            </div>
-            <div className="min-w-0">
-              <label className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]">
-                Địa chỉ
-              </label>
-              <input
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="Số nhà, đường, quận/huyện..."
-                className="min-h-[48px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* 4. Tài khoản ngân hàng nhận VietQR */}
+    <div className="space-y-4">
+      <form onSubmit={handleSave} className="space-y-4">
+        {/* 1. Cửa hàng & VietQR */}
         <section
           id="bank"
-          className="space-y-3 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:p-5"
+          className="space-y-4 rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:p-5"
         >
-          <div>
-            <h2 className="text-[16px] font-bold text-[var(--text-primary)]">
-              4. Tài khoản ngân hàng nhận chuyển khoản VietQR
-            </h2>
-            <p className="text-[13px] text-[var(--text-secondary)]">
-              Điền 1 lần để tự tạo mã QR đúng số tiền khi thu nợ hoặc xuất hóa đơn cho khách.
-            </p>
-          </div>
-          <div>
-            <label className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]">
-              Ngân hàng
-            </label>
-            <select
-              value={bankBin}
-              onChange={(e) => {
-                const selectedBin = e.target.value;
-                setBankBin(selectedBin);
-                const found = VIETNAM_BANKS.find((b) => b.bin === selectedBin);
-                if (found) setBankName(found.shortName);
-              }}
-              className="min-h-[48px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-            >
-              <option value="">-- Chọn ngân hàng --</option>
-              {VIETNAM_BANKS.map((b) => (
-                <option key={b.bin} value={b.bin}>
-                  {b.shortName} — {b.name} ({b.bin})
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="min-w-0">
-              <label className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]">
-                Số tài khoản nhận tiền
-              </label>
-              <input
-                type="text"
-                inputMode="numeric"
-                value={bankAccountNo}
-                onChange={(e) => setBankAccountNo(e.target.value)}
-                placeholder="VD: 0123456789"
-                className="font-mono-tabular min-h-[48px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-              />
-            </div>
-            <div className="min-w-0">
-              <label className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]">
-                Tên chủ tài khoản (không dấu)
-              </label>
-              <input
-                type="text"
-                value={bankAccountName}
-                onChange={(e) => setBankAccountName(e.target.value)}
-                placeholder="NGUYEN THI LAN"
-                className="min-h-[48px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 uppercase text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* 5. Mặc định nhắc nợ & hóa đơn */}
-        <section className="space-y-4 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:p-5">
-          <div>
-            <h2 className="text-[16px] font-bold text-[var(--text-primary)]">
-              5. Mặc định nhắc nợ &amp; mẫu hóa đơn
-            </h2>
-            <p className="text-[13px] text-[var(--text-secondary)]">
-              Cài đặt sẵn khổ giấy và thông tin hiển thị khi bạn bấm In / Gửi hóa đơn.
-            </p>
-          </div>
-
-          <div className="space-y-2 border-b border-[var(--border-default)] pb-3.5">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <label className="flex min-w-0 flex-1 cursor-pointer items-start gap-2.5">
-                <input
-                  type="checkbox"
-                  checked={digestEnabled}
-                  onChange={(e) => {
-                    setDigestEnabled(e.target.checked);
-                    setSavedMsg(null);
-                  }}
-                  className="mt-1 h-4 w-4 shrink-0 accent-[var(--brand-jade)]"
-                />
-                <span className="min-w-0">
-                  <span className="block text-[14px] font-semibold text-[var(--text-primary)]">
-                    Báo tổng hợp khách đến hạn mỗi ngày
-                  </span>
-                  <span className="block text-[12px] text-[var(--text-secondary)]">
-                    Đến khung giờ đã chọn, tự gửi 1 thông báo nếu có khách còn nợ với &ldquo;Ngày hẹn
-                    thu&rdquo; hôm nay hoặc đã quá hạn.
-                  </span>
-                </span>
-              </label>
-              <input
-                type="time"
-                value={digestHour}
-                onChange={(e) => {
-                  setDigestHour(e.target.value);
-                  setSavedMsg(null);
-                }}
-                aria-label="Giờ gửi tổng hợp mỗi ngày"
-                className="font-mono-tabular min-h-[44px] shrink-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-              />
-            </div>
-            {digestEnabled && digestAlreadySentToday && (
-              <p className="text-[12px] font-medium text-[var(--brand-jade-text)]">
-                Hôm nay hệ thống đã gửi thông báo tổng hợp rồi. Nếu bạn đổi sang một giờ sắp tới
-                trong hôm nay và bấm Lưu, hệ thống sẽ gửi lại theo giờ mới.
-              </p>
-            )}
-          </div>
+          <h2 className="text-[15px] font-bold text-[var(--text-primary)]">
+            Cửa hàng &amp; VietQR
+          </h2>
 
           <div className="space-y-3">
             <div>
-              <label className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]">
-                Khổ hóa đơn mặc định
+              <label className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]">
+                Tên cửa hàng *
               </label>
-              <select
-                value={invoiceFormat}
+              <input
+                type="text"
+                required
+                value={shopName}
                 onChange={(e) => {
-                  setInvoiceFormat(e.target.value as InvoiceFormat);
+                  setShopName(e.target.value);
                   setSavedMsg(null);
                 }}
-                className="min-h-[48px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] sm:w-72"
+                className="min-h-[46px] w-full rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="min-w-0">
+                <label className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]">
+                  Số điện thoại
+                </label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => {
+                    setPhone(e.target.value);
+                    setSavedMsg(null);
+                  }}
+                  placeholder="0901234567"
+                  className="font-mono-tabular min-h-[46px] w-full rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                />
+              </div>
+              <div className="min-w-0">
+                <label className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]">
+                  Địa chỉ
+                </label>
+                <input
+                  type="text"
+                  value={address}
+                  onChange={(e) => {
+                    setAddress(e.target.value);
+                    setSavedMsg(null);
+                  }}
+                  placeholder="Số nhà, đường..."
+                  className="min-h-[46px] w-full rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3 border-t border-[var(--border-default)] pt-4">
+            <div>
+              <label className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]">
+                Ngân hàng nhận QR
+              </label>
+              <select
+                value={bankBin}
+                onChange={(e) => {
+                  const selectedBin = e.target.value;
+                  setBankBin(selectedBin);
+                  const found = VIETNAM_BANKS.find((b) => b.bin === selectedBin);
+                  if (found) setBankName(found.shortName);
+                  setSavedMsg(null);
+                }}
+                className="min-h-[46px] w-full rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
               >
-                <option value="a5">Khổ A5 / Tải ảnh gửi Zalo (Khuyên dùng)</option>
-                <option value="80mm">Khổ nhiệt 80mm (Máy in bill nhỏ)</option>
+                <option value="">-- Chọn ngân hàng --</option>
+                {VIETNAM_BANKS.map((b) => (
+                  <option key={b.bin} value={b.bin}>
+                    {b.shortName} — {b.name}
+                  </option>
+                ))}
               </select>
             </div>
 
-            <label className="flex cursor-pointer items-start gap-2.5">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="min-w-0">
+                <label className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]">
+                  Số tài khoản
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={bankAccountNo}
+                  onChange={(e) => {
+                    setBankAccountNo(e.target.value);
+                    setSavedMsg(null);
+                  }}
+                  placeholder="0123456789"
+                  className="font-mono-tabular min-h-[46px] w-full rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                />
+              </div>
+              <div className="min-w-0">
+                <label className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]">
+                  Chủ tài khoản
+                </label>
+                <input
+                  type="text"
+                  value={bankAccountName}
+                  onChange={(e) => {
+                    setBankAccountName(e.target.value);
+                    setSavedMsg(null);
+                  }}
+                  placeholder="NGUYEN THI LAN"
+                  className="min-h-[46px] w-full rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 uppercase text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 2. Nhắc nợ */}
+        <section className="space-y-3.5 rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:p-5">
+          <h2 className="text-[15px] font-bold text-[var(--text-primary)]">Nhắc nợ</h2>
+
+          <PushNotificationSetup embedded />
+
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--border-default)] pt-3.5">
+            <label className="flex min-h-[44px] min-w-0 flex-1 cursor-pointer items-center gap-2.5">
               <input
                 type="checkbox"
-                checked={showCumulativeDebt}
+                checked={digestEnabled}
                 onChange={(e) => {
-                  setShowCumulativeDebt(e.target.checked);
+                  setDigestEnabled(e.target.checked);
                   setSavedMsg(null);
                 }}
-                className="mt-1 h-4 w-4 shrink-0 accent-[var(--brand-jade)]"
+                className="h-4 w-4 shrink-0 accent-[var(--brand-jade)]"
               />
-              <span className="min-w-0">
-                <span className="block text-[14px] font-medium text-[var(--text-primary)]">
-                  Hiện rõ Nợ cũ + Đơn này − Đã trả trên hóa đơn
-                </span>
-                <span className="block text-[12px] text-[var(--text-secondary)]">
-                  Giúp khách dễ đối chiếu tổng nợ còn lại sau khi mua thêm hàng.
-                </span>
+              <span className="text-[14px] font-medium text-[var(--text-primary)]">
+                Báo khách đến hạn mỗi ngày
               </span>
             </label>
 
-            <label className="flex cursor-pointer items-start gap-2.5">
-              <input
-                type="checkbox"
-                checked={showQrOnInvoice}
-                onChange={(e) => {
-                  setShowQrOnInvoice(e.target.checked);
-                  setSavedMsg(null);
-                }}
-                className="mt-1 h-4 w-4 shrink-0 accent-[var(--brand-jade)]"
-              />
-              <span className="min-w-0">
-                <span className="block text-[14px] font-medium text-[var(--text-primary)]">
-                  Tự gắn mã VietQR chuyển khoản ở cuối hóa đơn
-                </span>
-                <span className="block text-[12px] text-[var(--text-secondary)]">
-                  Khách chỉ cần mở app ngân hàng quét mã là chuyển đúng số tiền.
-                </span>
-              </span>
-            </label>
+            <input
+              type="time"
+              value={digestHour}
+              onChange={(e) => {
+                setDigestHour(e.target.value);
+                setSavedMsg(null);
+              }}
+              aria-label="Giờ nhắc mỗi ngày"
+              className="font-mono-tabular min-h-[44px] shrink-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+            />
           </div>
         </section>
 
         {errorMsg && (
           <div
             role="alert"
-            className="animate-fade-in rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-4 py-3 text-[14px] font-medium text-[var(--status-overdue)]"
+            className="animate-fade-in rounded-[10px] border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-4 py-3 text-[14px] font-medium text-[var(--status-overdue)]"
           >
             {errorMsg}
           </div>
@@ -486,7 +366,7 @@ function SettingsFormBody({
         {savedMsg && (
           <div
             role="status"
-            className="animate-fade-in flex items-center gap-2 rounded-lg border border-[var(--status-paid-border)] bg-[var(--status-paid-bg)] px-4 py-3 text-[14px] font-semibold text-[var(--status-paid)]"
+            className="animate-fade-in flex items-center gap-2 rounded-[10px] border border-[var(--status-paid-border)] bg-[var(--status-paid-bg)] px-4 py-3 text-[14px] font-semibold text-[var(--status-paid)]"
           >
             <CheckCircle2 className="h-5 w-5 shrink-0" />
             <span>{savedMsg}</span>
@@ -496,51 +376,35 @@ function SettingsFormBody({
         <button
           type="submit"
           disabled={saving}
-          className="press-tactile flex min-h-[52px] w-full items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-5 text-[16px] font-bold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+          className="press-tactile flex min-h-[50px] w-full items-center justify-center gap-2 rounded-[12px] bg-[var(--brand-jade)] px-5 text-[16px] font-bold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
         >
           {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
-          <span>{saving ? 'Đang lưu cài đặt...' : 'Lưu tất cả cài đặt'}</span>
+          <span>{saving ? 'Đang lưu...' : 'Lưu cài đặt'}</span>
         </button>
       </form>
 
-      {/* 6. Hướng dẫn & Tài khoản */}
-      <section className="space-y-4 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border-default)] pb-4">
-          <div className="min-w-0 flex-1">
-            <p className="text-[15px] font-bold text-[var(--text-primary)]">
-              6. Hướng dẫn bắt đầu nhanh
-            </p>
-            <p className="text-[13px] text-[var(--text-secondary)]">
-              Mở lại bảng hướng dẫn 3 bước (Tên tiệm, Ngân hàng QR, Món hàng đầu tiên).
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onReplayOnboarding}
-            className="press-tactile flex min-h-[48px] shrink-0 items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-canvas)] px-4 text-[14px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
-          >
-            <BookOpenCheck className="h-4 w-4 text-[var(--brand-jade-text)]" />
-            <span>Xem lại hướng dẫn bắt đầu</span>
-          </button>
-        </div>
+      {/* 3. Giao diện */}
+      <SettingsThemeSelector />
 
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <p className="text-[15px] font-bold text-[var(--text-primary)]">Tài khoản đăng nhập</p>
-            <p className="text-[13px] text-[var(--text-secondary)]">
-              Đăng xuất khỏi máy này (toàn bộ dữ liệu bán hàng và sổ nợ vẫn an toàn trên mạng).
+      {/* 4. Tài khoản */}
+      <section className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:p-5">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-[15px] font-bold text-[var(--text-primary)]">Tài khoản</h2>
+          {userEmail && (
+            <p className="mt-0.5 truncate text-[13px] text-[var(--text-secondary)]">
+              {userEmail}
             </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="press-tactile flex min-h-[48px] shrink-0 items-center gap-2 rounded-lg border border-[var(--status-overdue-border)] px-4 text-[14px] font-semibold text-[var(--status-overdue)] hover:bg-[var(--status-overdue-bg)]"
-          >
-            <LogOut className="h-4 w-4" />
-            <span>Đăng xuất</span>
-          </button>
+          )}
         </div>
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="press-tactile flex min-h-[46px] shrink-0 items-center gap-2 rounded-[10px] border border-[var(--status-overdue-border)] px-4 text-[14px] font-semibold text-[var(--status-overdue)] hover:bg-[var(--status-overdue-bg)]"
+        >
+          <LogOut className="h-4 w-4" />
+          <span>Đăng xuất</span>
+        </button>
       </section>
-    </>
+    </div>
   );
 }

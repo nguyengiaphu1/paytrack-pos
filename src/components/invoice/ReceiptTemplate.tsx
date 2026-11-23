@@ -113,9 +113,9 @@ export function ReceiptTemplate({
             </span>
           </div>
           <div className="flex justify-between gap-2">
-            <span className="shrink-0 text-[#4B5563]">Ngày giờ:</span>
+            <span className="shrink-0 text-[#4B5563]">Ngày mua:</span>
             <span className="font-mono-tabular shrink-0 text-right">
-              {formatDateTimeVN(order.created_at)}
+              {formatDateTimeVN(order.purchased_at || order.created_at)}
             </span>
           </div>
           <div className="flex justify-between gap-2">
@@ -124,6 +124,22 @@ export function ReceiptTemplate({
               {order.customer_name_snapshot}
             </span>
           </div>
+          {order.customer_phone_snapshot && (
+            <div className="flex justify-between gap-2">
+              <span className="shrink-0 text-[#4B5563]">SĐT:</span>
+              <span className="font-mono-tabular min-w-0 text-right">
+                {order.customer_phone_snapshot}
+              </span>
+            </div>
+          )}
+          {order.customer_address_snapshot && (
+            <div className="flex justify-between gap-2">
+              <span className="shrink-0 text-[#4B5563]">Địa chỉ:</span>
+              <span className="min-w-0 break-words text-right">
+                {order.customer_address_snapshot}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

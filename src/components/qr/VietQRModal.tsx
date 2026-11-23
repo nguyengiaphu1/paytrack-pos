@@ -8,6 +8,7 @@ import { Check, Copy, Download, QrCode, Settings, Share2, X } from 'lucide-react
 import type { Order, ShopProfile } from '@/types/database';
 import { buildVietQRPayload, sanitizeVietQRMemo } from '@/lib/vietqr';
 import { buildZaloDebtMessage, formatVND } from '@/lib/vietnamese';
+import { VndKInput } from '@/components/ui/VndKInput';
 
 export interface VietQRModalProps {
   open: boolean;
@@ -47,16 +48,14 @@ function VietQRModalBody({
   const [selectedOrderId, setSelectedOrderId] = useState<string>(
     fixedOrder?.id ?? unpaidOrders[0]?.id ?? ''
   );
-  const [customAmountStr, setCustomAmountStr] = useState<string>(
-    String(
-      fixedOrder
-        ? fixedOrder.remaining_amount > 0
-          ? fixedOrder.remaining_amount
-          : fixedOrder.total_amount
-        : totalCustomerDebt > 0
-          ? totalCustomerDebt
-          : 0
-    )
+  const [customAmountVnd, setCustomAmountVnd] = useState<number | null>(
+    fixedOrder
+      ? fixedOrder.remaining_amount > 0
+        ? fixedOrder.remaining_amount
+        : fixedOrder.total_amount
+      : totalCustomerDebt > 0
+        ? totalCustomerDebt
+        : null
   );
   const [qrState, setQrState] = useState<{ key: string; url: string; error: string | null }>({
     key: '',
@@ -80,9 +79,8 @@ function VietQRModalBody({
         activeOrder.remaining_amount > 0 ? activeOrder.remaining_amount : activeOrder.total_amount;
       return Math.max(0, Math.round(rem));
     }
-    const parsed = Number(customAmountStr.replace(/[^\d]/g, ''));
-    return Number.isFinite(parsed) ? Math.max(0, Math.round(parsed)) : 0;
-  }, [mode, totalCustomerDebt, activeOrder, customAmountStr]);
+    return Math.max(0, Math.round(customAmountVnd ?? 0));
+  }, [mode, totalCustomerDebt, activeOrder, customAmountVnd]);
 
   const memo = useMemo(() => {
     if (mode === 'single_order' && activeOrder) {
@@ -249,10 +247,10 @@ function VietQRModalBody({
           {!hasBankConfig ? (
             <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-4 text-center">
               <p className="mb-1 text-[15px] font-semibold text-[var(--text-primary)]">
-                Chưa cài đặt tài khoản ngân hàng
+                Chưa cài đặt ngân hàng VietQR
               </p>
-              <p className="mb-4 text-[14px] text-[var(--text-secondary)]">
-                Mẹ chỉ cần nhập số tài khoản ngân hàng 1 lần để tự động sinh mã VietQR chuẩn xác.
+              <p className="mb-4 text-[13px] text-[var(--text-secondary)]">
+                Thêm STK trong Cài đặt để tạo mã QR tự động.
               </p>
               <Link
                 href="/settings#bank"
@@ -260,7 +258,7 @@ function VietQRModalBody({
                 className="press-tactile inline-flex min-h-[48px] items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-5 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
               >
                 <Settings className="h-4 w-4 shrink-0" />
-                <span>Cài đặt ngân hàng ngay</span>
+                <span>Cài đặt ngân hàng</span>
               </Link>
             </div>
           ) : (
@@ -294,7 +292,7 @@ function VietQRModalBody({
                   <button
                     type="button"
                     onClick={() => {
-                      setCustomAmountStr(String(effectiveAmount));
+                      setCustomAmountVnd(effectiveAmount > 0 ? effectiveAmount : null);
                       setMode('custom');
                     }}
                     className={`press-tactile min-h-[44px] truncate rounded-md px-1.5 text-[12px] font-semibold transition-colors sm:px-2 sm:text-[13px] ${
@@ -303,7 +301,7 @@ function VietQRModalBody({
                         : 'text-[var(--text-secondary)]'
                     }`}
                   >
-                    Sửa số tiền
+                    Sửa tiền
                   </button>
                 </div>
               )}
@@ -311,7 +309,7 @@ function VietQRModalBody({
               {mode === 'single_order' && !fixedOrder && unpaidOrders.length > 0 && (
                 <div>
                   <label className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]">
-                    Chọn đơn còn nợ
+                    Đơn còn nợ
                   </label>
                   <select
                     value={activeOrder?.id ?? ''}
@@ -333,19 +331,17 @@ function VietQRModalBody({
                     htmlFor="vietqr-amount-input"
                     className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]"
                   >
-                    Số tiền cần thu (VND)
+                    Số tiền cần thu (nghìn)
                   </label>
-                  <input
+                  <VndKInput
                     id="vietqr-amount-input"
-                    type="number"
-                    min={1000}
-                    step={1000}
-                    value={mode === 'custom' ? customAmountStr : effectiveAmount}
-                    onChange={(e) => {
+                    valueVnd={mode === 'custom' ? customAmountVnd : effectiveAmount}
+                    onChangeVnd={(val) => {
                       setMode('custom');
-                      setCustomAmountStr(e.target.value);
+                      setCustomAmountVnd(val);
                     }}
-                    className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[16px] font-semibold text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                    placeholder="100"
+                    showPreview
                   />
                 </div>
               )}

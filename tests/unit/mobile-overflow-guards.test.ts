@@ -9,14 +9,11 @@ function readRel(relPath: string): string {
 }
 
 describe('mobile-text-overflow responsive guards (375px viewport)', () => {
-  it('renders StatsPage empty cost-price KPI cleanly without oversized monospace text', () => {
+  it('renders StatsPage KPI cards cleanly with mobile-safe text sizing and wrapping', () => {
     const stats = readRel('src/app/(app)/stats/page.tsx');
-    expect(stats).toContain('Chưa có giá vốn');
-    // Should use smaller non-mono font & break-words instead of 20px monospace
-    expect(stats).toMatch(
-      /mt-1 break-words text-\[14px\] font-semibold text-\[var\(--text-secondary\)\] sm:text-\[15px\]/
-    );
     expect(stats).toContain('text-[17px] font-bold');
+    expect(stats).toContain('break-words');
+    expect(stats).toContain('min-w-0');
   });
 
   it('stacks or wraps cramped mobile grids in DebtCustomerDrawer, ReminderModal, and QuickItemModal', () => {
@@ -30,7 +27,15 @@ describe('mobile-text-overflow responsive guards (375px viewport)', () => {
     expect(reminderModal).toContain('min-w-0 truncate');
 
     const quickItem = readRel('src/components/pos/QuickItemModal.tsx');
-    expect(quickItem).toContain('grid-cols-2 gap-2.5 sm:grid-cols-3');
+    expect(quickItem).toContain('grid-cols-1 gap-3 sm:grid-cols-2');
+    expect(quickItem).toContain('min-w-0');
+  });
+
+  it('keeps Orders 12-column desktop table isolated behind lg:block and mobile cards overflow-safe', () => {
+    const orders = readRel('src/app/(app)/orders/page.tsx');
+    expect(orders).toContain('hidden overflow-x-auto');
+    expect(orders).toContain('lg:hidden');
+    expect(orders).toContain('min-w-0');
   });
 
   it('hardens ReceiptTemplate table layout and AppShell mobile navigation against text clipping', () => {
@@ -40,7 +45,6 @@ describe('mobile-text-overflow responsive guards (375px viewport)', () => {
 
     const shell = readRel('src/components/shell/AppShell.tsx');
     expect(shell).toContain('shrink-0 items-center gap-1.5 whitespace-nowrap');
-    expect(shell).toContain('w-full min-w-0 flex-col');
     expect(shell).toContain('max-w-full truncate');
   });
 

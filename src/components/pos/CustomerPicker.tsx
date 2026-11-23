@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, type FormEvent } from 'react';
-import { Loader2, Plus, Search, UserCheck, UserPlus, X } from 'lucide-react';
+import { Loader2, MapPin, Phone, Plus, Search, UserCheck, UserPlus, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { formatVND, stripVietnamese } from '@/lib/vietnamese';
 import type { Customer } from '@/types/database';
@@ -11,6 +11,7 @@ interface CustomerPickerProps {
   selectedCustomerId: string | null;
   onSelect: (customer: Customer | null) => void;
   onCustomerCreated: (customer: Customer) => void;
+  className?: string;
 }
 
 export function CustomerPicker({
@@ -18,12 +19,14 @@ export function CustomerPicker({
   selectedCustomerId,
   onSelect,
   onCustomerCreated,
+  className = '',
 }: CustomerPickerProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [query, setQuery] = useState('');
   const [newName, setNewName] = useState('');
   const [newPhone, setNewPhone] = useState('');
+  const [newAddress, setNewAddress] = useState('');
   const [newNote, setNewNote] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,9 +39,10 @@ export function CustomerPicker({
   const filtered = useMemo(() => {
     const q = stripVietnamese(query);
     if (!q) return customers;
-    return customers.filter(
-      (c) => c.search_text.includes(q) || (c.phone && c.phone.includes(query.trim()))
-    );
+    return customers.filter((c) => {
+      const hay = stripVietnamese(`${c.name} ${c.phone ?? ''} ${c.address ?? ''} ${c.note ?? ''}`);
+      return hay.includes(q) || c.search_text.includes(q);
+    });
   }, [customers, query]);
 
   async function handleCreateCustomer(e: FormEvent) {
@@ -64,8 +68,9 @@ export function CustomerPicker({
         .insert({
           user_id: user.id,
           name: trimmed,
-          search_text: stripVietnamese(`${trimmed} ${newPhone.trim()}`),
+          search_text: stripVietnamese(`${trimmed} ${newPhone.trim()} ${newAddress.trim()}`),
           phone: newPhone.trim() || null,
+          address: newAddress.trim() || null,
           note: newNote.trim() || null,
         })
         .select('*')
@@ -77,6 +82,7 @@ export function CustomerPicker({
       onSelect(created);
       setNewName('');
       setNewPhone('');
+      setNewAddress('');
       setNewNote('');
       setCreating(false);
       setModalOpen(false);
@@ -89,32 +95,75 @@ export function CustomerPicker({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => {
-          setModalOpen(true);
-          setCreating(false);
-          setQuery('');
-        }}
-        className="press-tactile flex min-h-[48px] w-full items-center justify-between gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-left transition-colors hover:border-[var(--brand-jade)]"
+      <div
+        className={`flex min-w-0 items-center gap-2 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 py-2 transition-colors hover:border-[var(--brand-jade)] ${className}`}
       >
-        <div className="flex min-w-0 items-center gap-2.5">
-          <UserCheck className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
-          <div className="min-w-0">
-            <p className="truncate text-[14px] font-semibold text-[var(--text-primary)]">
-              {selectedCustomer ? selectedCustomer.name : 'Khách lẻ (không ghi nợ)'}
-            </p>
-            {selectedCustomer && selectedCustomer.total_debt > 0 && (
-              <p className="font-mono-tabular text-[12px] font-medium text-[var(--status-debt)]">
-                Nợ cũ: {formatVND(selectedCustomer.total_debt)}
-              </p>
-            )}
+        <button
+          type="button"
+          onClick={() => {
+            setModalOpen(true);
+            setCreating(false);
+            setQuery('');
+          }}
+          className="press-tactile flex min-h-[44px] min-w-0 flex-1 items-center justify-between gap-2 text-left"
+        >
+          <div className="flex min-w-0 flex-1 items-center gap-2.5">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]">
+              <UserCheck className="h-4 w-4" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                <span className="truncate text-[15px] font-semibold text-[var(--text-primary)]">
+                  {selectedCustomer ? selectedCustomer.name : 'Khách lẻ'}
+                </span>
+                {selectedCustomer && selectedCustomer.total_debt > 0 && (
+                  <span className="font-mono-tabular shrink-0 rounded-full bg-[var(--status-debt-bg)] px-2 py-0.5 text-[11px] font-bold text-[var(--status-debt)]">
+                    Nợ {formatVND(selectedCustomer.total_debt)}
+                  </span>
+                )}
+              </div>
+              {selectedCustomer ? (
+                <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[12px] text-[var(--text-secondary)]">
+                  {selectedCustomer.phone && (
+                    <span className="font-mono-tabular inline-flex items-center gap-1">
+                      <Phone className="h-3 w-3 shrink-0" />
+                      {selectedCustomer.phone}
+                    </span>
+                  )}
+                  {selectedCustomer.address && (
+                    <span className="inline-flex min-w-0 items-center gap-1 truncate">
+                      <MapPin className="h-3 w-3 shrink-0" />
+                      <span className="truncate">{selectedCustomer.address}</span>
+                    </span>
+                  )}
+                  {!selectedCustomer.phone && !selectedCustomer.address && (
+                    <span>Chạm để đổi khách</span>
+                  )}
+                </div>
+              ) : (
+                <p className="truncate text-[12px] text-[var(--text-secondary)]">
+                  Chạm để chọn hoặc thêm khách
+                </p>
+              )}
+            </div>
           </div>
-        </div>
-        <span className="shrink-0 text-[13px] font-semibold text-[var(--brand-jade-text)]">
-          Đổi khách
-        </span>
-      </button>
+
+          <span className="shrink-0 text-[13px] font-semibold text-[var(--brand-jade-text)]">
+            {selectedCustomer ? 'Đổi' : 'Chọn khách'}
+          </span>
+        </button>
+
+        {selectedCustomer && (
+          <button
+            type="button"
+            onClick={() => onSelect(null)}
+            aria-label="Chuyển về khách lẻ"
+            className="press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
 
       {modalOpen && (
         <div
@@ -126,7 +175,7 @@ export function CustomerPicker({
           <div className="animate-sheet-up sm:animate-modal-in max-h-[90dvh] w-full max-w-[460px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
             <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
               <h3 className="min-w-0 flex-1 truncate text-[17px] font-bold">
-                {creating ? 'Thêm khách hàng mới' : 'Chọn khách hàng'}
+                {creating ? 'Thêm khách mới' : 'Khách hàng'}
               </h3>
               <button
                 type="button"
@@ -146,13 +195,13 @@ export function CustomerPicker({
                   </div>
                 )}
                 <div>
-                  <label className="mb-1 block text-[14px] font-medium">Tên khách hàng *</label>
+                  <label className="mb-1 block text-[14px] font-medium">Họ tên *</label>
                   <input
                     type="text"
                     required
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
-                    placeholder="VD: Cô Lan, Chú Tư"
+                    placeholder="Cô Lan, Chú Tư..."
                     className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
                   />
                 </div>
@@ -167,12 +216,22 @@ export function CustomerPicker({
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-[14px] font-medium">Địa chỉ / Ghi chú</label>
+                  <label className="mb-1 block text-[14px] font-medium">Địa chỉ</label>
+                  <input
+                    type="text"
+                    value={newAddress}
+                    onChange={(e) => setNewAddress(e.target.value)}
+                    placeholder="Số nhà, đường, khu vực..."
+                    className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[14px] font-medium">Ghi chú</label>
                   <input
                     type="text"
                     value={newNote}
                     onChange={(e) => setNewNote(e.target.value)}
-                    placeholder="VD: Nhà đầu ngõ, trả cuối tháng"
+                    placeholder="Tùy chọn"
                     className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
                   />
                 </div>
@@ -190,9 +249,7 @@ export function CustomerPicker({
                     className="press-tactile flex min-h-[48px] min-w-0 flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
                   >
                     {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                    <span className="truncate">
-                      {saving ? 'Đang lưu khách...' : 'Lưu & Chọn khách'}
-                    </span>
+                    <span className="truncate">{saving ? 'Đang lưu...' : 'Lưu & Chọn'}</span>
                   </button>
                 </div>
               </form>
@@ -205,17 +262,20 @@ export function CustomerPicker({
                       type="search"
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
-                      placeholder="Tìm tên hoặc SĐT..."
+                      placeholder="Tìm tên, SĐT, địa chỉ..."
                       className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] pr-3 pl-9 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
                     />
                   </div>
                   <button
                     type="button"
-                    onClick={() => setCreating(true)}
+                    onClick={() => {
+                      setNewName(query.trim());
+                      setCreating(true);
+                    }}
                     className="press-tactile flex min-h-[46px] shrink-0 items-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-3.5 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
                   >
                     <UserPlus className="h-4 w-4" />
-                    <span>Khách mới</span>
+                    <span>Thêm</span>
                   </button>
                 </div>
 
@@ -231,7 +291,7 @@ export function CustomerPicker({
                     }`}
                   >
                     <span className="min-w-0 flex-1 truncate font-semibold text-[var(--text-primary)]">
-                      Khách lẻ (trả ngay)
+                      Khách lẻ
                     </span>
                     {selectedCustomerId === null && (
                       <span className="shrink-0 text-[12px] font-semibold text-[var(--brand-jade-text)]">
@@ -256,11 +316,10 @@ export function CustomerPicker({
                         <p className="truncate font-semibold text-[var(--text-primary)]">
                           {c.name}
                         </p>
-                        {c.phone && (
-                          <p className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
-                            {c.phone}
-                          </p>
-                        )}
+                        <div className="flex flex-wrap items-center gap-x-2.5 text-[12px] text-[var(--text-secondary)]">
+                          {c.phone && <span className="font-mono-tabular">{c.phone}</span>}
+                          {c.address && <span className="truncate">{c.address}</span>}
+                        </div>
                       </div>
                       <div className="shrink-0 text-right">
                         {c.total_debt > 0 ? (
@@ -268,7 +327,7 @@ export function CustomerPicker({
                             Nợ {formatVND(c.total_debt)}
                           </span>
                         ) : (
-                          <span className="text-[12px] text-[var(--text-secondary)]">Không nợ</span>
+                          <span className="text-[12px] text-[var(--text-secondary)]">0đ</span>
                         )}
                       </div>
                     </button>
@@ -276,14 +335,14 @@ export function CustomerPicker({
 
                   {filtered.length === 0 && (
                     <div className="p-4 text-center text-[14px] text-[var(--text-secondary)]">
-                      Chưa thấy khách hàng nào.{' '}
+                      Không thấy khách hàng.{' '}
                       <button
                         type="button"
                         onClick={() => {
-                          setNewName(query);
+                          setNewName(query.trim());
                           setCreating(true);
                         }}
-                        className="inline-flex items-center gap-1 font-semibold text-[var(--brand-jade-text)] hover:underline"
+                        className="inline-flex min-h-[44px] items-center gap-1 font-semibold text-[var(--brand-jade-text)] hover:underline"
                       >
                         <Plus className="h-3.5 w-3.5" /> Thêm &ldquo;{query || 'khách mới'}&rdquo;
                       </button>
