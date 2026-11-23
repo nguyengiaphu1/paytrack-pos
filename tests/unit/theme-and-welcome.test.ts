@@ -104,10 +104,11 @@ describe('theme utilities', () => {
     expect(() => writeStoredThemePreference('light')).not.toThrow();
   });
 
-  it('includes data-theme bootstrap logic for pre-hydration zero-flash script', () => {
+  it('includes data-theme bootstrap logic and syncs all theme-color meta tags', () => {
     expect(THEME_BOOTSTRAP_SCRIPT).toContain(THEME_STORAGE_KEY);
     expect(THEME_BOOTSTRAP_SCRIPT).toContain("setAttribute('data-theme',t)");
     expect(THEME_BOOTSTRAP_SCRIPT).toContain('prefers-color-scheme: dark');
+    expect(THEME_BOOTSTRAP_SCRIPT).toContain('querySelectorAll(\'meta[name="theme-color"]\')');
   });
 });
 

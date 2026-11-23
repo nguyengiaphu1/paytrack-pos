@@ -53,3 +53,12 @@
 - [x] T029 Run `impeccable` review checklist (`distill`, `clarify`, `audit`, `adapt`, `harden`, `polish`) across all modified surfaces and fix any gaps
 - [x] T030 Update `PROJECT_CONTEXT.md` to `v2.0.0` (Sections 2–6 + Recent Changelog)
 - [x] T031 Run final Verification Gate (`npm run typecheck && npm run lint && npm test && npm run build`), verify clean `git status`, and create Commit #2
+
+## Phase 8: Convergence
+
+- [X] T032 Add date-range filter controls (presets and custom start/end date inputs filtering `purchased_at`, integrated with `filtered`, totals summary, reset button, and CSV export) in `src/app/(app)/orders/page.tsx` per FR-003 (missing)
+- [X] T033 Extend `sanitizeKInput` and `detectLikelyFullVndMistake` in `src/lib/currency-k.ts` (plus unit tests in `tests/unit/currency-k.test.ts`) to detect Vietnamese dot-grouped thousands inputs (e.g., `"125.000"`, `"1.250.000"`) with a 1-tap safe conversion suggestion instead of dropping extra dots and silently under-parsing per FR-007 (partial)
+- [X] T034 Remove the duplicate VietQR button (`Tạo QR` + `Mã VietQR`) rendered simultaneously for paid orders in the Order Detail modal of `src/app/(app)/orders/page.tsx` per FR-013 (partial)
+- [X] T035 Update `THEME_BOOTSTRAP_SCRIPT` in `src/lib/theme.ts` and `applyDomTheme` in `src/components/providers/ThemeProvider.tsx` to update all `meta[name="theme-color"]` elements (rather than only the first `querySelector` match) so Light/Dark overrides match OS chrome in both directions per FR-012 (partial)
+- [X] T036 Give the desktop 12-column ledger table wrapper (`hidden overflow-x-auto`) in `src/app/(app)/orders/page.tsx` a bounded vertical scroll height (`overflow-y-auto max-h-[calc(100dvh-260px)]`) so the sticky `<thead>` actually stays pinned when scrolling long ledgers per plan: Track B Target 3 (partial)
+- [X] T037 Unify the missing-cost warning badge text on desktop rows and mobile cards in `src/app/(app)/orders/page.tsx` to `Chưa nhập vốn` to match the acceptance scenario verbatim per US1/AC3 (partial)

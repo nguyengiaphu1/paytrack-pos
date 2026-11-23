@@ -45,14 +45,17 @@ describe('thousand-VND (K <-> VND bigint) conversion utilities', () => {
     }
   });
 
-  it('sanitizes typed K strings safely', () => {
+  it('sanitizes typed K strings safely while preserving Vietnamese dot-grouped thousands for warning', () => {
     expect(sanitizeKInput('12,5')).toBe('12.5');
     expect(sanitizeKInput('12.5.9')).toBe('12.59');
     expect(sanitizeKInput('.5')).toBe('0.5');
     expect(sanitizeKInput(' 50k ')).toBe('50');
+    expect(sanitizeKInput('125.000')).toBe('125.000');
+    expect(sanitizeKInput('1.250.')).toBe('1.250.');
+    expect(sanitizeKInput('1.250.000')).toBe('1.250.000');
   });
 
-  it('detects likely full-VND 1000x typing mistakes without false positives on normal K values', () => {
+  it('detects likely full-VND 1000x typing mistakes and dot-grouped thousands without false positives', () => {
     const warn = detectLikelyFullVndMistake('50000');
     expect(warn).toEqual({
       enteredVnd: 50_000_000,
@@ -67,10 +70,31 @@ describe('thousand-VND (K <-> VND bigint) conversion utilities', () => {
       suggestedVnd: 125_000,
     });
 
+    // Dot-grouped Vietnamese thousands
+    expect(detectLikelyFullVndMistake('125.000')).toEqual({
+      enteredVnd: 125_000,
+      suggestedK: '125',
+      suggestedVnd: 125_000,
+    });
+    expect(detectLikelyFullVndMistake('12.500')).toEqual({
+      enteredVnd: 12_500,
+      suggestedK: '12.5',
+      suggestedVnd: 12_500,
+    });
+    expect(detectLikelyFullVndMistake('1.250.000')).toEqual({
+      enteredVnd: 1_250_000,
+      suggestedK: '1250',
+      suggestedVnd: 1_250_000,
+    });
+    // Multi-dot thousands must NOT silently parse to 1.250 VND
+    expect(parseKToVnd('1.250.000')).toBeNull();
+
     // Normal K prices should NOT trigger warning
     expect(detectLikelyFullVndMistake('50')).toBeNull();
     expect(detectLikelyFullVndMistake('1500')).toBeNull(); // 1.5 triệu
     expect(detectLikelyFullVndMistake('12500')).toBeNull(); // not multiple of 1000
     expect(detectLikelyFullVndMistake('12.5')).toBeNull();
+    expect(detectLikelyFullVndMistake('12.125')).toBeNull();
+    expect(detectLikelyFullVndMistake('0.000')).toBeNull();
   });
 });

@@ -99,10 +99,18 @@ export function VndKInput({
         >
           <span className="flex min-w-0 flex-1 items-center gap-1.5 font-medium">
             <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-            <span>
-              Đang là <strong className="font-mono-tabular">{formatVND(mistake.enteredVnd)}</strong>{' '}
-              — ý bạn là <strong className="font-mono-tabular">{formatVND(mistake.suggestedVnd)}</strong>?
-            </span>
+            {mistake.enteredVnd === mistake.suggestedVnd ? (
+              <span>
+                Ô tính theo <strong>.000đ</strong> — đổi gọn thành{' '}
+                <strong className="font-mono-tabular">{mistake.suggestedK}</strong> (
+                <strong className="font-mono-tabular">{formatVND(mistake.suggestedVnd)}</strong>)?
+              </span>
+            ) : (
+              <span>
+                Đang là <strong className="font-mono-tabular">{formatVND(mistake.enteredVnd)}</strong>{' '}
+                — ý bạn là <strong className="font-mono-tabular">{formatVND(mistake.suggestedVnd)}</strong>?
+              </span>
+            )}
           </span>
           <button
             type="button"

@@ -119,13 +119,10 @@ function applyDomTheme(resolved: ResolvedTheme, animate: boolean) {
   root.setAttribute('data-theme', resolved);
   root.style.colorScheme = resolved;
 
-  const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-  if (metaThemeColor) {
-    metaThemeColor.setAttribute(
-      'content',
-      resolved === 'dark' ? THEME_COLOR_DARK : THEME_COLOR_LIGHT
-    );
-  }
+  const themeColor = resolved === 'dark' ? THEME_COLOR_DARK : THEME_COLOR_LIGHT;
+  document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+    meta.setAttribute('content', themeColor);
+  });
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

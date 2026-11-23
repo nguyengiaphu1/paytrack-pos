@@ -159,6 +159,62 @@ export function dateInputToVnIso(dateStr: string, referenceNow: Date = new Date(
   return new Date(`${clean}T12:00:00+07:00`).toISOString();
 }
 
+export type LedgerDatePreset = 'all' | 'today' | '7d' | 'month' | 'custom';
+
+export interface VnDateRange {
+  start: string | null;
+  end: string | null;
+}
+
+/**
+ * Computes inclusive YYYY-MM-DD date boundaries in Asia/Ho_Chi_Minh for ledger date filters.
+ */
+export function computeVnDatePresetRange(
+  preset: LedgerDatePreset,
+  customStart?: string,
+  customEnd?: string,
+  referenceNow: Date = new Date()
+): VnDateRange {
+  if (preset === 'all') return { start: null, end: null };
+  const todayStr = getTodayVN(referenceNow);
+
+  if (preset === 'today') {
+    return { start: todayStr, end: todayStr };
+  }
+  if (preset === '7d') {
+    const base = new Date(`${todayStr}T12:00:00+07:00`);
+    base.setUTCDate(base.getUTCDate() - 6);
+    return { start: getTodayVN(base), end: todayStr };
+  }
+  if (preset === 'month') {
+    return { start: `${todayStr.slice(0, 7)}-01`, end: todayStr };
+  }
+
+  let start = (customStart ?? '').trim() || null;
+  let end = (customEnd ?? '').trim() || null;
+  if (start && end && start > end) {
+    const tmp = start;
+    start = end;
+    end = tmp;
+  }
+  return { start, end };
+}
+
+/**
+ * Checks whether an order timestamp falls within an inclusive Asia/Ho_Chi_Minh YYYY-MM-DD range.
+ */
+export function isOrderInVnDateRange(
+  isoString: string | null | undefined,
+  range: VnDateRange
+): boolean {
+  if (!range.start && !range.end) return true;
+  const day = toVnDateInput(isoString);
+  if (!day) return false;
+  if (range.start && day < range.start) return false;
+  if (range.end && day > range.end) return false;
+  return true;
+}
+
 export const PAYMENT_STATUS_LABEL_VN: Record<PaymentStatus, string> = {
   paid: 'Đã trả',
   partial: 'Trả 1 phần',
