@@ -234,22 +234,22 @@ export default function OrdersPage() {
       {/* Totals Summary Bar */}
       {!loading && !ordersError && (
         <div className="mb-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-          <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3">
-            <p className="text-[12px] text-[var(--text-secondary)]">
-              Tổng giá bán ({totals.activeCount} đơn)
+          <div className="glass-surface min-w-0 rounded-[12px] p-3.5">
+            <p className="text-[12px] font-medium text-[var(--text-secondary)]">
+              Giá bán ({totals.activeCount} đơn)
             </p>
             <p className="font-mono-tabular mt-0.5 truncate text-[17px] font-bold text-[var(--text-primary)] sm:text-[19px]">
               {formatVND(totals.totalRevenue)}
             </p>
           </div>
-          <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3">
-            <p className="text-[12px] text-[var(--text-secondary)]">Tổng giá vốn</p>
+          <div className="glass-surface min-w-0 rounded-[12px] p-3.5">
+            <p className="text-[12px] font-medium text-[var(--text-secondary)]">Giá vốn</p>
             <p className="font-mono-tabular mt-0.5 truncate text-[17px] font-bold text-[var(--text-secondary)] sm:text-[19px]">
               {formatVND(totals.totalCost)}
             </p>
           </div>
-          <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3">
-            <p className="text-[12px] text-[var(--text-secondary)]">Tổng lãi</p>
+          <div className="glass-surface min-w-0 rounded-[12px] p-3.5">
+            <p className="text-[12px] font-medium text-[var(--text-secondary)]">Lãi</p>
             <p
               className={`font-mono-tabular mt-0.5 truncate text-[17px] font-bold sm:text-[19px] ${
                 totals.totalProfit >= 0
@@ -260,8 +260,8 @@ export default function OrdersPage() {
               {formatVND(totals.totalProfit)}
             </p>
           </div>
-          <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3">
-            <p className="text-[12px] text-[var(--text-secondary)]">Còn nợ</p>
+          <div className="glass-surface min-w-0 rounded-[12px] p-3.5">
+            <p className="text-[12px] font-medium text-[var(--text-secondary)]">Còn nợ</p>
             <p className="font-mono-tabular mt-0.5 truncate text-[17px] font-bold text-[var(--status-debt)] sm:text-[19px]">
               {formatVND(totals.totalRemainingDebt)}
             </p>
@@ -270,7 +270,7 @@ export default function OrdersPage() {
       )}
 
       {/* Search + Status + 9 Payment Account Filters */}
-      <div className="mb-4 space-y-2.5">
+      <div className="glass-surface mb-4 space-y-2.5 rounded-[12px] p-3">
         <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative flex-1 sm:max-w-[380px]">
             <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
@@ -279,7 +279,7 @@ export default function OrdersPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Tìm tên khách, SĐT, địa chỉ, món hàng..."
-              className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] pr-3.5 pl-10 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+              className="min-h-[46px] w-full rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] pr-3.5 pl-10 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
             />
           </div>
 
@@ -297,7 +297,7 @@ export default function OrdersPage() {
                 key={key}
                 type="button"
                 onClick={() => setStatusFilter(key)}
-                className={`press-tactile min-h-[44px] rounded-lg border px-3 text-[13px] font-semibold transition-colors ${
+                className={`press-tactile min-h-[44px] rounded-[10px] border px-3 text-[13px] font-semibold transition-colors ${
                   statusFilter === key
                     ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]'
                     : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'
@@ -314,7 +314,7 @@ export default function OrdersPage() {
           <button
             type="button"
             onClick={() => setAccountFilter('ALL')}
-            className={`press-tactile min-h-[44px] rounded-lg border px-2.5 text-[13px] font-medium transition-colors ${
+            className={`press-tactile min-h-[44px] rounded-[10px] border px-2.5 text-[13px] font-medium transition-colors ${
               accountFilter === 'ALL'
                 ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] font-semibold text-[var(--brand-jade-text)]'
                 : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'
@@ -327,7 +327,7 @@ export default function OrdersPage() {
               key={acc}
               type="button"
               onClick={() => setAccountFilter(acc)}
-              className={`press-tactile min-h-[44px] rounded-lg border px-2.5 text-[13px] font-medium transition-colors ${
+              className={`press-tactile min-h-[44px] rounded-[10px] border px-2.5 text-[13px] font-medium transition-colors ${
                 accountFilter === acc
                   ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] font-semibold text-[var(--brand-jade-text)]'
                   : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]'
@@ -339,7 +339,7 @@ export default function OrdersPage() {
           <button
             type="button"
             onClick={() => setAccountFilter('NONE')}
-            className={`press-tactile min-h-[44px] rounded-lg border px-2.5 text-[13px] font-medium transition-colors ${
+            className={`press-tactile min-h-[44px] rounded-[10px] border px-2.5 text-[13px] font-medium transition-colors ${
               accountFilter === 'NONE'
                 ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] font-semibold text-[var(--brand-jade-text)]'
                 : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'

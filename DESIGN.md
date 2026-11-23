@@ -1,90 +1,66 @@
 # PayTrack POS — Design System (`DESIGN.md`)
 
-> Grounded in the visual artifact of a **Vietnamese retail ledger & crisp thermal/paper receipt** (*sổ bán hàng + hóa đơn bán lẻ rõ nét*). Engineered to be daylight-legible on an iPhone at a shop counter and spacious on a Windows desktop — while explicitly avoiding generic AI-generated UI ("AI slop").
+> Grounded in a **modern Vietnamese retail ledger & tactile POS instrument**. Engineered for one-handed iPhone counter speed and full-width Windows desktop 12-column ledger clarity using a disciplined **60–30–10** color architecture and an intentional **Floating Glass Dock**.
 
 ---
 
-## 1. Anti-AI-Slop Rules (Mandatory Checks)
-
-Distilled from community design-engineering repositories ([`impeccable`](https://github.com/pbakaus/impeccable), [`avoid-ai-design`](https://github.com/funboy322/avoid-ai-design), [`taste-skill`](https://github.com/Leonxlnx/taste-skill), [`hallmark`](https://github.com/Nutlope/hallmark), [`anthropics/skills`](https://github.com/anthropics/skills/tree/main/skills/frontend-design)):
+## 1. Anti-AI-Slop Rules & Intentional Glass Policy
 
 | Category | Banned AI Tell | PayTrack POS Standard |
 |---|---|---|
-| **Color** | Purple/indigo gradients (`C1`), gradient `bg-clip-text` headlines (`C6`), untouched neon emerald (`#10b981`), or unsolicited dark-mode + neon acid green (`SD2`) | Light daylight-first paper ground (`#F8F9FA`) with Deep Forest Jade (`#0E6B4E`) for primary payment/confirm actions and semantic Amber/Crimson strictly for debt status |
-| **Typography** | `Inter`, `Roboto`, `Space Grotesk`, or untouched `Geist` (`T1`/`T2`/`T4`); italic serif word-accents (`T3`/`SD5`); tracked all-caps eyebrow spam (`T5`) | **`Be Vietnam Pro`** (native Vietnamese diacritics, clean geometric legibility) + **`JetBrains Mono`** (`font-variant-numeric: tabular-nums`) for all VND amounts, invoice codes, and ledger columns |
-| **Surfaces** | `rounded-2xl shadow-lg` floating SaaS cards everywhere (`K2`), cards nested inside cards, reflexive `backdrop-blur` glassmorphism (`K3`) | Crisp `1px solid #DDE2E7` borders, subtle `8px` (`rounded-lg`) or `10px` radii, flat elevation using spacing and hairline dividers instead of heavy drop shadows |
-| **Layout** | Generic centered hero + 3 identical icon-in-square cards (`L1`/`L2`), decorative `01/02/03` badges (`SD6`), fake macOS window dots (`SD7`) | Task-first workspace: mobile bottom-tab bar + sticky checkout summary bar; desktop 2-column POS split-pane (`Catalog` left / `Active Bill` right) |
-| **Copy & Icons** | Marketing filler ("Siêu cấp", "Đột phá"), AI sparkle icons, arrows welded onto every CTA | Natural Vietnamese retail terms: *"Tạo đơn"*, *"Ghi nợ"*, *"Thu tiền"*, *"Khách quen"*, *"Xuất hóa đơn"*, *"Tạo QR"* |
-| **Motion** | Bouncy springs, pulsing status dots on static cards, fade-up stagger on every list row | Instant tactile press feedback (`120ms ease-out`), state transitions only when data/sync state actually changes, full `prefers-reduced-motion` support |
+| **Color** | Purple/indigo gradients (`indigo-`, `purple-`), gradient `bg-clip-text` headlines, harsh pure `#000000` dark backgrounds | **60–30–10**: 60% calm neutral canvas (`#F5F7F6` Light / `#0D1215` Dark), 30% crisp surfaces & intentional semantic glass (`.glass-dock`, `.glass-surface`), 10% Deep Forest Jade (`#0E6B4E`) + semantic Amber/Crimson strictly for debt status |
+| **Typography** | `Inter`, `Roboto`, `Space Grotesk`, untouched `Geist`, tracked all-caps eyebrow spam (`tracking-widest`) | **`Be Vietnam Pro`** (clean native Vietnamese diacritics) + **`JetBrains Mono`** (`font-variant-numeric: tabular-nums`) right-aligned for all VND amounts, invoice codes, and ledger columns |
+| **Surfaces** | Cards nested inside cards, decorative glassmorphism scattered across every box, arbitrary `shadow-lg` everywhere | Clean `1px` hairline surfaces (`rounded-[12px]`) + intentional real-time blur **exclusively** on `.glass-dock` (navigation dock, slim top header) and `.glass-surface` (sticky filter/summary bars & floating mobile cart pill), with `@media (prefers-reduced-transparency: reduce)` opaque fallback |
+| **Layout** | Cluttered desktop sidebar eating table width, decorative `01/02/03` numbering, generic SaaS hero cards | Unified bottom **Floating Glass Dock** on both `375px` and `1280px` (freeing 100% horizontal viewport for the 12-column Sales Ledger) + exposed POS Customer Bar + inline `-`/`+` product steppers |
+| **Copy & Icons** | Marketing filler ("Siêu cấp", "Giải pháp toàn diện"), obvious page subtitles, `Sparkles` icons, `animate-bounce` | Direct Vietnamese retail labels: *"Bán hàng"*, *"Sổ bán"*, *"Công nợ"*, *"Thống kê"*, *"Cài đặt"*, *"Thu tiền"*, *"Lưu"* |
+| **Motion** | Bouncy springs, decorative stagger, artificial splash delays | Crisp tactile press (`120ms ease-out`), fast zero-flash Boot Splash fade (`~240ms`), and full `prefers-reduced-motion` respect |
 
 ---
 
-## 2. Color Palette (WCAG AA ≥ 4.5:1)
+## 2. 60–30–10 Color Palette (WCAG AA ≥ 4.5:1)
 
-| Role | Token | Hex | Usage |
+### Light Mode (60% Soft Daylight Paper — 30% Crisp Sheet/Glass — 10% Jade/Semantic)
+| Role | Token | Value | Usage |
 |---|---|---|---|
-| **App Ground** | `--bg-canvas` | `#F8F9FA` | Main page background (cool paper white, zero glare under shop fluorescent light) |
-| **Surface / Sheet** | `--bg-surface` | `#FFFFFF` | Product rows, order bill, customer ledger table, printable receipt |
-| **Subtle Tint** | `--bg-subtle` | `#EFF2F5` | Table headers, secondary pills, active tab hover |
-| **Hairline Border** | `--border-default` | `#DDE2E7` | 1px structural dividers, input borders, ledger grid lines |
-| **Primary Ink** | `--text-primary` | `#141A21` | Headings, product titles, VND totals (contrast > 13:1 on white) |
-| **Secondary Ink** | `--text-secondary` | `#4B5563` | Sub-labels, timestamps, phone numbers (contrast > 7:1 on white) |
-| **Primary Action** | `--brand-jade` | `#0E6B4E` | *"Thanh toán"*, *"Lưu đơn"*, *"Tạo mã QR"*, active navigation state |
-| **Primary Hover** | `--brand-jade-hover` | `#0A543D` | Button hover/pressed state |
-| **Paid / Synced** | `--status-paid` | `#0F766E` / `#CCFBF1` | *"Đã trả đủ"*, *"Đã đồng bộ"* badge |
-| **Unpaid / Debt Due** | `--status-debt` | `#B45309` / `#FEF3C7` | *"Còn nợ"*, *"Trả một phần"*, upcoming reminder badge |
-| **Overdue / Error** | `--status-overdue` | `#B91C1C` / `#FEE2E2` | *"Quá hạn thu"*, destructive actions, validation error |
+| **60% Canvas** | `--bg-canvas` | `#F5F7F6` | Page ground (gentle jade-tinted off-white, zero glare) |
+| **30% Surface** | `--bg-surface` | `#FFFFFF` | Product cards, 12-column table, forms, drawers |
+| **30% Subtle** | `--bg-subtle` | `#EDF1F0` | Table headers, secondary pills, summary sub-blocks |
+| **30% Glass** | `--glass-bg` / `--glass-dock-bg` | `rgba(255,255,255,0.78)` / `0.84` | `.glass-surface` & `.glass-dock` with `blur(18px) saturate(160%)` |
+| **Hairline Border** | `--border-default` / `--glass-border` | `#D9E0DE` / `rgba(14,26,22,0.10)` | Structural dividers, input frames, dock perimeter |
+| **Primary Ink** | `--text-primary` | `#121917` | Headings, product titles, VND totals (contrast > 14:1) |
+| **Secondary Ink** | `--text-secondary` | `#4B5854` | Labels, metadata, timestamps (contrast > 7:1) |
+| **10% Primary Jade** | `--brand-jade` / `--brand-jade-hover` | `#0E6B4E` / `#0A543D` | Primary CTAs, active dock indicator, profit values |
+| **Paid / Synced** | `--status-paid` / `--status-paid-bg` | `#0F766E` / `#D1FAE5` | Paid status, live sync dot |
+| **Debt / Partial** | `--status-debt` / `--status-debt-bg` | `#B45309` / `#FEF3C7` | Unpaid/partial balance, missing-cost alert |
+| **Overdue / Error** | `--status-overdue` / `--status-overdue-bg` | `#B91C1C` / `#FEE2E2` | Overdue debt, cancel/logout actions, validation errors |
 
-### Dark Mode Ledger Extension (`:root[data-theme="dark"]`) & Print Isolation
-
-- **Default preference**: `'system'` (**Theo thiết bị**), stored per device under `localStorage['paytrack-theme']` (`'system' | 'light' | 'dark'`) and resolved synchronously before hydration in `src/app/layout.tsx` via `THEME_BOOTSTRAP_SCRIPT` (zero reload flash).
-- **Smooth theme transitions**: Switching Light ↔ Dark adds `.theme-transitioning` to `<html>` for `320ms` (`280ms cubic-bezier(0.22, 1, 0.36, 1)` on colors/borders only, never slowing regular counter taps; respects `prefers-reduced-motion: reduce`).
-- **Dark surface palette (WCAG AA)**:
-  - `--bg-canvas`: `#0E1317` | `--bg-surface`: `#161D24` | `--bg-subtle`: `#1F2933` | `--border-default`: `#2A3642`
-  - `--text-primary`: `#F1F5F9` | `--text-secondary`: `#9CA3AF`
-  - `--brand-jade`: `#15805E` (solid buttons with white text) | `--brand-jade-text`: `#4CC39B` (Jade text/icons on dark surfaces)
-  - `--status-paid`: `#4CC39B` / `#12352C` | `--status-debt`: `#FBBF24` / `#33250C` | `--status-overdue`: `#F87171` / `#3A1619`
-- **Receipt & VietQR Light-Paper Lock (`.print-surface-light`)**: Printable invoices (`ReceiptTemplate`, `InvoicePreviewModal`) and shareable QR cards (`VietQRModal`) lock light-paper tokens (`#FFFFFF` / `#141A21`) even when the app is in Dark mode.
+### Dark Mode (`:root[data-theme="dark"]` — Eye-Comfort Deep Slate)
+- **60% Canvas**: `--bg-canvas: #0D1215` (never pure `#000000`)
+- **30% Surfaces**: `--bg-surface: #151C21` | `--bg-subtle: #1D272E` | `--border-default: #293640` | `--glass-bg: rgba(21, 28, 33, 0.78)` | `--glass-dock-bg: rgba(18, 25, 30, 0.86)` | `--glass-border: rgba(241, 245, 249, 0.12)`
+- **Ink**: `--text-primary: #F1F5F4` | `--text-secondary: #98A6A2`
+- **10% Accents**: `--brand-jade: #15805E` (solid white-text CTA) | `--brand-jade-text: #4CC39B` | `--status-debt: #FBBF24` / `#33250C` | `--status-overdue: #F87171` / `#3A1619`
+- **Receipt & VietQR Light-Paper Lock (`.print-surface-light`)**: Receipts and shareable VietQR cards ALWAYS lock `#FFFFFF` background & `#141A21` ink even in Dark Mode.
+- **Zero-Flash Bootstrap**: Synchronous `<head>` script (`THEME_BOOTSTRAP_SCRIPT`) sets `data-theme`, `colorScheme`, and `<meta name="theme-color">` (`#F5F7F6` / `#0D1215`) before first paint.
 
 ---
 
-## 3. Typography Scale & Numeric Rules
+## 3. Typography & Numeric Precision
 
-- **UI & Headings**: `'Be Vietnam Pro', system-ui, sans-serif`
-  - Page Title: `20px` (mobile) / `24px` (desktop), `font-weight: 700`, `letter-spacing: -0.015em`
-  - Section Header: `16px`, `font-weight: 600`
-  - Body / List Row: `15px–16px`, `line-height: 1.5`
-  - Form Inputs: **minimum `16px`** (prevents iOS Safari auto-zoom on tap)
-  - Helper / Timestamp: `13px`, `#4B5563`
-- **Money, Quantities & Invoice IDs**: `'JetBrains Mono', monospace` with `font-variant-numeric: tabular-nums`
-  - All VND amounts formatted cleanly with dot thousand separators: `125.000đ`
-  - Right-aligned in tables and receipts so decimal/thousand columns stack straight.
+- **UI**: `'Be Vietnam Pro', system-ui, sans-serif`
+  - Page Title: `20px` (mobile) / `24px` (desktop), `font-weight: 700`, `tracking-[-0.015em]`
+  - Body / Rows: `14px–15px`
+  - Form Controls: **minimum `16px`** (prevents iOS Safari auto-zoom)
+- **Money, Quantities & Dates**: `'JetBrains Mono', monospace` with `font-variant-numeric: tabular-nums`
+  - Thousand-VND (`VndKInput`) inputs display a locked `.000đ` suffix, `inputMode="decimal"`, and a 1-tap 1000x typo guard (`50000` -> suggest `50`).
 
 ---
 
-## 4. Responsive Ergonomics (iPhone & Windows Desktop)
+## 4. Floating Glass Dock & Responsive Ergonomics
 
-### Mobile (`< 768px`, iPhone at Counter / On the Go)
-- **Bottom Navigation Bar** (5 clear tabs, `64px` height + `env(safe-area-inset-bottom)`):
-  1. **Bán hàng** (POS)
-  2. **Sổ nợ** (Debt Ledger + Reminders)
-  3. **Đơn hàng** (Order History + Re-print/QR)
-  4. **Thống kê** (Sales & Debt Stats)
-  5. **Cài đặt** (Shop Info, Bank/VietQR, Notifications, Account)
-- **Minimum Touch Target**: `48px × 48px` on `+ / -` quantity steppers, product quick-add rows, and primary checkout CTA.
-- **Cart / Checkout Drawer**: Sticky bottom bar showing `Số món · Tổng tiền` that expands into full checkout sheet (choose customer, paid amount vs remaining debt, instant VietQR or receipt export).
-
-### Desktop / Tablet (`>= 1024px`, Windows Shop Counter)
-- **Left Rail Sidebar** (`220px` fixed, crisp 1px right border) with shop status & real-time sync badge (`● Đã đồng bộ Cloud`).
-- **POS Split-Pane**:
-  - Left (`~60%`): Search bar + category filter pills + fast dense product grid/list.
-  - Right (`~40%`, sticky): Active Bill (customer selector, line items, discount, cash/transfer/debt split, instant *"Lưu & Xuất QR"* / *"Lưu & In hóa đơn"*).
-
----
-
-## 5. Receipt & Dynamic QR Card Craft
-
-- **E-Invoice Export (PDF & PNG)**:
-  - Fixed-width thermal-inspired receipt frame (`380px` preview / crisp A5 or 80mm print layout) with clean black-on-white typography, dashed hairline separators, itemized quantities & subtotals, paid vs remaining debt summary, and embedded VietQR block when `remaining_debt > 0`.
-- **Dynamic VietQR Share Card**:
-  - Self-contained PNG-exportable card showing: Shop Name, Bank Logo/Name, Account Number & Holder, Customer Name, Exact Amount (`tabular-nums`), Transfer Content (`PT DHxxxx`), and high-contrast scannable QR code — ready to send directly via Zalo/Messenger.
+- **Unified Bottom Floating Glass Dock (`.glass-dock`)**:
+  - **Mobile (`375px`)**: Centered floating pill at `bottom: calc(10px + env(safe-area-inset-bottom))`, 5 tabs (`Bán hàng`, `Công nợ`, `Sổ bán`, `Thống kê`, `Cài đặt`) with `>= 48px` tap targets. When cart has items, a matching floating cart pill sits cleanly above the dock with zero overlap.
+  - **Desktop (`1280px`)**: Centered floating dock at bottom (`bottom: 16px`), unlocking 100% viewport width for the 12-column Sales Ledger and POS split-pane. A slim frosted top header carries shop name, live sync dot, and theme quick-toggle.
+  - **Safe Bottom Cushion**: `<main>` reserves generous bottom padding (`pb-[108px]` mobile / `pb-[100px]` desktop; extra clearance on POS when cart pill is active) so the dock never covers content or buttons.
+- **PWA Branding & Boot Splash**:
+  - Geometric Jade mark (`favicon.svg`, `favicon.ico`, `apple-touch-icon.png` 180px, `icon-192.png`, `icon-512.png`, `icon-512-maskable.png`).
+  - `AppBootSplash` matches Light/Dark ground from frame 0 and exits smoothly (`~240ms`, instant under `prefers-reduced-motion`).

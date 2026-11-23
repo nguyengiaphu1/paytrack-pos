@@ -35,19 +35,14 @@ export function RevenueCashChart({ data }: RevenueCashChartProps) {
   }));
 
   return (
-    <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
-      <div className="mb-3">
-        <h3 className="text-[16px] font-bold text-[var(--text-primary)]">
-          Doanh thu vs Tiền thực thu theo ngày
-        </h3>
-        <p className="text-[13px] text-[var(--text-secondary)]">
-          So sánh tổng giá trị bán ra và tiền thực tế đã thu vào
-        </p>
-      </div>
+    <div className="rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
+      <h3 className="mb-3 text-[15px] font-bold text-[var(--text-primary)]">
+        Doanh thu &amp; Thực thu theo ngày
+      </h3>
 
       {chartData.length === 0 ? (
         <div className="flex h-[240px] items-center justify-center text-[14px] text-[var(--text-secondary)]">
-          Chưa có dữ liệu trong khoảng thời gian này.
+          Chưa có dữ liệu.
         </div>
       ) : (
         <div className="h-[260px] w-full">

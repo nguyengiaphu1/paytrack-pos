@@ -25,15 +25,15 @@ export function FetchErrorCard({
       </div>
       <h2 className="text-[17px] font-bold text-[var(--text-primary)]">{title}</h2>
       <p className="mx-auto mt-1 max-w-[420px] text-[14px] text-[var(--text-secondary)]">
-        {message || 'Vui lòng kiểm tra lại kết nối Wi-Fi hoặc 4G rồi bấm Thử lại.'}
+        {message || 'Kiểm tra kết nối mạng rồi thử lại.'}
       </p>
       <button
         type="button"
         onClick={onRetry}
-        className="press-tactile mt-4 inline-flex min-h-[48px] items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-5 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
+        className="press-tactile mt-4 inline-flex min-h-[48px] items-center justify-center gap-2 rounded-[10px] bg-[var(--brand-jade)] px-5 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
       >
         <RefreshCw className="h-4 w-4 shrink-0" />
-        <span>Thử lại ngay</span>
+        <span>Thử lại</span>
       </button>
     </div>
   );
@@ -41,13 +41,15 @@ export function FetchErrorCard({
 
 export function PosWorkspaceSkeleton() {
   return (
-    <div aria-busy="true" aria-label="Đang tải màn hình bán hàng" className="grid gap-5 lg:grid-cols-[1.45fr_1fr]">
+    <div aria-busy="true" aria-label="Đang tải màn hình bán hàng" className="space-y-3.5">
+      <Bone className="h-14 w-full rounded-[12px]" />
+      <div className="grid gap-5 lg:grid-cols-12">
       {/* Left Catalog Skeleton */}
-      <div className="space-y-3">
+      <div className="space-y-3 lg:col-span-7 xl:col-span-8">
         <div className="flex flex-wrap gap-2">
           <Bone className="h-12 flex-1 min-w-[200px]" />
-          <Bone className="h-12 w-32" />
-          <Bone className="h-12 w-32" />
+          <Bone className="h-12 w-28" />
+          <Bone className="h-12 w-28" />
         </div>
         <div className="flex gap-2 overflow-hidden">
           <Bone className="h-9 w-20 rounded-full" />
@@ -75,7 +77,7 @@ export function PosWorkspaceSkeleton() {
       </div>
 
       {/* Desktop Right Cart Skeleton */}
-      <div className="hidden rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 lg:block">
+      <div className="hidden rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 lg:col-span-5 lg:block xl:col-span-4">
         <Bone className="h-6 w-36" />
         <Bone className="mt-3 h-12 w-full" />
         <div className="mt-4 space-y-2.5 border-y border-[var(--border-default)] py-4">
@@ -87,6 +89,7 @@ export function PosWorkspaceSkeleton() {
           <Bone className="h-7 w-full" />
         </div>
         <Bone className="mt-4 h-12 w-full" />
+      </div>
       </div>
     </div>
   );

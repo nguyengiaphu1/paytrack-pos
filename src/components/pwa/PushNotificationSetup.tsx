@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   AlertTriangle,
   Bell,
   BellOff,
   CheckCircle2,
+  ChevronDown,
   Clock,
-  Info,
   Loader2,
   Send,
   Share,
@@ -60,13 +60,13 @@ function detectDeviceLabel(): string {
   if (typeof navigator === 'undefined') return 'Thiết bị web';
   const ua = navigator.userAgent;
   if (/iPhone|iPad|iPod/i.test(ua)) return 'iPhone / iPad PWA';
-  if (/Android/i.test(ua)) return 'Android Chrome/PWA';
+  if (/Android/i.test(ua)) return 'Android PWA';
   if (/Edg\//i.test(ua)) return 'Windows Edge';
   if (/Chrome/i.test(ua)) return 'Windows Chrome';
   return 'Trình duyệt web';
 }
 
-export function PushNotificationSetup() {
+export function PushNotificationSetup({ embedded = false }: { embedded?: boolean }) {
   const [envState, setEnvState] = useState({
     isIOS: false,
     isStandalone: false,
@@ -84,14 +84,24 @@ export function PushNotificationSetup() {
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  function applyStatusPayload(json: SubscribeStatusPayload) {
+  const applyStatusPayload = useCallback((json: SubscribeStatusPayload) => {
     setDevices(json.devices ?? []);
     setPendingReminders(json.pendingReminders ?? 0);
     setOverdueReminders(json.overdueReminders ?? 0);
     setDueCustomersToday(json.dueCustomersToday ?? 0);
     setCronHeartbeat(json.cronHeartbeat ?? null);
     setDigestStatus(json.digestStatus ?? null);
-  }
+  }, []);
+
+  const refreshDevicesFromServer = useCallback(async (): Promise<SubscribeStatusPayload | null> => {
+    const res = await fetch('/api/push/subscribe').catch(() => null);
+    if (res && res.ok) {
+      const json = (await res.json().catch(() => ({}))) as SubscribeStatusPayload;
+      applyStatusPayload(json);
+      return json;
+    }
+    return null;
+  }, [applyStatusPayload]);
 
   useEffect(() => {
     let active = true;
@@ -102,9 +112,7 @@ export function PushNotificationSetup() {
       Boolean((navigator as Navigator & { standalone?: boolean }).standalone);
 
     const supported =
-      'serviceWorker' in navigator &&
-      'PushManager' in window &&
-      'Notification' in window;
+      'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 
     async function syncAndCheck() {
       if (!supported) {
@@ -131,8 +139,6 @@ export function PushNotificationSetup() {
         }
 
         const serverDevices = serverPayload.devices ?? [];
-
-        // Nếu trình duyệt đã có subscription nhưng server chưa lưu (hoặc hết phiên cũ), tự đồng bộ lại
         if (sub && Notification.permission === 'granted') {
           const alreadySynced = serverDevices.some((d) => d.endpoint === sub.endpoint);
           if (!alreadySynced) {
@@ -186,17 +192,7 @@ export function PushNotificationSetup() {
       active = false;
       window.removeEventListener('paytrack:profile-saved', handleProfileSaved);
     };
-  }, []);
-
-  async function refreshDevicesFromServer(): Promise<SubscribeStatusPayload | null> {
-    const res = await fetch('/api/push/subscribe').catch(() => null);
-    if (res && res.ok) {
-      const json = (await res.json().catch(() => ({}))) as SubscribeStatusPayload;
-      applyStatusPayload(json);
-      return json;
-    }
-    return null;
-  }
+  }, [applyStatusPayload, refreshDevicesFromServer]);
 
   async function handleEnablePush() {
     setErrorMsg(null);
@@ -205,12 +201,12 @@ export function PushNotificationSetup() {
     try {
       const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
       if (!vapidPublicKey) {
-        throw new Error('Ứng dụng chưa cấu hình NEXT_PUBLIC_VAPID_PUBLIC_KEY.');
+        throw new Error('Thiếu cấu hình khóa thông báo.');
       }
 
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
-        throw new Error('Bạn cần bấm "Cho phép" (Allow) thông báo trên trình duyệt.');
+        throw new Error('Cần bấm Cho phép thông báo trên trình duyệt.');
       }
 
       const reg = await navigator.serviceWorker.ready;
@@ -233,12 +229,12 @@ export function PushNotificationSetup() {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || 'Không thể lưu đăng ký thông báo');
+        throw new Error(body.error || 'Không thể bật thông báo');
       }
 
       await refreshDevicesFromServer();
       setEnvState((prev) => ({ ...prev, subscribed: true }));
-      setStatusMsg('Đã bật thông báo nhắc thu nợ cho thiết bị này!');
+      setStatusMsg('Đã bật thông báo trên máy này.');
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Không thể bật thông báo');
     } finally {
@@ -263,7 +259,7 @@ export function PushNotificationSetup() {
       }
       await refreshDevicesFromServer();
       setEnvState((prev) => ({ ...prev, subscribed: false }));
-      setStatusMsg('Đã tắt thông báo trên thiết bị này.');
+      setStatusMsg('Đã tắt thông báo trên máy này.');
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Không thể tắt thông báo');
     } finally {
@@ -278,13 +274,11 @@ export function PushNotificationSetup() {
     try {
       const res = await fetch('/api/push/test', { method: 'POST' });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(data.error || 'Không thể gửi thông báo thử');
-      }
+      if (!res.ok) throw new Error(data.error || 'Gửi thử thất bại');
       if (data.sent > 0) {
-        setStatusMsg(`Đã gửi thông báo thử tới ${data.sent} thiết bị!`);
+        setStatusMsg(`Đã gửi thử tới ${data.sent} máy.`);
       } else {
-        setErrorMsg('Chưa có thiết bị nào đang bật thông báo.');
+        setErrorMsg('Chưa có thiết bị nào bật thông báo.');
       }
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Gửi thử thất bại');
@@ -306,44 +300,16 @@ export function PushNotificationSetup() {
         digestSent?: number;
         digestFailed?: number;
       };
-      if (!res.ok) {
-        throw new Error(data.error || 'Không thể kiểm tra lịch nhắc đến hạn');
-      }
-      const latestStatus = await refreshDevicesFromServer();
+      if (!res.ok) throw new Error(data.error || 'Không thể kiểm tra lịch nhắc');
+      await refreshDevicesFromServer();
       const totalSent = (data.customSent ?? 0) + (data.digestSent ?? 0);
       const totalFailed = (data.customFailed ?? 0) + (data.digestFailed ?? 0);
       if (totalSent > 0) {
-        setStatusMsg(
-          `Đã gửi ngay ${data.customSent ?? 0} thông báo hẹn nhắc và ${data.digestSent ?? 0} tổng hợp ngày.`
-        );
+        setStatusMsg(`Đã gửi ${totalSent} thông báo đến hạn.`);
       } else if (totalFailed > 0) {
-        setErrorMsg(
-          'Có lịch đến hạn nhưng không gửi được tới thiết bị (hãy bấm "Bật thông báo" lại trên thiết bị).'
-        );
+        setErrorMsg('Gửi thất bại — hãy bật lại thông báo trên máy.');
       } else {
-        const currentDigest = latestStatus?.digestStatus ?? digestStatus;
-        const currentDue = latestStatus?.dueCustomersToday ?? dueCustomersToday;
-        if (currentDigest && !currentDigest.enabled) {
-          setStatusMsg(
-            'Chưa có lịch hẹn riêng quá giờ. Mục "Báo tổng hợp khách đến hạn mỗi ngày" đang tắt.'
-          );
-        } else if (currentDigest?.sentToday) {
-          setStatusMsg(
-            'Hôm nay đã gửi thông báo tổng hợp ngày rồi và hiện chưa có lịch hẹn riêng nào quá giờ.'
-          );
-        } else if (currentDue === 0) {
-          setStatusMsg(
-            'Chưa có lịch hẹn riêng quá giờ và hiện có 0 khách có "Ngày hẹn thu" hôm nay hoặc quá hạn.'
-          );
-        } else if (currentDigest) {
-          setStatusMsg(
-            `Chưa có lịch hẹn riêng quá giờ và chưa tới khung giờ tổng hợp (${currentDigest.hour}).`
-          );
-        } else {
-          setStatusMsg(
-            'Hiện chưa có lịch hẹn nào quá giờ hoặc chưa tới giờ tổng hợp / chưa có khách đến hạn hôm nay.'
-          );
-        }
+        setStatusMsg('Hiện chưa có lịch nhắc nào đến giờ.');
       }
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Kiểm tra lịch nhắc thất bại');
@@ -352,44 +318,67 @@ export function PushNotificationSetup() {
     }
   }
 
+  const hasWarning =
+    cronHeartbeat?.last_status === 'error' || overdueReminders > 0;
+
   return (
-    <div className="space-y-3 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:p-5">
-      <div className="flex flex-wrap items-start justify-between gap-2.5">
-        <div className="min-w-0 flex-1">
-          <h2 className="text-[16px] font-bold text-[var(--text-primary)]">
-            2. Thông báo nhắc thu nợ trên thiết bị này
-          </h2>
-          <p className="mt-0.5 text-[13px] text-[var(--text-secondary)]">
-            Hỗ trợ Windows (Chrome/Edge) và iPhone (iOS 16.4+ qua icon Màn hình chính).
-          </p>
-        </div>
-        {envState.subscribed && (
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--status-paid-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-paid)]">
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            Đã bật
+    <div
+      className={
+        embedded
+          ? 'space-y-3'
+          : 'space-y-3 rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:p-5'
+      }
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2.5">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="text-[14px] font-semibold text-[var(--text-primary)]">
+            Thông báo trên máy này
           </span>
+          {envState.subscribed && (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--status-paid-bg)] px-2 py-0.5 text-[11px] font-semibold text-[var(--status-paid)]">
+              <CheckCircle2 className="h-3 w-3" />
+              Đang bật
+            </span>
+          )}
+        </div>
+
+        {envState.loading ? (
+          <span className="text-[13px] text-[var(--text-secondary)]">Đang kiểm tra...</span>
+        ) : !envState.pushSupported ? (
+          <span className="text-[12px] text-[var(--text-secondary)]">
+            Cần cài ra Màn hình chính
+          </span>
+        ) : !envState.subscribed ? (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={handleEnablePush}
+            className="press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-[10px] bg-[var(--brand-jade)] px-4 text-[13px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+          >
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bell className="h-4 w-4" />}
+            <span>Bật thông báo</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={handleDisablePush}
+            className="press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-[10px] border border-[var(--border-default)] px-3.5 text-[13px] font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] disabled:opacity-60"
+          >
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <BellOff className="h-4 w-4" />}
+            <span>Tắt</span>
+          </button>
         )}
       </div>
 
       {envState.isIOS && !envState.isStandalone && (
-        <div className="rounded-lg border border-[var(--status-debt-border)] bg-[var(--status-debt-bg)] p-3.5 text-[14px] text-[var(--text-primary)]">
-          <div className="flex items-center gap-2 font-bold text-[var(--status-debt)]">
+        <div className="rounded-[10px] border border-[var(--status-debt-border)] bg-[var(--status-debt-bg)] p-3 text-[13px] text-[var(--text-primary)]">
+          <div className="flex items-center gap-1.5 font-semibold text-[var(--status-debt)]">
             <Smartphone className="h-4 w-4 shrink-0" />
-            <span>Hướng dẫn bật thông báo trên iPhone</span>
+            <span>iPhone: Chia sẻ</span>
+            <Share className="h-3.5 w-3.5 shrink-0" />
+            <span>→ Thêm vào Màn hình chính → Mở lại app</span>
           </div>
-          <ol className="mt-2 list-decimal space-y-1 pl-5 text-[13px]">
-            <li>
-              Chạm biểu tượng <strong>Chia sẻ (Share)</strong>{' '}
-              <Share className="inline h-3.5 w-3.5" /> ở thanh dưới cùng Safari.
-            </li>
-            <li>
-              Chọn <strong>Thêm vào Màn hình chính (Add to Home Screen)</strong>.
-            </li>
-            <li>
-              Mở lại app từ biểu tượng <strong>PayTrack POS</strong> ngoài màn hình chính rồi bấm nút
-              bật thông báo bên dưới.
-            </li>
-          </ol>
         </div>
       )}
 
@@ -405,138 +394,82 @@ export function PushNotificationSetup() {
         </div>
       )}
 
-      {envState.loading ? (
-        <p className="text-[13px] text-[var(--text-secondary)]">Đang kiểm tra trạng thái...</p>
-      ) : !envState.pushSupported ? (
-        <p className="text-[13px] text-[var(--text-secondary)]">
-          Trình duyệt hiện tại chưa hỗ trợ Web Push (nếu dùng iPhone, vui lòng cài ra Màn hình chính
-          trước).
-        </p>
-      ) : (
-        <div className="flex flex-wrap gap-2.5">
-          {!envState.subscribed ? (
-            <button
-              type="button"
-              disabled={busy}
-              onClick={handleEnablePush}
-              className="press-tactile flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
-            >
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bell className="h-4 w-4" />}
-              <span>Bật thông báo trên thiết bị này</span>
-            </button>
-          ) : (
-            <>
+      {hasWarning && (
+        <div className="flex items-center justify-between gap-2 rounded-lg border border-[var(--status-debt-border)] bg-[var(--status-debt-bg)] px-3 py-2 text-[12px] text-[var(--status-debt)]">
+          <span className="flex min-w-0 items-center gap-1.5 font-semibold">
+            <AlertTriangle className="h-4 w-4 shrink-0" />
+            <span className="truncate">
+              {overdueReminders > 0
+                ? `${overdueReminders} lịch nhắc đang chờ gửi`
+                : 'Lịch tự động gặp lỗi gần nhất'}
+            </span>
+          </span>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={handleDispatchDue}
+            className="press-tactile min-h-[44px] shrink-0 rounded-md border border-[var(--status-debt)] bg-[var(--bg-surface)] px-2.5 text-[12px] font-semibold text-[var(--status-debt)]"
+          >
+            Gửi ngay
+          </button>
+        </div>
+      )}
+
+      {/* Collapsible Technical Diagnostics (clean by default, full power on demand) */}
+      <details className="group rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-subtle)] px-3 py-2 text-[12px] text-[var(--text-secondary)]">
+        <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-2 font-medium text-[var(--text-secondary)]">
+          <span>
+            Kiểm tra kết nối ({devices.length} máy
+            {dueCustomersToday > 0 ? ` · ${dueCustomersToday} khách đến hạn` : ''})
+          </span>
+          <ChevronDown className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180" />
+        </summary>
+
+        <div className="space-y-2.5 border-t border-[var(--border-default)] pt-2.5 pb-1">
+          {envState.subscribed && (
+            <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 disabled={busy}
                 onClick={handleSendTest}
-                className="press-tactile flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+                className="press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[12px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-canvas)] disabled:opacity-60"
               >
-                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                <span>Gửi thử thông báo</span>
+                <Send className="h-3.5 w-3.5 text-[var(--brand-jade-text)]" />
+                <span>Gửi thử</span>
               </button>
               <button
                 type="button"
                 disabled={busy}
                 onClick={handleDispatchDue}
-                className="press-tactile flex min-h-[48px] items-center justify-center gap-2 rounded-lg border border-[var(--brand-jade)] bg-[var(--bg-surface)] px-3.5 text-[13px] font-semibold text-[var(--brand-jade-text)] hover:bg-[var(--status-paid-bg)] disabled:opacity-60 sm:text-[14px]"
+                className="press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[12px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-canvas)] disabled:opacity-60"
               >
-                <Clock className="h-4 w-4 shrink-0" />
-                <span>Gửi lịch đến hạn ngay</span>
+                <Clock className="h-3.5 w-3.5 text-[var(--brand-jade-text)]" />
+                <span>Gửi lịch đến hạn</span>
               </button>
-              <button
-                type="button"
-                disabled={busy}
-                onClick={handleDisablePush}
-                className="press-tactile flex min-h-[48px] items-center justify-center gap-2 rounded-lg border border-[var(--border-default)] px-4 text-[14px] font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] disabled:opacity-60"
-              >
-                <BellOff className="h-4 w-4" />
-                <span>Tắt</span>
-              </button>
-            </>
+            </div>
+          )}
+
+          {devices.length > 0 && (
+            <p className="break-words">
+              Thiết bị: {devices.map((d) => d.device_label || 'Web').join(' · ')}
+            </p>
+          )}
+          {pendingReminders > 0 && (
+            <p className="font-mono-tabular">Lịch hẹn đang chờ: {pendingReminders}</p>
+          )}
+          {digestStatus && (
+            <p className="font-mono-tabular">
+              Tổng hợp ngày: {digestStatus.enabled ? `${digestStatus.hour} (${digestStatus.sentToday ? 'đã gửi' : 'chờ'})` : 'tắt'}
+            </p>
+          )}
+          {cronHeartbeat && (
+            <p className="font-mono-tabular">
+              Kiểm tra gần nhất: {formatDateTimeVN(cronHeartbeat.last_run_at)} (
+              {cronHeartbeat.last_status})
+            </p>
           )}
         </div>
-      )}
-
-      {cronHeartbeat?.last_status === 'error' && (
-        <div className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] p-3 text-[12px] text-[var(--status-overdue)]">
-          <div className="flex items-center gap-1.5 font-bold">
-            <AlertTriangle className="h-4 w-4 shrink-0" />
-            <span>Bộ hẹn giờ tự động (Cron) gặp lỗi gần nhất</span>
-          </div>
-          {cronHeartbeat.last_error && (
-            <p className="mt-1 break-words">{cronHeartbeat.last_error}</p>
-          )}
-        </div>
-      )}
-
-      {(overdueReminders > 0 || (!cronHeartbeat && (pendingReminders > 0 || dueCustomersToday > 0))) && (
-        <div className="rounded-lg border border-[var(--status-debt-border)] bg-[var(--status-debt-bg)] p-3 text-[12px] text-[var(--text-primary)]">
-          <div className="flex items-center gap-1.5 font-bold text-[var(--status-debt)]">
-            <AlertTriangle className="h-4 w-4 shrink-0" />
-            <span>
-              {overdueReminders > 0
-                ? `Có ${overdueReminders} lịch hẹn nhắc đã quá giờ nhưng chưa được tự động gửi`
-                : 'Hệ thống hẹn giờ tự động (Supabase pg_cron) chưa ghi nhận lượt chạy nào'}
-            </span>
-          </div>
-          <p className="mt-1 leading-relaxed text-[var(--text-secondary)]">
-            Thông báo đặt lịch &amp; tổng hợp sáng cần job{' '}
-            <code className="font-mono-tabular font-semibold">paytrack_reminder_dispatch</code> trong{' '}
-            <code className="font-mono-tabular">0003_reminder_cron.sql</code> được cấu hình đúng
-            tên miền Vercel và <code className="font-mono-tabular">CRON_SECRET</code> trên Supabase.
-            Bạn có thể bấm <strong>Gửi lịch đến hạn ngay</strong> ở trên để đẩy các lịch bị trễ.
-          </p>
-        </div>
-      )}
-
-      {/* Trạng thái thiết bị đã đăng ký & hướng dẫn nhận thông báo khi đóng app */}
-      <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-3 text-[12px] text-[var(--text-secondary)]">
-        <div className="flex flex-wrap items-center justify-between gap-2 font-semibold text-[var(--text-primary)]">
-          <span>Thiết bị đang nhận nhắc nợ ({devices.length})</span>
-          <div className="flex flex-wrap items-center gap-2">
-            {dueCustomersToday > 0 && (
-              <span className="font-mono-tabular text-[var(--status-debt)]">
-                {dueCustomersToday} khách đến hạn hôm nay
-              </span>
-            )}
-            {pendingReminders > 0 && (
-              <span className="font-mono-tabular text-[var(--brand-jade-text)]">
-                {pendingReminders} lịch hẹn đang chờ
-              </span>
-            )}
-          </div>
-        </div>
-        {devices.length > 0 && (
-          <p className="mt-1 break-words">
-            {devices.map((d) => d.device_label || 'Thiết bị web').join(' · ')}
-          </p>
-        )}
-        {digestStatus && (
-          <p className="mt-1 font-mono-tabular text-[11px] text-[var(--text-secondary)]">
-            {digestStatus.enabled
-              ? `Tổng hợp mỗi ngày: ${digestStatus.hour} (${
-                  digestStatus.sentToday ? 'Đã gửi hôm nay' : 'Đang chờ tới giờ'
-                })`
-              : 'Tổng hợp mỗi ngày: Đang tắt'}
-          </p>
-        )}
-        {cronHeartbeat?.last_status === 'ok' && (
-          <p className="mt-1 font-mono-tabular text-[11px] text-[var(--text-secondary)]">
-            Kiểm tra lịch tự động gần nhất: {formatDateTimeVN(cronHeartbeat.last_run_at)}
-          </p>
-        )}
-        <div className="mt-2 flex items-start gap-1.5 border-t border-[var(--border-default)] pt-2">
-          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--brand-jade-text)]" />
-          <p className="leading-relaxed">
-            <strong>Để nhận thông báo cả khi không mở app:</strong> Trên iPhone giữ icon{' '}
-            <em>PayTrack POS</em> ngoài Màn hình chính (không cần mở sẵn app). Trên Windows, hãy{' '}
-            <strong>Cài đặt ứng dụng (Install app)</strong> từ thanh địa chỉ Chrome/Edge hoặc bật{' '}
-            <em>&ldquo;Tiếp tục chạy ứng dụng nền khi đóng trình duyệt&rdquo;</em> trong cài đặt
-            Chrome/Edge.
-          </p>
-        </div>
-      </div>
+      </details>
     </div>
   );
 }

@@ -105,20 +105,20 @@ function DebtsContent() {
         <>
           {/* KPI Strip */}
           <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <div className="col-span-2 min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:col-span-1">
-              <p className="text-[13px] text-[var(--text-secondary)]">Tổng công nợ</p>
+            <div className="glass-surface col-span-2 min-w-0 rounded-[12px] p-4 sm:col-span-1">
+              <p className="text-[12px] font-medium text-[var(--text-secondary)]">Tổng công nợ</p>
               <p className="font-mono-tabular mt-1 break-words text-[22px] font-bold text-[var(--status-debt)] sm:text-[24px]">
                 {formatVND(summary.totalShopDebt)}
               </p>
             </div>
-            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
-              <p className="text-[13px] text-[var(--text-secondary)]">Khách đang nợ</p>
+            <div className="glass-surface min-w-0 rounded-[12px] p-4">
+              <p className="text-[12px] font-medium text-[var(--text-secondary)]">Khách đang nợ</p>
               <p className="font-mono-tabular mt-1 text-[20px] font-bold text-[var(--text-primary)] sm:text-[22px]">
                 {summary.debtorCount}
               </p>
             </div>
-            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
-              <p className="text-[13px] text-[var(--text-secondary)]">Đến hạn / Quá hạn</p>
+            <div className="glass-surface min-w-0 rounded-[12px] p-4">
+              <p className="text-[12px] font-medium text-[var(--text-secondary)]">Đến hạn / Quá hạn</p>
               <p className="font-mono-tabular mt-1 text-[20px] font-bold text-[var(--status-overdue)] sm:text-[22px]">
                 {summary.dueOrOverdueCount}
               </p>
@@ -126,7 +126,7 @@ function DebtsContent() {
           </div>
 
           {/* Search & Filter */}
-          <div className="mb-4 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="glass-surface mb-4 flex flex-col gap-2.5 rounded-[12px] p-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative flex-1 sm:max-w-[360px]">
               <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
               <input
@@ -134,7 +134,7 @@ function DebtsContent() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Tìm tên, SĐT, địa chỉ..."
-                className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] pr-3.5 pl-10 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                className="min-h-[46px] w-full rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] pr-3.5 pl-10 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
               />
             </div>
 
@@ -150,7 +150,7 @@ function DebtsContent() {
                   key={key}
                   type="button"
                   onClick={() => setFilter(key)}
-                  className={`press-tactile min-h-[44px] rounded-lg border px-3 text-[13px] font-semibold ${
+                  className={`press-tactile min-h-[44px] rounded-[10px] border px-3 text-[13px] font-semibold ${
                     filter === key
                       ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]'
                       : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'

@@ -20,13 +20,10 @@ export function PaymentBreakdownChart({ breakdown }: PaymentBreakdownChartProps)
   ];
 
   return (
-    <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
-      <h3 className="text-[16px] font-bold text-[var(--text-primary)]">
+    <div className="rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
+      <h3 className="mb-3.5 text-[15px] font-bold text-[var(--text-primary)]">
         Tỷ trọng thanh toán
       </h3>
-      <p className="mb-4 text-[13px] text-[var(--text-secondary)]">
-        Phân bổ theo hình thức thu tại lúc lập đơn
-      </p>
 
       {/* Stacked proportion strip */}
       <div className="mb-4 flex h-3.5 w-full overflow-hidden rounded-full bg-[var(--bg-subtle)]">

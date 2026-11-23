@@ -35,13 +35,10 @@ export function DebtAgingCard({ aging }: DebtAgingCardProps) {
   ];
 
   return (
-    <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
-      <h3 className="text-[16px] font-bold text-[var(--text-primary)]">
-        Phân nhóm tuổi nợ hiện tại
+    <div className="rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
+      <h3 className="mb-3.5 text-[15px] font-bold text-[var(--text-primary)]">
+        Tuổi nợ
       </h3>
-      <p className="mb-4 text-[13px] text-[var(--text-secondary)]">
-        Theo dõi các khoản nợ quá hạn cần ưu tiên nhắc
-      </p>
 
       <div className="space-y-3.5">
         {buckets.map((b) => {

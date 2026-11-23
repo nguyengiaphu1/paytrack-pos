@@ -8,8 +8,8 @@ export type ResolvedTheme = 'light' | 'dark';
 export const THEME_STORAGE_KEY = 'paytrack-theme';
 export const DEFAULT_THEME_PREFERENCE: ThemePreference = 'system';
 
-export const THEME_COLOR_LIGHT = '#0E6B4E';
-export const THEME_COLOR_DARK = '#0E1317';
+export const THEME_COLOR_LIGHT = '#F5F7F6';
+export const THEME_COLOR_DARK = '#0D1215';
 
 export function isValidThemePreference(value: unknown): value is ThemePreference {
   return value === 'light' || value === 'dark' || value === 'system';

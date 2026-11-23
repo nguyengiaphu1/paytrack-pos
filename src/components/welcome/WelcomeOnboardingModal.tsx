@@ -1,20 +1,14 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import {
-  BookOpenCheck,
-  CheckCircle2,
-  Landmark,
-  Loader2,
-  PackagePlus,
-  Store,
-  X,
-} from 'lucide-react';
+import { CheckCircle2, Landmark, Loader2, PackagePlus, Store, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { stripVietnamese } from '@/lib/vietnamese';
 import { VIETNAM_BANKS } from '@/lib/vietqr';
 import { writeOnboardingMirror } from '@/lib/welcome';
 import type { Product, ShopProfile } from '@/types/database';
+import { BrandMark } from '@/components/ui/BrandMark';
+import { VndKInput } from '@/components/ui/VndKInput';
 
 interface WelcomeOnboardingModalProps {
   open: boolean;
@@ -48,7 +42,7 @@ export function WelcomeOnboardingModal({
   const [bankSaved, setBankSaved] = useState(false);
 
   const [prodName, setProdName] = useState('');
-  const [prodPrice, setProdPrice] = useState('');
+  const [prodPriceVnd, setProdPriceVnd] = useState<number | null>(null);
   const [prodUnit, setProdUnit] = useState('cái');
   const [savingProd, setSavingProd] = useState(false);
   const [prodSavedCount, setProdSavedCount] = useState(0);
@@ -73,7 +67,7 @@ export function WelcomeOnboardingModal({
         data: { welcome_v2_seen: true },
       });
     } catch {
-      // Giữ trạng thái local mirror ngay cả khi mạng yếu
+      // Keep local mirror even on weak connection
     } finally {
       setFinishing(false);
       onClose();
@@ -114,7 +108,7 @@ export function WelcomeOnboardingModal({
     if (savingBank) return;
     setErrorMsg(null);
     if (!bankBin || !bankAccountNo.trim()) {
-      setErrorMsg('Chọn ngân hàng và nhập số tài khoản để tạo mã QR.');
+      setErrorMsg('Chọn ngân hàng và nhập số tài khoản.');
       return;
     }
     setSavingBank(true);
@@ -139,7 +133,7 @@ export function WelcomeOnboardingModal({
       if (data) setProfileLocal(data as ShopProfile);
       setBankSaved(true);
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : 'Chưa lưu được tài khoản ngân hàng.');
+      setErrorMsg(err instanceof Error ? err.message : 'Chưa lưu được tài khoản.');
     } finally {
       setSavingBank(false);
     }
@@ -150,9 +144,8 @@ export function WelcomeOnboardingModal({
     if (savingProd) return;
     setErrorMsg(null);
     const cleanName = prodName.trim();
-    const numericPrice = Math.round(Number(prodPrice));
-    if (!cleanName || !Number.isFinite(numericPrice) || numericPrice < 0) {
-      setErrorMsg('Nhập tên món và giá bán hợp lệ (VD: 15000).');
+    if (!cleanName || prodPriceVnd === null || prodPriceVnd < 0) {
+      setErrorMsg('Nhập tên món và giá bán hợp lệ.');
       return;
     }
     setSavingProd(true);
@@ -165,7 +158,7 @@ export function WelcomeOnboardingModal({
           name: cleanName,
           search_text: stripVietnamese(cleanName),
           unit: prodUnit.trim() || 'cái',
-          price: numericPrice,
+          price: Math.round(prodPriceVnd),
           is_active: true,
         })
         .select('*')
@@ -173,10 +166,10 @@ export function WelcomeOnboardingModal({
       if (error) throw error;
       if (data) upsertProductLocal(data as Product);
       setProdName('');
-      setProdPrice('');
+      setProdPriceVnd(null);
       setProdSavedCount((c) => c + 1);
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : 'Chưa thêm được món hàng.');
+      setErrorMsg(err instanceof Error ? err.message : 'Chưa thêm được món.');
     } finally {
       setSavingProd(false);
     }
@@ -187,29 +180,22 @@ export function WelcomeOnboardingModal({
       className="animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
       role="dialog"
       aria-modal="true"
-      aria-label="Chào mừng đến với PayTrack POS"
+      aria-label="Thiết lập ban đầu"
     >
-      <div className="animate-sheet-up sm:animate-modal-in flex max-h-[92dvh] w-full max-w-[600px] flex-col overflow-hidden rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
+      <div className="animate-sheet-up sm:animate-modal-in flex max-h-[92dvh] w-full max-w-[580px] flex-col overflow-hidden rounded-t-[16px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[12px]">
         {/* Header */}
-        <div className="flex items-start justify-between gap-3 border-b border-[var(--border-default)] px-4 py-4 sm:px-5">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-jade)] text-white">
-              <BookOpenCheck className="h-5 w-5" />
-            </div>
-            <div className="min-w-0">
-              <h2 className="text-[18px] font-bold text-[var(--text-primary)]">
-                Chào mừng bạn đến với PayTrack POS!
-              </h2>
-              <p className="text-[13px] text-[var(--text-secondary)]">
-                3 bước nhanh để sẵn sàng bán hàng, ghi sổ nợ và tạo mã QR chuyển khoản.
-              </p>
-            </div>
+        <div className="flex items-center justify-between gap-3 border-b border-[var(--border-default)] px-4 py-3.5 sm:px-5">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <BrandMark className="h-9 w-9 shrink-0" />
+            <h2 className="truncate text-[17px] font-bold text-[var(--text-primary)]">
+              Thiết lập nhanh
+            </h2>
           </div>
           <button
             type="button"
             disabled={finishing}
             onClick={markOnboardingSeenAndClose}
-            aria-label="Đóng hướng dẫn"
+            aria-label="Đóng"
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
           >
             <X className="h-5 w-5" />
@@ -217,41 +203,39 @@ export function WelcomeOnboardingModal({
         </div>
 
         {/* Body */}
-        <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-5">
+        <div className="flex-1 space-y-3.5 overflow-y-auto p-4 sm:p-5">
           {errorMsg && (
             <div
               role="alert"
-              className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3.5 py-2.5 text-[14px] font-medium text-[var(--status-overdue)]"
+              className="rounded-[10px] border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3.5 py-2.5 text-[14px] font-medium text-[var(--status-overdue)]"
             >
               {errorMsg}
             </div>
           )}
 
-          {/* Step 1: Shop Name */}
+          {/* Shop Info */}
           <form
             onSubmit={handleSaveShop}
-            className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-canvas)] p-3.5 sm:p-4"
+            className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-canvas)] p-3.5"
           >
             <div className="mb-2.5 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <Store className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
-                <h3 className="text-[15px] font-bold text-[var(--text-primary)]">
-                  Bước 1: Tên cửa hàng &amp; số điện thoại
-                </h3>
+                <h3 className="text-[14px] font-bold text-[var(--text-primary)]">Cửa hàng</h3>
               </div>
               {step1Done && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-[var(--status-paid-bg)] px-2.5 py-0.5 text-[12px] font-semibold text-[var(--status-paid)]">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[var(--status-paid-bg)] px-2 py-0.5 text-[11px] font-semibold text-[var(--status-paid)]">
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   Đã có
                 </span>
               )}
             </div>
-            <div className="grid gap-2.5 sm:grid-cols-2">
+            <div className="grid gap-2 sm:grid-cols-2">
               <input
                 type="text"
                 value={shopName}
                 onChange={(e) => setShopName(e.target.value)}
-                placeholder="VD: Tạp Hóa Cô Lan"
+                placeholder="Tên tiệm"
                 aria-label="Tên cửa hàng"
                 className="min-h-[44px] rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
               />
@@ -259,9 +243,9 @@ export function WelcomeOnboardingModal({
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="SĐT in lên hóa đơn (nếu có)"
+                placeholder="SĐT cửa hàng"
                 aria-label="Số điện thoại cửa hàng"
-                className="min-h-[44px] rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                className="font-mono-tabular min-h-[44px] rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
               />
             </div>
             <div className="mt-2.5 flex justify-end">
@@ -271,31 +255,31 @@ export function WelcomeOnboardingModal({
                 className="press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[13px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] disabled:opacity-60"
               >
                 {savingShop && <Loader2 className="h-4 w-4 animate-spin" />}
-                <span>{shopSaved ? 'Đã lưu tên tiệm' : 'Lưu tên tiệm'}</span>
+                <span>{shopSaved ? 'Đã lưu' : 'Lưu'}</span>
               </button>
             </div>
           </form>
 
-          {/* Step 2: Bank Account for VietQR */}
+          {/* Bank Account */}
           <form
             onSubmit={handleSaveBank}
-            className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-canvas)] p-3.5 sm:p-4"
+            className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-canvas)] p-3.5"
           >
             <div className="mb-2.5 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <Landmark className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
-                <h3 className="text-[15px] font-bold text-[var(--text-primary)]">
-                  Bước 2: Tài khoản nhận mã VietQR (tùy chọn)
+                <h3 className="text-[14px] font-bold text-[var(--text-primary)]">
+                  Ngân hàng VietQR
                 </h3>
               </div>
               {step2Done && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-[var(--status-paid-bg)] px-2.5 py-0.5 text-[12px] font-semibold text-[var(--status-paid)]">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[var(--status-paid-bg)] px-2 py-0.5 text-[11px] font-semibold text-[var(--status-paid)]">
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   Đã có
                 </span>
               )}
             </div>
-            <div className="grid gap-2.5 sm:grid-cols-2">
+            <div className="grid gap-2 sm:grid-cols-2">
               <select
                 value={bankBin}
                 onChange={(e) => {
@@ -307,7 +291,7 @@ export function WelcomeOnboardingModal({
                 aria-label="Chọn ngân hàng"
                 className="min-h-[44px] rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
               >
-                <option value="">-- Chọn ngân hàng --</option>
+                <option value="">-- Ngân hàng --</option>
                 {VIETNAM_BANKS.map((bank) => (
                   <option key={bank.bin} value={bank.bin}>
                     {bank.shortName} — {bank.name}
@@ -319,17 +303,17 @@ export function WelcomeOnboardingModal({
                 inputMode="numeric"
                 value={bankAccountNo}
                 onChange={(e) => setBankAccountNo(e.target.value)}
-                placeholder="Số tài khoản nhận tiền"
+                placeholder="Số tài khoản"
                 aria-label="Số tài khoản ngân hàng"
                 className="font-mono-tabular min-h-[44px] rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
               />
             </div>
-            <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2">
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
               <input
                 type="text"
                 value={bankAccountName}
                 onChange={(e) => setBankAccountName(e.target.value)}
-                placeholder="Tên chủ tài khoản (VD: NGUYEN THI LAN)"
+                placeholder="Tên chủ TK"
                 aria-label="Tên chủ tài khoản"
                 className="min-h-[44px] flex-1 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[16px] uppercase text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
               />
@@ -339,48 +323,43 @@ export function WelcomeOnboardingModal({
                 className="press-tactile inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[13px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] disabled:opacity-60"
               >
                 {savingBank && <Loader2 className="h-4 w-4 animate-spin" />}
-                <span>{bankSaved ? 'Đã lưu ngân hàng' : 'Lưu ngân hàng'}</span>
+                <span>{bankSaved ? 'Đã lưu' : 'Lưu'}</span>
               </button>
             </div>
           </form>
 
-          {/* Step 3: Add First Product */}
+          {/* First Product */}
           <form
             onSubmit={handleAddFirstProduct}
-            className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-canvas)] p-3.5 sm:p-4"
+            className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-canvas)] p-3.5"
           >
             <div className="mb-2.5 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <PackagePlus className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
-                <h3 className="text-[15px] font-bold text-[var(--text-primary)]">
-                  Bước 3: Thêm nhanh 1 món hàng (tùy chọn)
-                </h3>
+                <h3 className="text-[14px] font-bold text-[var(--text-primary)]">Món hàng đầu</h3>
               </div>
               {step3Done && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-[var(--status-paid-bg)] px-2.5 py-0.5 text-[12px] font-semibold text-[var(--status-paid)]">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[var(--status-paid-bg)] px-2 py-0.5 text-[11px] font-semibold text-[var(--status-paid)]">
                   <CheckCircle2 className="h-3.5 w-3.5" />
-                  Đã có {productsCount + prodSavedCount > 0 ? `${productsCount} món` : ''}
+                  {productsCount + prodSavedCount} món
                 </span>
               )}
             </div>
-            <div className="grid gap-2.5 sm:grid-cols-[1.4fr_1fr_0.7fr]">
+            <div className="grid gap-2 sm:grid-cols-[1.3fr_1fr_0.7fr]">
               <input
                 type="text"
                 value={prodName}
                 onChange={(e) => setProdName(e.target.value)}
-                placeholder="Tên món (VD: Nước suối)"
+                placeholder="Tên món"
                 aria-label="Tên món hàng đầu tiên"
                 className="min-h-[44px] rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
               />
-              <input
-                type="number"
-                min={0}
-                step={500}
-                value={prodPrice}
-                onChange={(e) => setProdPrice(e.target.value)}
-                placeholder="Giá bán (VD: 10000)"
-                aria-label="Giá bán"
-                className="font-mono-tabular min-h-[44px] rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+              <VndKInput
+                compact
+                valueVnd={prodPriceVnd}
+                onChangeVnd={setProdPriceVnd}
+                placeholder="Giá (nghìn)"
+                ariaLabel="Giá bán"
               />
               <input
                 type="text"
@@ -398,7 +377,7 @@ export function WelcomeOnboardingModal({
                 className="press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[13px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] disabled:opacity-60"
               >
                 {savingProd && <Loader2 className="h-4 w-4 animate-spin" />}
-                <span>Thêm món vào sổ</span>
+                <span>Thêm món</span>
               </button>
             </div>
           </form>
@@ -410,18 +389,18 @@ export function WelcomeOnboardingModal({
             type="button"
             disabled={finishing}
             onClick={markOnboardingSeenAndClose}
-            className="press-tactile min-h-[48px] flex-1 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 text-[14px] font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] disabled:opacity-60 sm:flex-none"
+            className="press-tactile min-h-[48px] flex-1 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 text-[14px] font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] disabled:opacity-60 sm:flex-none"
           >
-            Bỏ qua, vào bán hàng ngay
+            Bỏ qua
           </button>
           <button
             type="button"
             disabled={finishing}
             onClick={markOnboardingSeenAndClose}
-            className="press-tactile inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-5 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60 sm:flex-none"
+            className="press-tactile inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-[10px] bg-[var(--brand-jade)] px-5 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60 sm:flex-none"
           >
             {finishing && <Loader2 className="h-4 w-4 animate-spin" />}
-            <span>Hoàn tất &amp; Bắt đầu bán</span>
+            <span>Bắt đầu bán</span>
           </button>
         </div>
       </div>

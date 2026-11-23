@@ -1,0 +1,8 @@
+{
+  "telemetry": false,
+  "platform": "web",
+  "mode": "operate",
+  "reports": {
+    "commit": false
+  }
+}

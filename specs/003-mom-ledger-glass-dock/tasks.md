@@ -34,22 +34,22 @@
 
 ## Phase 5: Track B — Design System, PWA Icons/Splash & Floating Glass Dock ([US3])
 
-- [ ] T019 [US3] Amend `.specify/memory/constitution.md` (`v1.1.0`), create `PRODUCT.md`, update `DESIGN.md` (60–30–10 + intentional Floating Glass Dock), and update `.gitignore` for `.impeccable/` runtime artifacts
-- [ ] T020 [US3] Update `src/app/globals.css` with 60–30–10 Light/Dark tokens, `.glass-dock`, `.glass-surface`, `prefers-reduced-transparency`, and boot splash animations
-- [ ] T021 [P] [US3] Generate crisp PWA icon suite (`public/favicon.svg`, `public/favicon.ico`, `public/icons/apple-touch-icon.png`, `public/icons/icon-192.png`, `public/icons/icon-512.png`, `public/icons/icon-512-maskable.png`) and update `src/app/manifest.ts` & `src/app/layout.tsx`
-- [ ] T022 [P] [US3] Build zero-flash `src/components/ui/AppBootSplash.tsx` and polish `src/components/ui/BrandLoadingScreen.tsx`
-- [ ] T023 [US3] Overhaul `src/components/shell/AppShell.tsx` from left rail + bottom bar to Floating Glass Dock (`.glass-dock`) + slim top header on both `375px` and `1280px`
+- [x] T019 [US3] Amend `.specify/memory/constitution.md` (`v1.1.0`), create `PRODUCT.md`, update `DESIGN.md` (60–30–10 + intentional Floating Glass Dock), and update `.gitignore` for `.impeccable/` runtime artifacts
+- [x] T020 [US3] Update `src/app/globals.css` with 60–30–10 Light/Dark tokens, `.glass-dock`, `.glass-surface`, `prefers-reduced-transparency`, and boot splash animations
+- [x] T021 [P] [US3] Generate crisp PWA icon suite (`public/favicon.svg`, `public/favicon.ico`, `public/icons/apple-touch-icon.png`, `public/icons/icon-192.png`, `public/icons/icon-512.png`, `public/icons/icon-512-maskable.png`) and update `src/app/manifest.ts` & `src/app/layout.tsx`
+- [x] T022 [P] [US3] Build zero-flash `src/components/ui/AppBootSplash.tsx` and polish `src/components/ui/BrandLoadingScreen.tsx`
+- [x] T023 [US3] Overhaul `src/components/shell/AppShell.tsx` from left rail + bottom bar to Floating Glass Dock (`.glass-dock`) + slim top header on both `375px` and `1280px`
 
 ## Phase 6: Track B — Surface Overhaul, Simplified Settings & Copy Distill ([US3])
 
-- [ ] T024 [US3] Polish `Orders` 12-column desktop table & mobile cards with `.glass-surface`, `tabular-nums`, and concise copy in `src/app/(app)/orders/page.tsx`
-- [ ] T025 [US3] Polish `POS` layout (replace wordy `DailyWelcomeBanner` with minimal due-debt chip, glass Customer Bar, harmonious pill cart bar above dock) in `src/app/(app)/page.tsx` & `src/components/pos/`
-- [ ] T026 [US3] Overhaul `src/app/(app)/settings/page.tsx` & `src/components/pwa/PushNotificationSetup.tsx` into 4 ultra-clean sections with technical diagnostics folded under `<details>`
-- [ ] T027 [US3] Align `Debts`, `Stats`, `Login`, and shared modals (`EmptyStateCard`, `ThemeToggle`, `WelcomeOnboardingModal`) to 60–30–10 tokens and strip all redundant/AI-slop copy
-- [ ] T028 [US3] Update `tests/unit/ux-guards.test.ts` (controlled `.glass-dock`/`.glass-surface` allowance + strict AI-slop bans + simplified Settings/PWA/splash checks)
+- [x] T024 [US3] Polish `Orders` 12-column desktop table & mobile cards with `.glass-surface`, `tabular-nums`, and concise copy in `src/app/(app)/orders/page.tsx`
+- [x] T025 [US3] Polish `POS` layout (replace wordy `DailyWelcomeBanner` with minimal due-debt chip, glass Customer Bar, harmonious pill cart bar above dock) in `src/app/(app)/page.tsx` & `src/components/pos/`
+- [x] T026 [US3] Overhaul `src/app/(app)/settings/page.tsx` & `src/components/pwa/PushNotificationSetup.tsx` into 4 ultra-clean sections with technical diagnostics folded under `<details>`
+- [x] T027 [US3] Align `Debts`, `Stats`, `Login`, and shared modals (`EmptyStateCard`, `ThemeToggle`, `WelcomeOnboardingModal`) to 60–30–10 tokens and strip all redundant/AI-slop copy
+- [x] T028 [US3] Update `tests/unit/ux-guards.test.ts` (controlled `.glass-dock`/`.glass-surface` allowance + strict AI-slop bans + simplified Settings/PWA/splash checks)
 
 ## Phase 7: Track C — Impeccable Review, Context Update & Final Verification
 
-- [ ] T029 Run `impeccable` review checklist (`distill`, `clarify`, `audit`, `adapt`, `harden`, `polish`) across all modified surfaces and fix any gaps
-- [ ] T030 Update `PROJECT_CONTEXT.md` to `v2.0.0` (Sections 2–6 + Recent Changelog)
-- [ ] T031 Run final Verification Gate (`npm run typecheck && npm run lint && npm test && npm run build`), verify clean `git status`, and create Commit #2
+- [x] T029 Run `impeccable` review checklist (`distill`, `clarify`, `audit`, `adapt`, `harden`, `polish`) across all modified surfaces and fix any gaps
+- [x] T030 Update `PROJECT_CONTEXT.md` to `v2.0.0` (Sections 2–6 + Recent Changelog)
+- [x] T031 Run final Verification Gate (`npm run typecheck && npm run lint && npm test && npm run build`), verify clean `git status`, and create Commit #2

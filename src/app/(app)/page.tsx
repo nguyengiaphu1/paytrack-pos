@@ -2,10 +2,9 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronUp, Landmark, ShoppingBag, X } from 'lucide-react';
+import { ArrowRight, ChevronUp, Landmark, ShoppingBag, Users, X } from 'lucide-react';
 import { computeOrderTotals, formatVND, getTodayVN } from '@/lib/vietnamese';
 import { usePosData } from '@/components/providers/PosDataProvider';
-import { useAppUser } from '@/components/shell/AppShell';
 import type { CartItem, Product } from '@/types/database';
 import { CustomerPicker } from '@/components/pos/CustomerPicker';
 import { ProductCatalog } from '@/components/pos/ProductCatalog';
@@ -14,17 +13,13 @@ import { QuickItemModal } from '@/components/pos/QuickItemModal';
 import { CartPanel } from '@/components/pos/CartPanel';
 import { CheckoutModal } from '@/components/pos/CheckoutModal';
 import { FetchErrorCard, PosWorkspaceSkeleton } from '@/components/ui/PageSkeletons';
-import { DailyWelcomeBanner } from '@/components/welcome/DailyWelcomeBanner';
 
 export default function PosWorkspacePage() {
-  const { userId } = useAppUser();
   const {
     products,
     productsLoaded,
     catalogError,
     customers,
-    orders,
-    ordersLoaded,
     profile,
     ensurePosCatalog,
     refreshPosCatalog,
@@ -37,7 +32,6 @@ export default function PosWorkspacePage() {
   const [discount, setDiscount] = useState(0);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
 
-  // Modals & Mobile Cart Sheet
   const [productModalOpen, setProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [quickItemOpen, setQuickItemOpen] = useState(false);
@@ -138,60 +132,46 @@ export default function PosWorkspacePage() {
     [customers, todayVN]
   );
 
-  const todayOrderCount = useMemo(() => {
-    if (!ordersLoaded) return null;
-    const vnDateFmt = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Ho_Chi_Minh',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
-    return orders.filter(
-      (o) =>
-        o.payment_status !== 'cancelled' &&
-        vnDateFmt.format(new Date(o.purchased_at || o.created_at)) === todayVN
-    ).length;
-  }, [orders, ordersLoaded, todayVN]);
-
   const totalItemUnits = useMemo(
     () => cart.reduce((sum, item) => sum + item.quantity, 0),
     [cart]
   );
 
   return (
-    <div className="mx-auto max-w-[1380px] px-3 py-4 sm:px-6 lg:py-5">
-      {/* Page Title */}
+    <div
+      className={`mx-auto max-w-[1440px] px-3 py-4 sm:px-6 lg:py-5 ${
+        cart.length > 0 ? 'pb-20 lg:pb-5' : ''
+      }`}
+    >
+      {/* Compact Page Header + Contextual Alerts */}
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-[20px] font-bold tracking-[-0.015em] text-[var(--text-primary)] lg:text-[24px]">
           Bán hàng
         </h1>
-      </div>
 
-      {/* Layer 3 Daily Welcome Banner */}
-      {!loading && !catalogError && userId && (
-        <DailyWelcomeBanner
-          userId={userId}
-          shopName={profile?.shop_name || 'cửa hàng'}
-          dueDebtorsCount={dueDebtorsCount}
-          todayOrderCount={todayOrderCount}
-        />
-      )}
+        <div className="flex flex-wrap items-center gap-2">
+          {!loading && !catalogError && dueDebtorsCount > 0 && (
+            <Link
+              href="/debts?filter=due"
+              className="press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-[12px] border border-[var(--status-debt-border)] bg-[var(--status-debt-bg)] px-3 text-[13px] font-semibold text-[var(--status-debt)]"
+            >
+              <Users className="h-4 w-4 shrink-0" />
+              <span>{dueDebtorsCount} khách đến hạn</span>
+              <ArrowRight className="h-3.5 w-3.5 shrink-0" />
+            </Link>
+          )}
 
-      {/* Bank setup reminder */}
-      {!loading && !catalogError && missingBankConfig && (
-        <div className="animate-fade-in mb-3 flex flex-wrap items-center justify-between gap-2 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 py-2.5">
-          <div className="flex min-w-0 flex-1 items-center gap-2 text-[14px] text-[var(--text-primary)]">
-            <Landmark className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
-            <span className="min-w-0 truncate">Chưa cài STK VietQR</span>
-          </div>
-          <Link
-            href="/settings#bank"
-            className="press-tactile inline-flex min-h-[44px] shrink-0 items-center rounded-lg border border-[var(--brand-jade)] px-3 text-[13px] font-semibold text-[var(--brand-jade-text)] hover:bg-[var(--status-paid-bg)]"
-          >
-            Cài đặt
-          </Link>
+          {!loading && !catalogError && missingBankConfig && (
+            <Link
+              href="/settings#bank"
+              className="press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[13px] font-semibold text-[var(--brand-jade-text)] hover:bg-[var(--status-paid-bg)]"
+            >
+              <Landmark className="h-4 w-4 shrink-0" />
+              <span>Thêm STK QR</span>
+            </Link>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Error / Skeleton / Split-Pane Workspace */}
       {catalogError && !productsLoaded ? (
@@ -203,17 +183,18 @@ export default function PosWorkspacePage() {
       ) : loading ? (
         <PosWorkspaceSkeleton />
       ) : (
-        <div className="space-y-3">
-          {/* Exposed Customer Bar (always directly visible on 375px mobile & 1280px desktop) */}
+        <div className="space-y-3.5">
+          {/* Exposed Customer Bar (always visible directly on 375px mobile & 1280px desktop) */}
           <CustomerPicker
             customers={customers}
             selectedCustomerId={selectedCustomerId}
             onSelect={(c) => setSelectedCustomerId(c?.id ?? null)}
             onCustomerCreated={upsertCustomerLocal}
+            className="glass-surface rounded-[12px]"
           />
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
-            <div className="min-w-0 lg:col-span-7 xl:col-span-7">
+            <div className="min-w-0 lg:col-span-7 xl:col-span-8">
               <ProductCatalog
                 products={products}
                 cartQtyByProductId={cartQtyByProductId}
@@ -232,8 +213,8 @@ export default function PosWorkspacePage() {
             </div>
 
             {/* Desktop Sticky Cart Column */}
-            <div className="hidden lg:col-span-5 lg:block xl:col-span-5">
-              <div className="sticky top-5">
+            <div className="hidden lg:col-span-5 lg:block xl:col-span-4">
+              <div className="sticky top-[70px]">
                 <CartPanel
                   items={cart}
                   discount={discount}
@@ -253,13 +234,13 @@ export default function PosWorkspacePage() {
         </div>
       )}
 
-      {/* Mobile Sticky Bottom Cart Bar */}
+      {/* Mobile Floating Cart Pill (stacked harmoniously above Floating Glass Dock) */}
       {cart.length > 0 && (
-        <div className="fixed inset-x-0 bottom-[calc(61px+env(safe-area-inset-bottom))] z-20 px-3 pb-2 lg:hidden">
+        <div className="pointer-events-none fixed inset-x-0 bottom-[calc(86px+env(safe-area-inset-bottom))] z-20 flex justify-center px-3 lg:hidden">
           <button
             type="button"
             onClick={() => setMobileCartOpen(true)}
-            className="press-tactile animate-sheet-up flex min-h-[54px] w-full items-center justify-between gap-2 rounded-[10px] bg-[var(--brand-jade)] px-4 text-white shadow-sm active:bg-[var(--brand-jade-hover)]"
+            className="press-tactile animate-sheet-up pointer-events-auto flex min-h-[54px] w-full max-w-[440px] items-center justify-between gap-2 rounded-[18px] bg-[var(--brand-jade)] px-4 text-white shadow-md active:bg-[var(--brand-jade-hover)]"
           >
             <div className="flex min-w-0 items-center gap-2">
               <ShoppingBag className="h-5 w-5 shrink-0" />
@@ -271,7 +252,7 @@ export default function PosWorkspacePage() {
               </span>
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
-              <span className="font-mono-tabular text-[16px] font-bold sm:text-[17px]">
+              <span className="font-mono-tabular text-[16px] font-bold">
                 {formatVND(total)}
               </span>
               <ChevronUp className="h-5 w-5 shrink-0" />
@@ -286,9 +267,9 @@ export default function PosWorkspacePage() {
           className="animate-backdrop-in fixed inset-0 z-40 flex items-end bg-black/45 lg:hidden"
           role="dialog"
           aria-modal="true"
-          aria-label="Chi tiết giỏ hàng"
+          aria-label="Giỏ hàng"
         >
-          <div className="animate-sheet-up max-h-[90dvh] w-full overflow-y-auto rounded-t-[14px] bg-[var(--bg-canvas)] p-3">
+          <div className="animate-sheet-up max-h-[90dvh] w-full overflow-y-auto rounded-t-[16px] bg-[var(--bg-canvas)] p-3 pb-[calc(16px+env(safe-area-inset-bottom))]">
             <div className="mb-2 flex items-center justify-between gap-2 px-1">
               <span className="min-w-0 flex-1 truncate text-[16px] font-bold text-[var(--text-primary)]">
                 Đơn hàng
