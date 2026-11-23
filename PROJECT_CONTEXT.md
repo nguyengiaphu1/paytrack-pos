@@ -20,16 +20,14 @@
 ## 2. Environments, Git & Live Deployment (Non-Secret)
 
 ### Git Topology
-- `main`: Active production branch (`v1.1.2` via PR #1–#7). Create feature/fix/chore branches from `main` — **do not commit directly to `main`**.
-- Active feature branch: `feat/003-mom-ledger-glass-dock` (ready for migration `0005` apply, Preview QA, and PR to `main`).
-- Previous branches: `feat/spec-kit-foundation` (PR #1), `feat/001-paytrack-pos-mvp` (PR #2), `feat/002-ux-polish-theme` (PR #3), `fix/cron-reminders-not-firing` (PR #4), `chore/release-1.1.1` (PR #5), `fix/daily-digest-not-firing` (PR #6). Tags: `v1.0.0`–`v1.1.2`.
+- `main`: Active production branch (`v2.0.0` via PR #1–#8). Create feature/fix/chore branches from `main` — **do not commit directly to `main`**.
+- Previous branches: `feat/spec-kit-foundation` (PR #1), `feat/001-paytrack-pos-mvp` (PR #2), `feat/002-ux-polish-theme` (PR #3), `fix/cron-reminders-not-firing` (PR #4), `chore/release-1.1.1` (PR #5), `fix/daily-digest-not-firing` (PR #6), `chore/release-1.1.2` (PR #7), `feat/003-mom-ledger-glass-dock` (PR #8). Tags: `v1.0.0`–`v2.0.0`.
 
 ### Live Infrastructure
 - **Vercel Production**: `https://paytrack-pos.vercel.app` (team `phu-nguyen4`, project `paytrack-pos`, preset `nextjs`, Node `24.x`, region `sin1`, plus daily fallback cron `0 1 * * *` via `vercel.json`).
   - *Important*: Supabase env vars currently live in Vercel **Production** only (not `Preview`), so PR preview deployments lack Supabase service keys unless copied.
 - **Supabase Project**: ref `mezuxaqvbtjbbtugsohm` (`ap-southeast-1`, Postgres 17).
-  - Migrations `0001_initial_schema.sql`–`0004_cron_heartbeat.sql` applied live.
-  - **Pending live apply before merging `feat/003-mom-ledger-glass-dock`**: `supabase/migrations/0005_mom_ledger_fields.sql`.
+  - Migrations `0001_initial_schema.sql`–`0005_mom_ledger_fields.sql` all applied live on production.
   - `pg_cron` job `paytrack_reminder_dispatch` (`* * * * *`, `timeout_milliseconds := 10000` in `0003_reminder_cron.sql`), calling `https://paytrack-pos.vercel.app/api/cron/reminders` with `Authorization: Bearer <CRON_SECRET>`.
   - Auth config: `site_url = https://paytrack-pos.vercel.app`; Email auth enabled; Google OAuth currently disabled on Supabase Auth dashboard.
 
@@ -135,13 +133,13 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 
 ## 6. Current Status & Open Backlog
 
-- **Completed on `feat/003-mom-ledger-glass-dock` (`v2.0.0` ready)**:
-  - Track A: Spec Kit artifacts (`specs/003-mom-ledger-glass-dock/`), migration `0005_mom_ledger_fields.sql`, updated & new RPCs, `VndKInput` + 1000x guard, 9 payment accounts + `Khác: ...`, exposed POS Customer Bar, inline `-`/`+` product steppers, 12-column Sales Ledger + manual edit + inline collect + UTF-8 BOM CSV export, and unit tests (`currency-k.test.ts`, `ledger.test.ts`).
+- **Live in Production (`v2.0.0` via PR #8 on `main`, deployed to `https://paytrack-pos.vercel.app`)**:
+  - Live Supabase (`mezuxaqvbtjbbtugsohm`) migrated through `0005_mom_ledger_fields.sql`.
+  - Track A: Spec Kit artifacts (`specs/003-mom-ledger-glass-dock/`), migration `0005_mom_ledger_fields.sql`, updated & new RPCs (`update_order_ledger_fields`), `VndKInput` + 1000x guard, 9 payment accounts + `Khác: ...`, exposed POS Customer Bar, inline `-`/`+` product steppers, 12-column Sales Ledger + manual edit + inline collect + UTF-8 BOM CSV export, and unit tests (`currency-k.test.ts`, `ledger.test.ts`).
   - Track B & C: Constitution `v1.1.0`, `PRODUCT.md`, `DESIGN.md`, 60–30–10 Light/Dark tokens + `.glass-dock`/`.glass-surface`, full PWA icon suite (`favicon.svg`, `favicon.ico`, `180/192/512/maskable`) + zero-flash `AppBootSplash`, unified bottom Floating Glass Dock in `AppShell`, simplified 4-section Settings (`PushNotificationSetup` diagnostics in `<details>`), full AI-slop & filler copy purge across all 5 pages/modals, and `ux-guards.test.ts` update.
-  - Full automated verification gate passed 100% locally (`tsc`, `eslint` 0 errors / 0 warnings, `vitest` 9/9 suites 58/58 tests, `next build` 14/14 routes).
-- **Pending Production Rollout Steps**:
-  1. Apply `supabase/migrations/0005_mom_ledger_fields.sql` to live Supabase (`mezuxaqvbtjbbtugsohm`).
-  2. Push `feat/003-mom-ledger-glass-dock`, run visual QA at `375px` & `1280px` (Light/Dark, receipt/VietQR `.print-surface-light`, CSV Excel open, PWA icon/splash), then open PR & merge into `main`.
+  - Full automated verification gate passed 100% (`tsc`, `eslint` 0 errors / 0 warnings, `vitest` 9/9 suites 58/58 tests, `next build` 14/14 routes).
+- **Post-Release Verification / Optional Follow-ups**:
+  - Smoke-test on live `https://paytrack-pos.vercel.app` on iPhone Safari (`375px`, Add to Home Screen icon & Boot Splash) and Windows Chrome/Edge (`1280px`, 12-column ledger + CSV open in Excel, Light/Dark + `.print-surface-light`).
 
 ---
 
@@ -166,4 +164,4 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 | 2026-11-17 | `v1.1.0` UX Polish & Theme (`002-ux-polish-theme`) | Completed `T001`–`T046`: smooth Light/Dark/System theme (`280ms`, zero-flash bootstrap, `.print-surface-light`), `BrandLoadingScreen` + 5 skeletons + `FetchErrorCard`, 3-layer Welcome, CSS micro-animations, and `ux-guards` tests. |
 | 2026-11-17 | `v1.1.1` Push Cron Fix & Release (`PR #4`) | Added `0004_cron_heartbeat.sql`, `POST /api/push/dispatch-due`, cron diagnostics, and verified scheduled + daily auto Web Push live. |
 | 2026-11-17 | `v1.1.2` Settings & Daily Digest Fix (`PR #6`, `PR #7`) | Fixed Settings form remount hiding save banner, added `shouldResetDigestSentDate()` in-day reschedule reset, and added `digestStatus` diagnostics. |
-| 2026-11-23 | `v2.0.0` 12-Field Ledger & Floating Glass Dock (`feat/003-mom-ledger-glass-dock`) | Added migration `0005` + RPCs (`update_order_ledger_fields`, 9 payment accounts, cost/profit, `purchased_at`/`paid_at`), `VndKInput` (`K` / `.000đ` + 1000x guard), inline `-`/`+` steppers, exposed POS Customer Bar, 12-col Sales Ledger + inline debt collect + UTF-8 BOM CSV export, 60–30–10 Floating Glass Dock, crisp PWA icons + zero-flash `AppBootSplash`, 4-section simplified Settings, and full AI-slop copy purge (`58/58` tests pass). |
+| 2026-11-23 | `v2.0.0` 12-Field Ledger & Floating Glass Dock (`PR #8`) | Applied migration `0005` live, merged PR #8 & tagged `v2.0.0`: RPCs (`update_order_ledger_fields`, 9 payment accounts, cost/profit, `purchased_at`/`paid_at`), `VndKInput` (`K` / `.000đ` + 1000x guard), inline `-`/`+` steppers, exposed POS Customer Bar, 12-col Sales Ledger + inline debt collect + UTF-8 BOM CSV export, 60–30–10 Floating Glass Dock, crisp PWA icons + zero-flash `AppBootSplash`, 4-section simplified Settings, and full AI-slop copy purge (`58/58` tests pass). |
