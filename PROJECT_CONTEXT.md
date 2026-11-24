@@ -1,16 +1,16 @@
 # PayTrack POS — Project Context & Agent Quickstart
 
 > **Purpose**: Single-source-of-truth context file for AI assistants and developers. Read this file first in a new session instead of scanning the entire repository.
-> **Last Updated**: 2026-11-24 (`fix/ui-impeccable-overhaul` — Full Impeccable Overhaul + Critique v2/v3 P1/P2 Remediation + Audit Optimize; 80/80 tests pass)
+> **Last Updated**: 2026-11-24 (`v2.1.0` — Impeccable UI/UX Overhaul, Audit Optimize & Critique Hardening merged via PR #10–#11; 80/80 tests pass)
 
 ---
 
 ## 1. Project Overview & Tech Stack
 
-**PayTrack POS** (`v2.0.1`) is a responsive Vietnamese home online-shop sales ledger and rapid order-entry app (juggling Zalo/Messenger chats on iPhone `375px` + evening 12-column ledger/profit reconciliation on Windows `1280px+`), with 12-field sales ledger & 9 payment accounts, FIFO customer debt ledger, multi-device Web Push reminder (iPhone Safari PWA + Windows Chrome/Edge), dynamic VietQR, customizable e-invoice (`PNG` / `A5` / `80mm`), Excel-safe CSV export, and visual analytics.
+**PayTrack POS** (`v2.1.0`) is a responsive Vietnamese home online-shop sales ledger and rapid order-entry app (juggling Zalo/Messenger chats on iPhone `375px` + evening 12-column ledger/profit reconciliation on Windows `1280px+`), with 12-field sales ledger & 9 payment accounts, FIFO customer debt ledger, multi-device Web Push reminder (iPhone Safari PWA + Windows Chrome/Edge), dynamic VietQR, customizable e-invoice (`PNG` / `A5` / `80mm`), Excel-safe CSV export, and visual analytics.
 
 - **Framework**: Next.js `^16.4.6` (App Router, Turbopack dev), React `^19.3.1`, TypeScript `^5.9.0`
-- **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`), 60–30–10 Light/Dark WCAG AA CSS custom properties (`--status-debt: #9A4306` in Light for `5.95:1` contrast) + intentional `.glass-dock`/`.glass-surface` utilities (`prefers-reduced-transparency` + opacity-preserving `prefers-reduced-motion` compliant) in `src/app/globals.css`, fonts `Be Vietnam Pro` + `JetBrains Mono` (`>= 12px` Vietnamese floor, `>= 16px` input floor)
+- **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`), 60–30–10 Light/Dark WCAG AA CSS custom properties (`--status-debt: #9A4306` in Light for `5.95:1` contrast, `--status-overdue-solid: #DC2626` in Dark for `4.83:1`) + intentional `.glass-dock`/`.glass-surface` utilities (`prefers-reduced-transparency` + opacity-preserving `prefers-reduced-motion` compliant) in `src/app/globals.css`, fonts `Be Vietnam Pro` + `JetBrains Mono` (`>= 12px` Vietnamese floor, `>= 16px` input floor)
 - **Database / Auth / Realtime / Cron**: Supabase (`@supabase/ssr ^0.9.0`, `@supabase/supabase-js ^2.100.0`, Postgres 17, `pg_cron` + `pg_net`)
 - **Utilities**: `qrcode` (dynamically imported EMVCo/Napas 247 VietQR), `html-to-image` (dynamically imported PNG export/share), `web-push` (VAPID Web Push), `recharts` (charts), `lucide-react` (icons)
 - **Testing**: `vitest ^4.1.0` (unit tests in `tests/unit/` — 12 suites, 80 tests)
@@ -20,9 +20,8 @@
 ## 2. Environments, Git & Live Deployment (Non-Secret)
 
 ### Git Topology
-- `main`: Active production branch (`v2.0.1` via PR #1–#9). Create feature/fix/chore branches from `main` — **do not commit directly to `main`**.
-- Active overhaul branch: `fix/ui-impeccable-overhaul` (branched from `main` at `e00a4da`; PR into `main`).
-- Previous branches: `feat/spec-kit-foundation` (PR #1), `feat/001-paytrack-pos-mvp` (PR #2), `feat/002-ux-polish-theme` (PR #3), `fix/cron-reminders-not-firing` (PR #4), `chore/release-1.1.1` (PR #5), `fix/daily-digest-not-firing` (PR #6), `chore/release-1.1.2` (PR #7), `feat/003-mom-ledger-glass-dock` (PR #8), `fix/003-converge-polish` (PR #9). Tags: `v1.0.0`–`v2.0.1`.
+- `main`: Active production branch (`v2.1.0` via PR #1–#11). Create feature/fix/chore branches from `main` — **do not commit directly to `main`**.
+- Previous branches: `feat/spec-kit-foundation` (PR #1), `feat/001-paytrack-pos-mvp` (PR #2), `feat/002-ux-polish-theme` (PR #3), `fix/cron-reminders-not-firing` (PR #4), `chore/release-1.1.1` (PR #5), `fix/daily-digest-not-firing` (PR #6), `chore/release-1.1.2` (PR #7), `feat/003-mom-ledger-glass-dock` (PR #8), `fix/003-converge-polish` (PR #9), `fix/ui-impeccable-overhaul` (PR #10), `chore/release-2.1.0` (PR #11). Tags: `v1.0.0`–`v2.1.0`.
 
 ### Live Infrastructure
 - **Vercel Production**: `https://paytrack-pos.vercel.app` (team `phu-nguyen4`, project `paytrack-pos`, preset `nextjs`, Node `24.x`, region `sin1`, plus daily fallback cron `0 1 * * *` via `vercel.json`).
@@ -141,11 +140,9 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 
 ## 6. Current Status & Open Backlog
 
-- **Live in Production (`v2.0.1` via PR #8–#9 on `main`, deployed to `https://paytrack-pos.vercel.app`)**:
-  - Live Supabase (`mezuxaqvbtjbbtugsohm`) migrated through `0005_mom_ledger_fields.sql`.
-  - Feature `003-mom-ledger-glass-dock` **100% converged** (`T001`–`T037`).
-- **PR Ready on `fix/ui-impeccable-overhaul`**:
-  - Completed full Impeccable `0.1.27` context standardization, 7-step UI/UX overhaul (`harden` -> `distill` -> `clarify` -> `audit` -> `layout` -> `typeset` -> `polish`), Audit Optimize pass, and Critique v2/v3 P1/P2 remediation (`0` errors / `0` warnings / `0` font-size advisories in `impeccable detect --json src`, all 13 dialogs on `ModalDialog`, `80/80` unit tests passing, production build verified).
+- **Live in Production (`v2.1.0` via PR #10–#11 on `main`, deployed to `https://paytrack-pos.vercel.app`)**:
+  - Live Supabase (`mezuxaqvbtjbbtugsohm`) migrated through `0005_mom_ledger_fields.sql` (no schema changes required in `v2.1.0`).
+  - Completed full Impeccable `0.1.27` context standardization, 7-step UI/UX overhaul (`harden` -> `distill` -> `clarify` -> `audit` -> `layout` -> `typeset` -> `polish`), Audit Optimize pass, and dual-agent Critique P1/P2 remediation (`0` detector errors/warnings, all 13 dialogs on `ModalDialog`, `80/80` unit tests passing, production build verified).
 
 ---
 
@@ -172,4 +169,4 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 | 2026-11-17 | `v1.1.2` Settings & Daily Digest Fix (`PR #6`, `PR #7`) | Fixed Settings form remount hiding save banner, added `shouldResetDigestSentDate()` in-day reschedule reset, and added `digestStatus` diagnostics. |
 | 2026-11-23 | `v2.0.0` 12-Field Ledger & Floating Glass Dock (`PR #8`) | Applied migration `0005` live, merged PR #8 & tagged `v2.0.0`: RPCs (`update_order_ledger_fields`, 9 payment accounts, cost/profit, `purchased_at`/`paid_at`), `VndKInput` (`K` / `.000đ` + 1000x guard), inline `-`/`+` steppers, exposed POS Customer Bar, 12-col Sales Ledger + inline debt collect + UTF-8 BOM CSV export, 60–30–10 Floating Glass Dock, crisp PWA icons + zero-flash `AppBootSplash`, 4-section simplified Settings, and full AI-slop copy purge (`58/58` tests pass). |
 | 2026-11-23 | `v2.0.1` Phase 8 Convergence Polish (`PR #9`) | Merged PR #9 & tagged `v2.0.1` (`T032`–`T037`, converged 0 findings): added `/orders` date-range filter (`purchased_at`), dot-grouped thousands safeguard (`"125.000"`/`"1.250.000"`), deduplicated paid-order VietQR CTA, multi-tag `meta[name="theme-color"]` sync, sticky 12-col desktop table scroll bound, and unified `Chưa nhập vốn` badge (`59/59` tests pass). |
-| 2026-11-24 | `fix/ui-impeccable-overhaul` | Full Impeccable `0.1.27` overhaul + Critique v2/v3/v4 P1/P2 remediation + Audit Optimize: `ModalDialog` across all 13 dialogs, `useShellPosData` context split, dynamic `qrcode` + `html-to-image`, flat scrolling KPI cards, `--status-debt` `#9A4306` (`5.95:1`) & `--status-overdue-solid` `#DC2626` (`4.83:1` dark), `parseKToVnd` direct multi-dot millions (`1.250.000`), `CheckoutModal` post-RPC fallback + `Enter`-safe buyer search/create + auto-scroll errors + `noValidate` + partial-over-total guard + adaptive paid/debt CTAs + `Ctrl/Cmd+Enter` shortcut, paid-receipt smart VietQR default & calm Jade settled badge, pinned mobile/desktop `CartPanel` + 10s Undo + `syncProductInCart`, 1-row `375px` search bar + `iconOnly` mobile theme button, 3-step `WelcomeOnboardingModal` accordion, `buildZaloDebtMessage` walk-in `anh/chị` copy, full secondary-route `htmlFor`/`id` & `aria-pressed` semantics (`80/80` tests pass, `0` detector errors/warnings). |
+| 2026-11-24 | `v2.1.0` Impeccable UI/UX Overhaul & Hardening (`PR #10`, `PR #11`) | Merged PR #10–#11 & tagged `v2.1.0`: `ModalDialog` across all 13 dialogs, `useShellPosData` context split, dynamic `qrcode` + `html-to-image`, flat scrolling KPI cards, `--status-debt` `#9A4306` (`5.95:1`) & `--status-overdue-solid` `#DC2626` (`4.83:1` dark), `parseKToVnd` direct multi-dot millions (`1.250.000`), `CheckoutModal` post-RPC fallback + `Enter`-safe buyer search/create + auto-scroll errors + `noValidate` + partial-over-total guard + adaptive paid/debt CTAs + `Ctrl/Cmd+Enter` shortcut, paid-receipt smart VietQR default & calm Jade settled badge, pinned mobile/desktop `CartPanel` + 10s Undo + `syncProductInCart`, 1-row `375px` search bar + `iconOnly` mobile theme button, 3-step `WelcomeOnboardingModal` accordion, `buildZaloDebtMessage` walk-in `anh/chị` copy, full secondary-route `htmlFor`/`id` & `aria-pressed` semantics (`80/80` tests pass, `0` detector errors/warnings). |
