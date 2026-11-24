@@ -140,13 +140,13 @@ export default function PosWorkspacePage() {
 
   return (
     <div
-      className={`mx-auto max-w-[1440px] px-3 py-2.5 sm:px-6 sm:py-4 lg:py-5 ${
-        cart.length > 0 ? 'pb-20 lg:pb-5' : ''
+      className={`mx-auto max-w-[1440px] px-3 py-3 sm:px-6 sm:py-4 lg:py-5 ${
+        cart.length > 0 ? 'pb-24 lg:pb-5' : ''
       }`}
     >
-      {/* Compact Page Header + Contextual Alerts */}
-      <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2 sm:mb-3">
-        <h1 className="text-[20px] font-bold tracking-[-0.015em] text-[var(--text-primary)] lg:text-[24px]">
+      {/* Sculpted Page Header + Contextual Glass Alerts */}
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 sm:mb-3.5">
+        <h1 className="text-[20px] font-bold tracking-[-0.02em] text-[var(--text-primary)] lg:text-[24px]">
           Bán hàng
         </h1>
 
@@ -154,7 +154,7 @@ export default function PosWorkspacePage() {
           {!loading && !catalogError && dueDebtorsCount > 0 && (
             <Link
               href="/debts?filter=due"
-              className="press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-[12px] border border-[var(--status-debt-border)] bg-[var(--status-debt-bg)] px-3 text-[13px] font-semibold text-[var(--status-debt)]"
+              className="glass-badge-debt glass-card-interactive press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold"
             >
               <Users className="h-4 w-4 shrink-0" />
               <span>{dueDebtorsCount} khách đến hạn</span>
@@ -165,7 +165,7 @@ export default function PosWorkspacePage() {
           {!loading && !catalogError && missingBankConfig && (
             <Link
               href="/settings#bank"
-              className="press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[13px] font-semibold text-[var(--brand-jade-text)] hover:bg-[var(--status-paid-bg)]"
+              className="glass-btn-secondary press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold text-[var(--brand-jade-text)]"
             >
               <Landmark className="h-4 w-4 shrink-0" />
               <span>Thêm STK QR</span>
@@ -174,19 +174,21 @@ export default function PosWorkspacePage() {
         </div>
       </div>
 
-      {/* Undo banner after clearing cart */}
+      {/* Frosted Undo Banner after clearing cart */}
       {clearedDraftUndo && (
         <div
           role="status"
           aria-live="polite"
-          className="animate-fade-in mb-2.5 flex flex-wrap items-center justify-between gap-2 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 py-2 text-[13px] text-[var(--text-primary)] sm:mb-3"
+          className="animate-fade-in glass-card mb-3 flex flex-wrap items-center justify-between gap-2 rounded-[20px] px-4 py-2.5 text-[13px] text-[var(--text-primary)] sm:mb-3.5"
         >
-          <span>Đã xóa giỏ hàng ({clearedDraftUndo.cart.length} món).</span>
+          <span className="font-medium">
+            Đã xóa giỏ hàng ({clearedDraftUndo.cart.length} món).
+          </span>
           <div className="flex shrink-0 items-center gap-1.5">
             <button
               type="button"
               onClick={handleUndoClearCart}
-              className="press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-[var(--status-paid-bg)] px-3 text-[13px] font-bold text-[var(--brand-jade-text)]"
+              className="glass-chip-active press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[13px] font-bold"
             >
               <RotateCcw className="h-3.5 w-3.5" />
               <span>Hoàn tác</span>
@@ -195,7 +197,7 @@ export default function PosWorkspacePage() {
               type="button"
               onClick={() => setClearedDraftUndo(null)}
               aria-label="Đóng thông báo"
-              className="flex h-11 w-11 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+              className="glass-btn-secondary press-tactile flex h-11 w-11 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             >
               <X className="h-4 w-4" />
             </button>
@@ -215,7 +217,7 @@ export default function PosWorkspacePage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-start lg:gap-5">
           {/* Primary Column: Buyer Bar + Product Catalog */}
-          <div className="min-w-0 space-y-2.5 sm:space-y-3 lg:col-span-7 xl:col-span-8">
+          <div className="min-w-0 space-y-3 sm:space-y-3.5 lg:col-span-7 xl:col-span-8">
             <CustomerPicker
               customers={customers}
               selectedCustomerId={selectedCustomerId}
@@ -242,7 +244,7 @@ export default function PosWorkspacePage() {
 
           {/* Desktop Sticky Cart Column */}
           <div className="hidden lg:col-span-5 lg:block xl:col-span-4">
-            <div className="sticky top-[70px]">
+            <div className="lg:sticky lg:top-[82px]">
               <CartPanel
                 items={cart}
                 discount={discount}
@@ -259,16 +261,18 @@ export default function PosWorkspacePage() {
         </div>
       )}
 
-      {/* Mobile Floating Cart Pill (stacked harmoniously above Floating Glass Dock) */}
+      {/* Mobile Floating 3D Jade Crystal Cart Pill (above Floating Glass Dock) */}
       {cart.length > 0 && (
-        <div className="pointer-events-none fixed inset-x-0 bottom-[calc(86px+env(safe-area-inset-bottom))] z-20 flex justify-center px-3 lg:hidden">
+        <div className="pointer-events-none fixed inset-x-0 bottom-[calc(88px+env(safe-area-inset-bottom))] z-20 flex justify-center px-3 lg:hidden">
           <button
             type="button"
             onClick={() => setMobileCartOpen(true)}
-            className="press-tactile animate-sheet-up pointer-events-auto flex min-h-[54px] w-full max-w-[440px] items-center justify-between gap-2 rounded-[18px] bg-[var(--brand-jade)] px-4 text-white shadow-md active:bg-[var(--brand-jade-hover)]"
+            className="glass-btn-primary press-tactile animate-sheet-up pointer-events-auto flex min-h-[56px] w-full max-w-[440px] items-center justify-between gap-3 rounded-full px-4"
           >
-            <div className="flex min-w-0 items-center gap-2">
-              <ShoppingBag className="h-5 w-5 shrink-0" />
+            <div className="flex min-w-0 items-center gap-2.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15">
+                <ShoppingBag className="h-[18px] w-[18px] shrink-0" />
+              </span>
               <span
                 key={`${cart.length}-${totalItemUnits}`}
                 className="animate-badge-pop truncate text-[15px] font-semibold"
@@ -280,7 +284,7 @@ export default function PosWorkspacePage() {
               <span className="font-mono-tabular text-[16px] font-bold">
                 {formatVND(total)}
               </span>
-              <ChevronUp className="h-5 w-5 shrink-0" />
+              <ChevronUp className="h-5 w-5 shrink-0 opacity-90" />
             </div>
           </button>
         </div>
@@ -291,8 +295,8 @@ export default function PosWorkspacePage() {
         open={mobileCartOpen}
         onClose={() => setMobileCartOpen(false)}
         ariaLabelledBy="mobile-cart-sheet-title"
-        backdropClassName="animate-backdrop-in fixed inset-0 z-40 flex items-end bg-black/45 lg:hidden"
-        panelClassName="animate-sheet-up flex max-h-[90dvh] w-full flex-col overflow-hidden rounded-t-[16px] bg-[var(--bg-canvas)] p-2.5 pb-[calc(14px+env(safe-area-inset-bottom))]"
+        backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-40 flex items-end lg:hidden"
+        panelClassName="animate-sheet-up glass-modal flex max-h-[90dvh] w-full flex-col overflow-hidden rounded-t-[26px] pb-[calc(10px+env(safe-area-inset-bottom))]"
       >
         <CartPanel
           variant="sheet"

@@ -142,10 +142,10 @@ function OrderLedgerEditModalBody({
       open={true}
       onClose={onClose}
       ariaLabelledBy="order-ledger-edit-title"
-      backdropClassName="animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
-      panelClassName="animate-sheet-up sm:animate-modal-in max-h-[92dvh] w-full max-w-[540px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]"
+      backdropClassName="glass-backdrop animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
+      panelClassName="glass-modal animate-sheet-up sm:animate-modal-in flex max-h-[92dvh] w-full max-w-[540px] flex-col overflow-hidden rounded-t-[26px] sm:rounded-[26px]"
     >
-      <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
+      <div className="glass-modal-header flex shrink-0 items-center justify-between gap-3 px-5 py-4">
         <div className="min-w-0 flex-1">
           <h2
             id="order-ledger-edit-title"
@@ -153,33 +153,37 @@ function OrderLedgerEditModalBody({
           >
             Sửa sổ — {order.order_code}
           </h2>
+          <p className="mt-0.5 truncate text-[12px] text-[var(--text-secondary)]">
+            Cập nhật thông tin khách, ngày, tài khoản nhận & giá vốn
+          </p>
         </div>
         <button
           type="button"
           onClick={onClose}
           aria-label="Đóng"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+          className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)]"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4 p-4">
-        {error && (
-          <div
-            role="alert"
-            className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3 py-2 text-[14px] text-[var(--status-overdue)]"
-          >
-            {error}
-          </div>
-        )}
+      <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-5">
+          {error && (
+            <div
+              role="alert"
+              className="glass-badge-overdue rounded-[14px] px-3.5 py-2.5 text-[14px] font-medium"
+            >
+              {error}
+            </div>
+          )}
 
           {/* Buyer Snapshot */}
-          <div className="space-y-2.5">
+          <div className="glass-well space-y-3 rounded-[18px] p-3.5">
             <div>
               <label
                 htmlFor="ledger-edit-customer-name"
-                className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]"
+                className="mb-1.5 block text-[13px] font-semibold text-[var(--text-primary)]"
               >
                 Họ tên người mua *
               </label>
@@ -189,14 +193,14 @@ function OrderLedgerEditModalBody({
                 required
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
-                className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
               />
             </div>
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-              <div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="min-w-0">
                 <label
                   htmlFor="ledger-edit-customer-phone"
-                  className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]"
+                  className="mb-1.5 block text-[13px] font-semibold text-[var(--text-primary)]"
                 >
                   SĐT
                 </label>
@@ -206,13 +210,13 @@ function OrderLedgerEditModalBody({
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
                   placeholder="090..."
-                  className="font-mono-tabular min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                  className="glass-input font-mono-tabular min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                 />
               </div>
-              <div>
+              <div className="min-w-0">
                 <label
                   htmlFor="ledger-edit-customer-address"
-                  className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]"
+                  className="mb-1.5 block text-[13px] font-semibold text-[var(--text-primary)]"
                 >
                   Địa chỉ
                 </label>
@@ -222,34 +226,36 @@ function OrderLedgerEditModalBody({
                   value={customerAddress}
                   onChange={(e) => setCustomerAddress(e.target.value)}
                   placeholder="Địa chỉ giao hàng..."
-                  className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                  className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                 />
               </div>
             </div>
           </div>
 
           {/* Dates */}
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            <div>
-              <label
-                htmlFor="ledger-edit-purchased-date"
-                className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]"
-              >
-                Ngày mua hàng
-              </label>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="min-w-0">
+              <div className="mb-1.5 flex min-h-[44px] items-center">
+                <label
+                  htmlFor="ledger-edit-purchased-date"
+                  className="text-[13px] font-semibold text-[var(--text-primary)]"
+                >
+                  Ngày mua hàng
+                </label>
+              </div>
               <input
                 id="ledger-edit-purchased-date"
                 type="date"
                 value={purchasedDate}
                 onChange={(e) => setPurchasedDate(e.target.value)}
-                className="font-mono-tabular min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)]"
+                className="glass-input font-mono-tabular min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
               />
             </div>
-            <div>
-              <div className="mb-1 flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <div className="mb-1.5 flex min-h-[44px] items-center justify-between gap-2">
                 <label
                   htmlFor="ledger-edit-paid-date"
-                  className="text-[13px] font-medium text-[var(--text-primary)]"
+                  className="text-[13px] font-semibold text-[var(--text-primary)]"
                 >
                   Ngày thanh toán
                 </label>
@@ -257,7 +263,7 @@ function OrderLedgerEditModalBody({
                   <button
                     type="button"
                     onClick={() => setPaidDate('')}
-                    className="min-h-[44px] text-[12px] font-semibold text-[var(--text-secondary)] hover:underline"
+                    className="press-tactile min-h-[44px] rounded-full px-2.5 text-[12px] font-semibold text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]"
                   >
                     Xóa ngày
                   </button>
@@ -268,7 +274,7 @@ function OrderLedgerEditModalBody({
                 type="date"
                 value={paidDate}
                 onChange={(e) => setPaidDate(e.target.value)}
-                className="font-mono-tabular min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)]"
+                className="glass-input font-mono-tabular min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
               />
             </div>
           </div>
@@ -282,17 +288,22 @@ function OrderLedgerEditModalBody({
           />
 
           {/* Item Cost Price Editor */}
-          <div className="space-y-2.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-3">
+          <div className="glass-well space-y-3 rounded-[18px] p-3.5">
             <div className="flex flex-wrap items-center justify-between gap-2 text-[13px]">
               <span className="font-semibold text-[var(--text-primary)]">
                 Giá vốn (nghìn / đơn vị)
               </span>
               <span className="font-mono-tabular text-[var(--text-secondary)]">
-                Vốn: <strong className="text-[var(--text-primary)]">{formatVND(previewTotalCost)}</strong>{' '}
+                Vốn:{' '}
+                <strong className="text-[var(--text-primary)]">
+                  {formatVND(previewTotalCost)}
+                </strong>{' '}
                 · Lãi:{' '}
                 <strong
                   className={
-                    previewProfit >= 0 ? 'text-[var(--brand-jade-text)]' : 'text-[var(--status-overdue)]'
+                    previewProfit >= 0
+                      ? 'text-[var(--brand-jade-text)]'
+                      : 'text-[var(--status-overdue)]'
                   }
                 >
                   {formatVND(previewProfit)}
@@ -301,11 +312,11 @@ function OrderLedgerEditModalBody({
             </div>
 
             {items.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {items.map((item) => (
                   <div
                     key={item.id}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 py-2"
+                    className="glass-card flex flex-wrap items-center justify-between gap-2.5 rounded-[16px] px-3.5 py-2.5"
                   >
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[13px] font-semibold text-[var(--text-primary)]">
@@ -343,7 +354,7 @@ function OrderLedgerEditModalBody({
           <div>
             <label
               htmlFor="ledger-edit-note"
-              className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]"
+              className="mb-1.5 block text-[13px] font-semibold text-[var(--text-primary)]"
             >
               Ghi chú
             </label>
@@ -353,18 +364,21 @@ function OrderLedgerEditModalBody({
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Tùy chọn"
-              className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+              className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
             />
           </div>
+        </div>
 
+        <div className="glass-modal-footer shrink-0 px-5 py-3.5">
           <button
             type="submit"
             disabled={saving}
-            className="press-tactile flex min-h-[50px] w-full items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[16px] font-bold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+            className="glass-btn-primary press-tactile flex min-h-[50px] w-full items-center justify-center gap-2 rounded-[14px] px-4 text-[16px] font-bold disabled:opacity-60"
           >
             {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
             <span>{saving ? 'Đang lưu...' : 'Lưu thay đổi'}</span>
           </button>
+        </div>
       </form>
     </ModalDialog>
   );

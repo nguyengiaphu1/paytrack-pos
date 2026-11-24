@@ -72,14 +72,14 @@ export function VndKInput({
           value={text}
           placeholder={placeholder}
           onChange={(e) => handleChange(e.target.value)}
-          className={`font-mono-tabular w-full min-w-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] text-[16px] font-semibold text-[var(--text-primary)] outline-none transition-colors focus:border-[var(--brand-jade)] disabled:opacity-60 ${
-            compact ? 'min-h-[44px] py-1.5 pl-2.5 pr-[58px]' : 'min-h-[46px] py-2 pl-3.5 pr-[66px]'
+          className={`glass-input font-mono-tabular w-full min-w-0 rounded-[14px] text-[16px] font-semibold text-[var(--text-primary)] outline-none disabled:opacity-60 ${
+            compact ? 'min-h-[44px] py-1.5 pl-3 pr-[62px]' : 'min-h-[48px] py-2 pl-3.5 pr-[70px]'
           } ${align === 'right' ? 'text-right' : 'text-left'}`}
         />
         <span
           aria-hidden="true"
-          className={`font-mono-tabular pointer-events-none absolute right-2.5 select-none font-semibold text-[var(--text-secondary)] ${
-            compact ? 'text-[13px]' : 'text-[14px]'
+          className={`font-mono-tabular pointer-events-none absolute right-2 select-none rounded-[9px] bg-[var(--bg-subtle)] px-2 py-0.5 font-semibold text-[var(--text-secondary)] ${
+            compact ? 'text-[12px]' : 'text-[13px]'
           }`}
         >
           .000đ
@@ -87,7 +87,7 @@ export function VndKInput({
       </div>
 
       {showPreview && valueVnd !== null && valueVnd > 0 && !mistake && (
-        <p className="font-mono-tabular mt-1 text-[12px] text-[var(--text-secondary)]">
+        <p className="font-mono-tabular mt-1.5 text-[12px] font-medium text-[var(--text-secondary)]">
           = {formatVND(valueVnd)}
         </p>
       )}
@@ -95,7 +95,7 @@ export function VndKInput({
       {mistake && (
         <div
           role="alert"
-          className="mt-1.5 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--status-debt-border)] bg-[var(--status-debt-bg)] px-2.5 py-1.5 text-[12px] text-[var(--status-debt)]"
+          className="glass-badge-debt mt-2 flex flex-wrap items-center justify-between gap-2 rounded-[14px] px-3 py-2 text-[12px]"
         >
           <span className="flex min-w-0 flex-1 items-center gap-1.5 font-medium">
             <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
@@ -115,7 +115,7 @@ export function VndKInput({
           <button
             type="button"
             onClick={handleApplySuggested}
-            className="press-tactile min-h-[44px] shrink-0 rounded-md border border-[var(--status-debt)] bg-[var(--bg-surface)] px-2.5 text-[12px] font-bold text-[var(--status-debt)]"
+            className="glass-btn-secondary press-tactile min-h-[44px] shrink-0 rounded-[12px] px-3 text-[12px] font-bold text-[var(--status-debt)]"
           >
             Đổi thành {mistake.suggestedK}
           </button>

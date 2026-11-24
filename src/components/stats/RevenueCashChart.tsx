@@ -35,63 +35,82 @@ export function RevenueCashChart({ data }: RevenueCashChartProps) {
   }));
 
   return (
-    <div className="rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
-      <h2 className="mb-3 text-[15px] font-bold text-[var(--text-primary)]">
-        Doanh thu &amp; Thực thu theo ngày
-      </h2>
+    <section className="glass-panel rounded-[24px] p-4 sm:p-5">
+      <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-[16px] font-bold text-[var(--text-primary)]">
+          Doanh thu &amp; Thực thu theo ngày
+        </h2>
+        <span className="glass-badge-neutral rounded-full px-2.5 py-0.5 text-[12px] font-semibold">
+          Đơn vị: VNĐ
+        </span>
+      </div>
 
       {chartData.length === 0 ? (
-        <div className="flex h-[240px] items-center justify-center text-[14px] text-[var(--text-secondary)]">
+        <div className="glass-well flex h-[240px] items-center justify-center rounded-[18px] text-[14px] text-[var(--text-secondary)]">
           Chưa có dữ liệu.
         </div>
       ) : (
-        <div className="h-[260px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default)" vertical={false} />
-              <XAxis
-                dataKey="label"
-                tick={{ fontSize: 12, fill: 'var(--text-secondary)' }}
-                axisLine={{ stroke: 'var(--border-default)' }}
-                tickLine={false}
-              />
-              <YAxis
-                tickFormatter={(val: number) =>
-                  val >= 1_000_000
-                    ? `${(val / 1_000_000).toFixed(1)}tr`
-                    : val >= 1_000
-                      ? `${Math.round(val / 1_000)}k`
-                      : String(val)
-                }
-                tick={{ fontSize: 12, fill: 'var(--text-secondary)' }}
-                axisLine={false}
-                tickLine={false}
-                width={48}
-              />
-              <Tooltip
-                formatter={(value, name) => [
-                  formatVND(Number(value ?? 0)),
-                  name === 'revenue' ? 'Doanh thu' : 'Thực thu',
-                ]}
-                contentStyle={{
-                  backgroundColor: 'var(--bg-surface)',
-                  borderColor: 'var(--border-default)',
-                  color: 'var(--text-primary)',
-                  borderRadius: '8px',
-                  fontFamily: 'var(--font-mono), monospace',
-                  fontSize: '13px',
-                }}
-              />
-              <Legend
-                formatter={(value) => (value === 'revenue' ? 'Doanh thu' : 'Thực thu')}
-                wrapperStyle={{ fontSize: '13px', color: 'var(--text-primary)' }}
-              />
-              <Bar dataKey="revenue" fill="var(--brand-jade)" radius={[4, 4, 0, 0]} maxBarSize={28} />
-              <Bar dataKey="collected" fill="var(--status-debt)" radius={[4, 4, 0, 0]} maxBarSize={28} />
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="glass-well rounded-[18px] p-2.5 sm:p-3.5">
+          <div className="h-[260px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="var(--glass-border-subtle)"
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="label"
+                  tick={{ fontSize: 12, fill: 'var(--text-secondary)' }}
+                  axisLine={{ stroke: 'var(--glass-border-subtle)' }}
+                  tickLine={false}
+                />
+                <YAxis
+                  tickFormatter={(val: number) =>
+                    val >= 1_000_000
+                      ? `${(val / 1_000_000).toFixed(1)}tr`
+                      : val >= 1_000
+                        ? `${Math.round(val / 1_000)}k`
+                        : String(val)
+                  }
+                  tick={{ fontSize: 12, fill: 'var(--text-secondary)' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={48}
+                />
+                <Tooltip
+                  cursor={{ fill: 'var(--bg-subtle)', radius: 8 }}
+                  formatter={(value, name) => [
+                    formatVND(Number(value ?? 0)),
+                    name === 'revenue' ? 'Doanh thu' : 'Thực thu',
+                  ]}
+                  labelStyle={{
+                    color: 'var(--text-secondary)',
+                    fontWeight: 600,
+                    marginBottom: '4px',
+                  }}
+                  contentStyle={{
+                    backgroundColor: 'var(--bg-surface)',
+                    border: '1px solid var(--glass-border)',
+                    boxShadow: 'var(--glass-card-shadow)',
+                    color: 'var(--text-primary)',
+                    borderRadius: '14px',
+                    padding: '10px 14px',
+                    fontFamily: 'var(--font-mono), monospace',
+                    fontSize: '13px',
+                  }}
+                />
+                <Legend
+                  formatter={(value) => (value === 'revenue' ? 'Doanh thu' : 'Thực thu')}
+                  wrapperStyle={{ fontSize: '13px', color: 'var(--text-primary)', paddingTop: '6px' }}
+                />
+                <Bar dataKey="revenue" fill="var(--brand-jade)" radius={[6, 6, 0, 0]} maxBarSize={28} />
+                <Bar dataKey="collected" fill="var(--status-debt)" radius={[6, 6, 0, 0]} maxBarSize={28} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }

@@ -136,10 +136,10 @@ function ProductFormModalBody({
       open
       onClose={onClose}
       ariaLabelledBy="product-form-modal-title"
-      backdropClassName="animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"
-      panelClassName="animate-sheet-up sm:animate-modal-in max-h-[92dvh] w-full max-w-[460px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]"
+      backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
+      panelClassName="animate-sheet-up sm:animate-modal-in glass-modal flex max-h-[92dvh] w-full max-w-[460px] flex-col overflow-hidden rounded-t-[26px] sm:rounded-[26px]"
     >
-      <div className="flex items-center justify-between gap-2 border-b border-[var(--border-default)] px-4 py-3.5">
+      <div className="glass-modal-header flex shrink-0 items-center justify-between gap-2 px-5 py-3.5">
         <h2
           id="product-form-modal-title"
           className="min-w-0 flex-1 truncate text-[16px] font-bold text-[var(--text-primary)]"
@@ -150,138 +150,138 @@ function ProductFormModalBody({
           type="button"
           onClick={onClose}
           aria-label="Đóng"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+          className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        noValidate
-        className="space-y-3.5 p-4 pb-[calc(16px+env(safe-area-inset-bottom))] sm:pb-4"
-      >
-        {error && (
-          <div
-            role="alert"
-            className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3 py-2 text-[14px] text-[var(--status-overdue)]"
-          >
-            {error}
-          </div>
-        )}
+      <form onSubmit={handleSubmit} noValidate className="flex min-h-0 flex-1 flex-col">
+        <div className="flex-1 space-y-3.5 overflow-y-auto p-4 sm:p-5">
+          {error && (
+            <div
+              role="alert"
+              className="glass-badge-overdue rounded-[14px] px-3.5 py-2.5 text-[14px] font-medium"
+            >
+              {error}
+            </div>
+          )}
 
-        <div>
-          <label
-            htmlFor="prod-name"
-            className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
-          >
-            Tên món *
-          </label>
-          <input
-            id="prod-name"
-            data-autofocus
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="VD: Mật ong rừng 500ml..."
-            className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-          />
+          <div className="glass-well space-y-3.5 rounded-[18px] p-3.5">
+            <div>
+              <label
+                htmlFor="prod-name"
+                className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
+              >
+                Tên món *
+              </label>
+              <input
+                id="prod-name"
+                data-autofocus
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="VD: Mật ong rừng 500ml..."
+                className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="min-w-0">
+                <label
+                  htmlFor="prod-price-k"
+                  className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
+                >
+                  Giá bán (nghìn) *
+                </label>
+                <VndKInput
+                  id="prod-price-k"
+                  required
+                  valueVnd={priceVnd}
+                  onChangeVnd={setPriceVnd}
+                  placeholder="150"
+                  showPreview
+                />
+              </div>
+              <div className="min-w-0">
+                <label
+                  htmlFor="prod-unit"
+                  className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
+                >
+                  Đơn vị
+                </label>
+                <input
+                  id="prod-unit"
+                  type="text"
+                  value={unit}
+                  onChange={(e) => setUnit(e.target.value)}
+                  placeholder="cái / hộp / chai"
+                  className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="min-w-0">
+                <label
+                  htmlFor="prod-cost-k"
+                  className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
+                >
+                  Giá vốn (nghìn)
+                </label>
+                <VndKInput
+                  id="prod-cost-k"
+                  valueVnd={costPriceVnd}
+                  onChangeVnd={setCostPriceVnd}
+                  placeholder="110"
+                  showPreview
+                />
+              </div>
+              <div className="min-w-0">
+                <label
+                  htmlFor="prod-category"
+                  className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
+                >
+                  Nhóm hàng
+                </label>
+                <input
+                  id="prod-category"
+                  type="text"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  placeholder="VD: Đồ khô / Mỹ phẩm"
+                  className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="prod-sku"
+                className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
+              >
+                Mã hàng
+              </label>
+              <input
+                id="prod-sku"
+                type="text"
+                value={sku}
+                onChange={(e) => setSku(e.target.value)}
+                placeholder="Tùy chọn"
+                className="glass-input font-mono-tabular min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
+              />
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="min-w-0">
-            <label
-              htmlFor="prod-price-k"
-              className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
-            >
-              Giá bán (nghìn) *
-            </label>
-            <VndKInput
-              id="prod-price-k"
-              required
-              valueVnd={priceVnd}
-              onChangeVnd={setPriceVnd}
-              placeholder="150"
-              showPreview
-            />
-          </div>
-          <div className="min-w-0">
-            <label
-              htmlFor="prod-unit"
-              className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
-            >
-              Đơn vị
-            </label>
-            <input
-              id="prod-unit"
-              type="text"
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
-              placeholder="cái / hộp / chai"
-              className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="min-w-0">
-            <label
-              htmlFor="prod-cost-k"
-              className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
-            >
-              Giá vốn (nghìn)
-            </label>
-            <VndKInput
-              id="prod-cost-k"
-              valueVnd={costPriceVnd}
-              onChangeVnd={setCostPriceVnd}
-              placeholder="110"
-              showPreview
-            />
-          </div>
-          <div className="min-w-0">
-            <label
-              htmlFor="prod-category"
-              className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
-            >
-              Nhóm hàng
-            </label>
-            <input
-              id="prod-category"
-              type="text"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              placeholder="VD: Đồ khô / Mỹ phẩm"
-              className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label
-            htmlFor="prod-sku"
-            className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
-          >
-            Mã hàng
-          </label>
-          <input
-            id="prod-sku"
-            type="text"
-            value={sku}
-            onChange={(e) => setSku(e.target.value)}
-            placeholder="Tùy chọn"
-            className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-          />
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2.5 pt-2">
+        <div className="glass-modal-footer flex shrink-0 flex-wrap items-center gap-2.5 px-4 py-3 pb-[calc(12px+env(safe-area-inset-bottom))] sm:px-5 sm:pb-3.5">
           {product && (
             <button
               type="button"
               disabled={saving}
               onClick={handleArchive}
-              className="press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] px-4 text-[14px] font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] disabled:opacity-60"
+              className="glass-btn-secondary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-4 text-[14px] font-semibold text-[var(--text-secondary)] disabled:opacity-60"
             >
               <Archive className="h-4 w-4" />
               <span>{product.is_active ? 'Ẩn món' : 'Hiện lại'}</span>
@@ -290,7 +290,7 @@ function ProductFormModalBody({
           <button
             type="submit"
             disabled={saving}
-            className="press-tactile flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+            className="glass-btn-primary press-tactile flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-full px-5 text-[15px] font-semibold disabled:opacity-60"
           >
             {saving && <Loader2 className="h-4 w-4 animate-spin" />}
             <span>{saving ? 'Đang lưu...' : 'Lưu'}</span>

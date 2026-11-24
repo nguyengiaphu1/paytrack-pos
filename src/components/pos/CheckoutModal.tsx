@@ -455,10 +455,10 @@ function CheckoutModalBody({
         open
         onClose={onClose}
         ariaLabelledBy="checkout-modal-title"
-        backdropClassName="animate-backdrop-in fixed inset-0 z-40 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"
-        panelClassName="animate-sheet-up sm:animate-modal-in flex max-h-[92dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]"
+        backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-40 flex items-end justify-center p-0 sm:items-center sm:p-4"
+        panelClassName="animate-sheet-up sm:animate-modal-in glass-modal flex max-h-[92dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[26px] sm:rounded-[26px]"
       >
-        <div className="flex shrink-0 items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3">
+        <div className="glass-modal-header flex shrink-0 items-center justify-between gap-2 px-5 py-3.5">
           <h2
             id="checkout-modal-title"
             className="min-w-0 flex-1 truncate text-[16px] font-bold text-[var(--text-primary)]"
@@ -469,7 +469,7 @@ function CheckoutModalBody({
             type="button"
             onClick={onClose}
             aria-label="Đóng"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+            className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
             <X className="h-5 w-5" />
           </button>
@@ -477,18 +477,27 @@ function CheckoutModalBody({
 
           {savedOrder ? (
             <div className="flex-1 space-y-4 overflow-y-auto p-5 pb-[calc(20px+env(safe-area-inset-bottom))] sm:pb-5">
-              <div className="rounded-lg border border-[var(--status-paid-border)] bg-[var(--status-paid-bg)] p-4 text-center">
-                <CheckCircle2 className="mx-auto h-9 w-9 text-[var(--brand-jade-text)]" />
-                <p className="mt-2 font-mono-tabular text-[15px] font-bold text-[var(--text-primary)]">
+              <div className="glass-card rounded-[22px] p-5 text-center">
+                <div className="glass-icon-orb mx-auto flex h-14 w-14 items-center justify-center rounded-[18px] text-[var(--brand-jade-text)]">
+                  <CheckCircle2 className="h-7 w-7" />
+                </div>
+                <p className="mt-3 font-mono-tabular text-[16px] font-bold text-[var(--text-primary)]">
                   {savedOrder.order_code}
                 </p>
                 <p className="mt-1 break-words text-[14px] text-[var(--text-secondary)]">
-                  <strong>{savedOrder.customer_name_snapshot}</strong> ·{' '}
-                  <strong className="font-mono-tabular text-[var(--text-primary)]">
+                  <strong className="text-[var(--text-primary)]">
+                    {savedOrder.customer_name_snapshot}
+                  </strong>{' '}
+                  ·{' '}
+                  <strong className="font-mono-tabular text-[var(--brand-jade-text)]">
                     {formatVND(savedOrder.total_amount)}
                   </strong>
                 </p>
-                <p className="mt-1.5 inline-flex flex-wrap items-center justify-center gap-1 rounded-full border border-[var(--border-default)] bg-[var(--bg-surface)] px-2.5 py-0.5 text-[12px] font-semibold text-[var(--text-secondary)]">
+                <p
+                  className={`mt-2.5 inline-flex flex-wrap items-center justify-center gap-1 rounded-full px-3 py-1 text-[12px] font-semibold ${
+                    savedOrder.remaining_amount === 0 ? 'glass-badge-paid' : 'glass-badge-debt'
+                  }`}
+                >
                   <span>
                     {savedOrder.remaining_amount === 0
                       ? savedOrder.payment_method === 'cash'
@@ -508,7 +517,7 @@ function CheckoutModalBody({
                   )}
                 </p>
                 {savedOrder.remaining_amount > 0 && (
-                  <p className="mt-1.5 font-mono-tabular text-[14px] font-bold text-[var(--status-debt)]">
+                  <p className="mt-2 font-mono-tabular text-[14px] font-bold text-[var(--status-debt)]">
                     Còn nợ: {formatVND(savedOrder.remaining_amount)}
                   </p>
                 )}
@@ -518,10 +527,8 @@ function CheckoutModalBody({
                 <button
                   type="button"
                   onClick={() => setInvoiceOpen(true)}
-                  className={`press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg px-2.5 text-[13px] font-semibold sm:text-[14px] ${
-                    savedOrder.remaining_amount === 0
-                      ? 'bg-[var(--brand-jade)] text-white hover:bg-[var(--brand-jade-hover)]'
-                      : 'border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]'
+                  className={`press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-3 text-[13px] font-semibold sm:text-[14px] ${
+                    savedOrder.remaining_amount === 0 ? 'glass-btn-primary' : 'glass-btn-secondary'
                   }`}
                 >
                   <ReceiptText
@@ -534,10 +541,8 @@ function CheckoutModalBody({
                 <button
                   type="button"
                   onClick={() => setQrOpen(true)}
-                  className={`press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg px-2.5 text-[13px] font-semibold sm:text-[14px] ${
-                    savedOrder.remaining_amount > 0
-                      ? 'bg-[var(--brand-jade)] text-white hover:bg-[var(--brand-jade-hover)]'
-                      : 'border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]'
+                  className={`press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-3 text-[13px] font-semibold sm:text-[14px] ${
+                    savedOrder.remaining_amount > 0 ? 'glass-btn-primary' : 'glass-btn-secondary'
                   }`}
                 >
                   <QrCode
@@ -552,35 +557,32 @@ function CheckoutModalBody({
               <button
                 type="button"
                 onClick={onClose}
-                className="press-tactile flex min-h-[48px] w-full items-center justify-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] text-[15px] font-semibold text-[var(--text-primary)]"
+                className="glass-btn-secondary press-tactile flex min-h-[48px] w-full items-center justify-center rounded-full text-[15px] font-semibold"
               >
                 Bán đơn mới
               </button>
             </div>
           ) : (
             <form onSubmit={handleConfirm} noValidate className="flex min-h-0 flex-1 flex-col">
-              <div className="flex-1 space-y-3.5 overflow-y-auto p-4">
+              <div className="flex-1 space-y-3.5 overflow-y-auto p-4 sm:p-5">
                 {error && (
                   <div
                     ref={(el) => {
                       el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     }}
                     role="alert"
-                    className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3 py-2.5 text-[14px] font-medium text-[var(--status-overdue)]"
+                    className="glass-badge-overdue rounded-[16px] px-3.5 py-2.5 text-[14px] font-medium"
                   >
                     {error}
                   </div>
                 )}
 
                 {/* Buyer Identity Verification Card + Inline Switcher */}
-                <div
-                  ref={buyerCardRef}
-                  className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] p-3"
-                >
-                  <div className="flex items-start justify-between gap-2">
+                <div ref={buyerCardRef} className="glass-card rounded-[20px] p-3.5">
+                  <div className="flex items-start justify-between gap-2.5">
                     <div className="flex min-w-0 flex-1 items-start gap-2.5">
-                      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]">
-                        <UserCheck className="h-4 w-4" />
+                      <div className="glass-icon-orb mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] text-[var(--brand-jade-text)]">
+                        <UserCheck className="h-[18px] w-[18px]" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -588,12 +590,12 @@ function CheckoutModalBody({
                             {activeCustomer ? activeCustomer.name : buyerName.trim() || 'Khách lẻ'}
                           </span>
                           {!activeCustomer && buyerName.trim() && (
-                            <span className="shrink-0 rounded-full bg-[var(--bg-subtle)] px-2 py-0.5 text-[12px] font-medium text-[var(--text-secondary)]">
+                            <span className="glass-badge-neutral shrink-0 rounded-full px-2.5 py-0.5 text-[12px] font-medium">
                               Khách lẻ · chưa lưu danh bạ
                             </span>
                           )}
                           {activeCustomer && activeCustomer.total_debt > 0 && (
-                            <span className="font-mono-tabular shrink-0 rounded-full bg-[var(--status-debt-bg)] px-2 py-0.5 text-[12px] font-bold text-[var(--status-debt)]">
+                            <span className="glass-badge-debt font-mono-tabular shrink-0 rounded-full px-2.5 py-0.5 text-[12px] font-bold">
                               Nợ cũ: {formatVND(activeCustomer.total_debt)}
                             </span>
                           )}
@@ -623,7 +625,7 @@ function CheckoutModalBody({
                           ? focusBuyerSection('search')
                           : setPickerMode('closed')
                       }
-                      className="press-tactile min-h-[44px] shrink-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] px-2.5 text-[13px] font-semibold text-[var(--brand-jade-text)] hover:border-[var(--brand-jade)]"
+                      className="glass-btn-secondary press-tactile min-h-[44px] shrink-0 rounded-full px-3.5 text-[13px] font-semibold text-[var(--brand-jade-text)]"
                     >
                       {pickerMode !== 'closed'
                         ? 'Đóng'
@@ -634,10 +636,10 @@ function CheckoutModalBody({
                   </div>
 
                   {pickerMode === 'search' && (
-                    <div className="mt-3 space-y-2 border-t border-[var(--border-default)] pt-3">
+                    <div className="glass-divider mt-3 space-y-2.5 border-t pt-3">
                       <div className="flex gap-2">
                         <div className="relative flex-1">
-                          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
+                          <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
                           <input
                             ref={searchCustInputRef}
                             type="search"
@@ -653,25 +655,25 @@ function CheckoutModalBody({
                             }}
                             placeholder="Tìm tên, SĐT, địa chỉ..."
                             aria-label="Tìm khách hàng trong thanh toán"
-                            className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] pr-3 pl-9 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                            className="glass-input min-h-[44px] w-full rounded-[14px] pr-3 pl-10 text-[16px] text-[var(--text-primary)] outline-none"
                           />
                         </div>
                         <button
                           type="button"
                           onClick={() => focusBuyerSection('create')}
-                          className="press-tactile flex min-h-[44px] shrink-0 items-center gap-1 rounded-lg bg-[var(--brand-jade)] px-3 text-[13px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
+                          className="glass-btn-primary press-tactile flex min-h-[44px] shrink-0 items-center gap-1 rounded-[14px] px-3.5 text-[13px] font-semibold"
                         >
                           <UserPlus className="h-4 w-4 shrink-0" />
                           <span>Tạo mới</span>
                         </button>
                       </div>
 
-                      <div className="max-h-48 space-y-1.5 overflow-y-auto">
+                      <div className="glass-well max-h-48 space-y-1.5 overflow-y-auto rounded-[16px] p-1.5">
                         {activeCustomer && (
                           <button
                             type="button"
                             onClick={() => applySelectedCustomer(null)}
-                            className="flex min-h-[44px] w-full items-center justify-between rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] px-3 py-2 text-left text-[13px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                            className="glass-btn-secondary press-tactile flex min-h-[44px] w-full items-center justify-between rounded-[12px] px-3 py-2 text-left text-[13px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                           >
                             <span>Chuyển về Khách lẻ (không lưu công nợ)</span>
                           </button>
@@ -689,10 +691,10 @@ function CheckoutModalBody({
                                 type="button"
                                 aria-current={isSelected ? 'true' : undefined}
                                 onClick={() => applySelectedCustomer(c)}
-                                className={`flex min-h-[44px] w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left transition-colors ${
+                                className={`flex min-h-[46px] w-full items-center justify-between gap-2 rounded-[12px] px-3 py-2 text-left ${
                                   isSelected
-                                    ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)]'
-                                    : 'border-[var(--border-default)] bg-[var(--bg-surface)] hover:bg-[var(--bg-subtle)]'
+                                    ? 'glass-chip-active'
+                                    : 'glass-card glass-card-interactive'
                                 }`}
                               >
                                 <div className="min-w-0 flex-1">
@@ -709,7 +711,7 @@ function CheckoutModalBody({
                                   )}
                                 </div>
                                 {c.total_debt > 0 && (
-                                  <span className="font-mono-tabular shrink-0 rounded-full bg-[var(--status-debt-bg)] px-2 py-0.5 text-[12px] font-bold text-[var(--status-debt)]">
+                                  <span className="glass-badge-debt font-mono-tabular shrink-0 rounded-full px-2.5 py-0.5 text-[12px] font-bold">
                                     Nợ {formatVND(c.total_debt)}
                                   </span>
                                 )}
@@ -727,7 +729,7 @@ function CheckoutModalBody({
                   )}
 
                   {pickerMode === 'create' && (
-                    <div className="mt-3 space-y-2.5 border-t border-[var(--border-default)] pt-3">
+                    <div className="glass-well mt-3 space-y-2.5 rounded-[16px] p-3">
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-[13px] font-semibold text-[var(--text-primary)]">
                           Thêm nhanh khách hàng
@@ -738,7 +740,7 @@ function CheckoutModalBody({
                             setCustomerPickerError(null);
                             focusBuyerSection('search');
                           }}
-                          className="min-h-[44px] px-2 text-[13px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                          className="min-h-[44px] rounded-full px-2.5 text-[13px] font-semibold text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]"
                         >
                           Quay lại tìm
                         </button>
@@ -746,7 +748,7 @@ function CheckoutModalBody({
                       {customerPickerError && (
                         <div
                           role="alert"
-                          className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3 py-2 text-[13px] text-[var(--status-overdue)]"
+                          className="glass-badge-overdue rounded-[12px] px-3 py-2 text-[13px] font-medium"
                         >
                           {customerPickerError}
                         </div>
@@ -771,7 +773,7 @@ function CheckoutModalBody({
                             }
                           }}
                           placeholder="Cô Lan, Chị Hoa..."
-                          className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                          className="glass-input min-h-[44px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                         />
                       </div>
                       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -794,7 +796,7 @@ function CheckoutModalBody({
                               }
                             }}
                             placeholder="0901234567"
-                            className="font-mono-tabular min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                            className="glass-input font-mono-tabular min-h-[44px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                           />
                         </div>
                         <div>
@@ -816,7 +818,7 @@ function CheckoutModalBody({
                               }
                             }}
                             placeholder="Số nhà, đường..."
-                            className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                            className="glass-input min-h-[44px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                           />
                         </div>
                       </div>
@@ -824,7 +826,7 @@ function CheckoutModalBody({
                         type="button"
                         disabled={creatingCustomer}
                         onClick={() => void handleQuickCreateCustomer()}
-                        className="press-tactile flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-3 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+                        className="glass-btn-primary press-tactile flex min-h-[46px] w-full items-center justify-center gap-1.5 rounded-full px-4 text-[14px] font-semibold disabled:opacity-60"
                       >
                         {creatingCustomer ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -837,8 +839,8 @@ function CheckoutModalBody({
                   )}
                 </div>
 
-                {/* Order Totals Summary */}
-                <div className="space-y-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-3.5">
+                {/* Order Totals Summary (Recessed Glass Well) */}
+                <div className="glass-well space-y-2 rounded-[18px] p-4">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <span className="text-[14px] font-medium text-[var(--text-secondary)]">
                       Tổng đơn ({orderItems.length} món)
@@ -859,7 +861,7 @@ function CheckoutModalBody({
                       <span className="inline-flex items-center gap-1.5 text-[var(--text-secondary)]">
                         <span>Giá vốn / Lãi</span>
                         {missingAnyCost && (
-                          <span className="rounded-full bg-[var(--status-debt-bg)] px-2 py-0.5 text-[12px] font-semibold text-[var(--status-debt)]">
+                          <span className="glass-badge-debt rounded-full px-2 py-0.5 text-[12px] font-semibold">
                             Thiếu vốn vài món
                           </span>
                         )}
@@ -879,7 +881,7 @@ function CheckoutModalBody({
                     </div>
                   ) : (
                     missingAnyCost && (
-                      <div className="flex items-center justify-between gap-2 text-[12px] text-[var(--status-debt)]">
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-[12px] text-[var(--status-debt)]">
                         <span className="inline-flex items-center gap-1 font-medium">
                           <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
                           <span>Chưa nhập vốn</span>
@@ -892,13 +894,13 @@ function CheckoutModalBody({
                   )}
 
                   {changeDue > 0 && (
-                    <div className="flex flex-wrap items-baseline justify-between gap-2 border-t border-[var(--border-default)] pt-1.5 text-[14px] font-bold text-[var(--brand-jade-text)]">
+                    <div className="glass-divider flex flex-wrap items-baseline justify-between gap-2 border-t pt-2 text-[14px] font-bold text-[var(--brand-jade-text)]">
                       <span>Tiền thối</span>
                       <span className="font-mono-tabular text-[16px]">{formatVND(changeDue)}</span>
                     </div>
                   )}
                   {remaining > 0 && (
-                    <div className="flex flex-wrap items-baseline justify-between gap-2 border-t border-[var(--border-default)] pt-1.5 text-[14px] font-bold text-[var(--status-debt)]">
+                    <div className="glass-divider flex flex-wrap items-baseline justify-between gap-2 border-t pt-2 text-[14px] font-bold text-[var(--status-debt)]">
                       <span>Còn nợ</span>
                       <span className="font-mono-tabular text-[16px]">{formatVND(remaining)}</span>
                     </div>
@@ -924,10 +926,10 @@ function CheckoutModalBody({
                         setShowChangeCalc(false);
                         setCashTenderedVnd(null);
                       }}
-                      className={`press-tactile min-h-[48px] rounded-lg border px-2 text-[13px] font-semibold sm:px-3 sm:text-[14px] ${
+                      className={`press-tactile min-h-[48px] rounded-[16px] px-2.5 text-[13px] sm:px-3 sm:text-[14px] ${
                         choice === 'full_transfer'
-                          ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]'
-                          : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)]'
+                          ? 'glass-chip-active font-bold'
+                          : 'glass-chip font-semibold text-[var(--text-primary)]'
                       }`}
                     >
                       Chuyển khoản đủ
@@ -939,10 +941,10 @@ function CheckoutModalBody({
                         setChoice('full_cash');
                         setPaidVnd(total);
                       }}
-                      className={`press-tactile min-h-[48px] rounded-lg border px-2 text-[13px] font-semibold sm:px-3 sm:text-[14px] ${
+                      className={`press-tactile min-h-[48px] rounded-[16px] px-2.5 text-[13px] sm:px-3 sm:text-[14px] ${
                         choice === 'full_cash'
-                          ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]'
-                          : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)]'
+                          ? 'glass-chip-active font-bold'
+                          : 'glass-chip font-semibold text-[var(--text-primary)]'
                       }`}
                     >
                       Tiền mặt đủ
@@ -956,10 +958,10 @@ function CheckoutModalBody({
                         setShowChangeCalc(false);
                         setCashTenderedVnd(null);
                       }}
-                      className={`press-tactile min-h-[48px] rounded-lg border px-2 text-[13px] font-semibold sm:px-3 sm:text-[14px] ${
+                      className={`press-tactile min-h-[48px] rounded-[16px] px-2.5 text-[13px] sm:px-3 sm:text-[14px] ${
                         choice === 'partial'
-                          ? 'border-[var(--status-debt)] bg-[var(--status-debt-bg)] text-[var(--status-debt)]'
-                          : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)]'
+                          ? 'glass-badge-debt font-bold'
+                          : 'glass-chip font-semibold text-[var(--text-primary)]'
                       }`}
                     >
                       Trả một phần
@@ -973,10 +975,10 @@ function CheckoutModalBody({
                         setShowChangeCalc(false);
                         setCashTenderedVnd(null);
                       }}
-                      className={`press-tactile min-h-[48px] rounded-lg border px-2 text-[13px] font-semibold sm:px-3 sm:text-[14px] ${
+                      className={`press-tactile min-h-[48px] rounded-[16px] px-2.5 text-[13px] sm:px-3 sm:text-[14px] ${
                         choice === 'unpaid'
-                          ? 'border-[var(--status-debt)] bg-[var(--status-debt-bg)] text-[var(--status-debt)]'
-                          : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)]'
+                          ? 'glass-badge-debt font-bold'
+                          : 'glass-chip font-semibold text-[var(--text-primary)]'
                       }`}
                     >
                       Ghi nợ hết
@@ -985,20 +987,20 @@ function CheckoutModalBody({
                 </div>
 
                 {remaining > 0 && !activeCustomer && (
-                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--status-debt-border)] bg-[var(--status-debt-bg)] px-3 py-2.5 text-[13px] font-semibold text-[var(--status-debt)]">
+                  <div className="glass-badge-debt flex flex-wrap items-center justify-between gap-2 rounded-[18px] px-3.5 py-2.5 text-[13px] font-semibold">
                     <span>Đơn ghi nợ cần chọn khách hàng.</span>
                     <div className="flex shrink-0 items-center gap-1.5">
                       <button
                         type="button"
                         onClick={() => focusBuyerSection('search')}
-                        className="press-tactile min-h-[44px] rounded-lg border border-[var(--status-debt)] bg-[var(--bg-surface)] px-2.5 text-[13px] font-bold text-[var(--status-debt)]"
+                        className="glass-btn-secondary press-tactile min-h-[44px] rounded-full px-3 text-[13px] font-bold text-[var(--status-debt)]"
                       >
                         Chọn khách
                       </button>
                       <button
                         type="button"
                         onClick={() => focusBuyerSection('create')}
-                        className="press-tactile min-h-[44px] rounded-lg bg-[var(--brand-jade)] px-2.5 text-[13px] font-bold text-white"
+                        className="glass-btn-primary press-tactile min-h-[44px] rounded-full px-3 text-[13px] font-bold"
                       >
                         Tạo khách mới
                       </button>
@@ -1013,13 +1015,13 @@ function CheckoutModalBody({
                       <button
                         type="button"
                         onClick={() => setShowChangeCalc(true)}
-                        className="inline-flex min-h-[44px] items-center gap-1.5 text-[13px] font-semibold text-[var(--brand-jade-text)] hover:underline"
+                        className="glass-chip press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold text-[var(--brand-jade-text)]"
                       >
                         <Calculator className="h-4 w-4 shrink-0" />
                         <span>Tính tiền thối (nếu khách đưa dư)</span>
                       </button>
                     ) : (
-                      <div className="space-y-1.5">
+                      <div className="glass-well space-y-2 rounded-[16px] p-3">
                         <div className="flex items-center justify-between gap-2">
                           <label
                             htmlFor="checkout-tendered"
@@ -1033,7 +1035,7 @@ function CheckoutModalBody({
                               setShowChangeCalc(false);
                               setCashTenderedVnd(null);
                             }}
-                            className="min-h-[44px] px-1 text-[12px] font-semibold text-[var(--text-secondary)]"
+                            className="min-h-[44px] rounded-full px-2.5 text-[12px] font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
                           >
                             Ẩn
                           </button>
@@ -1051,11 +1053,11 @@ function CheckoutModalBody({
                 )}
 
                 {choice === 'partial' && (
-                  <div className="space-y-2">
-                    <div>
+                  <div className="space-y-2.5">
+                    <div className="glass-well rounded-[16px] p-3">
                       <label
                         htmlFor="checkout-partial"
-                        className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]"
+                        className="mb-1.5 block text-[13px] font-medium text-[var(--text-primary)]"
                       >
                         Khách trả trước (nghìn) *
                       </label>
@@ -1071,7 +1073,7 @@ function CheckoutModalBody({
                     {partialExceedsOrFull && (
                       <div
                         role="alert"
-                        className="space-y-2 rounded-lg border border-[var(--status-debt-border)] bg-[var(--status-debt-bg)] p-3 text-[13px] font-medium text-[var(--status-debt)]"
+                        className="glass-badge-debt space-y-2.5 rounded-[18px] p-3.5 text-[13px] font-medium"
                       >
                         <p>
                           Số tiền trả trước đã bằng hoặc vượt tổng đơn ({formatVND(total)}). Chọn
@@ -1085,7 +1087,7 @@ function CheckoutModalBody({
                               setPaidVnd(total);
                               setError(null);
                             }}
-                            className="press-tactile min-h-[44px] rounded-lg bg-[var(--brand-jade)] px-3 text-[13px] font-bold text-white"
+                            className="glass-btn-primary press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] font-bold"
                           >
                             Chuyển khoản đủ
                           </button>
@@ -1096,7 +1098,7 @@ function CheckoutModalBody({
                               setPaidVnd(total);
                               setError(null);
                             }}
-                            className="press-tactile min-h-[44px] rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[13px] font-bold text-[var(--text-primary)]"
+                            className="glass-btn-secondary press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] font-bold"
                           >
                             Tiền mặt đủ
                           </button>
@@ -1118,10 +1120,10 @@ function CheckoutModalBody({
 
                 {/* Debt Due Date (kept directly visible only when recording debt) */}
                 {remaining > 0 && (
-                  <div>
+                  <div className="glass-well rounded-[16px] p-3">
                     <label
                       htmlFor="checkout-due-date"
-                      className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]"
+                      className="mb-1.5 block text-[13px] font-medium text-[var(--text-primary)]"
                     >
                       Ngày hẹn thu nợ
                     </label>
@@ -1130,18 +1132,18 @@ function CheckoutModalBody({
                       type="date"
                       value={dueDate}
                       onChange={(e) => setDueDate(e.target.value)}
-                      className="font-mono-tabular min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)]"
+                      className="glass-input font-mono-tabular min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                     />
                   </div>
                 )}
 
                 {/* Progressive Disclosure for Optional Bookkeeping Fields */}
-                <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)]">
+                <div className="glass-well overflow-hidden rounded-[18px]">
                   <button
                     type="button"
                     onClick={() => setDetailsExpanded((v) => !v)}
                     aria-expanded={detailsExpanded}
-                    className="flex min-h-[48px] w-full items-center justify-between gap-2 px-3 py-2 text-left"
+                    className="flex min-h-[50px] w-full items-center justify-between gap-2 px-3.5 py-2.5 text-left"
                   >
                     <div className="min-w-0 flex-1">
                       <p className="text-[13px] font-semibold text-[var(--text-primary)]">
@@ -1153,18 +1155,18 @@ function CheckoutModalBody({
                         </p>
                       )}
                     </div>
-                    <span className="inline-flex shrink-0 items-center gap-1 text-[12px] font-semibold text-[var(--brand-jade-text)]">
+                    <span className="glass-chip inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-1 text-[12px] font-semibold text-[var(--brand-jade-text)]">
                       <span>{detailsExpanded ? 'Thu gọn' : 'Chỉnh sửa'}</span>
                       {detailsExpanded ? (
-                        <ChevronUp className="h-4 w-4" />
+                        <ChevronUp className="h-3.5 w-3.5" />
                       ) : (
-                        <ChevronDown className="h-4 w-4" />
+                        <ChevronDown className="h-3.5 w-3.5" />
                       )}
                     </span>
                   </button>
 
                   {detailsExpanded && (
-                    <div className="space-y-3 border-t border-[var(--border-default)] p-3">
+                    <div className="glass-divider space-y-3 border-t p-3.5">
                       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                         <div className="min-w-0">
                           <label
@@ -1182,7 +1184,7 @@ function CheckoutModalBody({
                               setPurchasedDate(next);
                               if (paidDate === purchasedDate) setPaidDate(next);
                             }}
-                            className="font-mono-tabular min-h-[44px] w-full min-w-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)]"
+                            className="glass-input font-mono-tabular min-h-[44px] w-full min-w-0 rounded-[14px] px-3 text-[16px] text-[var(--text-primary)] outline-none"
                           />
                         </div>
                         {remaining === 0 && (
@@ -1198,7 +1200,7 @@ function CheckoutModalBody({
                               type="date"
                               value={paidDate}
                               onChange={(e) => setPaidDate(e.target.value)}
-                              className="font-mono-tabular min-h-[44px] w-full min-w-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)]"
+                              className="glass-input font-mono-tabular min-h-[44px] w-full min-w-0 rounded-[14px] px-3 text-[16px] text-[var(--text-primary)] outline-none"
                             />
                           </div>
                         )}
@@ -1222,7 +1224,7 @@ function CheckoutModalBody({
                               value={buyerName}
                               onChange={(e) => setBuyerName(e.target.value)}
                               placeholder="Mặc định: Khách lẻ"
-                              className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                              className="glass-input min-h-[44px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                             />
                           </div>
                         )}
@@ -1240,7 +1242,7 @@ function CheckoutModalBody({
                               value={buyerPhone}
                               onChange={(e) => setBuyerPhone(e.target.value)}
                               placeholder="0901234567"
-                              className="font-mono-tabular min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                              className="glass-input font-mono-tabular min-h-[44px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                             />
                           </div>
                           <div>
@@ -1256,7 +1258,7 @@ function CheckoutModalBody({
                               value={buyerAddress}
                               onChange={(e) => setBuyerAddress(e.target.value)}
                               placeholder="Số nhà, đường..."
-                              className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                              className="glass-input min-h-[44px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                             />
                           </div>
                         </div>
@@ -1286,7 +1288,7 @@ function CheckoutModalBody({
                           value={note}
                           onChange={(e) => setNote(e.target.value)}
                           placeholder="Ghi chú giao hàng hoặc thanh toán..."
-                          className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                          className="glass-input min-h-[44px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                         />
                       </div>
                     </div>
@@ -1295,7 +1297,7 @@ function CheckoutModalBody({
               </div>
 
               {/* Sticky Submit Footer */}
-              <div className="shrink-0 border-t border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3 pb-[calc(12px+env(safe-area-inset-bottom))] sm:pb-3">
+              <div className="glass-modal-footer shrink-0 px-4 py-3 pb-[calc(12px+env(safe-area-inset-bottom))] sm:px-5 sm:pb-3.5">
                 <button
                   type="submit"
                   disabled={
@@ -1304,7 +1306,7 @@ function CheckoutModalBody({
                     partialExceedsOrFull ||
                     (remaining > 0 && !activeCustomer)
                   }
-                  className="press-tactile flex min-h-[52px] w-full items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[16px] font-bold text-white hover:bg-[var(--brand-jade-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="glass-btn-primary press-tactile flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full px-5 text-[16px] font-bold disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {submitting && <Loader2 className="h-5 w-5 animate-spin" />}
                   <span>

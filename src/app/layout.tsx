@@ -71,7 +71,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-dvh bg-[var(--bg-canvas)] text-[var(--text-primary)] antialiased selection:bg-[var(--status-paid-bg)] selection:text-[var(--brand-jade-text)]">
+      <body className="min-h-dvh text-[var(--text-primary)] antialiased selection:bg-[var(--status-paid-bg)] selection:text-[var(--brand-jade-text)]">
         <ThemeProvider>
           <AppBootSplash />
           {children}

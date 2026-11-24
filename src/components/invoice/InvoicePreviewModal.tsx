@@ -141,12 +141,14 @@ function InvoicePreviewModalBody({
       open
       onClose={onClose}
       ariaLabelledBy="invoice-preview-modal-title"
-      panelClassName="animate-sheet-up sm:animate-modal-in max-h-[94dvh] w-full max-w-[600px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-canvas)] sm:rounded-[10px]"
+      panelClassName="animate-sheet-up sm:animate-modal-in glass-modal max-h-[94dvh] w-full max-w-[600px] overflow-y-auto rounded-t-[26px] sm:rounded-[26px]"
     >
       {/* Compact Sticky Title Header (hidden during window.print) */}
-      <div className="no-print sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3">
-        <div className="flex min-w-0 flex-1 items-center gap-2">
-          <ReceiptText className="h-5 w-5 shrink-0 text-[var(--brand-jade-text)]" />
+      <div className="no-print glass-modal-header sticky top-0 z-10 flex items-center justify-between gap-2 px-4 py-3.5 sm:px-5">
+        <div className="flex min-w-0 flex-1 items-center gap-2.5">
+          <span className="glass-icon-orb flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] text-[var(--brand-jade-text)]">
+            <ReceiptText className="h-4.5 w-4.5 shrink-0" />
+          </span>
           <h2
             id="invoice-preview-modal-title"
             className="min-w-0 truncate text-[16px] font-bold text-[var(--text-primary)]"
@@ -158,27 +160,27 @@ function InvoicePreviewModalBody({
           type="button"
           onClick={onClose}
           aria-label="Đóng"
-          className="press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+          className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
       {/* Scrollable Customization Controls (keeps receipt preview tall on 375px) */}
-      <div className="no-print flex flex-wrap items-center gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-2.5 text-[13px]">
+      <div className="no-print glass-divider flex flex-wrap items-center gap-2 border-b px-4 py-3 text-[13px] sm:px-5">
         <div
           role="group"
           aria-label="Chọn khổ hóa đơn"
-          className="inline-flex rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-0.5"
+          className="glass-well inline-flex rounded-full p-1"
         >
           <button
             type="button"
             aria-pressed={format === 'a5'}
             onClick={() => setFormat('a5')}
-            className={`press-tactile min-h-[44px] rounded-md px-3 font-semibold ${
+            className={`press-tactile min-h-[44px] rounded-full px-3.5 font-semibold transition-all ${
               format === 'a5'
-                ? 'bg-[var(--bg-surface)] text-[var(--brand-jade-text)]'
-                : 'text-[var(--text-secondary)]'
+                ? 'glass-chip-active'
+                : 'border border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`}
           >
             Khổ A5 / PNG
@@ -187,10 +189,10 @@ function InvoicePreviewModalBody({
             type="button"
             aria-pressed={format === '80mm'}
             onClick={() => setFormat('80mm')}
-            className={`press-tactile min-h-[44px] rounded-md px-3 font-semibold ${
+            className={`press-tactile min-h-[44px] rounded-full px-3.5 font-semibold transition-all ${
               format === '80mm'
-                ? 'bg-[var(--bg-surface)] text-[var(--brand-jade-text)]'
-                : 'text-[var(--text-secondary)]'
+                ? 'glass-chip-active'
+                : 'border border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`}
           >
             Nhiệt 80mm
@@ -198,7 +200,7 @@ function InvoicePreviewModalBody({
         </div>
 
         {order.customer_id && (
-          <label className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 font-medium">
+          <label className="glass-chip inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full px-3.5 font-medium text-[var(--text-primary)]">
             <input
               type="checkbox"
               checked={showCumulativeDebt}
@@ -210,7 +212,7 @@ function InvoicePreviewModalBody({
         )}
 
         <label
-          className={`inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 font-medium ${
+          className={`glass-chip inline-flex min-h-[44px] items-center gap-2 rounded-full px-3.5 font-medium text-[var(--text-primary)] ${
             profile?.bank_bin && profile?.bank_account_no
               ? 'cursor-pointer'
               : 'cursor-not-allowed opacity-60'
@@ -231,11 +233,11 @@ function InvoicePreviewModalBody({
         </label>
       </div>
 
-      {/* Receipt Preview Sheet */}
-      <div className="p-3 sm:p-4">
+      {/* Receipt Preview Sheet (strictly isolated .print-surface-light paper) */}
+      <div className="p-3.5 sm:p-5">
         <div
           ref={sheetRef}
-          className={`print-surface-light print-only-sheet ${
+          className={`print-surface-light print-only-sheet overflow-hidden rounded-[12px] ${
             format === '80mm' ? 'print-format-80mm' : 'print-format-a5'
           }`}
         >
@@ -251,10 +253,10 @@ function InvoicePreviewModalBody({
       </div>
 
       {exportError && (
-        <div className="no-print px-3 pb-2 sm:px-4">
+        <div className="no-print px-4 pb-2.5 sm:px-5">
           <div
             role="alert"
-            className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3 py-2 text-[13px] font-medium text-[var(--status-overdue)]"
+            className="glass-badge-overdue rounded-[14px] px-3.5 py-2.5 text-[13px] font-medium"
           >
             {exportError}
           </div>
@@ -262,11 +264,11 @@ function InvoicePreviewModalBody({
       )}
 
       {downloadedPng && (
-        <div className="no-print px-3 pb-2 sm:px-4">
+        <div className="no-print px-4 pb-2.5 sm:px-5">
           <div
             role="status"
             aria-live="polite"
-            className="flex items-center justify-center gap-1.5 rounded-lg border border-[var(--status-paid-border)] bg-[var(--status-paid-bg)] px-3 py-2 text-[13px] font-semibold text-[var(--brand-jade-text)]"
+            className="glass-badge-paid flex items-center justify-center gap-1.5 rounded-[14px] px-3.5 py-2.5 text-[13px] font-semibold"
           >
             <Check className="h-4 w-4 shrink-0" />
             <span>Đã tải ảnh PNG hóa đơn về máy</span>
@@ -275,12 +277,12 @@ function InvoicePreviewModalBody({
       )}
 
       {/* Footer Actions (Chat-first: Gửi ảnh is primary Jade CTA) */}
-      <div className="no-print sticky bottom-0 grid grid-cols-3 gap-1.5 border-t border-[var(--border-default)] bg-[var(--bg-surface)] p-3 pb-[calc(12px+env(safe-area-inset-bottom))] sm:gap-2 sm:p-4 sm:pb-4">
+      <div className="no-print glass-modal-footer sticky bottom-0 grid grid-cols-3 gap-2 p-3.5 pb-[calc(14px+env(safe-area-inset-bottom))] sm:gap-2.5 sm:p-4 sm:pb-4">
         <button
           type="button"
           disabled={exporting}
           onClick={handleDownloadPng}
-          className="press-tactile flex min-h-[48px] items-center justify-center gap-1 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-1.5 text-[12px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] disabled:opacity-50 sm:gap-1.5 sm:px-2 sm:text-[14px]"
+          className="glass-btn-secondary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2 text-[12px] font-semibold disabled:opacity-50 sm:px-3 sm:text-[14px]"
         >
           {downloadedPng ? (
             <Check className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
@@ -294,7 +296,7 @@ function InvoicePreviewModalBody({
         <button
           type="button"
           onClick={handlePrint}
-          className="press-tactile flex min-h-[48px] items-center justify-center gap-1 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-1.5 text-[12px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] sm:gap-1.5 sm:px-2 sm:text-[14px]"
+          className="glass-btn-secondary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2 text-[12px] font-semibold sm:px-3 sm:text-[14px]"
         >
           <Printer className="h-4 w-4 shrink-0" />
           <span className="truncate">In / PDF</span>
@@ -303,7 +305,7 @@ function InvoicePreviewModalBody({
           type="button"
           disabled={exporting}
           onClick={handleSharePng}
-          className="press-tactile flex min-h-[48px] items-center justify-center gap-1 rounded-lg bg-[var(--brand-jade)] px-1.5 text-[12px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-50 sm:gap-1.5 sm:px-2 sm:text-[14px]"
+          className="glass-btn-primary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2 text-[12px] font-semibold disabled:opacity-50 sm:px-3 sm:text-[14px]"
         >
           <Share2 className="h-4 w-4 shrink-0" />
           <span className="truncate">{exporting ? 'Đang gửi...' : 'Gửi ảnh'}</span>

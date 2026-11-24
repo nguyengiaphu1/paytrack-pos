@@ -116,88 +116,104 @@ export default function StatsPage() {
 
   return (
     <div className="mx-auto max-w-[1220px] px-3 py-4 sm:px-6 lg:py-5">
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <h1 className="text-[20px] font-bold tracking-[-0.015em] lg:text-[24px]">
-          Thống kê
-        </h1>
+      <div className="mb-4 flex flex-col gap-3">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <h1 className="text-[20px] font-bold tracking-[-0.015em] text-[var(--text-primary)] lg:text-[24px]">
+            Thống kê
+          </h1>
+          {accountFilter !== 'ALL' && (
+            <span className="glass-badge-paid rounded-full px-3 py-1 text-[12px] font-semibold">
+              TK: {accountFilter}
+            </span>
+          )}
+        </div>
 
-        <div className="flex flex-wrap items-center gap-1.5">
-          {(
-            [
-              ['today', 'Hôm nay'],
-              ['7d', '7 ngày'],
-              ['30d', '30 ngày'],
-              ['month', 'Tháng này'],
-              ['custom', 'Tùy chọn'],
-            ] as const
-          ).map(([key, label]) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setPreset(key)}
-              className={`press-tactile min-h-[44px] rounded-lg border px-3 text-[13px] font-semibold transition-colors ${
-                preset === key
-                  ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]'
-                  : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+        {/* Floating Liquid Glass Date Presets + Payment Account Filter Bar */}
+        <div className="glass-surface rounded-[22px] p-3 sm:p-3.5">
+          <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-1.5">
+              {(
+                [
+                  ['today', 'Hôm nay'],
+                  ['7d', '7 ngày'],
+                  ['30d', '30 ngày'],
+                  ['month', 'Tháng này'],
+                  ['custom', 'Tùy chọn'],
+                ] as const
+              ).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  aria-pressed={preset === key}
+                  onClick={() => setPreset(key)}
+                  className={`press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] font-semibold transition-all ${
+                    preset === key ? 'glass-chip-active' : 'glass-chip'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex min-w-0 items-center gap-2 lg:shrink-0">
+              <label
+                htmlFor="stats-account-filter"
+                className="shrink-0 text-[13px] font-medium text-[var(--text-secondary)]"
+              >
+                Tài khoản
+              </label>
+              <select
+                id="stats-account-filter"
+                value={accountFilter}
+                onChange={(e) => setAccountFilter(e.target.value as 'ALL' | PaymentAccount)}
+                className="glass-input min-h-[44px] min-w-0 flex-1 rounded-[14px] px-3.5 text-[16px] font-medium text-[var(--text-primary)] outline-none lg:w-[210px] lg:flex-initial"
+              >
+                <option value="ALL">Tất cả TK</option>
+                {PAYMENT_ACCOUNTS.map((acc) => (
+                  <option key={acc} value={acc}>
+                    {acc}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {preset === 'custom' && (
+            <div className="glass-well mt-3 grid grid-cols-1 gap-2.5 rounded-[16px] p-3 sm:flex sm:flex-wrap sm:items-center">
+              <div className="flex min-w-0 items-center justify-between gap-2 sm:justify-start">
+                <label
+                  htmlFor="stats-custom-start"
+                  className="shrink-0 text-[13px] font-medium text-[var(--text-secondary)]"
+                >
+                  Từ
+                </label>
+                <input
+                  id="stats-custom-start"
+                  type="date"
+                  value={customStart}
+                  onChange={(e) => setCustomStart(e.target.value)}
+                  className="glass-input font-mono-tabular min-h-[44px] min-w-0 flex-1 rounded-[14px] px-3 text-[16px] text-[var(--text-primary)] outline-none sm:flex-initial"
+                />
+              </div>
+              <div className="flex min-w-0 items-center justify-between gap-2 sm:justify-start">
+                <label
+                  htmlFor="stats-custom-end"
+                  className="shrink-0 text-[13px] font-medium text-[var(--text-secondary)]"
+                >
+                  Đến
+                </label>
+                <input
+                  id="stats-custom-end"
+                  type="date"
+                  value={customEnd}
+                  onChange={(e) => setCustomEnd(e.target.value)}
+                  className="glass-input font-mono-tabular min-h-[44px] min-w-0 flex-1 rounded-[14px] px-3 text-[16px] text-[var(--text-primary)] outline-none sm:flex-initial"
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Payment Account Filter */}
-      <div className="glass-surface mb-4 flex flex-wrap items-center gap-1.5 rounded-[12px] p-3">
-        <button
-          type="button"
-          onClick={() => setAccountFilter('ALL')}
-          className={`press-tactile min-h-[44px] rounded-[10px] border px-3 text-[13px] font-medium transition-colors ${
-            accountFilter === 'ALL'
-              ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] font-semibold text-[var(--brand-jade-text)]'
-              : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'
-          }`}
-        >
-          Tất cả TK
-        </button>
-        {PAYMENT_ACCOUNTS.map((acc) => (
-          <button
-            key={acc}
-            type="button"
-            onClick={() => setAccountFilter(acc)}
-            className={`press-tactile min-h-[44px] rounded-[10px] border px-3 text-[13px] font-medium transition-colors ${
-              accountFilter === acc
-                ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] font-semibold text-[var(--brand-jade-text)]'
-                : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]'
-            }`}
-          >
-            {acc}
-          </button>
-        ))}
-      </div>
-
-      {preset === 'custom' && (
-        <div className="glass-surface mb-4 grid grid-cols-1 gap-2.5 rounded-[12px] p-3 sm:flex sm:flex-wrap sm:items-center">
-          <div className="flex min-w-0 items-center justify-between gap-2 sm:justify-start">
-            <label className="shrink-0 text-[13px] font-medium">Từ</label>
-            <input
-              type="date"
-              value={customStart}
-              onChange={(e) => setCustomStart(e.target.value)}
-              className="font-mono-tabular min-h-[44px] min-w-0 flex-1 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-2.5 text-[var(--text-primary)] sm:flex-initial"
-            />
-          </div>
-          <div className="flex min-w-0 items-center justify-between gap-2 sm:justify-start">
-            <label className="shrink-0 text-[13px] font-medium">Đến</label>
-            <input
-              type="date"
-              value={customEnd}
-              onChange={(e) => setCustomEnd(e.target.value)}
-              className="font-mono-tabular min-h-[44px] min-w-0 flex-1 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-2.5 text-[var(--text-primary)] sm:flex-initial"
-            />
-          </div>
-        </div>
-      )}
 
       {error && !activeSummary ? (
         <FetchErrorCard
@@ -210,56 +226,123 @@ export default function StatsPage() {
       ) : (
         <div className="animate-fade-in space-y-5">
           {error && (
-            <div className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-4 py-3 text-[14px] text-[var(--status-overdue)]">
+            <div
+              role="alert"
+              className="glass-badge-overdue rounded-[16px] px-4 py-3 text-[14px] font-medium"
+            >
               {error}
             </div>
           )}
 
-          {/* KPI Grid */}
+          {/* Sculpted 3D Liquid Glass KPI Grid */}
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-7">
-            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
-              <p className="text-[12px] font-medium text-[var(--text-secondary)]">Giá bán</p>
-              <p className="font-mono-tabular mt-1 break-words text-[16px] font-bold text-[var(--text-primary)] sm:text-[20px]">
+            <div className="glass-card col-span-2 min-w-0 rounded-[22px] p-4 lg:col-span-2 xl:col-span-1 xl:p-3.5">
+              <div className="flex items-center gap-1.5">
+                <span
+                  aria-hidden="true"
+                  className="h-2 w-2 shrink-0 rounded-full bg-[var(--brand-jade)]"
+                />
+                <p className="truncate text-[12px] font-semibold text-[var(--text-secondary)]">
+                  Giá bán
+                </p>
+              </div>
+              <p className="font-mono-tabular mt-1.5 break-words text-[16px] font-bold text-[var(--text-primary)] sm:text-[18px]">
                 {formatVND(kpis.total_revenue)}
               </p>
             </div>
-            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
-              <p className="text-[12px] font-medium text-[var(--text-secondary)]">Giá vốn</p>
-              <p className="font-mono-tabular mt-1 break-words text-[16px] font-bold text-[var(--text-secondary)] sm:text-[20px]">
+
+            <div className="glass-card min-w-0 rounded-[22px] p-3.5 sm:p-4 xl:p-3.5">
+              <div className="flex items-center gap-1.5">
+                <span
+                  aria-hidden="true"
+                  className="h-2 w-2 shrink-0 rounded-full bg-[var(--text-secondary)]"
+                />
+                <p className="truncate text-[12px] font-semibold text-[var(--text-secondary)]">
+                  Giá vốn
+                </p>
+              </div>
+              <p className="font-mono-tabular mt-1.5 break-words text-[16px] font-bold text-[var(--text-secondary)] sm:text-[18px]">
                 {formatVND(totalCost)}
               </p>
             </div>
-            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
-              <p className="text-[12px] font-medium text-[var(--text-secondary)]">Lãi</p>
+
+            <div className="glass-card min-w-0 rounded-[22px] p-3.5 sm:p-4 xl:p-3.5">
+              <div className="flex items-center gap-1.5">
+                <span
+                  aria-hidden="true"
+                  className={`h-2 w-2 shrink-0 rounded-full ${
+                    totalProfit >= 0 ? 'bg-[var(--brand-jade)]' : 'bg-[var(--status-overdue)]'
+                  }`}
+                />
+                <p className="truncate text-[12px] font-semibold text-[var(--text-secondary)]">
+                  Lãi
+                </p>
+              </div>
               <p
-                className={`font-mono-tabular mt-1 break-words text-[16px] font-bold sm:text-[20px] ${
+                className={`font-mono-tabular mt-1.5 break-words text-[16px] font-bold sm:text-[18px] ${
                   totalProfit >= 0 ? 'text-[var(--brand-jade-text)]' : 'text-[var(--status-overdue)]'
                 }`}
               >
                 {formatVND(totalProfit)}
               </p>
             </div>
-            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
-              <p className="text-[12px] font-medium text-[var(--text-secondary)]">Thực thu</p>
-              <p className="font-mono-tabular mt-1 break-words text-[16px] font-bold text-[var(--brand-jade-text)] sm:text-[20px]">
+
+            <div className="glass-card min-w-0 rounded-[22px] p-3.5 sm:p-4 xl:p-3.5">
+              <div className="flex items-center gap-1.5">
+                <span
+                  aria-hidden="true"
+                  className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-paid)]"
+                />
+                <p className="truncate text-[12px] font-semibold text-[var(--text-secondary)]">
+                  Thực thu
+                </p>
+              </div>
+              <p className="font-mono-tabular mt-1.5 break-words text-[16px] font-bold text-[var(--brand-jade-text)] sm:text-[18px]">
                 {formatVND(kpis.cash_collected)}
               </p>
             </div>
-            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
-              <p className="text-[12px] font-medium text-[var(--text-secondary)]">Nợ mới</p>
-              <p className="font-mono-tabular mt-1 break-words text-[16px] font-bold text-[var(--status-debt)] sm:text-[20px]">
+
+            <div className="glass-card min-w-0 rounded-[22px] p-3.5 sm:p-4 xl:p-3.5">
+              <div className="flex items-center gap-1.5">
+                <span
+                  aria-hidden="true"
+                  className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-debt)]"
+                />
+                <p className="truncate text-[12px] font-semibold text-[var(--text-secondary)]">
+                  Nợ mới
+                </p>
+              </div>
+              <p className="font-mono-tabular mt-1.5 break-words text-[16px] font-bold text-[var(--status-debt)] sm:text-[18px]">
                 {formatVND(kpis.new_debt_created)}
               </p>
             </div>
-            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
-              <p className="text-[12px] font-medium text-[var(--text-secondary)]">Tổng nợ</p>
-              <p className="font-mono-tabular mt-1 break-words text-[16px] font-bold text-[var(--status-overdue)] sm:text-[20px]">
+
+            <div className="glass-card min-w-0 rounded-[22px] p-3.5 sm:p-4 xl:p-3.5">
+              <div className="flex items-center gap-1.5">
+                <span
+                  aria-hidden="true"
+                  className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-overdue)]"
+                />
+                <p className="truncate text-[12px] font-semibold text-[var(--text-secondary)]">
+                  Tổng nợ
+                </p>
+              </div>
+              <p className="font-mono-tabular mt-1.5 break-words text-[16px] font-bold text-[var(--status-overdue)] sm:text-[18px]">
                 {formatVND(kpis.total_outstanding_debt)}
               </p>
             </div>
-            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
-              <p className="text-[12px] font-medium text-[var(--text-secondary)]">Số đơn</p>
-              <p className="font-mono-tabular mt-1 text-[16px] font-bold text-[var(--text-primary)] sm:text-[20px]">
+
+            <div className="glass-card min-w-0 rounded-[22px] p-3.5 sm:p-4 xl:p-3.5">
+              <div className="flex items-center gap-1.5">
+                <span
+                  aria-hidden="true"
+                  className="h-2 w-2 shrink-0 rounded-full bg-[var(--text-primary)]"
+                />
+                <p className="truncate text-[12px] font-semibold text-[var(--text-secondary)]">
+                  Số đơn
+                </p>
+              </div>
+              <p className="font-mono-tabular mt-1.5 break-words text-[16px] font-bold text-[var(--text-primary)] sm:text-[18px]">
                 {kpis.order_count}
               </p>
             </div>
@@ -272,7 +355,7 @@ export default function StatsPage() {
               action={
                 <Link
                   href="/"
-                  className="press-tactile inline-flex min-h-[48px] items-center justify-center rounded-lg bg-[var(--brand-jade)] px-5 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
+                  className="glass-btn-primary press-tactile inline-flex min-h-[48px] items-center justify-center rounded-full px-6 text-[15px] font-semibold"
                 >
                   Bán hàng
                 </Link>
@@ -291,22 +374,46 @@ export default function StatsPage() {
 
           {/* Top Products & Top Debtors */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
-              <h2 className="mb-3 text-[16px] font-bold">Món bán chạy</h2>
+            <section className="glass-panel min-w-0 rounded-[24px] p-4 sm:p-5">
+              <div className="mb-3.5 flex items-center justify-between gap-2">
+                <h2 className="text-[16px] font-bold text-[var(--text-primary)]">
+                  Món bán chạy
+                </h2>
+                {activeSummary.top_products.length > 0 && (
+                  <span className="glass-badge-neutral font-mono-tabular rounded-full px-2.5 py-0.5 text-[12px] font-semibold">
+                    Top {activeSummary.top_products.length}
+                  </span>
+                )}
+              </div>
               {activeSummary.top_products.length === 0 ? (
-                <p className="text-[14px] text-[var(--text-secondary)]">Chưa có dữ liệu.</p>
+                <div className="glass-well rounded-[16px] px-4 py-6 text-center text-[14px] text-[var(--text-secondary)]">
+                  Chưa có dữ liệu.
+                </div>
               ) : (
-                <div className="divide-y divide-[var(--border-default)]">
+                <div className="glass-well divide-y divide-[var(--glass-border-subtle)] rounded-[18px] px-3.5 py-1">
                   {activeSummary.top_products.map((prod, idx) => (
                     <div
                       key={`${prod.product_name}-${idx}`}
-                      className="flex items-center justify-between gap-2 py-2.5 text-[14px]"
+                      className="flex items-center justify-between gap-2.5 py-2.5 text-[14px]"
                     >
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-semibold">{prod.product_name}</p>
-                        <p className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
-                          SL: {Number(prod.qty)}
-                        </p>
+                      <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                        <span
+                          className={`font-mono-tabular flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-bold ${
+                            idx === 0
+                              ? 'glass-badge-paid'
+                              : 'glass-badge-neutral'
+                          }`}
+                        >
+                          {idx + 1}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-semibold text-[var(--text-primary)]">
+                            {prod.product_name}
+                          </p>
+                          <p className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
+                            SL: {Number(prod.qty)}
+                          </p>
+                        </div>
                       </div>
                       <span className="font-mono-tabular shrink-0 font-bold text-[var(--brand-jade-text)]">
                         {formatVND(prod.revenue)}
@@ -315,19 +422,30 @@ export default function StatsPage() {
                   ))}
                 </div>
               )}
-            </div>
+            </section>
 
-            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
-              <h2 className="mb-3 text-[16px] font-bold">Nợ nhiều nhất</h2>
+            <section className="glass-panel min-w-0 rounded-[24px] p-4 sm:p-5">
+              <div className="mb-3.5 flex items-center justify-between gap-2">
+                <h2 className="text-[16px] font-bold text-[var(--text-primary)]">
+                  Nợ nhiều nhất
+                </h2>
+                {activeSummary.top_debtors.length > 0 && (
+                  <span className="glass-badge-debt font-mono-tabular rounded-full px-2.5 py-0.5 text-[12px] font-semibold">
+                    {activeSummary.top_debtors.length} khách
+                  </span>
+                )}
+              </div>
               {activeSummary.top_debtors.length === 0 ? (
-                <p className="text-[14px] text-[var(--text-secondary)]">Không có khách nợ.</p>
+                <div className="glass-well rounded-[16px] px-4 py-6 text-center text-[14px] text-[var(--text-secondary)]">
+                  Không có khách nợ.
+                </div>
               ) : (
-                <div className="divide-y divide-[var(--border-default)]">
+                <div className="glass-well space-y-1 rounded-[18px] p-1.5">
                   {activeSummary.top_debtors.map((deb) => (
                     <Link
                       key={deb.customer_id}
                       href={`/debts?customer=${deb.customer_id}`}
-                      className="press-tactile flex items-center justify-between gap-2 rounded-lg px-2 py-2.5 text-[14px] transition-colors hover:bg-[var(--bg-subtle)]"
+                      className="press-tactile flex min-h-[48px] items-center justify-between gap-2.5 rounded-[14px] px-3 py-2 text-[14px] transition-colors hover:bg-[var(--bg-subtle)]"
                     >
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-semibold text-[var(--text-primary)]">
@@ -344,7 +462,7 @@ export default function StatsPage() {
                   ))}
                 </div>
               )}
-            </div>
+            </section>
           </div>
         </div>
       )}

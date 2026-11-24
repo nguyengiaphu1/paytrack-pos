@@ -126,12 +126,14 @@ function QuickItemModalBody({
       open
       onClose={onClose}
       ariaLabelledBy="quick-item-modal-title"
-      backdropClassName="animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"
-      panelClassName="animate-sheet-up sm:animate-modal-in max-h-[92dvh] w-full max-w-[440px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]"
+      backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
+      panelClassName="animate-sheet-up sm:animate-modal-in glass-modal flex max-h-[92dvh] w-full max-w-[440px] flex-col overflow-hidden rounded-t-[26px] sm:rounded-[26px]"
     >
-      <div className="flex items-center justify-between gap-2 border-b border-[var(--border-default)] px-4 py-3.5">
-        <div className="flex min-w-0 flex-1 items-center gap-2">
-          <Zap className="h-5 w-5 shrink-0 text-[var(--brand-jade-text)]" />
+      <div className="glass-modal-header flex shrink-0 items-center justify-between gap-2 px-5 py-3.5">
+        <div className="flex min-w-0 flex-1 items-center gap-2.5">
+          <span className="glass-icon-orb flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] text-[var(--brand-jade-text)]">
+            <Zap className="h-[18px] w-[18px]" />
+          </span>
           <h2
             id="quick-item-modal-title"
             className="min-w-0 truncate text-[16px] font-bold text-[var(--text-primary)]"
@@ -143,148 +145,150 @@ function QuickItemModalBody({
           type="button"
           onClick={onClose}
           aria-label="Đóng"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+          className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        noValidate
-        className="space-y-3.5 p-4 pb-[calc(16px+env(safe-area-inset-bottom))] sm:pb-4"
-      >
-        {error && (
-          <div
-            role="alert"
-            className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3 py-2 text-[14px] text-[var(--status-overdue)]"
-          >
-            {error}
-          </div>
-        )}
-
-        <div>
-          <label
-            htmlFor="quick-item-name"
-            className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
-          >
-            Tên món *
-          </label>
-          <input
-            id="quick-item-name"
-            data-autofocus
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Tên món hàng..."
-            className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="min-w-0">
-            <label
-              htmlFor="quick-item-qty"
-              className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
+      <form onSubmit={handleSubmit} noValidate className="flex min-h-0 flex-1 flex-col">
+        <div className="flex-1 space-y-3.5 overflow-y-auto p-4 sm:p-5">
+          {error && (
+            <div
+              role="alert"
+              className="glass-badge-overdue rounded-[14px] px-3.5 py-2.5 text-[14px] font-medium"
             >
-              Số lượng
-            </label>
-            <div className="inline-flex w-full items-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)]">
-              <button
-                type="button"
-                onClick={() => stepQty(-1)}
-                aria-label="Giảm số lượng"
-                className="press-tactile flex h-[46px] w-11 shrink-0 items-center justify-center text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
+              {error}
+            </div>
+          )}
+
+          <div className="glass-well space-y-3.5 rounded-[18px] p-3.5">
+            <div>
+              <label
+                htmlFor="quick-item-name"
+                className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
               >
-                <Minus className="h-4 w-4" />
-              </button>
-              <QtyNumberInput
-                id="quick-item-qty"
-                value={qty}
-                onCommit={setQty}
-                ariaLabel="Số lượng món lẻ"
-                className="font-mono-tabular h-[46px] w-full min-w-0 border-x border-[var(--border-default)] bg-[var(--bg-surface)] px-2 text-center text-[16px] font-semibold text-[var(--text-primary)] outline-none"
+                Tên món *
+              </label>
+              <input
+                id="quick-item-name"
+                data-autofocus
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Tên món hàng..."
+                className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
               />
-              <button
-                type="button"
-                onClick={() => stepQty(1)}
-                aria-label="Tăng số lượng"
-                className="press-tactile flex h-[46px] w-11 shrink-0 items-center justify-center text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="min-w-0">
+                <label
+                  htmlFor="quick-item-qty"
+                  className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
+                >
+                  Số lượng
+                </label>
+                <div className="glass-input inline-flex w-full items-center overflow-hidden rounded-[14px]">
+                  <button
+                    type="button"
+                    onClick={() => stepQty(-1)}
+                    aria-label="Giảm số lượng"
+                    className="press-tactile flex h-[46px] w-11 shrink-0 items-center justify-center text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-subtle)]"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </button>
+                  <QtyNumberInput
+                    id="quick-item-qty"
+                    value={qty}
+                    onCommit={setQty}
+                    ariaLabel="Số lượng món lẻ"
+                    className="glass-divider font-mono-tabular h-[46px] w-full min-w-0 border-x bg-transparent px-2 text-center text-[16px] font-semibold text-[var(--text-primary)] outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => stepQty(1)}
+                    aria-label="Tăng số lượng"
+                    className="press-tactile flex h-[46px] w-11 shrink-0 items-center justify-center text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-subtle)]"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+              <div className="min-w-0">
+                <label
+                  htmlFor="quick-item-unit"
+                  className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
+                >
+                  Đơn vị
+                </label>
+                <input
+                  id="quick-item-unit"
+                  type="text"
+                  value={unit}
+                  onChange={(e) => setUnit(e.target.value)}
+                  className="glass-input min-h-[46px] w-full min-w-0 rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="min-w-0">
+                <label
+                  htmlFor="quick-price-k"
+                  className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
+                >
+                  Giá bán (nghìn) *
+                </label>
+                <VndKInput
+                  id="quick-price-k"
+                  required
+                  valueVnd={priceVnd}
+                  onChangeVnd={setPriceVnd}
+                  placeholder="50"
+                  showPreview
+                />
+              </div>
+              <div className="min-w-0">
+                <label
+                  htmlFor="quick-cost-k"
+                  className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
+                >
+                  Giá vốn (nghìn)
+                </label>
+                <VndKInput
+                  id="quick-cost-k"
+                  valueVnd={costPriceVnd}
+                  onChangeVnd={setCostPriceVnd}
+                  placeholder="35"
+                  showPreview
+                />
+              </div>
             </div>
           </div>
-          <div className="min-w-0">
-            <label
-              htmlFor="quick-item-unit"
-              className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
-            >
-              Đơn vị
-            </label>
+
+          <label className="glass-well flex min-h-[48px] cursor-pointer items-center gap-2.5 rounded-[14px] px-3.5 text-[14px] font-medium text-[var(--text-primary)]">
             <input
-              id="quick-item-unit"
-              type="text"
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
-              className="min-h-[46px] w-full min-w-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+              type="checkbox"
+              checked={saveToCatalog}
+              onChange={(e) => setSaveToCatalog(e.target.checked)}
+              className="h-4 w-4 accent-[var(--brand-jade)]"
             />
-          </div>
+            <span>Lưu vào danh mục hàng</span>
+          </label>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="min-w-0">
-            <label
-              htmlFor="quick-price-k"
-              className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
-            >
-              Giá bán (nghìn) *
-            </label>
-            <VndKInput
-              id="quick-price-k"
-              required
-              valueVnd={priceVnd}
-              onChangeVnd={setPriceVnd}
-              placeholder="50"
-              showPreview
-            />
-          </div>
-          <div className="min-w-0">
-            <label
-              htmlFor="quick-cost-k"
-              className="mb-1 block text-[14px] font-medium text-[var(--text-primary)]"
-            >
-              Giá vốn (nghìn)
-            </label>
-            <VndKInput
-              id="quick-cost-k"
-              valueVnd={costPriceVnd}
-              onChangeVnd={setCostPriceVnd}
-              placeholder="35"
-              showPreview
-            />
-          </div>
+        <div className="glass-modal-footer shrink-0 px-4 py-3 pb-[calc(12px+env(safe-area-inset-bottom))] sm:px-5 sm:pb-3.5">
+          <button
+            type="submit"
+            disabled={saving}
+            className="glass-btn-primary press-tactile flex min-h-[50px] w-full items-center justify-center gap-2 rounded-full px-5 text-[15px] font-semibold disabled:opacity-60"
+          >
+            {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+            <span>{saving ? 'Đang thêm...' : 'Thêm vào đơn'}</span>
+          </button>
         </div>
-
-        <label className="flex min-h-[44px] cursor-pointer items-center gap-2.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] px-3.5 text-[14px] font-medium text-[var(--text-primary)]">
-          <input
-            type="checkbox"
-            checked={saveToCatalog}
-            onChange={(e) => setSaveToCatalog(e.target.checked)}
-            className="h-4 w-4 accent-[var(--brand-jade)]"
-          />
-          <span>Lưu vào danh mục hàng</span>
-        </label>
-
-        <button
-          type="submit"
-          disabled={saving}
-          className="press-tactile flex min-h-[48px] w-full items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
-        >
-          {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-          <span>{saving ? 'Đang thêm...' : 'Thêm vào đơn'}</span>
-        </button>
       </form>
     </ModalDialog>
   );

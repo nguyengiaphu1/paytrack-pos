@@ -34,7 +34,7 @@ export function ThemeQuickToggle({
         onClick={cyclePreference}
         aria-label={`Giao diện: ${label}`}
         title={`Giao diện: ${label}`}
-        className="press-tactile flex h-[46px] w-[46px] items-center justify-center rounded-[16px] text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]"
+        className="glass-btn-secondary press-tactile flex h-[44px] w-[44px] items-center justify-center rounded-full text-[var(--text-secondary)] transition-all hover:text-[var(--text-primary)] lg:h-[46px] lg:w-[46px]"
       >
         <Icon className="h-[18px] w-[18px] text-[var(--brand-jade-text)]" />
       </button>
@@ -47,7 +47,7 @@ export function ThemeQuickToggle({
       onClick={cyclePreference}
       aria-label={`Đổi giao diện: ${label}`}
       title={`Giao diện: ${label}`}
-      className="press-tactile inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[13px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
+      className="glass-btn-secondary press-tactile inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-4 text-[13px] font-semibold text-[var(--text-primary)]"
     >
       <Icon className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
       <span>{compact ? label : `Giao diện: ${label}`}</span>
@@ -71,16 +71,16 @@ export function SettingsThemeSelector() {
   return (
     <section
       aria-labelledby="settings-theme-heading"
-      className="rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:p-5"
+      className="glass-panel rounded-[24px] p-4 sm:p-5"
     >
       <h2
         id="settings-theme-heading"
-        className="mb-3 text-[15px] font-bold text-[var(--text-primary)]"
+        className="mb-3.5 text-[15px] font-bold text-[var(--text-primary)]"
       >
         Giao diện
       </h2>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="glass-well grid grid-cols-3 gap-2 rounded-[18px] p-1.5">
         {THEME_OPTIONS.map((opt) => {
           const Icon = opt.icon;
           const active = preference === opt.value;
@@ -90,10 +90,10 @@ export function SettingsThemeSelector() {
               type="button"
               onClick={() => setPreference(opt.value)}
               aria-pressed={active}
-              className={`press-tactile flex min-h-[48px] items-center justify-center gap-2 rounded-[10px] border px-2 text-[14px] font-semibold transition-colors ${
+              className={`press-tactile flex min-h-[48px] items-center justify-center gap-2 rounded-[14px] px-2 text-[14px] font-semibold transition-all ${
                 active
-                  ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]'
-                  : 'border-[var(--border-default)] bg-[var(--bg-canvas)] text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]'
+                  ? 'glass-chip-active'
+                  : 'border border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
               <Icon className="h-4 w-4 shrink-0" />

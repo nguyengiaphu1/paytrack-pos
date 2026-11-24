@@ -56,6 +56,7 @@ function CollectDebtModalBody({
   const maxAllowed = selectedOrder ? selectedOrder.remaining_amount : customer.total_debt;
   const parsedPreview = Math.max(0, Math.min(maxAllowed, Math.round(amountVnd ?? 0)));
   const remainingAfter = Math.max(0, maxAllowed - parsedPreview);
+  const isPayingFull = amountVnd !== null && Math.round(amountVnd) === maxAllowed && maxAllowed > 0;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -110,12 +111,17 @@ function CollectDebtModalBody({
       open={true}
       onClose={onClose}
       ariaLabelledBy="collect-debt-modal-title"
-      backdropClassName="animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"
-      panelClassName="animate-sheet-up sm:animate-modal-in max-h-[92dvh] w-full max-w-[480px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]"
+      backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
+      panelClassName="animate-sheet-up sm:animate-modal-in glass-modal max-h-[92dvh] w-full max-w-[480px] overflow-y-auto rounded-t-[26px] sm:rounded-[26px]"
     >
-      <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
-        <div className="flex min-w-0 flex-1 items-center gap-2">
-          <Banknote className="h-5 w-5 shrink-0 text-[var(--brand-jade-text)]" />
+      <div className="glass-modal-header sticky top-0 z-10 flex items-center justify-between gap-2 px-4 py-3.5 sm:px-5">
+        <div className="flex min-w-0 flex-1 items-center gap-2.5">
+          <span
+            aria-hidden="true"
+            className="glass-icon-orb flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] text-[var(--brand-jade-text)]"
+          >
+            <Banknote className="h-5 w-5" />
+          </span>
           <h2
             id="collect-debt-modal-title"
             className="min-w-0 truncate text-[16px] font-bold text-[var(--text-primary)]"
@@ -127,187 +133,199 @@ function CollectDebtModalBody({
           type="button"
           onClick={onClose}
           aria-label="Đóng"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+          className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4 p-4">
+      <form onSubmit={handleSubmit} className="space-y-4 p-4 sm:p-5">
         {error && (
           <div
             role="alert"
-            className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3 py-2.5 text-[14px] font-medium text-[var(--status-overdue)]"
+            className="glass-badge-overdue rounded-[16px] px-3.5 py-2.5 text-[14px] font-medium"
           >
             {error}
           </div>
         )}
 
-          {/* Before / After Debt Preview */}
-          <div className="space-y-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-3.5 text-[14px]">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="min-w-0 text-[var(--text-secondary)]">
-                {selectedOrder ? `Nợ đơn ${selectedOrder.order_code}` : 'Tổng nợ hiện tại'}
-              </span>
-              <span className="font-mono-tabular shrink-0 text-[16px] font-bold text-[var(--status-debt)]">
-                {formatVND(maxAllowed)}
-              </span>
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-[var(--text-secondary)]">Thu đợt này</span>
-              <span className="font-mono-tabular shrink-0 font-bold text-[var(--brand-jade-text)]">
-                − {formatVND(parsedPreview)}
-              </span>
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-default)] pt-1.5">
+        {/* Before / After Debt Preview Well */}
+        <div className="glass-well space-y-2 rounded-[18px] p-4 text-[14px]">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="min-w-0 text-[var(--text-secondary)]">
+              {selectedOrder ? `Nợ đơn ${selectedOrder.order_code}` : 'Tổng nợ hiện tại'}
+            </span>
+            <span className="font-mono-tabular shrink-0 text-[16px] font-bold text-[var(--status-debt)]">
+              {formatVND(maxAllowed)}
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-[var(--text-secondary)]">Thu đợt này</span>
+            <span className="font-mono-tabular shrink-0 font-bold text-[var(--brand-jade-text)]">
+              − {formatVND(parsedPreview)}
+            </span>
+          </div>
+          <div className="glass-divider flex flex-wrap items-center justify-between gap-2 border-t pt-2">
+            <div className="flex items-center gap-2">
               <span className="font-semibold text-[var(--text-primary)]">Còn lại</span>
-              <span
-                className={`font-mono-tabular shrink-0 text-[16px] font-bold ${
-                  remainingAfter === 0
-                    ? 'text-[var(--brand-jade-text)]'
-                    : 'text-[var(--status-debt)]'
-                }`}
-              >
-                {formatVND(remainingAfter)}
-              </span>
+              {remainingAfter === 0 && parsedPreview > 0 && (
+                <span className="glass-badge-paid rounded-full px-2 py-0.5 text-[12px] font-semibold">
+                  Hết nợ
+                </span>
+              )}
             </div>
+            <span
+              className={`font-mono-tabular shrink-0 text-[16px] font-bold ${
+                remainingAfter === 0
+                  ? 'text-[var(--brand-jade-text)]'
+                  : 'text-[var(--status-debt)]'
+              }`}
+            >
+              {formatVND(remainingAfter)}
+            </span>
           </div>
+        </div>
 
-          {unpaidOrders.length > 1 && (
-            <div>
-              <label
-                htmlFor="collect-target-order"
-                className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]"
-              >
-                Trừ vào đơn
-              </label>
-              <select
-                id="collect-target-order"
-                value={targetOrderId}
-                onChange={(e) => {
-                  const nextId = e.target.value;
-                  setTargetOrderId(nextId);
-                  const found = unpaidOrders.find((o) => o.id === nextId);
-                  setAmountVnd(found ? found.remaining_amount : customer.total_debt);
-                }}
-                className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)]"
-              >
-                <option value="">Đơn cũ nhất trước (FIFO)</option>
-                {unpaidOrders.map((o) => (
-                  <option key={o.id} value={o.id}>
-                    {o.order_code} (còn {formatVND(o.remaining_amount)})
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div>
-            <div className="mb-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-              <label
-                htmlFor="collect-amount-k"
-                className="text-[14px] font-medium text-[var(--text-primary)]"
-              >
-                Số tiền thu (nghìn) *
-              </label>
-              <button
-                type="button"
-                onClick={() => setAmountVnd(maxAllowed)}
-                className="min-h-[44px] shrink-0 px-1 text-[13px] font-semibold text-[var(--brand-jade-text)] hover:underline"
-              >
-                Trả hết ({formatVND(maxAllowed)})
-              </button>
-            </div>
-            <VndKInput
-              id="collect-amount-k"
-              required
-              valueVnd={amountVnd}
-              onChangeVnd={setAmountVnd}
-              placeholder="100"
-              showPreview
-            />
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div>
-              <p className="mb-1 text-[13px] font-medium text-[var(--text-primary)]">Hình thức</p>
-              <div role="group" aria-label="Hình thức thu nợ" className="grid grid-cols-2 gap-1.5">
-                <button
-                  type="button"
-                  aria-pressed={method === 'cash'}
-                  onClick={() => setMethod('cash')}
-                  className={`press-tactile min-h-[46px] rounded-lg border text-[13px] font-semibold ${
-                    method === 'cash'
-                      ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]'
-                      : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)]'
-                  }`}
-                >
-                  Tiền mặt
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={method === 'transfer'}
-                  onClick={() => setMethod('transfer')}
-                  className={`press-tactile min-h-[46px] rounded-lg border text-[13px] font-semibold ${
-                    method === 'transfer'
-                      ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]'
-                      : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)]'
-                  }`}
-                >
-                  Chuyển khoản
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label
-                htmlFor="collect-paid-date"
-                className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]"
-              >
-                Ngày thanh toán
-              </label>
-              <input
-                id="collect-paid-date"
-                type="date"
-                value={paidDate}
-                onChange={(e) => setPaidDate(e.target.value)}
-                className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)]"
-              />
-            </div>
-          </div>
-
-          <PaymentAccountSelector
-            value={paymentAccount}
-            note={paymentAccountNote}
-            onChangeAccount={setPaymentAccount}
-            onChangeNote={setPaymentAccountNote}
-          />
-
+        {unpaidOrders.length > 1 && (
           <div>
             <label
-              htmlFor="collect-note"
-              className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]"
+              htmlFor="collect-target-order"
+              className="mb-1.5 block text-[13px] font-semibold text-[var(--text-primary)]"
             >
-              Ghi chú
+              Trừ vào đơn
             </label>
-            <input
-              id="collect-note"
-              type="text"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="Tùy chọn"
-              className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-            />
+            <select
+              id="collect-target-order"
+              value={targetOrderId}
+              onChange={(e) => {
+                const nextId = e.target.value;
+                setTargetOrderId(nextId);
+                const found = unpaidOrders.find((o) => o.id === nextId);
+                setAmountVnd(found ? found.remaining_amount : customer.total_debt);
+              }}
+              className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
+            >
+              <option value="">Đơn cũ nhất trước (FIFO)</option>
+              {unpaidOrders.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.order_code} (còn {formatVND(o.remaining_amount)})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <div>
+          <div className="mb-1.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+            <label
+              htmlFor="collect-amount-k"
+              className="text-[14px] font-semibold text-[var(--text-primary)]"
+            >
+              Số tiền thu (nghìn) *
+            </label>
+            <button
+              type="button"
+              aria-pressed={isPayingFull}
+              onClick={() => setAmountVnd(maxAllowed)}
+              className={`press-tactile min-h-[44px] shrink-0 rounded-full px-3 text-[12px] font-semibold ${
+                isPayingFull
+                  ? 'glass-chip-active'
+                  : 'glass-chip text-[var(--brand-jade-text)]'
+              }`}
+            >
+              Trả hết ({formatVND(maxAllowed)})
+            </button>
+          </div>
+          <VndKInput
+            id="collect-amount-k"
+            required
+            valueVnd={amountVnd}
+            onChangeVnd={setAmountVnd}
+            placeholder="100"
+            showPreview
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <p className="mb-1.5 text-[13px] font-semibold text-[var(--text-primary)]">
+              Hình thức
+            </p>
+            <div role="group" aria-label="Hình thức thu nợ" className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                aria-pressed={method === 'cash'}
+                onClick={() => setMethod('cash')}
+                className={`press-tactile min-h-[46px] rounded-full px-2.5 text-[13px] ${
+                  method === 'cash' ? 'glass-chip-active font-bold' : 'glass-chip font-semibold'
+                }`}
+              >
+                Tiền mặt
+              </button>
+              <button
+                type="button"
+                aria-pressed={method === 'transfer'}
+                onClick={() => setMethod('transfer')}
+                className={`press-tactile min-h-[46px] rounded-full px-2.5 text-[13px] ${
+                  method === 'transfer'
+                    ? 'glass-chip-active font-bold'
+                    : 'glass-chip font-semibold'
+                }`}
+              >
+                Chuyển khoản
+              </button>
+            </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="press-tactile flex min-h-[50px] w-full items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[16px] font-bold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+          <div className="min-w-0">
+            <label
+              htmlFor="collect-paid-date"
+              className="mb-1.5 block text-[13px] font-semibold text-[var(--text-primary)]"
+            >
+              Ngày thanh toán
+            </label>
+            <input
+              id="collect-paid-date"
+              type="date"
+              value={paidDate}
+              onChange={(e) => setPaidDate(e.target.value)}
+              className="glass-input font-mono-tabular min-h-[46px] w-full min-w-0 rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
+            />
+          </div>
+        </div>
+
+        <PaymentAccountSelector
+          value={paymentAccount}
+          note={paymentAccountNote}
+          onChangeAccount={setPaymentAccount}
+          onChangeNote={setPaymentAccountNote}
+        />
+
+        <div>
+          <label
+            htmlFor="collect-note"
+            className="mb-1.5 block text-[13px] font-semibold text-[var(--text-primary)]"
           >
-            {submitting && <Loader2 className="h-5 w-5 animate-spin" />}
-            <span>{submitting ? 'Đang lưu...' : 'Xác nhận thu tiền'}</span>
-          </button>
+            Ghi chú
+          </label>
+          <input
+            id="collect-note"
+            type="text"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Tùy chọn"
+            className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-secondary)]"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="glass-btn-primary press-tactile flex min-h-[50px] w-full items-center justify-center gap-2 rounded-full px-5 text-[16px] font-bold disabled:opacity-60"
+        >
+          {submitting && <Loader2 className="h-5 w-5 animate-spin" />}
+          <span>{submitting ? 'Đang lưu...' : 'Xác nhận thu tiền'}</span>
+        </button>
       </form>
     </ModalDialog>
   );

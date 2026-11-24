@@ -125,58 +125,66 @@ export function AppShell({
 
   return (
     <AppUserContext.Provider value={userCtxValue}>
-      <div className="flex min-h-dvh flex-col bg-[var(--bg-canvas)] text-[var(--text-primary)]">
+      <div className="relative flex min-h-dvh flex-col text-[var(--text-primary)]">
         <a
           href="#main-content"
-          className="no-print sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-3 focus:z-50 focus:inline-flex focus:min-h-[44px] focus:items-center focus:rounded-lg focus:bg-[var(--brand-jade)] focus:px-4 focus:text-[14px] focus:font-semibold focus:text-white"
+          className="no-print glass-btn-primary sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:inline-flex focus:min-h-[44px] focus:items-center focus:rounded-full focus:px-4 focus:text-[14px] focus:font-semibold"
         >
           Bỏ qua tới nội dung chính
         </a>
 
-        {/* Slim Translucent Top Bar (Mobile & Desktop) */}
-        <header className="no-print glass-surface sticky top-0 z-20 border-x-0 border-t-0">
-          <div className="mx-auto flex h-[54px] max-w-[1440px] items-center justify-between gap-2 px-3 sm:px-6">
+        {/* Sculpted Floating Liquid Glass Top Bar (Mobile & Desktop) */}
+        <div className="no-print sticky top-0 z-20 px-2.5 pt-2.5 sm:px-5 sm:pt-3">
+          <header className="glass-surface mx-auto flex h-[58px] max-w-[1440px] items-center justify-between gap-2 rounded-[22px] px-3 sm:px-5">
             <Link
               href="/"
               prefetch={true}
-              className="flex min-h-[44px] min-w-0 items-center gap-2.5"
+              className="flex min-h-[44px] min-w-0 items-center gap-2.5 rounded-[14px] pr-2 transition-opacity hover:opacity-90"
             >
-              <BrandMark className="h-8 w-8 shrink-0" />
-              <span className="truncate text-[15px] font-bold tracking-[-0.01em] text-[var(--text-primary)] sm:text-[16px]">
+              <span className="glass-icon-orb flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] p-0.5">
+                <BrandMark className="h-8 w-8 shrink-0" />
+              </span>
+              <span className="truncate text-[15px] font-bold tracking-[-0.015em] text-[var(--text-primary)] sm:text-[16px]">
                 {displayShopName}
               </span>
             </Link>
 
-            <div className="flex shrink-0 items-center gap-1.5">
+            <div className="flex shrink-0 items-center gap-2">
               <SyncStatusPill status={status} />
               <div className="lg:hidden">
                 <ThemeQuickToggle iconOnly />
               </div>
             </div>
-          </div>
-        </header>
+          </header>
+        </div>
 
         {/* Offline Alert Banner */}
         {status === 'offline' && (
-          <div
-            role="alert"
-            className="no-print flex items-center justify-center gap-2 border-b border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-4 py-2 text-[13px] font-medium text-[var(--status-overdue)]"
-          >
-            <WifiOff className="h-4 w-4 shrink-0" />
-            <span>Mất mạng — bật Wi-Fi hoặc 4G để lưu đơn.</span>
+          <div className="no-print mx-auto mt-2 w-full max-w-[1440px] px-2.5 sm:px-5">
+            <div
+              role="alert"
+              className="glass-badge-overdue flex items-center justify-center gap-2 rounded-[16px] px-4 py-2.5 text-[13px] font-semibold"
+            >
+              <WifiOff className="h-4 w-4 shrink-0" />
+              <span>Mất mạng — bật Wi-Fi hoặc 4G để lưu đơn.</span>
+            </div>
           </div>
         )}
 
-        {/* Full-Width Main Workspace (safe bottom padding for Floating Glass Dock) */}
-        <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 pb-[112px] outline-none lg:pb-[104px]">
+        {/* Full-Width Main Workspace (safe bottom padding for Sculpted Floating Glass Dock) */}
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="min-w-0 flex-1 pb-[118px] outline-none lg:pb-[112px]"
+        >
           {children}
         </main>
 
-        {/* Unified Floating Glass Dock (375px Mobile & 1280px Desktop) */}
+        {/* Sculpted 3D Floating Glass Dock (375px Mobile & 1280px Desktop) */}
         <div className="no-print pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-3 pb-[calc(10px+env(safe-area-inset-bottom))] lg:pb-4">
           <nav
             aria-label="Điều hướng chính"
-            className="glass-dock pointer-events-auto flex w-full max-w-[440px] items-center gap-1 rounded-[22px] p-1.5 lg:w-auto lg:max-w-none lg:gap-1.5 lg:px-2"
+            className="glass-dock pointer-events-auto flex w-full max-w-[448px] items-center gap-1 rounded-[28px] p-1.5 lg:w-auto lg:max-w-none lg:gap-1.5 lg:px-2.5 lg:py-2"
           >
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
@@ -189,10 +197,10 @@ export function AppShell({
                   href={item.href}
                   prefetch={true}
                   aria-current={active ? 'page' : undefined}
-                  className={`press-tactile flex min-h-[52px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-[16px] px-0.5 text-[12px] font-medium transition-colors lg:min-h-[46px] lg:flex-initial lg:flex-row lg:gap-2 lg:px-4 lg:text-[14px] ${
+                  className={`press-tactile relative flex min-h-[52px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-[20px] px-1 text-[12px] font-medium transition-all lg:min-h-[46px] lg:flex-initial lg:flex-row lg:gap-2 lg:rounded-full lg:px-4 lg:text-[14px] ${
                     active
-                      ? 'bg-[var(--status-paid-bg)] font-semibold text-[var(--brand-jade-text)]'
-                      : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
+                      ? 'glass-chip-active font-semibold'
+                      : 'border border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
                   }`}
                 >
                   <Icon className="h-5 w-5 shrink-0 lg:h-[18px] lg:w-[18px]" />
@@ -201,7 +209,7 @@ export function AppShell({
               );
             })}
 
-            <div className="mx-1 hidden h-6 w-px bg-[var(--border-default)] lg:block" />
+            <div className="glass-divider mx-1 hidden h-6 border-l lg:block" />
             <div className="hidden lg:block">
               <ThemeQuickToggle iconOnly />
             </div>
@@ -230,7 +238,7 @@ function SyncStatusPill({ status }: { status: 'synced' | 'connecting' | 'offline
       <div
         role="status"
         aria-live="polite"
-        className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--status-overdue-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-overdue)]"
+        className="glass-badge-overdue inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-[12px] font-semibold"
       >
         <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-overdue)]" />
         <span>Mất mạng</span>
@@ -243,7 +251,7 @@ function SyncStatusPill({ status }: { status: 'synced' | 'connecting' | 'offline
       <div
         role="status"
         aria-live="polite"
-        className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--status-debt-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-debt)]"
+        className="glass-badge-debt inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-[12px] font-semibold"
       >
         <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-debt)]" />
         <span>Đang nối</span>
@@ -255,7 +263,7 @@ function SyncStatusPill({ status }: { status: 'synced' | 'connecting' | 'offline
     <div
       role="status"
       aria-live="polite"
-      className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--status-paid-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-paid)]"
+      className="glass-badge-paid inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-[12px] font-semibold"
     >
       <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-paid)]" />
       <span>Đã đồng bộ</span>

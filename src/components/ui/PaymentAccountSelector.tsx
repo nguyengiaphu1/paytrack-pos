@@ -64,10 +64,10 @@ export function PaymentAccountSelector({
         type="button"
         aria-pressed={active}
         onClick={() => selectAccount(acc)}
-        className={`press-tactile min-h-[44px] rounded-lg border px-3 text-[13px] font-medium transition-colors ${
+        className={`press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] transition-all ${
           active
-            ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] font-semibold text-[var(--brand-jade-text)]'
-            : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]'
+            ? 'glass-chip-active font-semibold'
+            : 'glass-chip font-medium text-[var(--text-primary)]'
         }`}
       >
         {acc}
@@ -76,7 +76,7 @@ export function PaymentAccountSelector({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2.5">
       <div className="flex items-center justify-between gap-2">
         {label ? (
           <div className="min-w-0">
@@ -95,7 +95,7 @@ export function PaymentAccountSelector({
               onChangeAccount(null);
               onChangeNote('');
             }}
-            className="min-h-[44px] shrink-0 px-1 text-[12px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="min-h-[44px] shrink-0 rounded-full px-2.5 text-[12px] font-semibold text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]"
           >
             {emptyLabel}
           </button>
@@ -103,21 +103,25 @@ export function PaymentAccountSelector({
       </div>
 
       {!expanded ? (
-        <div className="flex flex-wrap gap-1.5" role="group" aria-label={label || 'Tài khoản thanh toán'}>
+        <div
+          className="flex flex-wrap gap-2"
+          role="group"
+          aria-label={label || 'Tài khoản thanh toán'}
+        >
           {quickPicks.map(renderChip)}
           <button
             type="button"
             onClick={() => setExpanded(true)}
             aria-expanded={false}
-            className="press-tactile inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-dashed border-[var(--border-default)] bg-[var(--bg-subtle)] px-3 text-[13px] font-semibold text-[var(--text-secondary)] hover:border-[var(--brand-jade)] hover:text-[var(--text-primary)]"
+            className="glass-btn-secondary press-tactile inline-flex min-h-[44px] items-center gap-1 rounded-full px-3.5 text-[13px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
             <span>Thêm (+{remainingCount})</span>
             <ChevronDown className="h-3.5 w-3.5 shrink-0" />
           </button>
         </div>
       ) : (
-        <div className="space-y-2.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-2.5">
-          <div className="space-y-1.5">
+        <div className="glass-well space-y-3 rounded-[18px] p-3">
+          <div className="space-y-2">
             <div className="flex items-center justify-between gap-2">
               <span className="text-[12px] font-semibold text-[var(--text-secondary)]">
                 Tài khoản cá nhân
@@ -127,23 +131,21 @@ export function PaymentAccountSelector({
                   type="button"
                   onClick={() => setExpanded(false)}
                   aria-expanded={true}
-                  className="inline-flex min-h-[44px] items-center gap-1 px-1 text-[12px] font-semibold text-[var(--brand-jade-text)]"
+                  className="inline-flex min-h-[44px] items-center gap-1 rounded-full px-2.5 text-[12px] font-semibold text-[var(--brand-jade-text)] transition-colors hover:bg-[var(--bg-subtle)]"
                 >
                   <span>Thu gọn</span>
                   <ChevronUp className="h-3.5 w-3.5 shrink-0" />
                 </button>
               )}
             </div>
-            <div className="flex flex-wrap gap-1.5">
-              {PERSONAL_ACCOUNTS.map(renderChip)}
-            </div>
+            <div className="flex flex-wrap gap-2">{PERSONAL_ACCOUNTS.map(renderChip)}</div>
           </div>
 
-          <div className="space-y-1.5 border-t border-[var(--border-default)] pt-2">
+          <div className="glass-divider space-y-2 border-t pt-2.5">
             <span className="block text-[12px] font-semibold text-[var(--text-secondary)]">
               Vận chuyển & Khác
             </span>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {LOGISTICS_AND_OTHER_ACCOUNTS.map(renderChip)}
             </div>
           </div>
@@ -158,7 +160,7 @@ export function PaymentAccountSelector({
             onChange={(e) => onChangeNote(e.target.value)}
             placeholder="Khác: nhập tên TK hoặc ghi chú..."
             aria-label="Ghi chú tài khoản khác"
-            className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+            className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
           />
         </div>
       )}
