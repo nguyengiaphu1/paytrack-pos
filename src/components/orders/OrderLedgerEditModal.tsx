@@ -8,9 +8,11 @@ import {
   toVnDateInput,
 } from '@/lib/ledger';
 import { formatVND } from '@/lib/vietnamese';
+import { formatErrorMessageVN } from '@/lib/errors';
 import type { Order, OrderItem, PaymentAccount } from '@/types/database';
 import { PaymentAccountSelector } from '@/components/ui/PaymentAccountSelector';
 import { VndKInput } from '@/components/ui/VndKInput';
+import { ModalDialog } from '@/components/ui/ModalDialog';
 
 interface OrderLedgerEditModalProps {
   open: boolean;
@@ -129,50 +131,60 @@ function OrderLedgerEditModalBody({
       onSaved(updatedOrder, updatedItems);
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Không thể cập nhật sổ đơn hàng');
+      setError(formatErrorMessageVN(err, 'Không thể cập nhật sổ đơn hàng'));
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <div
-      className="animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-label={`Sửa sổ đơn ${order.order_code}`}
+    <ModalDialog
+      open={true}
+      onClose={onClose}
+      ariaLabelledBy="order-ledger-edit-title"
+      backdropClassName="animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
+      panelClassName="animate-sheet-up sm:animate-modal-in max-h-[92dvh] w-full max-w-[540px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]"
     >
-      <div className="animate-sheet-up sm:animate-modal-in max-h-[92dvh] w-full max-w-[540px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
-          <div className="min-w-0 flex-1">
-            <h2 className="truncate text-[17px] font-bold text-[var(--text-primary)]">
-              Sửa sổ — {order.order_code}
-            </h2>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Đóng"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+      <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
+        <div className="min-w-0 flex-1">
+          <h2
+            id="order-ledger-edit-title"
+            className="truncate text-[16px] font-bold text-[var(--text-primary)]"
           >
-            <X className="h-5 w-5" />
-          </button>
+            Sửa sổ — {order.order_code}
+          </h2>
         </div>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Đóng"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 p-4">
-          {error && (
-            <div className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3 py-2 text-[14px] text-[var(--status-overdue)]">
-              {error}
-            </div>
-          )}
+      <form onSubmit={handleSubmit} className="space-y-4 p-4">
+        {error && (
+          <div
+            role="alert"
+            className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3 py-2 text-[14px] text-[var(--status-overdue)]"
+          >
+            {error}
+          </div>
+        )}
 
           {/* Buyer Snapshot */}
           <div className="space-y-2.5">
             <div>
-              <label className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">
+              <label
+                htmlFor="ledger-edit-customer-name"
+                className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]"
+              >
                 Họ tên người mua *
               </label>
               <input
+                id="ledger-edit-customer-name"
                 type="text"
                 required
                 value={customerName}
@@ -182,10 +194,14 @@ function OrderLedgerEditModalBody({
             </div>
             <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">
+                <label
+                  htmlFor="ledger-edit-customer-phone"
+                  className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]"
+                >
                   SĐT
                 </label>
                 <input
+                  id="ledger-edit-customer-phone"
                   type="tel"
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
@@ -194,10 +210,14 @@ function OrderLedgerEditModalBody({
                 />
               </div>
               <div>
-                <label className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">
+                <label
+                  htmlFor="ledger-edit-customer-address"
+                  className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]"
+                >
                   Địa chỉ
                 </label>
                 <input
+                  id="ledger-edit-customer-address"
                   type="text"
                   value={customerAddress}
                   onChange={(e) => setCustomerAddress(e.target.value)}
@@ -211,10 +231,14 @@ function OrderLedgerEditModalBody({
           {/* Dates */}
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">
+              <label
+                htmlFor="ledger-edit-purchased-date"
+                className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]"
+              >
                 Ngày mua hàng
               </label>
               <input
+                id="ledger-edit-purchased-date"
                 type="date"
                 value={purchasedDate}
                 onChange={(e) => setPurchasedDate(e.target.value)}
@@ -223,7 +247,10 @@ function OrderLedgerEditModalBody({
             </div>
             <div>
               <div className="mb-1 flex items-center justify-between gap-2">
-                <label className="text-[13px] font-medium text-[var(--text-primary)]">
+                <label
+                  htmlFor="ledger-edit-paid-date"
+                  className="text-[13px] font-medium text-[var(--text-primary)]"
+                >
                   Ngày thanh toán
                 </label>
                 {paidDate && (
@@ -237,6 +264,7 @@ function OrderLedgerEditModalBody({
                 )}
               </div>
               <input
+                id="ledger-edit-paid-date"
                 type="date"
                 value={paidDate}
                 onChange={(e) => setPaidDate(e.target.value)}
@@ -313,10 +341,14 @@ function OrderLedgerEditModalBody({
           </div>
 
           <div>
-            <label className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">
+            <label
+              htmlFor="ledger-edit-note"
+              className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]"
+            >
               Ghi chú
             </label>
             <input
+              id="ledger-edit-note"
               type="text"
               value={note}
               onChange={(e) => setNote(e.target.value)}
@@ -333,8 +365,7 @@ function OrderLedgerEditModalBody({
             {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
             <span>{saving ? 'Đang lưu...' : 'Lưu thay đổi'}</span>
           </button>
-        </form>
-      </div>
-    </div>
+      </form>
+    </ModalDialog>
   );
 }

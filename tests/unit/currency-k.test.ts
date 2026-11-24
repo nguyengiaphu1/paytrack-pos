@@ -86,8 +86,9 @@ describe('thousand-VND (K <-> VND bigint) conversion utilities', () => {
       suggestedK: '1250',
       suggestedVnd: 1_250_000,
     });
-    // Multi-dot thousands must NOT silently parse to 1.250 VND
-    expect(parseKToVnd('1.250.000')).toBeNull();
+    // Multi-dot Vietnamese millions must parse directly to exact VND (never null/0đ or 1.250đ)
+    expect(parseKToVnd('1.250.000')).toBe(1_250_000);
+    expect(parseKToVnd('2.500.000')).toBe(2_500_000);
 
     // Normal K prices should NOT trigger warning
     expect(detectLikelyFullVndMistake('50')).toBeNull();

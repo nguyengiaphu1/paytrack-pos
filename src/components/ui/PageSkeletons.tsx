@@ -23,7 +23,7 @@ export function FetchErrorCard({
       <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--status-overdue-bg)] text-[var(--status-overdue)]">
         <WifiOff className="h-6 w-6" />
       </div>
-      <h2 className="text-[17px] font-bold text-[var(--text-primary)]">{title}</h2>
+      <h2 className="text-[16px] font-bold text-[var(--text-primary)]">{title}</h2>
       <p className="mx-auto mt-1 max-w-[420px] text-[14px] text-[var(--text-secondary)]">
         {message || 'Kiểm tra kết nối mạng rồi thử lại.'}
       </p>
@@ -41,45 +41,43 @@ export function FetchErrorCard({
 
 export function PosWorkspaceSkeleton() {
   return (
-    <div aria-busy="true" aria-label="Đang tải màn hình bán hàng" className="space-y-3.5">
-      <Bone className="h-14 w-full rounded-[12px]" />
-      <div className="grid gap-5 lg:grid-cols-12">
-      {/* Left Catalog Skeleton */}
-      <div className="space-y-3 lg:col-span-7 xl:col-span-8">
-        <div className="flex flex-wrap gap-2">
-          <Bone className="h-12 flex-1 min-w-[200px]" />
-          <Bone className="h-12 w-28" />
-          <Bone className="h-12 w-28" />
+    <div
+      aria-busy="true"
+      aria-label="Đang tải màn hình bán hàng"
+      className="grid gap-4 lg:grid-cols-12 lg:items-start lg:gap-5"
+    >
+      {/* Left Buyer Bar + Catalog Skeleton */}
+      <div className="space-y-2.5 sm:space-y-3 lg:col-span-7 xl:col-span-8">
+        <Bone className="h-[54px] w-full rounded-[10px]" />
+        <div className="flex gap-1.5 sm:gap-2">
+          <Bone className="h-[46px] flex-1" />
+          <Bone className="h-[46px] w-[84px] sm:w-24" />
+          <Bone className="h-[46px] w-[66px] sm:w-28" />
         </div>
-        <div className="flex gap-2 overflow-hidden">
-          <Bone className="h-9 w-20 rounded-full" />
-          <Bone className="h-9 w-24 rounded-full" />
-          <Bone className="h-9 w-20 rounded-full" />
-          <Bone className="h-9 w-28 rounded-full" />
+        <div className="flex gap-1.5 overflow-hidden">
+          <Bone className="h-11 w-20 shrink-0 rounded-lg" />
+          <Bone className="h-11 w-24 shrink-0 rounded-lg" />
+          <Bone className="h-11 w-20 shrink-0 rounded-lg" />
         </div>
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, idx) => (
             <div
               key={idx}
-              className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5"
+              className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3"
             >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex-1 space-y-2">
-                  <Bone className="h-5 w-3/4" />
-                  <Bone className="h-4 w-1/2" />
-                </div>
-                <Bone className="h-10 w-10 rounded-lg" />
+              <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-stretch">
+                <Bone className="h-5 w-3/5 sm:w-3/4" />
+                <Bone className="h-5 w-20 sm:mt-2 sm:w-24" />
               </div>
-              <Bone className="mt-3 h-5 w-24" />
             </div>
           ))}
         </div>
       </div>
 
       {/* Desktop Right Cart Skeleton */}
-      <div className="hidden rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 lg:col-span-5 lg:block xl:col-span-4">
+      <div className="hidden rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 lg:col-span-5 lg:block xl:col-span-4">
         <Bone className="h-6 w-36" />
-        <Bone className="mt-3 h-12 w-full" />
+        <Bone className="mt-3 h-10 w-full" />
         <div className="mt-4 space-y-2.5 border-y border-[var(--border-default)] py-4">
           <Bone className="h-14 w-full" />
           <Bone className="h-14 w-full" />
@@ -89,7 +87,6 @@ export function PosWorkspaceSkeleton() {
           <Bone className="h-7 w-full" />
         </div>
         <Bone className="mt-4 h-12 w-full" />
-      </div>
       </div>
     </div>
   );

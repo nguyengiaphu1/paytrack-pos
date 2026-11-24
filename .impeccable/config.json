@@ -1,7 +1,6 @@
 {
   "telemetry": false,
-  "platform": "web",
-  "mode": "operate",
+  "buildPath": "comp",
   "reports": {
     "commit": false
   }

@@ -1,0 +1,330 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-24T04:03:47.247Z",
+  "title": "Design System: PayTrack POS",
+  "extensions": {
+    "colorMeta": {
+      "jade-primary": {
+        "role": "primary",
+        "displayName": "Deep Forest Jade",
+        "canonical": "#0E6B4E",
+        "tonalRamp": [
+          "oklch(20% 0.04 162)",
+          "oklch(28% 0.06 162)",
+          "oklch(38% 0.08 162)",
+          "oklch(46% 0.095 162)",
+          "oklch(58% 0.095 162)",
+          "oklch(72% 0.08 162)",
+          "oklch(86% 0.05 162)",
+          "oklch(95% 0.02 162)"
+        ]
+      },
+      "paper-canvas": {
+        "role": "neutral",
+        "displayName": "Soft Ledger Paper",
+        "canonical": "#F5F7F6",
+        "tonalRamp": [
+          "oklch(18% 0.01 165)",
+          "oklch(26% 0.01 165)",
+          "oklch(38% 0.01 165)",
+          "oklch(52% 0.01 165)",
+          "oklch(68% 0.008 165)",
+          "oklch(82% 0.006 165)",
+          "oklch(92% 0.005 165)",
+          "oklch(97.5% 0.004 165)"
+        ]
+      },
+      "dark-canvas": {
+        "role": "neutral",
+        "displayName": "Deep Eye-Comfort Slate",
+        "canonical": "#0D1215",
+        "tonalRamp": [
+          "oklch(16% 0.012 225)",
+          "oklch(22% 0.014 225)",
+          "oklch(28% 0.016 225)",
+          "oklch(36% 0.016 225)",
+          "oklch(50% 0.014 225)",
+          "oklch(68% 0.01 225)",
+          "oklch(84% 0.006 225)",
+          "oklch(95% 0.004 225)"
+        ]
+      },
+      "status-paid": {
+        "role": "semantic",
+        "displayName": "Settled Jade Teal",
+        "canonical": "#0F766E",
+        "tonalRamp": [
+          "oklch(22% 0.045 180)",
+          "oklch(32% 0.07 180)",
+          "oklch(44% 0.09 180)",
+          "oklch(52% 0.095 180)",
+          "oklch(64% 0.09 180)",
+          "oklch(78% 0.075 180)",
+          "oklch(90% 0.045 180)",
+          "oklch(96% 0.02 180)"
+        ]
+      },
+      "status-debt": {
+        "role": "semantic",
+        "displayName": "Ledger Amber",
+        "canonical": "#9A4306",
+        "tonalRamp": [
+          "oklch(24% 0.05 65)",
+          "oklch(36% 0.09 65)",
+          "oklch(48% 0.13 65)",
+          "oklch(58% 0.15 65)",
+          "oklch(70% 0.15 70)",
+          "oklch(82% 0.12 80)",
+          "oklch(92% 0.07 88)",
+          "oklch(97% 0.03 92)"
+        ]
+      },
+      "status-overdue": {
+        "role": "semantic",
+        "displayName": "Overdue Crimson",
+        "canonical": "#B91C1C",
+        "tonalRamp": [
+          "oklch(22% 0.06 25)",
+          "oklch(34% 0.12 25)",
+          "oklch(46% 0.17 25)",
+          "oklch(54% 0.19 25)",
+          "oklch(64% 0.17 24)",
+          "oklch(76% 0.12 22)",
+          "oklch(88% 0.06 20)",
+          "oklch(95% 0.025 18)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Route Headline",
+        "purpose": "Desktop route titles (24px), hero KPI totals, and VietQR amount display."
+      },
+      "headline-mobile": {
+        "displayName": "Mobile Headline & Desktop KPI",
+        "purpose": "Mobile route titles (20px), desktop ledger KPI values, cart totals, and drawer headers."
+      },
+      "title": {
+        "displayName": "Section & Modal Title",
+        "purpose": "Shop name, modal/drawer headings (16px), card titles, mobile KPI values, and iOS input floor."
+      },
+      "body": {
+        "displayName": "Primary Ledger Body",
+        "purpose": "Product names, primary operational lines, and customer names (15px)."
+      },
+      "body-sm": {
+        "displayName": "Compact Body",
+        "purpose": "Dense ledger rows, secondary descriptions, and form button labels (14px)."
+      },
+      "label": {
+        "displayName": "Control Label",
+        "purpose": "Filter chips, account pills, compact form labels, and table headers (13px)."
+      },
+      "caption": {
+        "displayName": "Caption & Badge Floor",
+        "purpose": "Vietnamese legibility floor (12px) for status pills, debt badges, mobile dock labels, and receipt footnotes."
+      },
+      "mono": {
+        "displayName": "Tabular VND Mono",
+        "purpose": "Right-aligned VND totals, costs, profits, quantities, dates, and VndKInput values."
+      }
+    },
+    "shadows": [
+      {
+        "name": "glass-shadow-light",
+        "value": "0 12px 32px -12px rgba(14, 30, 25, 0.16), 0 2px 6px rgba(14, 30, 25, 0.06)",
+        "purpose": "Ambient lift under .glass-dock in Light Mode."
+      },
+      {
+        "name": "glass-surface-shadow-light",
+        "value": "0 6px 20px -10px rgba(14, 30, 25, 0.10)",
+        "purpose": "Subtle separation under sticky .glass-surface bars in Light Mode."
+      },
+      {
+        "name": "glass-shadow-dark",
+        "value": "0 14px 36px -12px rgba(0, 0, 0, 0.56), 0 2px 8px rgba(0, 0, 0, 0.36)",
+        "purpose": "Ambient lift under .glass-dock in Dark Mode."
+      },
+      {
+        "name": "glass-surface-shadow-dark",
+        "value": "0 8px 24px -12px rgba(0, 0, 0, 0.45)",
+        "purpose": "Subtle separation under sticky .glass-surface bars in Dark Mode."
+      }
+    ],
+    "motion": [
+      {
+        "name": "press-tactile",
+        "value": "transform 120ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Crisp active scale(0.97) feedback on buttons, product tiles, and dock items."
+      },
+      {
+        "name": "theme-transitioning",
+        "value": "280ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Color-only transition window when switching Light and Dark themes."
+      },
+      {
+        "name": "modal-in",
+        "value": "190ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Subtle 6px lift and 0.98->1 scale entrance for modals."
+      },
+      {
+        "name": "sheet-up",
+        "value": "210ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Bottom sheet entrance for mobile checkout and cart drawers."
+      },
+      {
+        "name": "drawer-in",
+        "value": "210ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Right-edge slide-in for customer debt detail drawers."
+      },
+      {
+        "name": "glass-backdrop-dock",
+        "value": "blur(20px) saturate(165%)",
+        "purpose": "Real-time backdrop filter for .glass-dock (opaque fallback under prefers-reduced-transparency)."
+      },
+      {
+        "name": "glass-backdrop-surface",
+        "value": "blur(14px) saturate(145%)",
+        "purpose": "Real-time backdrop filter for .glass-surface (opaque fallback under prefers-reduced-transparency)."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "mobile-base",
+        "value": "375px"
+      },
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      },
+      {
+        "name": "shell-max",
+        "value": "1440px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary order/save action CTA (Thêm món, Lưu đơn, Lưu cài đặt) with 48px touch height.",
+      "html": "<button type=\"button\" class=\"ds-btn-primary\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"M12 5v14\"/></svg><span>Thêm món</span></button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; padding: 0 16px; border: 0; border-radius: 8px; background: var(--brand-jade, #0E6B4E); color: #FFFFFF; font-family: var(--font-sans, 'Be Vietnam Pro', system-ui, sans-serif); font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 120ms cubic-bezier(0.22, 1, 0.36, 1), background-color 150ms ease; } .ds-btn-primary:hover { background: var(--brand-jade-hover, #0A543D); } .ds-btn-primary:active { transform: scale(0.97); } .ds-btn-primary:focus-visible { outline: 2px solid var(--brand-jade, #0E6B4E); outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Flat 1px-bordered action (Món lẻ, Xuất CSV) on crisp white sheet.",
+      "html": "<button type=\"button\" class=\"ds-btn-secondary\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><polygon points=\"13 2 3 14 12 14 11 22 21 10 12 10 13 2\"/></svg><span>Món lẻ</span></button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; padding: 0 16px; border: 1px solid var(--border-default, #D9E0DE); border-radius: 8px; background: var(--bg-surface, #FFFFFF); color: var(--text-primary, #121917); font-family: var(--font-sans, 'Be Vietnam Pro', system-ui, sans-serif); font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 120ms cubic-bezier(0.22, 1, 0.36, 1), background-color 150ms ease; } .ds-btn-secondary svg { color: var(--brand-jade-text, #0E6B4E); } .ds-btn-secondary:hover { background: var(--bg-subtle, #EDF1F0); } .ds-btn-secondary:active { transform: scale(0.97); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--brand-jade, #0E6B4E); outline-offset: 2px; }"
+    },
+    {
+      "name": "Exposed Buyer Bar (CustomerPicker)",
+      "kind": "custom",
+      "refersTo": "customer-bar",
+      "description": "Top-level buyer selector on / displaying active customer name, debt balance pill, and 1-tap switch.",
+      "html": "<button type=\"button\" class=\"ds-buyer-bar\"><span class=\"ds-buyer-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><polyline points=\"16 11 18 13 22 9\"/></svg></span><span class=\"ds-buyer-body\"><span class=\"ds-buyer-name\">Chị Lan (Q.3)</span><span class=\"ds-buyer-debt\">Nợ 320.000đ</span></span></button>",
+      "css": ".ds-buyer-bar { display: flex; align-items: center; gap: 10px; width: 320px; min-height: 54px; padding: 8px 12px; border: 1px solid var(--border-default, #D9E0DE); border-radius: 10px; background: var(--bg-surface, #FFFFFF); text-align: left; cursor: pointer; font-family: var(--font-sans, 'Be Vietnam Pro', system-ui, sans-serif); transition: border-color 150ms ease, transform 120ms cubic-bezier(0.22, 1, 0.36, 1); } .ds-buyer-bar:hover { border-color: var(--brand-jade, #0E6B4E); } .ds-buyer-bar:active { transform: scale(0.99); } .ds-buyer-bar:focus-visible { outline: 2px solid var(--brand-jade, #0E6B4E); outline-offset: 2px; } .ds-buyer-icon { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; background: var(--status-paid-bg, #D1FAE5); color: var(--brand-jade-text, #0E6B4E); flex-shrink: 0; } .ds-buyer-body { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; } .ds-buyer-name { font-size: 15px; font-weight: 600; color: var(--text-primary, #121917); } .ds-buyer-debt { padding: 2px 8px; border-radius: 9999px; background: var(--status-debt-bg, #FEF3C7); color: var(--status-debt, #B45309); font-family: var(--font-mono, 'JetBrains Mono', monospace); font-variant-numeric: tabular-nums; font-size: 11px; font-weight: 700; }"
+    },
+    {
+      "name": "VndKInput (Thousand-VND Field)",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "16px iOS-safe tabular monospace input with locked .000đ suffix for rapid online order pricing.",
+      "html": "<div class=\"ds-vndk-wrap\"><input type=\"text\" inputmode=\"decimal\" value=\"125\" aria-label=\"Giá bán (nghìn đồng)\" class=\"ds-vndk-input\" /><span class=\"ds-vndk-suffix\" aria-hidden=\"true\">.000đ</span></div>",
+      "css": ".ds-vndk-wrap { position: relative; display: flex; align-items: center; width: 220px; } .ds-vndk-input { width: 100%; min-height: 46px; padding: 8px 66px 8px 14px; border: 1px solid var(--border-default, #D9E0DE); border-radius: 8px; background: var(--bg-surface, #FFFFFF); color: var(--text-primary, #121917); font-family: var(--font-mono, 'JetBrains Mono', monospace); font-variant-numeric: tabular-nums; font-size: 16px; font-weight: 600; outline: none; transition: border-color 150ms ease; } .ds-vndk-input:focus { border-color: var(--brand-jade, #0E6B4E); } .ds-vndk-input:focus-visible { outline: 2px solid var(--brand-jade, #0E6B4E); outline-offset: 2px; } .ds-vndk-suffix { position: absolute; right: 10px; pointer-events: none; user-select: none; font-family: var(--font-mono, 'JetBrains Mono', monospace); font-variant-numeric: tabular-nums; font-size: 14px; font-weight: 600; color: var(--text-secondary, #4B5854); }"
+    },
+    {
+      "name": "Payment Account Chip",
+      "kind": "chip",
+      "refersTo": "chip-active",
+      "description": "44px touch chip for selecting one of the 9 canonical payment accounts (Thanh, Phú, Vận chuyển, etc.).",
+      "html": "<div class=\"ds-chip-row\"><button type=\"button\" class=\"ds-chip ds-chip-active\">Thanh</button><button type=\"button\" class=\"ds-chip\">Phú</button><button type=\"button\" class=\"ds-chip\">Vận chuyển</button></div>",
+      "css": ".ds-chip-row { display: flex; flex-wrap: wrap; gap: 6px; } .ds-chip { min-height: 44px; padding: 0 12px; border: 1px solid var(--border-default, #D9E0DE); border-radius: 8px; background: var(--bg-surface, #FFFFFF); color: var(--text-primary, #121917); font-family: var(--font-sans, 'Be Vietnam Pro', system-ui, sans-serif); font-size: 13px; font-weight: 500; cursor: pointer; transition: transform 120ms cubic-bezier(0.22, 1, 0.36, 1), background-color 150ms ease, border-color 150ms ease; } .ds-chip:hover { background: var(--bg-subtle, #EDF1F0); } .ds-chip:active { transform: scale(0.97); } .ds-chip:focus-visible { outline: 2px solid var(--brand-jade, #0E6B4E); outline-offset: 2px; } .ds-chip-active { border-color: var(--brand-jade, #0E6B4E); background: var(--status-paid-bg, #D1FAE5); color: var(--brand-jade-text, #0E6B4E); font-weight: 600; }"
+    },
+    {
+      "name": "Product Card with Inline Stepper",
+      "kind": "card",
+      "refersTo": "card-product",
+      "description": "Flat 1px-bordered product tile that highlights in Jade and reveals an inline -/+ quantity stepper when in cart.",
+      "html": "<div class=\"ds-product-card\"><div class=\"ds-product-top\"><div class=\"ds-product-name\">Mật ong rừng 500ml</div><div class=\"ds-product-meta\"><span class=\"ds-product-price\">240.000đ</span><span class=\"ds-product-unit\">/ chai</span></div></div><div class=\"ds-product-footer\"><span class=\"ds-product-qty-label\">Số lượng (chai)</span><div class=\"ds-stepper\"><button type=\"button\" class=\"ds-stepper-btn\" aria-label=\"Giảm\">−</button><span class=\"ds-stepper-val\">2</span><button type=\"button\" class=\"ds-stepper-btn\" aria-label=\"Tăng\">+</button></div></div></div>",
+      "css": ".ds-product-card { width: 280px; border: 1px solid var(--brand-jade, #0E6B4E); border-radius: 10px; background: var(--bg-surface, #FFFFFF); overflow: hidden; font-family: var(--font-sans, 'Be Vietnam Pro', system-ui, sans-serif); } .ds-product-top { padding: 12px; } .ds-product-name { font-size: 15px; font-weight: 600; color: var(--text-primary, #121917); } .ds-product-meta { display: flex; justify-content: space-between; align-items: baseline; margin-top: 6px; } .ds-product-price { font-family: var(--font-mono, 'JetBrains Mono', monospace); font-variant-numeric: tabular-nums; font-size: 15px; font-weight: 700; color: var(--brand-jade-text, #0E6B4E); } .ds-product-unit { font-size: 12px; color: var(--text-secondary, #4B5854); } .ds-product-footer { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-top: 1px solid var(--border-default, #D9E0DE); background: var(--bg-subtle, #EDF1F0); } .ds-product-qty-label { font-size: 12px; font-weight: 500; color: var(--text-secondary, #4B5854); } .ds-stepper { display: inline-flex; align-items: center; border: 1px solid var(--border-default, #D9E0DE); border-radius: 8px; background: var(--bg-surface, #FFFFFF); overflow: hidden; } .ds-stepper-btn { width: 44px; height: 44px; border: 0; background: transparent; color: var(--text-primary, #121917); font-size: 18px; cursor: pointer; } .ds-stepper-btn:hover { background: var(--bg-subtle, #EDF1F0); } .ds-stepper-btn:focus-visible { outline: 2px solid var(--brand-jade, #0E6B4E); outline-offset: -2px; } .ds-stepper-val { min-width: 44px; text-align: center; border-inline: 1px solid var(--border-default, #D9E0DE); line-height: 44px; font-family: var(--font-mono, 'JetBrains Mono', monospace); font-variant-numeric: tabular-nums; font-size: 16px; font-weight: 700; color: var(--brand-jade-text, #0E6B4E); }"
+    },
+    {
+      "name": "Ledger Status Badges & Sync Pills",
+      "kind": "custom",
+      "refersTo": "chip-active",
+      "description": "Semantic capsule pills for order payment status (Đã trả, Trả 1 phần, Đã hủy) and live cloud sync state.",
+      "html": "<div class=\"ds-pill-group\"><span class=\"ds-pill ds-pill-paid\">Đã trả</span><span class=\"ds-pill ds-pill-debt\">Trả 1 phần</span><span class=\"ds-pill ds-pill-overdue\">Quá hạn</span><span class=\"ds-pill ds-pill-cancelled\">Đã hủy</span></div>",
+      "css": ".ds-pill-group { display: inline-flex; flex-wrap: wrap; gap: 6px; font-family: var(--font-sans, 'Be Vietnam Pro', system-ui, sans-serif); } .ds-pill { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; white-space: nowrap; } .ds-pill-paid { background: var(--status-paid-bg, #D1FAE5); color: var(--status-paid, #0F766E); } .ds-pill-debt { background: var(--status-debt-bg, #FEF3C7); color: var(--status-debt, #B45309); } .ds-pill-overdue { background: var(--status-overdue-bg, #FEE2E2); color: var(--status-overdue, #B91C1C); } .ds-pill-cancelled { background: var(--bg-subtle, #EDF1F0); color: var(--text-secondary, #4B5854); text-decoration: line-through; }"
+    },
+    {
+      "name": "Theme Mode Switcher (SettingsThemeSelector)",
+      "kind": "custom",
+      "refersTo": "chip-active",
+      "description": "3-column segmented control in Settings for Theo máy, Sáng, and Tối themes (48px height).",
+      "html": "<div class=\"ds-theme-grid\"><button type=\"button\" class=\"ds-theme-btn\">Theo máy</button><button type=\"button\" class=\"ds-theme-btn ds-theme-active\" aria-pressed=\"true\">Sáng</button><button type=\"button\" class=\"ds-theme-btn\">Tối</button></div>",
+      "css": ".ds-theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 320px; font-family: var(--font-sans, 'Be Vietnam Pro', system-ui, sans-serif); } .ds-theme-btn { min-height: 48px; padding: 0 10px; border: 1px solid var(--border-default, #D9E0DE); border-radius: 10px; background: var(--bg-canvas, #F5F7F6); color: var(--text-primary, #121917); font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 150ms ease, border-color 150ms ease, transform 120ms cubic-bezier(0.22, 1, 0.36, 1); } .ds-theme-btn:hover { background: var(--bg-subtle, #EDF1F0); } .ds-theme-btn:active { transform: scale(0.97); } .ds-theme-btn:focus-visible { outline: 2px solid var(--brand-jade, #0E6B4E); outline-offset: 2px; } .ds-theme-active { border-color: var(--brand-jade, #0E6B4E); background: var(--status-paid-bg, #D1FAE5); color: var(--brand-jade-text, #0E6B4E); }"
+    },
+    {
+      "name": "Floating Glass Dock",
+      "kind": "nav",
+      "refersTo": "dock-nav",
+      "description": "Unified bottom frosted navigation capsule across iPhone and Windows unlocking 100% ledger width.",
+      "html": "<nav class=\"ds-dock\" aria-label=\"Điều hướng chính\"><a href=\"#\" class=\"ds-dock-item ds-dock-active\" aria-current=\"page\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z\"/><path d=\"M3 6h18\"/><path d=\"M16 10a4 4 0 0 1-8 0\"/></svg><span>Bán hàng</span></a><a href=\"#\" class=\"ds-dock-item\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/></svg><span>Công nợ</span></a><a href=\"#\" class=\"ds-dock-item\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z\"/><path d=\"M8 7h8\"/><path d=\"M8 11h8\"/><path d=\"M8 15h5\"/></svg><span>Sổ bán</span></a></nav>",
+      "css": ".ds-dock { display: inline-flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 22px; background: var(--glass-dock-bg, rgba(255, 255, 255, 0.84)); border: 1px solid var(--glass-border, rgba(18, 25, 23, 0.10)); box-shadow: var(--glass-shadow, 0 12px 32px -12px rgba(14, 30, 25, 0.16), 0 2px 6px rgba(14, 30, 25, 0.06)); -webkit-backdrop-filter: blur(20px) saturate(165%); backdrop-filter: blur(20px) saturate(165%); font-family: var(--font-sans, 'Be Vietnam Pro', system-ui, sans-serif); } .ds-dock-item { display: inline-flex; align-items: center; gap: 8px; min-height: 46px; padding: 0 16px; border-radius: 16px; color: var(--text-secondary, #4B5854); font-size: 14px; font-weight: 500; text-decoration: none; transition: background-color 150ms ease, color 150ms ease, transform 120ms cubic-bezier(0.22, 1, 0.36, 1); } .ds-dock-item:hover { background: var(--bg-subtle, #EDF1F0); color: var(--text-primary, #121917); } .ds-dock-item:active { transform: scale(0.97); } .ds-dock-item:focus-visible { outline: 2px solid var(--brand-jade, #0E6B4E); outline-offset: 2px; } .ds-dock-active { background: var(--status-paid-bg, #D1FAE5); color: var(--brand-jade-text, #0E6B4E); font-weight: 600; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Calm Home-Shop Ledger",
+    "overview": "PayTrack POS is designed around a calm, dependable home accounting notebook built for a Vietnamese online seller working from her phone and desk. Daytime order entry runs on soft jade-tinted paper with crisp flat white sheets so buyer addresses, item quantities, and VND totals stay effortless to scan between Zalo and Messenger chats. Evening profit and debt reconciliation shifts smoothly into deep eye-comfort slate rather than harsh pure black.\n\nAcross iPhone Safari PWA (375px) and Windows desktop (1280px+), the interface favors earned operational familiarity over decorative flair: 1px hairlines organize dense product grids and 12-column accounting rows, tabular monospace numerals align every VND figure vertically, and real-time translucent glass appears only on the top bar, sticky summary strips, and bottom Floating Glass Dock.",
+    "keyCharacteristics": [
+      "Disciplined 60-30-10 color balance where Deep Forest Jade leads primary actions, active navigation, and profit figures.",
+      "Full-width desktop layout with no fixed left sidebar; a unified bottom Floating Glass Dock keeps 100% horizontal space open for the 12-column sales ledger.",
+      "Clean Vietnamese diacritics in Be Vietnam Pro paired with tabular JetBrains Mono for VND amounts, order codes, quantities, and dates.",
+      "Home-workflow ergonomics: exposed buyer bar with phone/address/debt preview, thousand-VND .000đ shorthand inputs, >= 44px touch targets, >= 16px inputs, and light-paper locked PNG receipts & VietQR cards ready for chat sharing."
+    ],
+    "rules": [
+      {
+        "name": "The 60-30-10 Restraint Rule",
+        "body": "Keep 60% calm canvas, 30% flat sheets and semantic glass, and <= 10% Jade or status accents; never flood inactive controls with saturated fills.",
+        "section": "colors"
+      },
+      {
+        "name": "The Chat-Ready Light-Paper Lock Rule",
+        "body": "Receipts and VietQR cards always apply .print-surface-light (sheet-surface + print-ink, color-scheme: light) even in Dark Mode.",
+        "section": "colors"
+      },
+      {
+        "name": "The iOS 16px Input Floor Rule",
+        "body": "Every input, select, and textarea renders at >= 16px (src/app/globals.css) so iPhone Safari never auto-zooms while logging orders.",
+        "section": "typography"
+      },
+      {
+        "name": "The Semantic Glass Only Rule",
+        "body": "Backdrop blur lives strictly on .glass-dock and .glass-surface in src/app/globals.css with reduced-transparency fallbacks; never scatter raw backdrop-blur or shadow-lg in TSX.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do consume CSS custom properties from src/app/globals.css (--bg-canvas, --bg-surface, --brand-jade, semantic status tokens) so Light and Dark themes transition cleanly in 280ms.",
+      "Do format every VND amount, profit, debt, and date with .font-mono-tabular (tabular-nums) and maintain >= 44px touch targets and >= 16px form controls.",
+      "Do wrap shareable PNG receipts and VietQR cards in .print-surface-light, and pair every route with layout-matched skeletons and FetchErrorCard retries."
+    ],
+    "donts": [
+      "Don't introduce banned AI-slop styles (indigo-, purple-, bg-clip-text, Sparkles, animate-bounce, tracking-widest) or scatter raw backdrop-blur, shadow-lg, rounded-2xl, or rounded-3xl in TSX files.",
+      "Don't add a fixed desktop left sidebar that squeezes the 12-column sales ledger, or add decorative numbered eyebrows (01, 02, 03) and generic marketing copy.",
+      "Don't use pure #000000 dark grounds or define conflicting color/blur tokens outside src/app/globals.css."
+    ]
+  }
+}

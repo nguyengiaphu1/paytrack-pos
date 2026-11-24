@@ -335,7 +335,7 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
             Thông báo trên máy này
           </span>
           {envState.subscribed && (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--status-paid-bg)] px-2 py-0.5 text-[11px] font-semibold text-[var(--status-paid)]">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--status-paid-bg)] px-2 py-0.5 text-[12px] font-semibold text-[var(--status-paid)]">
               <CheckCircle2 className="h-3 w-3" />
               Đang bật
             </span>

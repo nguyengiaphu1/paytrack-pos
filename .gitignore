@@ -25,8 +25,10 @@ npm-debug.log*
 Thumbs.db
 
 # Impeccable runtime state, caches, screenshots & local reports
+.impeccable/config.local.json
 .impeccable/questions/
 .impeccable/mocks/
+.impeccable/review/
 .impeccable/shots/
 .impeccable/cache/
 .impeccable/reports/

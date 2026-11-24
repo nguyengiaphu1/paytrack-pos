@@ -21,6 +21,7 @@ import {
   stripVietnamese,
 } from '@/lib/vietnamese';
 import { formatPaymentAccount } from '@/lib/ledger';
+import { ModalDialog } from '@/components/ui/ModalDialog';
 import type {
   Customer,
   DebtPayment,
@@ -171,19 +172,22 @@ function DebtCustomerDrawerBody({
 
   return (
     <>
-      <div
-        className="animate-backdrop-in fixed inset-0 z-40 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"
-        role="dialog"
-        aria-modal="true"
-        aria-label={`Chi tiết công nợ ${customer.name}`}
+      <ModalDialog
+        open={true}
+        onClose={onClose}
+        ariaLabelledBy="debt-customer-drawer-title"
+        backdropClassName="animate-backdrop-in fixed inset-0 z-40 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"
+        panelClassName="animate-sheet-up sm:animate-modal-in max-h-[93dvh] w-full max-w-[560px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]"
       >
-        <div className="animate-sheet-up sm:animate-modal-in max-h-[93dvh] w-full max-w-[560px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
-          <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <h2 className="min-w-0 truncate text-[18px] font-bold text-[var(--text-primary)]">
-                  {customer.name}
-                </h2>
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <h2
+                id="debt-customer-drawer-title"
+                className="min-w-0 truncate text-[20px] font-bold text-[var(--text-primary)]"
+              >
+                {customer.name}
+              </h2>
                 <button
                   type="button"
                   onClick={() => setEditingInfo((v) => !v)}
@@ -463,8 +467,7 @@ function DebtCustomerDrawerBody({
               </>
             )}
           </div>
-        </div>
-      </div>
+      </ModalDialog>
 
       <CollectDebtModal
         open={collectOpen}

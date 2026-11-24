@@ -1,13 +1,18 @@
 'use client';
 
-import { Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { MapPin, Minus, Phone, Plus, ShoppingCart, Trash2, X } from 'lucide-react';
 import { computeLineTotal, computeOrderTotals, formatVND } from '@/lib/vietnamese';
 import type { CartItem, Customer } from '@/types/database';
 import { VndKInput } from '@/components/ui/VndKInput';
+import { QtyNumberInput } from '@/components/ui/QtyNumberInput';
 
 interface CartPanelProps {
   items: CartItem[];
   discount: number;
+  discountInputId?: string;
+  variant?: 'desktop' | 'sheet';
+  onCloseSheet?: () => void;
   onChangeDiscount: (val: number) => void;
   onUpdateQty: (key: string, nextQty: number) => void;
   onRemoveItem: (key: string) => void;
@@ -19,6 +24,9 @@ interface CartPanelProps {
 export function CartPanel({
   items,
   discount,
+  discountInputId = 'cart-discount',
+  variant = 'desktop',
+  onCloseSheet,
   onChangeDiscount,
   onUpdateQty,
   onRemoveItem,
@@ -26,15 +34,25 @@ export function CartPanel({
   selectedCustomer,
   onOpenCheckout,
 }: CartPanelProps) {
+  const [confirmClear, setConfirmClear] = useState(false);
+  const showConfirmClear = confirmClear && items.length > 0;
   const { subtotal, discount: safeDiscount, total } = computeOrderTotals(items, discount);
+  const isSheet = variant === 'sheet';
 
   return (
-    <div className="flex flex-col rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)]">
+    <div
+      className={`flex flex-col overflow-hidden rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] ${
+        isSheet ? 'min-h-0 flex-1' : 'lg:max-h-[calc(100dvh-168px)]'
+      }`}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[var(--border-default)] px-4 py-3">
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-[var(--border-default)] px-4 py-3">
         <div className="flex min-w-0 items-center gap-2">
           <ShoppingCart className="h-5 w-5 shrink-0 text-[var(--brand-jade-text)]" />
-          <h2 className="truncate text-[16px] font-bold text-[var(--text-primary)]">
+          <h2
+            id={isSheet ? 'mobile-cart-sheet-title' : undefined}
+            className="truncate text-[16px] font-bold text-[var(--text-primary)]"
+          >
             Giỏ hàng
           </h2>
           <span
@@ -44,27 +62,96 @@ export function CartPanel({
             {items.length}
           </span>
         </div>
-        {items.length > 0 && (
-          <button
-            type="button"
-            onClick={onClearCart}
-            className="min-h-[44px] shrink-0 px-1 text-[13px] font-semibold text-[var(--status-overdue)] hover:underline"
-          >
-            Xóa giỏ
-          </button>
+        <div className="flex shrink-0 items-center gap-1">
+          {items.length > 0 && !showConfirmClear && (
+            <button
+              type="button"
+              onClick={() => setConfirmClear(true)}
+              className="min-h-[44px] shrink-0 px-1.5 text-[13px] font-semibold text-[var(--status-overdue)] hover:underline"
+            >
+              Xóa giỏ
+            </button>
+          )}
+
+          {isSheet && onCloseSheet && (
+            <button
+              type="button"
+              onClick={onCloseSheet}
+              aria-label="Đóng giỏ hàng"
+              className="press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Full-width Clear Cart Confirmation Strip (never squeezes 375px header) */}
+      {showConfirmClear && (
+        <div
+          role="alert"
+          className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-4 py-2 text-[13px]"
+        >
+          <span className="font-semibold text-[var(--status-overdue)]">
+            Xóa toàn bộ {items.length} món?
+          </span>
+          <div className="flex shrink-0 items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setConfirmClear(false)}
+              className="min-h-[44px] rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[13px] font-semibold text-[var(--text-primary)]"
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setConfirmClear(false);
+                onClearCart();
+              }}
+              className="press-tactile min-h-[44px] rounded-lg bg-[var(--status-overdue-solid)] px-3 text-[13px] font-bold text-white"
+            >
+              Xác nhận xóa
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Selected Buyer Snapshot Line (name, debt, phone, address) */}
+      <div className="shrink-0 space-y-1 border-b border-[var(--border-default)] bg-[var(--bg-subtle)] px-4 py-2 text-[13px]">
+        <div className="flex items-center justify-between gap-2">
+          <span className="shrink-0 text-[var(--text-secondary)]">Khách:</span>
+          <div className="flex min-w-0 items-center gap-1.5">
+            <span className="truncate font-semibold text-[var(--text-primary)]">
+              {selectedCustomer ? selectedCustomer.name : 'Khách lẻ'}
+            </span>
+            {selectedCustomer && selectedCustomer.total_debt > 0 && (
+              <span className="font-mono-tabular shrink-0 rounded-full bg-[var(--status-debt-bg)] px-2 py-0.5 text-[12px] font-bold text-[var(--status-debt)]">
+                Nợ {formatVND(selectedCustomer.total_debt)}
+              </span>
+            )}
+          </div>
+        </div>
+        {(selectedCustomer?.phone || selectedCustomer?.address) && (
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[12px] text-[var(--text-secondary)]">
+            {selectedCustomer.phone && (
+              <span className="font-mono-tabular inline-flex items-center gap-1">
+                <Phone className="h-3 w-3 shrink-0" />
+                {selectedCustomer.phone}
+              </span>
+            )}
+            {selectedCustomer.address && (
+              <span className="inline-flex min-w-0 items-center gap-1 truncate">
+                <MapPin className="h-3 w-3 shrink-0" />
+                {selectedCustomer.address}
+              </span>
+            )}
+          </div>
         )}
       </div>
 
-      {/* Selected Buyer Snapshot Line */}
-      <div className="flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-subtle)] px-4 py-2 text-[13px]">
-        <span className="text-[var(--text-secondary)]">Khách:</span>
-        <span className="truncate font-semibold text-[var(--text-primary)]">
-          {selectedCustomer ? selectedCustomer.name : 'Khách lẻ'}
-        </span>
-      </div>
-
-      {/* Cart Items */}
-      <div className="max-h-[42vh] flex-1 divide-y divide-[var(--border-default)] overflow-y-auto px-3">
+      {/* Cart Items (bounded scroll in both desktop sticky card and mobile sheet) */}
+      <div className="min-h-0 flex-1 overflow-y-auto divide-y divide-[var(--border-default)] px-3">
         {items.length === 0 ? (
           <div className="py-10 text-center text-[14px] text-[var(--text-secondary)]">
             Chưa chọn món nào.
@@ -102,27 +189,21 @@ export function CartPanel({
                         if (next <= 0) onRemoveItem(item.key);
                         else onUpdateQty(item.key, next);
                       }}
-                      aria-label="Giảm số lượng"
+                      aria-label={`Giảm số lượng ${item.product_name}`}
                       className="press-tactile flex h-11 w-11 items-center justify-center text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
                     >
                       <Minus className="h-4 w-4" />
                     </button>
-                    <input
-                      type="number"
-                      step="0.1"
-                      min="0.01"
+                    <QtyNumberInput
                       value={item.quantity}
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        if (Number.isFinite(val) && val > 0) onUpdateQty(item.key, val);
-                      }}
-                      aria-label="Số lượng"
+                      onCommit={(val) => onUpdateQty(item.key, val)}
+                      ariaLabel={`Số lượng ${item.product_name}`}
                       className="font-mono-tabular h-11 w-14 border-x border-[var(--border-default)] bg-[var(--bg-surface)] text-center text-[16px] font-semibold text-[var(--text-primary)] outline-none"
                     />
                     <button
                       type="button"
                       onClick={() => onUpdateQty(item.key, Number((item.quantity + 1).toFixed(2)))}
-                      aria-label="Tăng số lượng"
+                      aria-label={`Tăng số lượng ${item.product_name}`}
                       className="press-tactile flex h-11 w-11 items-center justify-center text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
                     >
                       <Plus className="h-4 w-4" />
@@ -140,7 +221,7 @@ export function CartPanel({
       </div>
 
       {/* Totals + Checkout CTA */}
-      <div className="space-y-2.5 border-t border-[var(--border-default)] bg-[var(--bg-subtle)] p-3.5">
+      <div className="shrink-0 space-y-2.5 border-t border-[var(--border-default)] bg-[var(--bg-subtle)] p-3.5">
         <div className="flex items-center justify-between gap-2 text-[14px]">
           <span className="text-[var(--text-secondary)]">Tạm tính</span>
           <span className="font-mono-tabular shrink-0 font-semibold text-[var(--text-primary)]">
@@ -148,24 +229,27 @@ export function CartPanel({
           </span>
         </div>
 
-        <div className="flex items-center justify-between gap-3 text-[14px]">
-          <label htmlFor="cart-discount" className="shrink-0 text-[var(--text-secondary)]">
-            Giảm giá
-          </label>
-          <VndKInput
-            id="cart-discount"
-            compact
-            align="right"
-            valueVnd={discount > 0 ? discount : null}
-            onChangeVnd={(val) => onChangeDiscount(val ?? 0)}
-            placeholder="0"
-            className="w-36 shrink-0"
-          />
+        <div className="space-y-1.5 text-[14px]">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <label htmlFor={discountInputId} className="shrink-0 text-[var(--text-secondary)]">
+              Giảm giá (nghìn)
+            </label>
+            <VndKInput
+              id={discountInputId}
+              compact
+              showPreview
+              align="right"
+              valueVnd={discount > 0 ? discount : null}
+              onChangeVnd={(val) => onChangeDiscount(val ?? 0)}
+              placeholder="0"
+              className="w-full sm:max-w-[220px]"
+            />
+          </div>
         </div>
 
         <div className="flex flex-wrap items-baseline justify-between gap-2 border-t border-[var(--border-default)] pt-2">
           <span className="text-[15px] font-bold text-[var(--text-primary)]">Tổng cộng</span>
-          <span className="font-mono-tabular shrink-0 text-[20px] font-bold text-[var(--brand-jade-text)] sm:text-[22px]">
+          <span className="font-mono-tabular shrink-0 text-[20px] font-bold text-[var(--brand-jade-text)]">
             {formatVND(total)}
           </span>
         </div>

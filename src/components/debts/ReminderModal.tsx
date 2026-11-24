@@ -4,7 +4,9 @@ import { useState, type FormEvent } from 'react';
 import { BellPlus, Loader2, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { formatVND, getTodayVN } from '@/lib/vietnamese';
+import { formatErrorMessageVN } from '@/lib/errors';
 import type { Customer, Order } from '@/types/database';
+import { ModalDialog } from '@/components/ui/ModalDialog';
 
 interface ReminderModalProps {
   open: boolean;
@@ -70,113 +72,134 @@ function ReminderModalBody({
       onSaved();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Không thể đặt lịch nhắc');
+      setError(formatErrorMessageVN(err, 'Không thể đặt lịch nhắc'));
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <div
-      className="animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Hẹn giờ nhắc thu nợ"
+    <ModalDialog
+      open={true}
+      onClose={onClose}
+      ariaLabelledBy="reminder-modal-title"
+      backdropClassName="animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"
+      panelClassName="animate-sheet-up sm:animate-modal-in w-full max-w-[440px] rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]"
     >
-      <div className="animate-sheet-up sm:animate-modal-in w-full max-w-[440px] rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
-        <div className="flex items-center justify-between gap-2 border-b border-[var(--border-default)] px-4 py-3.5">
-          <div className="flex min-w-0 flex-1 items-center gap-2">
-            <BellPlus className="h-5 w-5 shrink-0 text-[var(--brand-jade-text)]" />
-            <h2 className="min-w-0 truncate text-[17px] font-bold text-[var(--text-primary)]">
-              Hẹn nhắc thu — {customer.name}
-            </h2>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Đóng"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+      <div className="flex items-center justify-between gap-2 border-b border-[var(--border-default)] px-4 py-3.5">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <BellPlus className="h-5 w-5 shrink-0 text-[var(--brand-jade-text)]" />
+          <h2
+            id="reminder-modal-title"
+            className="min-w-0 truncate text-[16px] font-bold text-[var(--text-primary)]"
           >
-            <X className="h-5 w-5" />
-          </button>
+            Hẹn nhắc thu — {customer.name}
+          </h2>
         </div>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Đóng"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 p-4">
-          {error && (
-            <div className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3 py-2 text-[14px] text-[var(--status-overdue)]">
-              {error}
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            <div className="min-w-0">
-              <label className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">
-                Ngày nhắc
-              </label>
-              <input
-                type="date"
-                required
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="font-mono-tabular min-h-[46px] w-full min-w-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-              />
-            </div>
-            <div className="min-w-0">
-              <label className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">
-                Giờ nhắc (VN)
-              </label>
-              <input
-                type="time"
-                required
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="font-mono-tabular min-h-[46px] w-full min-w-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-              />
-            </div>
+      <form onSubmit={handleSubmit} className="space-y-4 p-4">
+        {error && (
+          <div
+            role="alert"
+            className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3 py-2 text-[14px] text-[var(--status-overdue)]"
+          >
+            {error}
           </div>
+        )}
 
-          {unpaidOrders.length > 0 && (
-            <div>
-              <label className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">
-                Gắn với đơn (tùy chọn)
-              </label>
-              <select
-                value={orderId}
-                onChange={(e) => setOrderId(e.target.value)}
-                className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)]"
-              >
-                <option value="">Toàn bộ công nợ của khách</option>
-                {unpaidOrders.map((o) => (
-                  <option key={o.id} value={o.id}>
-                    {o.order_code} ({formatVND(o.remaining_amount)})
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div>
-            <label className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">
-              Nội dung thông báo
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+          <div className="min-w-0">
+            <label
+              htmlFor="reminder-date"
+              className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]"
+            >
+              Ngày nhắc
             </label>
-            <textarea
-              rows={2}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] p-3 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+            <input
+              id="reminder-date"
+              type="date"
+              required
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="font-mono-tabular min-h-[46px] w-full min-w-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
             />
           </div>
+          <div className="min-w-0">
+            <label
+              htmlFor="reminder-time"
+              className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]"
+            >
+              Giờ nhắc (VN)
+            </label>
+            <input
+              id="reminder-time"
+              type="time"
+              required
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              className="font-mono-tabular min-h-[46px] w-full min-w-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+            />
+          </div>
+        </div>
 
-          <button
-            type="submit"
-            disabled={saving}
-            className="press-tactile flex min-h-[48px] w-full items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+        {unpaidOrders.length > 0 && (
+          <div>
+            <label
+              htmlFor="reminder-order-select"
+              className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]"
+            >
+              Gắn với đơn (tùy chọn)
+            </label>
+            <select
+              id="reminder-order-select"
+              value={orderId}
+              onChange={(e) => setOrderId(e.target.value)}
+              className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)]"
+            >
+              <option value="">Toàn bộ công nợ của khách</option>
+              {unpaidOrders.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.order_code} ({formatVND(o.remaining_amount)})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <div>
+          <label
+            htmlFor="reminder-message"
+            className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]"
           >
-            {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-            <span>{saving ? 'Đang lưu lịch nhắc...' : 'Lưu lịch hẹn nhắc'}</span>
-          </button>
-        </form>
-      </div>
-    </div>
+            Nội dung thông báo
+          </label>
+          <textarea
+            id="reminder-message"
+            rows={2}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] p-3 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={saving}
+          className="press-tactile flex min-h-[48px] w-full items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+        >
+          {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+          <span>{saving ? 'Đang lưu lịch nhắc...' : 'Lưu lịch hẹn nhắc'}</span>
+        </button>
+      </form>
+    </ModalDialog>
   );
 }

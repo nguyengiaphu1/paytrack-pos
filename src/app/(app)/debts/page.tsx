@@ -105,21 +105,21 @@ function DebtsContent() {
         <>
           {/* KPI Strip */}
           <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <div className="glass-surface col-span-2 min-w-0 rounded-[12px] p-4 sm:col-span-1">
+            <div className="col-span-2 min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:col-span-1">
               <p className="text-[12px] font-medium text-[var(--text-secondary)]">Tổng công nợ</p>
-              <p className="font-mono-tabular mt-1 break-words text-[22px] font-bold text-[var(--status-debt)] sm:text-[24px]">
+              <p className="font-mono-tabular mt-1 break-words text-[20px] font-bold text-[var(--status-debt)] sm:text-[24px]">
                 {formatVND(summary.totalShopDebt)}
               </p>
             </div>
-            <div className="glass-surface min-w-0 rounded-[12px] p-4">
+            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
               <p className="text-[12px] font-medium text-[var(--text-secondary)]">Khách đang nợ</p>
-              <p className="font-mono-tabular mt-1 text-[20px] font-bold text-[var(--text-primary)] sm:text-[22px]">
+              <p className="font-mono-tabular mt-1 text-[20px] font-bold text-[var(--text-primary)]">
                 {summary.debtorCount}
               </p>
             </div>
-            <div className="glass-surface min-w-0 rounded-[12px] p-4">
+            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
               <p className="text-[12px] font-medium text-[var(--text-secondary)]">Đến hạn / Quá hạn</p>
-              <p className="font-mono-tabular mt-1 text-[20px] font-bold text-[var(--status-overdue)] sm:text-[22px]">
+              <p className="font-mono-tabular mt-1 text-[20px] font-bold text-[var(--status-overdue)]">
                 {summary.dueOrOverdueCount}
               </p>
             </div>
@@ -224,13 +224,13 @@ function DebtsContent() {
                           {cust.name}
                         </span>
                         {isOverdue && (
-                          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--status-overdue-bg)] px-2 py-0.5 text-[11px] font-semibold text-[var(--status-overdue)]">
+                          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--status-overdue-bg)] px-2 py-0.5 text-[12px] font-semibold text-[var(--status-overdue)]">
                             <AlertCircle className="h-3 w-3" />
                             Quá hạn ({formatDateVN(cust.next_due_date)})
                           </span>
                         )}
                         {isDueToday && (
-                          <span className="shrink-0 rounded-full bg-[var(--status-debt-bg)] px-2 py-0.5 text-[11px] font-semibold text-[var(--status-debt)]">
+                          <span className="shrink-0 rounded-full bg-[var(--status-debt-bg)] px-2 py-0.5 text-[12px] font-semibold text-[var(--status-debt)]">
                             Hôm nay
                           </span>
                         )}
@@ -246,7 +246,7 @@ function DebtsContent() {
 
                     <div className="flex shrink-0 items-center gap-3">
                       <span
-                        className={`font-mono-tabular text-[16px] font-bold sm:text-[17px] ${
+                        className={`font-mono-tabular text-[16px] font-bold ${
                           cust.total_debt > 0
                             ? 'text-[var(--status-debt)]'
                             : 'text-[var(--brand-jade-text)]'

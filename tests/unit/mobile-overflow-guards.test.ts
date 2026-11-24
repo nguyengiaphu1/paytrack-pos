@@ -11,7 +11,7 @@ function readRel(relPath: string): string {
 describe('mobile-text-overflow responsive guards (375px viewport)', () => {
   it('renders StatsPage KPI cards cleanly with mobile-safe text sizing and wrapping', () => {
     const stats = readRel('src/app/(app)/stats/page.tsx');
-    expect(stats).toContain('text-[17px] font-bold');
+    expect(stats).toContain('text-[16px] font-bold');
     expect(stats).toContain('break-words');
     expect(stats).toContain('min-w-0');
   });

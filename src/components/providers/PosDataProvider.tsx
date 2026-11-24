@@ -8,11 +8,27 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { formatErrorMessageVN } from '@/lib/errors';
+import {
+  EMPTY_POS_DRAFT,
+  getPosDraftSnapshot,
+  subscribePosDraft,
+  updatePosDraft,
+  type PosDraftState,
+} from '@/lib/pos-draft';
 import { useRealtimeSync, type SyncStatus } from '@/hooks/useRealtimeSync';
-import type { AnalyticsSummary, Customer, Order, Product, ShopProfile } from '@/types/database';
+import type {
+  AnalyticsSummary,
+  CartItem,
+  Customer,
+  Order,
+  Product,
+  ShopProfile,
+} from '@/types/database';
 
 const ORDERS_PAGE_SIZE = 200;
 
@@ -33,6 +49,20 @@ interface PosDataContextValue {
   ordersError: string | null;
   profileError: string | null;
   analyticsVersion: number;
+  cart: CartItem[];
+  discount: number;
+  selectedCustomerId: string | null;
+  addProductToCart: (product: Product) => void;
+  setProductQtyInCart: (product: Product, nextQty: number) => void;
+  syncProductInCart: (product: Product) => void;
+  addQuickItemToCart: (item: CartItem) => void;
+  updateCartItemQty: (key: string, nextQty: number) => void;
+  removeCartItem: (key: string) => void;
+  setCartDiscount: (discount: number) => void;
+  setSelectedCustomerId: (customerId: string | null) => void;
+  clearCartDraft: () => PosDraftState;
+  restoreCartDraft: (snapshot: PosDraftState) => void;
+  resetOrderDraftAfterSave: () => void;
   ensurePosCatalog: () => Promise<void>;
   refreshPosCatalog: () => Promise<void>;
   ensureCustomers: () => Promise<void>;
@@ -59,7 +89,16 @@ interface PosDataContextValue {
   invalidateAfterMutation: () => void;
 }
 
+interface ShellPosContextValue {
+  syncStatus: SyncStatus;
+  profile: ShopProfile | null;
+  productsCount: number;
+  setProfileLocal: (profile: ShopProfile) => void;
+  upsertProductLocal: (product: Product) => void;
+}
+
 const PosDataContext = createContext<PosDataContextValue | null>(null);
+const ShellPosContext = createContext<ShellPosContextValue | null>(null);
 
 interface PosDataProviderProps {
   initialProfile: ShopProfile | null;
@@ -85,6 +124,172 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
   const [customersError, setCustomersError] = useState<string | null>(null);
   const [ordersError, setOrdersError] = useState<string | null>(null);
   const [profileError, setProfileError] = useState<string | null>(null);
+
+  const draftUserId = profile?.user_id ?? initialProfile?.user_id ?? 'active';
+  const subscribeDraft = useCallback(
+    (listener: () => void) => subscribePosDraft(draftUserId, listener),
+    [draftUserId]
+  );
+  const getDraftClient = useCallback(
+    () => getPosDraftSnapshot(draftUserId),
+    [draftUserId]
+  );
+  const draft = useSyncExternalStore(
+    subscribeDraft,
+    getDraftClient,
+    () => EMPTY_POS_DRAFT
+  );
+
+  const addProductToCart = useCallback(
+    (product: Product) => {
+      updatePosDraft(draftUserId, (prev) => {
+        const idx = prev.cart.findIndex((i) => i.key === product.id);
+        const nextCart =
+          idx >= 0
+            ? prev.cart.map((item, i) =>
+                i === idx
+                  ? { ...item, quantity: Number((item.quantity + 1).toFixed(2)) }
+                  : item
+              )
+            : [
+                ...prev.cart,
+                {
+                  key: product.id,
+                  product_id: product.id,
+                  product_name: product.name,
+                  unit: product.unit,
+                  unit_price: product.price,
+                  cost_price: product.cost_price,
+                  quantity: 1,
+                },
+              ];
+        return { ...prev, cart: nextCart };
+      });
+    },
+    [draftUserId]
+  );
+
+  const setProductQtyInCart = useCallback(
+    (product: Product, nextQty: number) => {
+      updatePosDraft(draftUserId, (prev) => {
+        if (nextQty <= 0) {
+          return { ...prev, cart: prev.cart.filter((i) => i.key !== product.id) };
+        }
+        const idx = prev.cart.findIndex((i) => i.key === product.id);
+        const nextCart =
+          idx >= 0
+            ? prev.cart.map((item, i) => (i === idx ? { ...item, quantity: nextQty } : item))
+            : [
+                ...prev.cart,
+                {
+                  key: product.id,
+                  product_id: product.id,
+                  product_name: product.name,
+                  unit: product.unit,
+                  unit_price: product.price,
+                  cost_price: product.cost_price,
+                  quantity: nextQty,
+                },
+              ];
+        return { ...prev, cart: nextCart };
+      });
+    },
+    [draftUserId]
+  );
+
+  const syncProductInCart = useCallback(
+    (product: Product) => {
+      updatePosDraft(draftUserId, (prev) => {
+        if (!prev.cart.some((i) => i.product_id === product.id)) return prev;
+        return {
+          ...prev,
+          cart: prev.cart.map((item) =>
+            item.product_id === product.id
+              ? {
+                  ...item,
+                  product_name: product.name,
+                  unit: product.unit,
+                  unit_price: product.price,
+                  cost_price: product.cost_price,
+                }
+              : item
+          ),
+        };
+      });
+    },
+    [draftUserId]
+  );
+
+  const addQuickItemToCart = useCallback(
+    (item: CartItem) => {
+      updatePosDraft(draftUserId, (prev) => ({
+        ...prev,
+        cart: [...prev.cart, item],
+      }));
+    },
+    [draftUserId]
+  );
+
+  const updateCartItemQty = useCallback(
+    (key: string, nextQty: number) => {
+      updatePosDraft(draftUserId, (prev) => ({
+        ...prev,
+        cart: prev.cart.map((i) => (i.key === key ? { ...i, quantity: nextQty } : i)),
+      }));
+    },
+    [draftUserId]
+  );
+
+  const removeCartItem = useCallback(
+    (key: string) => {
+      updatePosDraft(draftUserId, (prev) => ({
+        ...prev,
+        cart: prev.cart.filter((i) => i.key !== key),
+      }));
+    },
+    [draftUserId]
+  );
+
+  const setCartDiscount = useCallback(
+    (nextDiscount: number) => {
+      updatePosDraft(draftUserId, (prev) => ({
+        ...prev,
+        discount: Math.max(0, Math.round(nextDiscount)),
+      }));
+    },
+    [draftUserId]
+  );
+
+  const setSelectedCustomerId = useCallback(
+    (customerId: string | null) => {
+      updatePosDraft(draftUserId, (prev) => ({
+        ...prev,
+        selectedCustomerId: customerId,
+      }));
+    },
+    [draftUserId]
+  );
+
+  const clearCartDraft = useCallback((): PosDraftState => {
+    const previous = getPosDraftSnapshot(draftUserId);
+    updatePosDraft(draftUserId, (prev) => ({
+      ...prev,
+      cart: [],
+      discount: 0,
+    }));
+    return previous;
+  }, [draftUserId]);
+
+  const restoreCartDraft = useCallback(
+    (snapshot: PosDraftState) => {
+      updatePosDraft(draftUserId, () => snapshot);
+    },
+    [draftUserId]
+  );
+
+  const resetOrderDraftAfterSave = useCallback(() => {
+    updatePosDraft(draftUserId, () => EMPTY_POS_DRAFT);
+  }, [draftUserId]);
 
   const analyticsCacheRef = useRef<Map<string, AnalyticsSummary>>(new Map());
   const [analyticsVersion, setAnalyticsVersion] = useState(0);
@@ -121,9 +326,7 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
         loadedFlagsRef.current.profile = true;
         setProfileLoaded(true);
       } catch (err) {
-        setProfileError(
-          err instanceof Error ? err.message : 'Không tải được cài đặt cửa hàng.'
-        );
+        setProfileError(formatErrorMessageVN(err, 'Không tải được cài đặt cửa hàng.'));
       }
     })().finally(() => {
       inflightRef.current.profile = null;
@@ -170,9 +373,7 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
           setProfileLoaded(true);
         }
       } catch (err) {
-        setCatalogError(
-          err instanceof Error ? err.message : 'Không tải được danh sách sản phẩm.'
-        );
+        setCatalogError(formatErrorMessageVN(err, 'Không tải được danh sách sản phẩm.'));
       }
     })().finally(() => {
       inflightRef.current.posCatalog = null;
@@ -199,9 +400,7 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
           setCustomersLoaded(true);
         }
       } catch (err) {
-        setCustomersError(
-          err instanceof Error ? err.message : 'Không tải được sổ nợ khách hàng.'
-        );
+        setCustomersError(formatErrorMessageVN(err, 'Không tải được sổ nợ khách hàng.'));
       }
     })().finally(() => {
       inflightRef.current.customers = null;
@@ -234,9 +433,7 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
           setOrdersLoaded(true);
         }
       } catch (err) {
-        setOrdersError(
-          err instanceof Error ? err.message : 'Không tải được sổ bán hàng.'
-        );
+        setOrdersError(formatErrorMessageVN(err, 'Không tải được sổ bán hàng.'));
       }
     })().finally(() => {
       inflightRef.current.orders = null;
@@ -305,7 +502,7 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
       }
       const { data, error } = await supabase.rpc('get_analytics_summary', params);
       if (error) {
-        return { data: null, error: error.message };
+        return { data: null, error: formatErrorMessageVN(error, 'Không tải được thống kê.') };
       }
       const summary = data as AnalyticsSummary;
       analyticsCacheRef.current.set(key, summary);
@@ -405,6 +602,17 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
     channelName: 'shell-sync',
   });
 
+  const shellValue = useMemo<ShellPosContextValue>(
+    () => ({
+      syncStatus,
+      profile,
+      productsCount: products.length,
+      setProfileLocal,
+      upsertProductLocal,
+    }),
+    [syncStatus, profile, products.length, setProfileLocal, upsertProductLocal]
+  );
+
   const value = useMemo<PosDataContextValue>(
     () => ({
       syncStatus,
@@ -423,6 +631,20 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
       ordersError,
       profileError,
       analyticsVersion,
+      cart: draft.cart,
+      discount: draft.discount,
+      selectedCustomerId: draft.selectedCustomerId,
+      addProductToCart,
+      setProductQtyInCart,
+      syncProductInCart,
+      addQuickItemToCart,
+      updateCartItemQty,
+      removeCartItem,
+      setCartDiscount,
+      setSelectedCustomerId,
+      clearCartDraft,
+      restoreCartDraft,
+      resetOrderDraftAfterSave,
       ensurePosCatalog,
       refreshPosCatalog,
       ensureCustomers,
@@ -457,6 +679,20 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
       ordersError,
       profileError,
       analyticsVersion,
+      draft.cart,
+      draft.discount,
+      draft.selectedCustomerId,
+      addProductToCart,
+      setProductQtyInCart,
+      syncProductInCart,
+      addQuickItemToCart,
+      updateCartItemQty,
+      removeCartItem,
+      setCartDiscount,
+      setSelectedCustomerId,
+      clearCartDraft,
+      restoreCartDraft,
+      resetOrderDraftAfterSave,
       ensurePosCatalog,
       refreshPosCatalog,
       ensureCustomers,
@@ -476,7 +712,19 @@ export function PosDataProvider({ initialProfile, children }: PosDataProviderPro
     ]
   );
 
-  return <PosDataContext.Provider value={value}>{children}</PosDataContext.Provider>;
+  return (
+    <ShellPosContext.Provider value={shellValue}>
+      <PosDataContext.Provider value={value}>{children}</PosDataContext.Provider>
+    </ShellPosContext.Provider>
+  );
+}
+
+export function useShellPosData(): ShellPosContextValue {
+  const ctx = useContext(ShellPosContext);
+  if (!ctx) {
+    throw new Error('useShellPosData must be used inside PosDataProvider');
+  }
+  return ctx;
 }
 
 export function usePosData(): PosDataContextValue {

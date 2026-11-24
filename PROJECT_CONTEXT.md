@@ -1,19 +1,19 @@
 # PayTrack POS — Project Context & Agent Quickstart
 
 > **Purpose**: Single-source-of-truth context file for AI assistants and developers. Read this file first in a new session instead of scanning the entire repository.
-> **Last Updated**: 2026-11-23 (`v2.0.1` — Phase 8 Convergence Polish: Orders Date-Range Filter, Dot-Thousands K Guard, Sticky Table & Multi-Meta Theme Sync)
+> **Last Updated**: 2026-11-24 (`fix/ui-impeccable-overhaul` — Full Impeccable Overhaul + Critique v2/v3 P1/P2 Remediation + Audit Optimize; 80/80 tests pass)
 
 ---
 
 ## 1. Project Overview & Tech Stack
 
-**PayTrack POS** (`v2.0.1`) is a responsive Vietnamese retail POS, 12-field sales ledger with cost/profit & 9 payment accounts, FIFO customer debt ledger, multi-device Web Push reminder (iPhone Safari PWA + Windows Chrome/Edge), dynamic VietQR, customizable e-invoice (`PNG` / `A5` / `80mm`), Excel-safe CSV export, and visual analytics web app.
+**PayTrack POS** (`v2.0.1`) is a responsive Vietnamese home online-shop sales ledger and rapid order-entry app (juggling Zalo/Messenger chats on iPhone `375px` + evening 12-column ledger/profit reconciliation on Windows `1280px+`), with 12-field sales ledger & 9 payment accounts, FIFO customer debt ledger, multi-device Web Push reminder (iPhone Safari PWA + Windows Chrome/Edge), dynamic VietQR, customizable e-invoice (`PNG` / `A5` / `80mm`), Excel-safe CSV export, and visual analytics.
 
 - **Framework**: Next.js `^16.4.6` (App Router, Turbopack dev), React `^19.3.1`, TypeScript `^5.9.0`
-- **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`), 60–30–10 Light/Dark WCAG AA CSS custom properties + intentional `.glass-dock`/`.glass-surface` utilities (`prefers-reduced-transparency` + `prefers-reduced-motion` compliant) in `src/app/globals.css`, fonts `Be Vietnam Pro` + `JetBrains Mono`
+- **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`), 60–30–10 Light/Dark WCAG AA CSS custom properties (`--status-debt: #9A4306` in Light for `5.95:1` contrast) + intentional `.glass-dock`/`.glass-surface` utilities (`prefers-reduced-transparency` + opacity-preserving `prefers-reduced-motion` compliant) in `src/app/globals.css`, fonts `Be Vietnam Pro` + `JetBrains Mono` (`>= 12px` Vietnamese floor, `>= 16px` input floor)
 - **Database / Auth / Realtime / Cron**: Supabase (`@supabase/ssr ^0.9.0`, `@supabase/supabase-js ^2.100.0`, Postgres 17, `pg_cron` + `pg_net`)
-- **Utilities**: `qrcode` (EMVCo/Napas 247 VietQR), `html-to-image` (PNG export/share), `web-push` (VAPID Web Push), `recharts` (charts), `lucide-react` (icons)
-- **Testing**: `vitest ^4.1.0` (unit tests in `tests/unit/` — 9 suites, 59 tests)
+- **Utilities**: `qrcode` (dynamically imported EMVCo/Napas 247 VietQR), `html-to-image` (dynamically imported PNG export/share), `web-push` (VAPID Web Push), `recharts` (charts), `lucide-react` (icons)
+- **Testing**: `vitest ^4.1.0` (unit tests in `tests/unit/` — 12 suites, 80 tests)
 
 ---
 
@@ -21,6 +21,7 @@
 
 ### Git Topology
 - `main`: Active production branch (`v2.0.1` via PR #1–#9). Create feature/fix/chore branches from `main` — **do not commit directly to `main`**.
+- Active overhaul branch: `fix/ui-impeccable-overhaul` (branched from `main` at `e00a4da`; PR into `main`).
 - Previous branches: `feat/spec-kit-foundation` (PR #1), `feat/001-paytrack-pos-mvp` (PR #2), `feat/002-ux-polish-theme` (PR #3), `fix/cron-reminders-not-firing` (PR #4), `chore/release-1.1.1` (PR #5), `fix/daily-digest-not-firing` (PR #6), `chore/release-1.1.2` (PR #7), `feat/003-mom-ledger-glass-dock` (PR #8), `fix/003-converge-polish` (PR #9). Tags: `v1.0.0`–`v2.0.1`.
 
 ### Live Infrastructure
@@ -81,11 +82,11 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 - `src/app/auth/callback/route.ts`: PKCE code exchange (`exchangeCodeForSession`).
 - `src/app/(app)/layout.tsx`: Server auth guard + `shop_profiles` fallback upsert + `PosDataProvider` & `AppShell`.
 - `src/app/(app)/loading.tsx`: App shell route skeleton (`PosWorkspaceSkeleton`).
-- `src/app/(app)/page.tsx`: **POS Workspace** — contextual due-debt pill (only when due debtors > 0), **exposed glass Customer Bar (`CustomerPicker`) at top on mobile & desktop**, `ProductCatalog` with inline `-`/`+` steppers, desktop sticky `CartPanel`, mobile floating cart pill stacked above Glass Dock, `CheckoutModal` (K-unit inputs, 9 payment accounts, `purchased_at`/`paid_at`, editable buyer snapshot).
-- `src/app/(app)/debts/page.tsx`: **Debt Ledger** — `.glass-surface` KPI strip & search/filter (searches name, phone, address), deep-links (`?customer=`, `?filter=due`), opens `DebtCustomerDrawer`.
-- `src/app/(app)/orders/page.tsx`: **12-Column Sales Ledger** — `.glass-surface` totals strip (Giá bán / Giá vốn / Lãi / Còn nợ excluding cancelled) & filter bar (search + status + 9 payment accounts + `Chưa có TK` + VN date presets & custom `Từ`/`Đến` range on `purchased_at`), bounded scrollable 12-column sticky desktop table & overflow-free mobile cards (unified `Chưa nhập vốn` badge), `OrderLedgerEditModal` (manual dates/account/buyer/item costs), inline `CollectDebtModal`, UTF-8 BOM Excel CSV export (`Xuất CSV`), pagination (`loadMoreOrders`), deduplicated Order Detail actions, `InvoicePreviewModal`, `VietQRModal`, `cancel_order`.
-- `src/app/(app)/stats/page.tsx`: **Analytics** — date presets + 9 payment account filter, 7 KPI cards (Giá bán, Giá vốn, Lãi, Thực thu, Nợ mới, Tổng nợ, Số đơn), `RevenueCashChart`, `PaymentBreakdownChart`, `DebtAgingCard`, top products & top debtors.
-- `src/app/(app)/settings/page.tsx`: **Simplified 4-Section Settings** — (1) Cửa hàng & VietQR, (2) Nhắc nợ (`PushNotificationSetup` single-row toggle + collapsible `<details>` diagnostics + daily digest time with `shouldResetDigestSentDate` reset & inline save feedback above submit button), (3) Giao diện (`SettingsThemeSelector`), (4) Tài khoản (email + Đăng xuất).
+- `src/app/(app)/page.tsx`: **POS Workspace** — compact header + contextual alerts, primary column housing flat compact `CustomerPicker` (with `<Check>` + `Enter`-to-select single match) + `ProductCatalog` (unified 1-row search/`Món lẻ`/`Thêm SP`, desktop `/` + `Enter`-to-add shortcut, horizontal scrollable categories, conditional `Đã ẩn (N)` with 1-tap unarchive, explicit `Sửa` edit mode, `sm:items-start` grid alignment, mobile ledger rows & desktop 2–3 col cards, `QtyNumberInput`), desktop sticky `CartPanel` (`lg:max-h-[calc(100dvh-168px)]` preventing Floating Glass Dock overlap, full-width clear confirm strip + 10s Undo banner, `syncProductInCart` on edit), mobile floating cart pill + pinned-footer `ModalDialog` cart drawer (`variant="sheet"`), online-first `CheckoutModal` (session-keyed snapshot, post-RPC fallback confirmation resilience, `Enter`-safe inline buyer search/create with smooth scroll-focus, partial-over-total recovery, explicit paid/debt submit label, itemized preview, MRU `PaymentAccountSelector`, optional `Tính tiền thối`, collapsed bookkeeping disclosure, context-adaptive primary `Hóa đơn` / `Tạo QR` post-save CTAs).
+- `src/app/(app)/debts/page.tsx`: **Debt Ledger** — flat ledger KPI strip & `.glass-surface` search/filter (searches name, phone, address), deep-links (`?customer=`, `?filter=due`), opens `DebtCustomerDrawer` (`ModalDialog` stacked cleanly under `CollectDebtModal` / `ReminderModal` / `VietQRModal`).
+- `src/app/(app)/orders/page.tsx`: **12-Column Sales Ledger** — flat ledger totals strip (Giá bán / Giá vốn / Lãi / Còn nợ excluding cancelled) & `.glass-surface` filter bar (search + status + 9 payment accounts + `Chưa có TK` + VN date presets & custom `Từ`/`Đến` range on `purchased_at`), bounded scrollable 12-column sticky desktop table & overflow-free mobile cards (unified `Chưa nhập vốn` badge), `ModalDialog` order detail & `OrderLedgerEditModal` (full `htmlFor`/`id` bindings), inline `CollectDebtModal`, UTF-8 BOM Excel CSV export (`Xuất CSV`), pagination (`loadMoreOrders`), deduplicated Order Detail actions, `InvoicePreviewModal` (paid-order smart QR default, `Gửi ảnh` primary CTA, download feedback), `VietQRModal` (`context="order" | "debt"`, preserved order memo, dynamic `qrcode`), `cancel_order`.
+- `src/app/(app)/stats/page.tsx`: **Analytics** — date presets + 9 payment account filter, 7 flat KPI cards (`16px` mobile / `20px` desktop), `RevenueCashChart`, `PaymentBreakdownChart`, `DebtAgingCard`, top products & top debtors (proper `h1` -> `h2` hierarchy).
+- `src/app/(app)/settings/page.tsx`: **Simplified 4-Section Settings** — (1) Shop & VietQR (`Shop của Mẹ`, full `htmlFor`/`id` bindings), (2) Nhắc nợ (`PushNotificationSetup` single-row toggle + collapsible `<details>` diagnostics + daily digest time with `shouldResetDigestSentDate` reset & inline save feedback above submit button), (3) Giao diện (`SettingsThemeSelector`), (4) Tài khoản (email + `Thiết lập nhanh` re-triggering onboarding + Đăng xuất).
 
 ### API Routes & Service Worker
 - `src/app/api/push/subscribe/route.ts`: `GET` (devices + pending/overdue/due/cronHeartbeat/digestStatus), `POST` upsert, `DELETE` remove.
@@ -96,34 +97,41 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 
 ### Libraries, Hooks, Providers & Components
 - `src/types/database.ts`: Shared TS interfaces (`PaymentAccount`, `ShopProfile`, `Product`, `Customer`, `Order`, `OrderItem`, `DebtPayment`, `DebtReminder`, `PushSubscriptionRecord`, `CartItem`, `AnalyticsSummary`).
-- `src/lib/vietnamese.ts`: `stripVietnamese`, `formatVND`, `computeLineTotal`, `computeOrderTotals`, VN date/time helpers, `shouldResetDigestSentDate`, `buildZaloDebtMessage`.
+- `src/lib/vietnamese.ts`: `stripVietnamese`, `formatVND`, `computeLineTotal`, `computeOrderTotals`, VN date/time helpers, `shouldResetDigestSentDate`, `buildZaloDebtMessage` (normalizes walk-in names `Khách lẻ`/`Khách hàng` to polite `anh/chị`).
 - `src/lib/currency-k.ts`: `sanitizeKInput`, `parseKToVnd`, `formatVndToKInput`, `detectLikelyFullVndMistake` (K-unit `<->` VND `bigint` conversion, pure-integer 1000x guard, and Vietnamese dot-grouped thousands `"125.000"`/`"1.250.000"` safeguard).
 - `src/lib/ledger.ts`: `PAYMENT_ACCOUNTS`, `isPaymentAccount`, `formatPaymentAccount`, `summarizeOrderItems`, `computeItemsCostTotal`, `computeOrderProfit`, `hasMissingCostPrice`, `computeLedgerTotals`, `resolveOrderPaidAt`, `toVnDateInput`, `dateInputToVnIso`, `computeVnDatePresetRange`, `isOrderInVnDateRange`, `buildLedgerCsv` (12-column UTF-8 BOM CSV).
+- `src/lib/errors.ts`: `formatErrorMessageVN` translating raw network/JWT/Postgres errors to natural Vietnamese.
+- `src/lib/pos-draft.ts`: `useSyncExternalStore`-backed `localStorage` POS draft persistence + `sanitizeQtyInput`/`parseQtyDraft`/`formatQtyForInput`.
+- `src/lib/checkout-prefs.ts`: Online-first checkout preference & MRU 4-account quick-pick persistence (`getQuickPickAccounts`).
 - `src/lib/vietqr.ts`, `src/lib/theme.ts` (multi-tag `meta[name="theme-color"]` sync), `src/lib/welcome.ts`, `src/lib/push.ts`, `src/lib/reminders-cron.ts`, `src/lib/supabase/{client,server,admin}.ts`.
-- `src/hooks/useRealtimeSync.ts`, `src/components/providers/{ThemeProvider,PosDataProvider}.tsx` (`PosDataProvider` fetches nested `order_items`, sorts by `purchased_at DESC`, supports `loadMoreOrders`, `upsertOrderLocal`, and `paymentAccount` analytics).
-- `src/components/shell/AppShell.tsx`: Slim translucent top bar + unified bottom **Floating Glass Dock** (`.glass-dock`) on both `375px` and `1280px` (no desktop left rail), `useAppUser()` (`userId`, `userEmail`, `openOnboarding`).
-- `src/components/ui/`: `BrandMark.tsx`, `AppBootSplash.tsx`, `BrandLoadingScreen.tsx`, `VndKInput.tsx`, `PaymentAccountSelector.tsx`, `ThemeToggle.tsx`, `PageSkeletons.tsx`, `EmptyStateCard.tsx`.
-- `src/components/orders/OrderLedgerEditModal.tsx`, `src/components/pos/*`, `src/components/debts/*`, `src/components/qr/VietQRModal.tsx` (uses `VndKInput` for custom amount), `src/components/invoice/{InvoicePreviewModal,ReceiptTemplate}.tsx`, `src/components/stats/*`, `src/components/pwa/PushNotificationSetup.tsx`, `src/components/welcome/WelcomeOnboardingModal.tsx`.
+- `src/hooks/useRealtimeSync.ts`, `src/components/providers/{ThemeProvider,PosDataProvider}.tsx` (`PosDataProvider` exports split `useShellPosData()` isolating `AppShell` from cart mutations, `syncProductInCart()`, persists POS draft via `useSyncExternalStore`, resets customer on save, fetches nested `order_items`, sorts by `purchased_at DESC`, supports `loadMoreOrders`, `upsertOrderLocal`, and `paymentAccount` analytics).
+- `src/components/shell/AppShell.tsx`: Consumes `useShellPosData()`, skip-to-main-content link (`#main-content`), slim translucent top bar (`SyncStatusPill` `"Đã đồng bộ"` with `role="status"`), and unified bottom **Floating Glass Dock** (`.glass-dock`, `12px` mobile dock labels) on both `375px` and `1280px` (no desktop left rail), `useAppUser()` (`userId`, `userEmail`, `openOnboarding`).
+- `src/components/ui/`: `ModalDialog.tsx` (stacked `Escape`, `Tab` focus trap, focus restoration, scroll lock, `hasOpenModalDialog()` — wired across all 13 app dialogs/drawers), `QtyNumberInput.tsx`, `BrandMark.tsx`, `AppBootSplash.tsx`, `BrandLoadingScreen.tsx`, `VndKInput.tsx`, `PaymentAccountSelector.tsx` (MRU 3-chip default + 2-group expand + `aria-pressed`), `ThemeToggle.tsx`, `PageSkeletons.tsx`, `EmptyStateCard.tsx`.
+- `src/components/orders/OrderLedgerEditModal.tsx`, `src/components/pos/*`, `src/components/debts/*`, `src/components/qr/VietQRModal.tsx` (`context="order" | "debt"`, dynamic `qrcode` + `html-to-image`, `VndKInput`, `aria-pressed`), `src/components/invoice/{InvoicePreviewModal,ReceiptTemplate}.tsx` (paid-order smart QR default, calm Jade settled badge, `Gửi ảnh` primary CTA, dynamic `qrcode` + `html-to-image`), `src/components/stats/*`, `src/components/pwa/PushNotificationSetup.tsx`, `src/components/welcome/WelcomeOnboardingModal.tsx` (3-step progressive accordion, accurate completion check, auto-saves dirty inputs on finish).
 
-### Unit Tests (`tests/unit/` — 9 files, 59 tests)
+### Unit Tests (`tests/unit/` — 12 files, 80 tests)
 - `currency-k.test.ts` (`K <-> VND`, `.`/`,` decimals, round-trip, 1000x & dot-grouped thousands guards)
 - `ledger.test.ts` (9 payment accounts + `Khác`, item summaries, profit excluding cancelled, missing cost detection, `paid_at` resolution, VN date inputs & date-range presets, 12-col UTF-8 BOM CSV)
 - `ux-guards.test.ts` (60–30–10 + `.glass-dock`/`.glass-surface`, `prefers-reduced-transparency` & `prefers-reduced-motion`, PWA icons & `AppBootSplash`, Floating Glass Dock without `228px` rail, exposed POS Customer Bar, simplified Settings, `.print-surface-light`, strict AI-slop bans, `>= 16px` inputs, `>= 44px` touch targets)
-- `mobile-overflow-guards.test.ts`, `tab-cache-architecture.test.ts`, `theme-and-welcome.test.ts`, `vietnamese.test.ts`, `vietqr.test.ts`, `reminders-cron.test.ts`.
+- `harden-resilience.test.ts` (Vietnamese error mapping, `pos-draft` persistence, `QtyNumberInput`, session-keyed Checkout snapshot, 2-tap clear confirm + Undo)
+- `distill-checkout.test.ts` (online-first `full_transfer` default, MRU account ordering, `context="order"` VietQR copy)
+- `audit-a11y.test.ts` (`ModalDialog` mechanics & all 13 wired dialogs, `htmlFor`/`id` across POS & secondary routes, `ProductCatalog` `/` shortcut & live announcements, desktop sticky cart dock clearance, strict `>= 12px` legibility floor, opacity-preserving `prefers-reduced-motion`, `#main-content` skip link, dynamic `html-to-image` & `qrcode`, split `useShellPosData`, `aria-pressed` toggles, Checkout `Enter`-key & paid-receipt QR guards)
+- `mobile-overflow-guards.test.ts`, `tab-cache-architecture.test.ts`, `theme-and-welcome.test.ts`, `vietnamese.test.ts` (incl. walk-in `anh/chị` greeting), `vietqr.test.ts`, `reminders-cron.test.ts`.
 
 ---
 
 ## 5. Non-Negotiable Conventions & Workflows
 
-1. **Design & Anti-AI-Slop (`DESIGN.md`, `PRODUCT.md`, Constitution `v1.1.0`)**:
-   - **60–30–10 Light**: `#F5F7F6` canvas (60%), `#FFFFFF` sheets & `.glass-dock`/`.glass-surface` (30%), `#0E6B4E` Jade / `#B45309` debt / `#B91C1C` overdue (10%).
-   - **60–30–10 Dark (`:root[data-theme="dark"]`)**: `#0D1215` canvas, `#151C21` surface, `#1D272E` subtle, `#293640` borders, `#F1F5F4` ink, `#15805E` Jade CTA / `#4CC39B` Jade text. `.print-surface-light` lock on receipts & VietQR.
-   - **Semantic Glass Only**: Real-time blur is restricted exclusively to `.glass-dock` and `.glass-surface` in `globals.css` (with `prefers-reduced-transparency` fallback). Permanent AI-slop bans: `indigo-`, `purple-`, `bg-clip-text`, `Sparkles`, `animate-bounce`, `tracking-widest`, scattered `backdrop-blur`/`shadow-lg`/`rounded-2xl`/`rounded-3xl` in TSX.
-   - **Mobile Ergonomics**: `>= 16px` form controls, `>= 44px`/`48px` touch targets, concise Vietnamese retail copy.
+1. **Design & Anti-AI-Slop (`DESIGN.md`, `.impeccable/design-full.md`, `.impeccable/design.json`, `PRODUCT.md`, Constitution `v1.1.0`)**:
+   - **60–30–10 Light**: `#F5F7F6` canvas (60%), `#FFFFFF` sheets & `.glass-dock`/`.glass-surface` (30%), `#0E6B4E` Jade / `#9A4306` debt (`5.95:1` on `#FEF3C7`) / `#B91C1C` overdue (10%).
+   - **60–30–10 Dark (`:root[data-theme="dark"]`)**: `#0D1215` canvas, `#151C21` surface, `#1D272E` subtle, `#293640` borders, `#F1F5F4` ink, `#15805E` Jade CTA / `#4CC39B` Jade text, `+0.005em` body tracking. `.print-surface-light` lock on receipts & VietQR.
+   - **Canonical Typography**: 7 Operate steps (`12 / 13 / 14 / 15 / 16 / 20 / 24px`), `>= 12px` Vietnamese diacritic floor (zero `10px`/`11px`), `>= 16px` input floor, `text-wrap: balance` on headings, `text-wrap: pretty` on paragraphs.
+   - **Semantic Glass Only**: Real-time blur is restricted exclusively to `.glass-dock` and `.glass-surface` in `globals.css` (floating chrome, filter bars, and login card only — never inline scrolling KPI or form cards; `prefers-reduced-transparency` fallback). Permanent AI-slop bans: `indigo-`, `purple-`, `bg-clip-text`, `Sparkles`, `animate-bounce`, `tracking-widest`, scattered `backdrop-blur`/`shadow-lg`/`rounded-2xl`/`rounded-3xl` in TSX.
+   - **Mobile Ergonomics & A11y**: `>= 44px`/`48px` touch targets, all 13 dialogs on `ModalDialog`, full `htmlFor`/`id` + `aria-pressed` semantics, concise Vietnamese home online-shop copy (`Shop của Mẹ`).
 2. **Data Integrity**: Integer VND (`bigint`) everywhere in DB & VietQR; `K` conversion strictly at UI layer; never expose secrets/tokens in client code or git.
 3. **Spec Kit & Impeccable Workflows**:
    - Features under `specs/<NNN>-<slug>/` (active feature tracked in `.specify/feature.json`, gitignored).
-   - Shared `impeccable` config in `.impeccable/config.json` (`"telemetry": false`); caches/shots/local reports ignored in `.gitignore`.
+   - Shared `impeccable` `0.1.27` context: `PRODUCT.md` (schema 1, `web`), `DESIGN.md` (compacted map) + `.impeccable/design-full.md`, `.impeccable/design.json` (schemaVersion 2), `.impeccable/surfaces/`, `.impeccable/config.json` (`telemetry: false`, `buildPath: "comp"`, `reports.commit: false`), `.impeccable/live/config.json`. Local reports/reviews ignored in `.gitignore`.
 4. **Verification Gate Before Any Commit/PR**:
    ```bash
    npm run typecheck && npm run lint && npm test && npm run build
@@ -135,7 +143,9 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 
 - **Live in Production (`v2.0.1` via PR #8–#9 on `main`, deployed to `https://paytrack-pos.vercel.app`)**:
   - Live Supabase (`mezuxaqvbtjbbtugsohm`) migrated through `0005_mom_ledger_fields.sql`.
-  - Feature `003-mom-ledger-glass-dock` **100% converged** (`T001`–`T037`, `0` remaining findings): 12-field sales ledger + 9 payment accounts + VN date-range filter + UTF-8 BOM CSV + sticky 12-col desktop table + unified `Chưa nhập vốn` badge, `VndKInput` (`K` / `.000đ` + 1000x & Vietnamese dot-thousands guard), exposed POS Customer Bar, `-`/`+` product steppers, 60–30–10 Floating Glass Dock, crisp PWA icons + zero-flash `AppBootSplash`, multi-tag `meta[name="theme-color"]` sync, and 4-section simplified Settings (`59/59` unit tests pass).
+  - Feature `003-mom-ledger-glass-dock` **100% converged** (`T001`–`T037`).
+- **PR Ready on `fix/ui-impeccable-overhaul`**:
+  - Completed full Impeccable `0.1.27` context standardization, 7-step UI/UX overhaul (`harden` -> `distill` -> `clarify` -> `audit` -> `layout` -> `typeset` -> `polish`), Audit Optimize pass, and Critique v2/v3 P1/P2 remediation (`0` errors / `0` warnings / `0` font-size advisories in `impeccable detect --json src`, all 13 dialogs on `ModalDialog`, `80/80` unit tests passing, production build verified).
 
 ---
 
@@ -162,3 +172,4 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 | 2026-11-17 | `v1.1.2` Settings & Daily Digest Fix (`PR #6`, `PR #7`) | Fixed Settings form remount hiding save banner, added `shouldResetDigestSentDate()` in-day reschedule reset, and added `digestStatus` diagnostics. |
 | 2026-11-23 | `v2.0.0` 12-Field Ledger & Floating Glass Dock (`PR #8`) | Applied migration `0005` live, merged PR #8 & tagged `v2.0.0`: RPCs (`update_order_ledger_fields`, 9 payment accounts, cost/profit, `purchased_at`/`paid_at`), `VndKInput` (`K` / `.000đ` + 1000x guard), inline `-`/`+` steppers, exposed POS Customer Bar, 12-col Sales Ledger + inline debt collect + UTF-8 BOM CSV export, 60–30–10 Floating Glass Dock, crisp PWA icons + zero-flash `AppBootSplash`, 4-section simplified Settings, and full AI-slop copy purge (`58/58` tests pass). |
 | 2026-11-23 | `v2.0.1` Phase 8 Convergence Polish (`PR #9`) | Merged PR #9 & tagged `v2.0.1` (`T032`–`T037`, converged 0 findings): added `/orders` date-range filter (`purchased_at`), dot-grouped thousands safeguard (`"125.000"`/`"1.250.000"`), deduplicated paid-order VietQR CTA, multi-tag `meta[name="theme-color"]` sync, sticky 12-col desktop table scroll bound, and unified `Chưa nhập vốn` badge (`59/59` tests pass). |
+| 2026-11-24 | `fix/ui-impeccable-overhaul` | Full Impeccable `0.1.27` overhaul + Critique v2/v3/v4 P1/P2 remediation + Audit Optimize: `ModalDialog` across all 13 dialogs, `useShellPosData` context split, dynamic `qrcode` + `html-to-image`, flat scrolling KPI cards, `--status-debt` `#9A4306` (`5.95:1`) & `--status-overdue-solid` `#DC2626` (`4.83:1` dark), `parseKToVnd` direct multi-dot millions (`1.250.000`), `CheckoutModal` post-RPC fallback + `Enter`-safe buyer search/create + auto-scroll errors + `noValidate` + partial-over-total guard + adaptive paid/debt CTAs + `Ctrl/Cmd+Enter` shortcut, paid-receipt smart VietQR default & calm Jade settled badge, pinned mobile/desktop `CartPanel` + 10s Undo + `syncProductInCart`, 1-row `375px` search bar + `iconOnly` mobile theme button, 3-step `WelcomeOnboardingModal` accordion, `buildZaloDebtMessage` walk-in `anh/chị` copy, full secondary-route `htmlFor`/`id` & `aria-pressed` semantics (`80/80` tests pass, `0` detector errors/warnings). |

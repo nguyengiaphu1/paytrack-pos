@@ -57,6 +57,13 @@ export function parseKToVnd(raw: string): number | null {
   const trimmed = raw.trim().replace(/\s+/g, '');
   if (!trimmed) return null;
 
+  // Unambiguous Vietnamese dot-grouped millions (e.g. "1.250.000", "2.500.000")
+  // must parse directly to exact integer VND rather than silently returning null.
+  if (DOT_THOUSANDS_FULL_RE.test(trimmed) && (trimmed.match(/\./g) ?? []).length >= 2) {
+    const groupedVnd = Number(trimmed.replace(/\./g, ''));
+    return Number.isFinite(groupedVnd) && groupedVnd >= 0 ? Math.round(groupedVnd) : null;
+  }
+
   // Replace Vietnamese comma decimal with dot
   const normalized = trimmed.replace(/,/g, '.');
 

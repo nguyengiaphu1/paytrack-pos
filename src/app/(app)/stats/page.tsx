@@ -217,49 +217,49 @@ export default function StatsPage() {
 
           {/* KPI Grid */}
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-7">
-            <div className="glass-surface min-w-0 rounded-[12px] p-3.5">
+            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
               <p className="text-[12px] font-medium text-[var(--text-secondary)]">Giá bán</p>
-              <p className="font-mono-tabular mt-1 break-words text-[17px] font-bold text-[var(--text-primary)] sm:text-[19px]">
+              <p className="font-mono-tabular mt-1 break-words text-[16px] font-bold text-[var(--text-primary)] sm:text-[20px]">
                 {formatVND(kpis.total_revenue)}
               </p>
             </div>
-            <div className="glass-surface min-w-0 rounded-[12px] p-3.5">
+            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
               <p className="text-[12px] font-medium text-[var(--text-secondary)]">Giá vốn</p>
-              <p className="font-mono-tabular mt-1 break-words text-[17px] font-bold text-[var(--text-secondary)] sm:text-[19px]">
+              <p className="font-mono-tabular mt-1 break-words text-[16px] font-bold text-[var(--text-secondary)] sm:text-[20px]">
                 {formatVND(totalCost)}
               </p>
             </div>
-            <div className="glass-surface min-w-0 rounded-[12px] p-3.5">
+            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
               <p className="text-[12px] font-medium text-[var(--text-secondary)]">Lãi</p>
               <p
-                className={`font-mono-tabular mt-1 break-words text-[17px] font-bold sm:text-[19px] ${
+                className={`font-mono-tabular mt-1 break-words text-[16px] font-bold sm:text-[20px] ${
                   totalProfit >= 0 ? 'text-[var(--brand-jade-text)]' : 'text-[var(--status-overdue)]'
                 }`}
               >
                 {formatVND(totalProfit)}
               </p>
             </div>
-            <div className="glass-surface min-w-0 rounded-[12px] p-3.5">
+            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
               <p className="text-[12px] font-medium text-[var(--text-secondary)]">Thực thu</p>
-              <p className="font-mono-tabular mt-1 break-words text-[17px] font-bold text-[var(--brand-jade-text)] sm:text-[19px]">
+              <p className="font-mono-tabular mt-1 break-words text-[16px] font-bold text-[var(--brand-jade-text)] sm:text-[20px]">
                 {formatVND(kpis.cash_collected)}
               </p>
             </div>
-            <div className="glass-surface min-w-0 rounded-[12px] p-3.5">
+            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
               <p className="text-[12px] font-medium text-[var(--text-secondary)]">Nợ mới</p>
-              <p className="font-mono-tabular mt-1 break-words text-[17px] font-bold text-[var(--status-debt)] sm:text-[19px]">
+              <p className="font-mono-tabular mt-1 break-words text-[16px] font-bold text-[var(--status-debt)] sm:text-[20px]">
                 {formatVND(kpis.new_debt_created)}
               </p>
             </div>
-            <div className="glass-surface min-w-0 rounded-[12px] p-3.5">
+            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
               <p className="text-[12px] font-medium text-[var(--text-secondary)]">Tổng nợ</p>
-              <p className="font-mono-tabular mt-1 break-words text-[17px] font-bold text-[var(--status-overdue)] sm:text-[19px]">
+              <p className="font-mono-tabular mt-1 break-words text-[16px] font-bold text-[var(--status-overdue)] sm:text-[20px]">
                 {formatVND(kpis.total_outstanding_debt)}
               </p>
             </div>
-            <div className="glass-surface min-w-0 rounded-[12px] p-3.5">
+            <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
               <p className="text-[12px] font-medium text-[var(--text-secondary)]">Số đơn</p>
-              <p className="font-mono-tabular mt-1 text-[17px] font-bold text-[var(--text-primary)] sm:text-[19px]">
+              <p className="font-mono-tabular mt-1 text-[16px] font-bold text-[var(--text-primary)] sm:text-[20px]">
                 {kpis.order_count}
               </p>
             </div>
@@ -292,7 +292,7 @@ export default function StatsPage() {
           {/* Top Products & Top Debtors */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
-              <h3 className="mb-3 text-[16px] font-bold">Món bán chạy</h3>
+              <h2 className="mb-3 text-[16px] font-bold">Món bán chạy</h2>
               {activeSummary.top_products.length === 0 ? (
                 <p className="text-[14px] text-[var(--text-secondary)]">Chưa có dữ liệu.</p>
               ) : (
@@ -318,7 +318,7 @@ export default function StatsPage() {
             </div>
 
             <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
-              <h3 className="mb-3 text-[16px] font-bold">Nợ nhiều nhất</h3>
+              <h2 className="mb-3 text-[16px] font-bold">Nợ nhiều nhất</h2>
               {activeSummary.top_debtors.length === 0 ? (
                 <p className="text-[14px] text-[var(--text-secondary)]">Không có khách nợ.</p>
               ) : (

@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, ChevronUp, Landmark, ShoppingBag, Users, X } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowRight, ChevronUp, Landmark, RotateCcw, ShoppingBag, Users, X } from 'lucide-react';
 import { computeOrderTotals, formatVND, getTodayVN } from '@/lib/vietnamese';
+import type { PosDraftState } from '@/lib/pos-draft';
 import { usePosData } from '@/components/providers/PosDataProvider';
-import type { CartItem, Product } from '@/types/database';
+import type { Product } from '@/types/database';
 import { CustomerPicker } from '@/components/pos/CustomerPicker';
 import { ProductCatalog } from '@/components/pos/ProductCatalog';
 import { ProductFormModal } from '@/components/pos/ProductFormModal';
@@ -13,6 +14,7 @@ import { QuickItemModal } from '@/components/pos/QuickItemModal';
 import { CartPanel } from '@/components/pos/CartPanel';
 import { CheckoutModal } from '@/components/pos/CheckoutModal';
 import { FetchErrorCard, PosWorkspaceSkeleton } from '@/components/ui/PageSkeletons';
+import { hasOpenModalDialog, ModalDialog } from '@/components/ui/ModalDialog';
 
 export default function PosWorkspacePage() {
   const {
@@ -21,6 +23,20 @@ export default function PosWorkspacePage() {
     catalogError,
     customers,
     profile,
+    cart,
+    discount,
+    selectedCustomerId,
+    addProductToCart,
+    setProductQtyInCart,
+    syncProductInCart,
+    addQuickItemToCart,
+    updateCartItemQty,
+    removeCartItem,
+    setCartDiscount,
+    setSelectedCustomerId,
+    clearCartDraft,
+    restoreCartDraft,
+    resetOrderDraftAfterSave,
     ensurePosCatalog,
     refreshPosCatalog,
     upsertProductLocal,
@@ -28,83 +44,68 @@ export default function PosWorkspacePage() {
     invalidateAfterMutation,
   } = usePosData();
 
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [discount, setDiscount] = useState(0);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
-
   const [productModalOpen, setProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [quickItemOpen, setQuickItemOpen] = useState(false);
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [checkoutSessionId, setCheckoutSessionId] = useState(0);
+  const [clearedDraftUndo, setClearedDraftUndo] = useState<PosDraftState | null>(null);
+  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     void ensurePosCatalog();
   }, [ensurePosCatalog]);
 
-  function handleAddProductToCart(product: Product) {
-    setCart((prev) => {
-      const idx = prev.findIndex((i) => i.key === product.id);
-      if (idx >= 0) {
-        return prev.map((item, i) =>
-          i === idx ? { ...item, quantity: Number((item.quantity + 1).toFixed(2)) } : item
-        );
+  useEffect(() => {
+    return () => {
+      if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && cart.length > 0 && !hasOpenModalDialog()) {
+        e.preventDefault();
+        setCheckoutSessionId((id) => id + 1);
+        setCheckoutOpen(true);
       }
-      return [
-        ...prev,
-        {
-          key: product.id,
-          product_id: product.id,
-          product_name: product.name,
-          unit: product.unit,
-          unit_price: product.price,
-          cost_price: product.cost_price,
-          quantity: 1,
-        },
-      ];
-    });
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [cart.length]);
+
+  function openCheckout() {
+    setCheckoutSessionId((id) => id + 1);
+    setCheckoutOpen(true);
   }
 
-  function handleSetProductQty(product: Product, nextQty: number) {
-    setCart((prev) => {
-      if (nextQty <= 0) {
-        return prev.filter((i) => i.key !== product.id);
-      }
-      const idx = prev.findIndex((i) => i.key === product.id);
-      if (idx >= 0) {
-        return prev.map((item, i) => (i === idx ? { ...item, quantity: nextQty } : item));
-      }
-      return [
-        ...prev,
-        {
-          key: product.id,
-          product_id: product.id,
-          product_name: product.name,
-          unit: product.unit,
-          unit_price: product.price,
-          cost_price: product.cost_price,
-          quantity: nextQty,
-        },
-      ];
-    });
+  function handleClearCart() {
+    const previous = clearCartDraft();
+    setMobileCartOpen(false);
+    if (previous.cart.length > 0) {
+      setClearedDraftUndo(previous);
+      if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+      undoTimerRef.current = setTimeout(() => {
+        setClearedDraftUndo(null);
+      }, 10000);
+    }
   }
 
-  function handleAddQuickItem(item: CartItem) {
-    setCart((prev) => [...prev, item]);
-  }
-
-  function handleUpdateQty(key: string, nextQty: number) {
-    setCart((prev) => prev.map((i) => (i.key === key ? { ...i, quantity: nextQty } : i)));
-  }
-
-  function handleRemoveItem(key: string) {
-    setCart((prev) => prev.filter((i) => i.key !== key));
+  function handleUndoClearCart() {
+    if (!clearedDraftUndo) return;
+    restoreCartDraft(clearedDraftUndo);
+    setClearedDraftUndo(null);
+    if (undoTimerRef.current) {
+      clearTimeout(undoTimerRef.current);
+      undoTimerRef.current = null;
+    }
   }
 
   function handleOrderCreated() {
-    setCart([]);
-    setDiscount(0);
+    resetOrderDraftAfterSave();
     setMobileCartOpen(false);
+    setClearedDraftUndo(null);
     invalidateAfterMutation();
   }
 
@@ -139,12 +140,12 @@ export default function PosWorkspacePage() {
 
   return (
     <div
-      className={`mx-auto max-w-[1440px] px-3 py-4 sm:px-6 lg:py-5 ${
+      className={`mx-auto max-w-[1440px] px-3 py-2.5 sm:px-6 sm:py-4 lg:py-5 ${
         cart.length > 0 ? 'pb-20 lg:pb-5' : ''
       }`}
     >
       {/* Compact Page Header + Contextual Alerts */}
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+      <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2 sm:mb-3">
         <h1 className="text-[20px] font-bold tracking-[-0.015em] text-[var(--text-primary)] lg:text-[24px]">
           Bán hàng
         </h1>
@@ -173,6 +174,35 @@ export default function PosWorkspacePage() {
         </div>
       </div>
 
+      {/* Undo banner after clearing cart */}
+      {clearedDraftUndo && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="animate-fade-in mb-2.5 flex flex-wrap items-center justify-between gap-2 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 py-2 text-[13px] text-[var(--text-primary)] sm:mb-3"
+        >
+          <span>Đã xóa giỏ hàng ({clearedDraftUndo.cart.length} món).</span>
+          <div className="flex shrink-0 items-center gap-1.5">
+            <button
+              type="button"
+              onClick={handleUndoClearCart}
+              className="press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-[var(--status-paid-bg)] px-3 text-[13px] font-bold text-[var(--brand-jade-text)]"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              <span>Hoàn tác</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setClearedDraftUndo(null)}
+              aria-label="Đóng thông báo"
+              className="flex h-11 w-11 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Error / Skeleton / Split-Pane Workspace */}
       {catalogError && !productsLoaded ? (
         <FetchErrorCard
@@ -183,52 +213,47 @@ export default function PosWorkspacePage() {
       ) : loading ? (
         <PosWorkspaceSkeleton />
       ) : (
-        <div className="space-y-3.5">
-          {/* Exposed Customer Bar (always visible directly on 375px mobile & 1280px desktop) */}
-          <CustomerPicker
-            customers={customers}
-            selectedCustomerId={selectedCustomerId}
-            onSelect={(c) => setSelectedCustomerId(c?.id ?? null)}
-            onCustomerCreated={upsertCustomerLocal}
-            className="glass-surface rounded-[12px]"
-          />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-start lg:gap-5">
+          {/* Primary Column: Buyer Bar + Product Catalog */}
+          <div className="min-w-0 space-y-2.5 sm:space-y-3 lg:col-span-7 xl:col-span-8">
+            <CustomerPicker
+              customers={customers}
+              selectedCustomerId={selectedCustomerId}
+              onSelect={(c) => setSelectedCustomerId(c?.id ?? null)}
+              onCustomerCreated={upsertCustomerLocal}
+            />
 
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
-            <div className="min-w-0 lg:col-span-7 xl:col-span-8">
-              <ProductCatalog
-                products={products}
-                cartQtyByProductId={cartQtyByProductId}
-                onAddToCart={handleAddProductToCart}
-                onSetProductQty={handleSetProductQty}
-                onOpenNewProduct={() => {
-                  setEditingProduct(null);
-                  setProductModalOpen(true);
-                }}
-                onEditProduct={(prod) => {
-                  setEditingProduct(prod);
-                  setProductModalOpen(true);
-                }}
-                onOpenQuickItem={() => setQuickItemOpen(true)}
+            <ProductCatalog
+              products={products}
+              cartQtyByProductId={cartQtyByProductId}
+              onAddToCart={addProductToCart}
+              onSetProductQty={setProductQtyInCart}
+              onOpenNewProduct={() => {
+                setEditingProduct(null);
+                setProductModalOpen(true);
+              }}
+              onEditProduct={(prod) => {
+                setEditingProduct(prod);
+                setProductModalOpen(true);
+              }}
+              onOpenQuickItem={() => setQuickItemOpen(true)}
+            />
+          </div>
+
+          {/* Desktop Sticky Cart Column */}
+          <div className="hidden lg:col-span-5 lg:block xl:col-span-4">
+            <div className="sticky top-[70px]">
+              <CartPanel
+                items={cart}
+                discount={discount}
+                discountInputId="cart-discount-desktop"
+                onChangeDiscount={setCartDiscount}
+                onUpdateQty={updateCartItemQty}
+                onRemoveItem={removeCartItem}
+                onClearCart={handleClearCart}
+                selectedCustomer={selectedCustomer}
+                onOpenCheckout={openCheckout}
               />
-            </div>
-
-            {/* Desktop Sticky Cart Column */}
-            <div className="hidden lg:col-span-5 lg:block xl:col-span-4">
-              <div className="sticky top-[70px]">
-                <CartPanel
-                  items={cart}
-                  discount={discount}
-                  onChangeDiscount={setDiscount}
-                  onUpdateQty={handleUpdateQty}
-                  onRemoveItem={handleRemoveItem}
-                  onClearCart={() => {
-                    setCart([]);
-                    setDiscount(0);
-                  }}
-                  selectedCustomer={selectedCustomer}
-                  onOpenCheckout={() => setCheckoutOpen(true)}
-                />
-              </div>
             </div>
           </div>
         </div>
@@ -261,70 +286,64 @@ export default function PosWorkspacePage() {
         </div>
       )}
 
-      {/* Mobile Cart Sheet Drawer */}
-      {mobileCartOpen && (
-        <div
-          className="animate-backdrop-in fixed inset-0 z-40 flex items-end bg-black/45 lg:hidden"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Giỏ hàng"
-        >
-          <div className="animate-sheet-up max-h-[90dvh] w-full overflow-y-auto rounded-t-[16px] bg-[var(--bg-canvas)] p-3 pb-[calc(16px+env(safe-area-inset-bottom))]">
-            <div className="mb-2 flex items-center justify-between gap-2 px-1">
-              <span className="min-w-0 flex-1 truncate text-[16px] font-bold text-[var(--text-primary)]">
-                Đơn hàng
-              </span>
-              <button
-                type="button"
-                onClick={() => setMobileCartOpen(false)}
-                aria-label="Đóng"
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[var(--bg-surface)] text-[var(--text-secondary)]"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <CartPanel
-              items={cart}
-              discount={discount}
-              onChangeDiscount={setDiscount}
-              onUpdateQty={handleUpdateQty}
-              onRemoveItem={handleRemoveItem}
-              onClearCart={() => {
-                setCart([]);
-                setDiscount(0);
-                setMobileCartOpen(false);
-              }}
-              selectedCustomer={selectedCustomer}
-              onOpenCheckout={() => {
-                setMobileCartOpen(false);
-                setCheckoutOpen(true);
-              }}
-            />
-          </div>
-        </div>
-      )}
+      {/* Mobile Cart Sheet Drawer (single unified CartPanel with pinned header & Thanh toán CTA) */}
+      <ModalDialog
+        open={mobileCartOpen}
+        onClose={() => setMobileCartOpen(false)}
+        ariaLabelledBy="mobile-cart-sheet-title"
+        backdropClassName="animate-backdrop-in fixed inset-0 z-40 flex items-end bg-black/45 lg:hidden"
+        panelClassName="animate-sheet-up flex max-h-[90dvh] w-full flex-col overflow-hidden rounded-t-[16px] bg-[var(--bg-canvas)] p-2.5 pb-[calc(14px+env(safe-area-inset-bottom))]"
+      >
+        <CartPanel
+          variant="sheet"
+          onCloseSheet={() => setMobileCartOpen(false)}
+          items={cart}
+          discount={discount}
+          discountInputId="cart-discount-mobile"
+          onChangeDiscount={setCartDiscount}
+          onUpdateQty={updateCartItemQty}
+          onRemoveItem={removeCartItem}
+          onClearCart={handleClearCart}
+          selectedCustomer={selectedCustomer}
+          onOpenCheckout={() => {
+            setMobileCartOpen(false);
+            openCheckout();
+          }}
+        />
+      </ModalDialog>
 
       <ProductFormModal
         open={productModalOpen}
         onClose={() => setProductModalOpen(false)}
         product={editingProduct}
-        onSaved={() => void refreshPosCatalog()}
+        onSaved={(saved) => {
+          if (saved) {
+            upsertProductLocal(saved);
+            syncProductInCart(saved);
+          } else {
+            void refreshPosCatalog();
+          }
+        }}
       />
 
       <QuickItemModal
         open={quickItemOpen}
         onClose={() => setQuickItemOpen(false)}
-        onAddItem={handleAddQuickItem}
+        onAddItem={addQuickItemToCart}
         onSavedToCatalog={upsertProductLocal}
       />
 
       <CheckoutModal
         open={checkoutOpen}
+        sessionId={checkoutSessionId}
         onClose={() => setCheckoutOpen(false)}
         items={cart}
         discount={discount}
+        customers={customers}
         selectedCustomer={selectedCustomer}
         profile={profile}
+        onSelectCustomer={(c) => setSelectedCustomerId(c?.id ?? null)}
+        onCustomerCreated={upsertCustomerLocal}
         onOrderCreated={handleOrderCreated}
         onCustomerUpdated={upsertCustomerLocal}
       />

@@ -45,7 +45,7 @@ describe('slow-tab-navigation cache & single-realtime architecture', () => {
   it('enables Next.js link prefetching in AppShell and configures sin1 region in vercel.json', () => {
     const shell = readRel('src/components/shell/AppShell.tsx');
     expect(shell).toContain('prefetch={true}');
-    expect(shell).toContain('usePosData');
+    expect(shell).toContain('useShellPosData');
 
     const vercelConfig = JSON.parse(readRel('vercel.json')) as { regions?: string[] };
     expect(vercelConfig.regions).toContain('sin1');
