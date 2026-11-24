@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckCircle2, Loader2, LogOut, Save } from 'lucide-react';
+import { BookOpen, CheckCircle2, Loader2, LogOut, Save } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import {
   getCurrentTimeHHMM_VN,
@@ -27,7 +27,7 @@ export default function SettingsPage() {
     refreshProfile,
     setProfileLocal,
   } = usePosData();
-  const { userEmail } = useAppUser();
+  const { userEmail, openOnboarding } = useAppUser();
 
   useEffect(() => {
     void ensureProfile();
@@ -56,6 +56,7 @@ export default function SettingsPage() {
           <SettingsFormBody
             profile={profile}
             userEmail={userEmail}
+            openOnboarding={openOnboarding}
             setProfileLocal={setProfileLocal}
           />
         )}
@@ -67,10 +68,12 @@ export default function SettingsPage() {
 function SettingsFormBody({
   profile,
   userEmail,
+  openOnboarding,
   setProfileLocal,
 }: {
   profile: ShopProfile | null;
   userEmail: string;
+  openOnboarding: () => void;
   setProfileLocal: (profile: ShopProfile) => void;
 }) {
   const router = useRouter();
@@ -79,7 +82,7 @@ function SettingsFormBody({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const syncedProfileIdRef = useRef<string | null>(profile?.id ?? null);
-  const [shopName, setShopName] = useState(profile?.shop_name ?? 'Tạp Hóa Mẹ');
+  const [shopName, setShopName] = useState(profile?.shop_name ?? 'Shop của Mẹ');
   const [phone, setPhone] = useState(profile?.phone ?? '');
   const [address, setAddress] = useState(profile?.address ?? '');
   const [bankBin, setBankBin] = useState(profile?.bank_bin ?? '');
@@ -95,7 +98,7 @@ function SettingsFormBody({
     if (!profile) return;
     if (syncedProfileIdRef.current === profile.id) return;
     syncedProfileIdRef.current = profile.id;
-    setShopName(profile.shop_name ?? 'Tạp Hóa Mẹ');
+    setShopName(profile.shop_name ?? 'Shop của Mẹ');
     setPhone(profile.phone ?? '');
     setAddress(profile.address ?? '');
     setBankBin(profile.bank_bin ?? '');
@@ -140,7 +143,7 @@ function SettingsFormBody({
 
       const upsertPayload: Record<string, unknown> = {
         user_id: user.id,
-        shop_name: shopName.trim() || 'Tạp Hóa Mẹ',
+        shop_name: shopName.trim() || 'Shop của Mẹ',
         phone: phone.trim() || null,
         address: address.trim() || null,
         bank_bin: bankBin.trim() || null,
@@ -209,10 +212,14 @@ function SettingsFormBody({
 
           <div className="space-y-3">
             <div>
-              <label className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]">
+              <label
+                htmlFor="settings-shop-name"
+                className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]"
+              >
                 Tên cửa hàng *
               </label>
               <input
+                id="settings-shop-name"
                 type="text"
                 required
                 value={shopName}
@@ -226,10 +233,14 @@ function SettingsFormBody({
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="min-w-0">
-                <label className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]">
+                <label
+                  htmlFor="settings-shop-phone"
+                  className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]"
+                >
                   Số điện thoại
                 </label>
                 <input
+                  id="settings-shop-phone"
                   type="tel"
                   value={phone}
                   onChange={(e) => {
@@ -241,10 +252,14 @@ function SettingsFormBody({
                 />
               </div>
               <div className="min-w-0">
-                <label className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]">
+                <label
+                  htmlFor="settings-shop-address"
+                  className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]"
+                >
                   Địa chỉ
                 </label>
                 <input
+                  id="settings-shop-address"
                   type="text"
                   value={address}
                   onChange={(e) => {
@@ -260,10 +275,14 @@ function SettingsFormBody({
 
           <div className="space-y-3 border-t border-[var(--border-default)] pt-4">
             <div>
-              <label className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]">
+              <label
+                htmlFor="settings-bank-bin"
+                className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]"
+              >
                 Ngân hàng nhận QR
               </label>
               <select
+                id="settings-bank-bin"
                 value={bankBin}
                 onChange={(e) => {
                   const selectedBin = e.target.value;
@@ -285,10 +304,14 @@ function SettingsFormBody({
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="min-w-0">
-                <label className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]">
+                <label
+                  htmlFor="settings-bank-account-no"
+                  className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]"
+                >
                   Số tài khoản
                 </label>
                 <input
+                  id="settings-bank-account-no"
                   type="text"
                   inputMode="numeric"
                   value={bankAccountNo}
@@ -301,10 +324,14 @@ function SettingsFormBody({
                 />
               </div>
               <div className="min-w-0">
-                <label className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]">
+                <label
+                  htmlFor="settings-bank-account-name"
+                  className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]"
+                >
                   Chủ tài khoản
                 </label>
                 <input
+                  id="settings-bank-account-name"
                   type="text"
                   value={bankAccountName}
                   onChange={(e) => {
@@ -396,14 +423,24 @@ function SettingsFormBody({
             </p>
           )}
         </div>
-        <button
-          type="button"
-          onClick={handleLogout}
-          className="press-tactile flex min-h-[46px] shrink-0 items-center gap-2 rounded-[10px] border border-[var(--status-overdue-border)] px-4 text-[14px] font-semibold text-[var(--status-overdue)] hover:bg-[var(--status-overdue-bg)]"
-        >
-          <LogOut className="h-4 w-4" />
-          <span>Đăng xuất</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={openOnboarding}
+            className="press-tactile flex min-h-[46px] shrink-0 items-center gap-2 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-3.5 text-[14px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
+          >
+            <BookOpen className="h-4 w-4 text-[var(--brand-jade-text)]" />
+            <span>Thiết lập nhanh</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="press-tactile flex min-h-[46px] shrink-0 items-center gap-2 rounded-[10px] border border-[var(--status-overdue-border)] px-4 text-[14px] font-semibold text-[var(--status-overdue)] hover:bg-[var(--status-overdue-bg)]"
+          >
+            <LogOut className="h-4 w-4" />
+            <span>Đăng xuất</span>
+          </button>
+        </div>
       </section>
     </div>
   );

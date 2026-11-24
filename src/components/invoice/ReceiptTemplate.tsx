@@ -1,6 +1,5 @@
 'use client';
 
-import QRCode from 'qrcode';
 import { useEffect, useMemo, useState } from 'react';
 import type { InvoiceFormat, Order, OrderItem, ShopProfile } from '@/types/database';
 import { buildVietQRPayload, sanitizeVietQRMemo } from '@/lib/vietqr';
@@ -52,27 +51,25 @@ export function ReceiptTemplate({
       return;
     }
     let cancelled = false;
-    try {
-      const payload = buildVietQRPayload({
-        bankBin: profile.bank_bin,
-        accountNo: profile.bank_account_no,
-        amount: qrAmount,
-        memo: qrMemo,
-      });
-      QRCode.toDataURL(payload, {
-        width: 300,
-        margin: 1,
-        color: { dark: '#141A21', light: '#FFFFFF' },
-      })
-        .then((url) => {
-          if (!cancelled) setQrState({ key: qrKey, url });
-        })
-        .catch(() => {
-          if (!cancelled) setQrState({ key: qrKey, url: '' });
+    (async () => {
+      try {
+        const payload = buildVietQRPayload({
+          bankBin: profile.bank_bin!,
+          accountNo: profile.bank_account_no!,
+          amount: qrAmount,
+          memo: qrMemo,
         });
-    } catch {
-      // Invalid bank info -> no QR rendered
-    }
+        const QRCode = (await import('qrcode')).default;
+        const url = await QRCode.toDataURL(payload, {
+          width: 300,
+          margin: 1,
+          color: { dark: '#141A21', light: '#FFFFFF' },
+        });
+        if (!cancelled) setQrState({ key: qrKey, url });
+      } catch {
+        if (!cancelled) setQrState({ key: qrKey, url: '' });
+      }
+    })();
     return () => {
       cancelled = true;
     };
@@ -89,8 +86,8 @@ export function ReceiptTemplate({
     >
       {/* Shop Header */}
       <div className="border-b border-dashed border-[#CBD5E1] pb-3 text-center">
-        <h3 className={`break-words font-bold uppercase ${is80mm ? 'text-[15px]' : 'text-[18px]'}`}>
-          {profile?.shop_name ?? 'Tạp Hóa Mẹ'}
+        <h3 className={`break-words font-bold uppercase ${is80mm ? 'text-[15px]' : 'text-[20px]'}`}>
+          {profile?.shop_name ?? 'Shop của Mẹ'}
         </h3>
         {profile?.address && (
           <p className="mt-0.5 break-words text-[12px] text-[#4B5563]">{profile.address}</p>
@@ -146,7 +143,7 @@ export function ReceiptTemplate({
       {/* Line Items */}
       <table className="w-full table-fixed border-collapse py-2">
         <thead>
-          <tr className="border-b border-[#DDE2E7] text-left text-[11px] uppercase text-[#4B5563]">
+          <tr className="border-b border-[#DDE2E7] text-left text-[12px] uppercase text-[#4B5563]">
             <th className="w-[42%] py-2 font-semibold">Mặt hàng</th>
             <th className="w-[12%] py-2 text-right font-semibold">SL</th>
             <th className="w-[21%] py-2 text-right font-semibold">Đ.Giá</th>
@@ -158,7 +155,7 @@ export function ReceiptTemplate({
             <tr key={item.id}>
               <td className="break-words py-2 pr-1.5 align-top font-medium">
                 {item.product_name}
-                <span className="ml-1 text-[11px] text-[#4B5563]">({item.unit})</span>
+                <span className="ml-1 text-[12px] text-[#4B5563]">({item.unit})</span>
               </td>
               <td className="font-mono-tabular py-2 text-right align-top">
                 {Number(item.quantity)}
@@ -213,18 +210,27 @@ export function ReceiptTemplate({
                 {formatVND(order.remaining_amount)}
               </span>
             </div>
-            <div className="flex justify-between text-[15px] font-bold text-[#B45309]">
-              <span>Tổng nợ còn lại</span>
-              <span className="font-mono-tabular">{formatVND(cumulativeDebt)}</span>
+            <div
+              className={`flex justify-between text-[15px] font-bold ${
+                cumulativeDebt > 0 ? 'text-[#9A4306]' : 'text-[#0E6B4E]'
+              }`}
+            >
+              <span>{cumulativeDebt > 0 ? 'Tổng nợ còn lại' : 'Trạng thái công nợ'}</span>
+              <span className="font-mono-tabular">
+                {cumulativeDebt > 0 ? formatVND(cumulativeDebt) : 'Đã thanh toán đủ'}
+              </span>
             </div>
           </div>
+        ) : order.remaining_amount > 0 ? (
+          <div className="flex justify-between text-[14px] font-bold text-[#9A4306]">
+            <span>Còn lại chưa thu</span>
+            <span className="font-mono-tabular">{formatVND(order.remaining_amount)}</span>
+          </div>
         ) : (
-          order.remaining_amount > 0 && (
-            <div className="flex justify-between text-[14px] font-bold text-[#B45309]">
-              <span>Còn lại chưa thu</span>
-              <span className="font-mono-tabular">{formatVND(order.remaining_amount)}</span>
-            </div>
-          )
+          <div className="flex justify-between text-[13px] font-bold text-[#0E6B4E]">
+            <span>Trạng thái</span>
+            <span>Đã thanh toán đủ</span>
+          </div>
         )}
       </div>
 
@@ -246,7 +252,7 @@ export function ReceiptTemplate({
             alt="VietQR thanh toán"
             className={`my-2 border border-[#DDE2E7] ${is80mm ? 'h-[132px] w-[132px]' : 'h-[156px] w-[156px]'}`}
           />
-          <p className="text-[11px] text-[#4B5563]">
+          <p className="text-[12px] text-[#4B5563]">
             {profile?.bank_name} · <span className="font-mono-tabular">{profile?.bank_account_no}</span>
           </p>
           <p className="font-mono-tabular text-[12px] font-bold">

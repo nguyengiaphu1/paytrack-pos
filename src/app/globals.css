@@ -22,10 +22,11 @@
   --status-paid: #0F766E;
   --status-paid-bg: #D1FAE5;
   --status-paid-border: #6EE7B7;
-  --status-debt: #B45309;
+  --status-debt: #9A4306;
   --status-debt-bg: #FEF3C7;
   --status-debt-border: #FCD34D;
   --status-overdue: #B91C1C;
+  --status-overdue-solid: #B91C1C;
   --status-overdue-bg: #FEE2E2;
   --status-overdue-border: #FCA5A5;
   --skeleton-base: #E4EAE8;
@@ -58,6 +59,7 @@
   --status-debt-bg: #33250C;
   --status-debt-border: #785315;
   --status-overdue: #F87171;
+  --status-overdue-solid: #DC2626;
   --status-overdue-bg: #3A1619;
   --status-overdue-border: #7F1D1D;
   --skeleton-base: #1E2830;
@@ -105,7 +107,7 @@
   --status-paid: #0F766E;
   --status-paid-bg: #CCFBF1;
   --status-paid-border: #5EEAD4;
-  --status-debt: #B45309;
+  --status-debt: #9A4306;
   --status-debt-bg: #FEF3C7;
   --status-debt-border: #FCD34D;
   --status-overdue: #B91C1C;
@@ -136,6 +138,20 @@
     caret-color: var(--brand-jade);
   }
 
+  :root[data-theme="dark"] body {
+    letter-spacing: 0.005em;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
   /* Ngăn iOS Safari tự zoom khi chạm vào ô nhập liệu */
   input,
   select,
@@ -152,6 +168,14 @@
 .font-mono-tabular {
   font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
   font-variant-numeric: tabular-nums;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
 
 @keyframes paytrack-shimmer {
@@ -274,6 +298,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   .skeleton-shimmer,
   .boot-splash-bar {
     animation: none !important;
@@ -284,13 +312,21 @@
     transform: none !important;
   }
 
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+  .animate-modal-in,
+  .animate-sheet-up,
+  .animate-drawer-in {
+    animation: paytrack-fade-in 120ms ease-out both;
+  }
+
+  .animate-badge-pop {
+    animation: none;
+  }
+
+  :root.theme-transitioning,
+  :root.theme-transitioning *,
+  :root.theme-transitioning *::before,
+  :root.theme-transitioning *::after {
+    transition-duration: 120ms !important;
   }
 }
 
@@ -321,7 +357,7 @@
   .print-format-80mm {
     width: 72mm !important;
     max-width: 72mm !important;
-    font-size: 11px !important;
+    font-size: 12px !important;
   }
 
   .print-format-a5 {

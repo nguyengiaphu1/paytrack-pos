@@ -77,7 +77,7 @@ export default function LoginPage() {
           options: {
             emailRedirectTo: `${window.location.origin}/auth/callback`,
             data: {
-              shop_name: shopName.trim() || 'Tạp Hóa Mẹ',
+              shop_name: shopName.trim() || 'Shop của Mẹ',
             },
           },
         });
@@ -114,7 +114,7 @@ export default function LoginPage() {
         <div className="flex min-w-0 items-center gap-2.5">
           <BrandMark className="h-10 w-10 shrink-0" />
           <div className="min-w-0">
-            <h1 className="truncate text-[19px] font-bold tracking-[-0.015em] text-[var(--text-primary)]">
+            <h1 className="truncate text-[20px] font-bold tracking-[-0.015em] text-[var(--text-primary)]">
               PayTrack POS
             </h1>
             <p className="truncate text-[12px] text-[var(--text-secondary)]">
@@ -163,7 +163,7 @@ export default function LoginPage() {
           )}
 
           {mode === 'forgot' && (
-            <h2 className="mb-4 text-[18px] font-bold text-[var(--text-primary)]">
+            <h2 className="mb-4 text-[16px] font-bold text-[var(--text-primary)]">
               Đặt lại mật khẩu
             </h2>
           )}
@@ -193,7 +193,7 @@ export default function LoginPage() {
                   htmlFor="shop-name"
                   className="mb-1.5 block text-[14px] font-medium text-[var(--text-primary)]"
                 >
-                  Tên cửa hàng
+                  Tên shop
                 </label>
                 <div className="relative">
                   <Store className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
@@ -202,7 +202,7 @@ export default function LoginPage() {
                     type="text"
                     value={shopName}
                     onChange={(e) => setShopName(e.target.value)}
-                    placeholder="Tạp Hóa Mẹ"
+                    placeholder="Shop của Mẹ"
                     className="min-h-[48px] w-full rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] pr-3.5 pl-10 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
                   />
                 </div>

@@ -16,6 +16,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { ModalDialog } from '@/components/ui/ModalDialog';
 import {
   formatDateTimeVN,
   formatDateVN,
@@ -252,24 +253,24 @@ export default function OrdersPage() {
       {/* Totals Summary Bar */}
       {!loading && !ordersError && (
         <div className="mb-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-          <div className="glass-surface min-w-0 rounded-[12px] p-3.5">
+          <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
             <p className="text-[12px] font-medium text-[var(--text-secondary)]">
               Giá bán ({totals.activeCount} đơn)
             </p>
-            <p className="font-mono-tabular mt-0.5 truncate text-[17px] font-bold text-[var(--text-primary)] sm:text-[19px]">
+            <p className="font-mono-tabular mt-0.5 truncate text-[16px] font-bold text-[var(--text-primary)] sm:text-[20px]">
               {formatVND(totals.totalRevenue)}
             </p>
           </div>
-          <div className="glass-surface min-w-0 rounded-[12px] p-3.5">
+          <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
             <p className="text-[12px] font-medium text-[var(--text-secondary)]">Giá vốn</p>
-            <p className="font-mono-tabular mt-0.5 truncate text-[17px] font-bold text-[var(--text-secondary)] sm:text-[19px]">
+            <p className="font-mono-tabular mt-0.5 truncate text-[16px] font-bold text-[var(--text-secondary)] sm:text-[20px]">
               {formatVND(totals.totalCost)}
             </p>
           </div>
-          <div className="glass-surface min-w-0 rounded-[12px] p-3.5">
+          <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
             <p className="text-[12px] font-medium text-[var(--text-secondary)]">Lãi</p>
             <p
-              className={`font-mono-tabular mt-0.5 truncate text-[17px] font-bold sm:text-[19px] ${
+              className={`font-mono-tabular mt-0.5 truncate text-[16px] font-bold sm:text-[20px] ${
                 totals.totalProfit >= 0
                   ? 'text-[var(--brand-jade-text)]'
                   : 'text-[var(--status-overdue)]'
@@ -278,9 +279,9 @@ export default function OrdersPage() {
               {formatVND(totals.totalProfit)}
             </p>
           </div>
-          <div className="glass-surface min-w-0 rounded-[12px] p-3.5">
+          <div className="min-w-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5">
             <p className="text-[12px] font-medium text-[var(--text-secondary)]">Còn nợ</p>
-            <p className="font-mono-tabular mt-0.5 truncate text-[17px] font-bold text-[var(--status-debt)] sm:text-[19px]">
+            <p className="font-mono-tabular mt-0.5 truncate text-[16px] font-bold text-[var(--status-debt)] sm:text-[20px]">
               {formatVND(totals.totalRemainingDebt)}
             </p>
           </div>
@@ -512,7 +513,7 @@ export default function OrdersPage() {
                         <p className="font-semibold text-[var(--text-primary)]">
                           {order.customer_name_snapshot}
                         </p>
-                        <p className="font-mono-tabular text-[11px] text-[var(--text-secondary)]">
+                        <p className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
                           {order.order_code}
                         </p>
                       </td>
@@ -533,7 +534,7 @@ export default function OrdersPage() {
                       <td className="font-mono-tabular whitespace-nowrap px-2.5 py-3 text-right text-[var(--text-secondary)]">
                         <div>{formatVND(order.total_cost ?? 0)}</div>
                         {missingCost && (
-                          <span className="text-[11px] font-medium text-[var(--status-debt)]">
+                          <span className="text-[12px] font-medium text-[var(--status-debt)]">
                             Chưa nhập vốn
                           </span>
                         )}
@@ -555,7 +556,7 @@ export default function OrdersPage() {
                       <td className="whitespace-nowrap px-2.5 py-3">
                         <div className="flex flex-col items-start gap-1">
                           <span
-                            className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${badge.className}`}
+                            className={`rounded-full px-2 py-0.5 text-[12px] font-semibold ${badge.className}`}
                           >
                             {badge.label}
                           </span>
@@ -566,7 +567,7 @@ export default function OrdersPage() {
                                 e.stopPropagation();
                                 setCollectTargetOrder(order);
                               }}
-                              className="press-tactile inline-flex min-h-[44px] items-center gap-1 rounded-md border border-[var(--brand-jade)] px-2 text-[11px] font-semibold text-[var(--brand-jade-text)] hover:bg-[var(--status-paid-bg)]"
+                              className="press-tactile inline-flex min-h-[44px] items-center gap-1 rounded-md border border-[var(--brand-jade)] px-2 text-[12px] font-semibold text-[var(--brand-jade-text)] hover:bg-[var(--status-paid-bg)]"
                             >
                               <Banknote className="h-3.5 w-3.5" />
                               Thu
@@ -619,7 +620,7 @@ export default function OrdersPage() {
                           {order.customer_name_snapshot}
                         </span>
                         <span
-                          className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${badge.className}`}
+                          className={`rounded-full px-2 py-0.5 text-[12px] font-semibold ${badge.className}`}
                         >
                           {badge.label}
                         </span>
@@ -649,24 +650,24 @@ export default function OrdersPage() {
                   {/* Cost / Sale / Profit Strip */}
                   <div className="mt-2.5 grid grid-cols-3 gap-2 rounded-lg bg-[var(--bg-subtle)] px-2.5 py-2 text-[12px]">
                     <div className="min-w-0">
-                      <span className="block text-[11px] text-[var(--text-secondary)]">Giá vốn</span>
+                      <span className="block text-[12px] text-[var(--text-secondary)]">Giá vốn</span>
                       <span className="font-mono-tabular block truncate font-semibold text-[var(--text-primary)]">
                         {formatVND(order.total_cost ?? 0)}
                       </span>
                       {missingCost && (
-                        <span className="text-[10px] font-semibold text-[var(--status-debt)]">
+                        <span className="text-[12px] font-semibold text-[var(--status-debt)]">
                           Chưa nhập vốn
                         </span>
                       )}
                     </div>
                     <div className="min-w-0 text-center">
-                      <span className="block text-[11px] text-[var(--text-secondary)]">Giá bán</span>
+                      <span className="block text-[12px] text-[var(--text-secondary)]">Giá bán</span>
                       <span className="font-mono-tabular block truncate font-bold text-[var(--text-primary)]">
                         {formatVND(order.total_amount)}
                       </span>
                     </div>
                     <div className="min-w-0 text-right">
-                      <span className="block text-[11px] text-[var(--text-secondary)]">Lãi</span>
+                      <span className="block text-[12px] text-[var(--text-secondary)]">Lãi</span>
                       <span
                         className={`font-mono-tabular block truncate font-bold ${
                           order.payment_status === 'cancelled'
@@ -734,18 +735,21 @@ export default function OrdersPage() {
 
       {/* Order Detail Modal */}
       {selectedOrder && (
-        <div
-          className="animate-backdrop-in fixed inset-0 z-40 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-label={`Chi tiết đơn ${selectedOrder.order_code}`}
+        <ModalDialog
+          open={true}
+          onClose={() => setSelectedOrder(null)}
+          ariaLabelledBy="order-detail-modal-title"
+          backdropClassName="animate-backdrop-in fixed inset-0 z-40 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
+          panelClassName="animate-sheet-up sm:animate-modal-in max-h-[92dvh] w-full max-w-[540px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]"
         >
-          <div className="animate-sheet-up sm:animate-modal-in max-h-[92dvh] w-full max-w-[540px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]">
-            <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
-              <div className="min-w-0 flex-1">
-                <h2 className="truncate font-mono-tabular text-[17px] font-bold">
-                  {selectedOrder.order_code}
-                </h2>
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
+            <div className="min-w-0 flex-1">
+              <h2
+                id="order-detail-modal-title"
+                className="truncate font-mono-tabular text-[16px] font-bold"
+              >
+                {selectedOrder.order_code}
+              </h2>
                 <p className="truncate text-[12px] text-[var(--text-secondary)]">
                   {selectedOrder.customer_name_snapshot} · Mua{' '}
                   {formatDateVN(selectedOrder.purchased_at || selectedOrder.created_at)}
@@ -765,19 +769,19 @@ export default function OrdersPage() {
               {/* 12-field Metadata Summary */}
               <div className="grid grid-cols-2 gap-x-3 gap-y-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-3 text-[13px]">
                 <div>
-                  <span className="block text-[11px] text-[var(--text-secondary)]">SĐT</span>
+                  <span className="block text-[12px] text-[var(--text-secondary)]">SĐT</span>
                   <span className="font-mono-tabular font-medium text-[var(--text-primary)]">
                     {selectedOrder.customer_phone_snapshot || '—'}
                   </span>
                 </div>
                 <div>
-                  <span className="block text-[11px] text-[var(--text-secondary)]">Địa chỉ</span>
+                  <span className="block text-[12px] text-[var(--text-secondary)]">Địa chỉ</span>
                   <span className="break-words font-medium text-[var(--text-primary)]">
                     {selectedOrder.customer_address_snapshot || '—'}
                   </span>
                 </div>
                 <div>
-                  <span className="block text-[11px] text-[var(--text-secondary)]">Tên TK</span>
+                  <span className="block text-[12px] text-[var(--text-secondary)]">Tên TK</span>
                   <span className="font-medium text-[var(--text-primary)]">
                     {formatPaymentAccount(
                       selectedOrder.payment_account,
@@ -786,13 +790,13 @@ export default function OrdersPage() {
                   </span>
                 </div>
                 <div>
-                  <span className="block text-[11px] text-[var(--text-secondary)]">Ngày TT</span>
+                  <span className="block text-[12px] text-[var(--text-secondary)]">Ngày TT</span>
                   <span className="font-mono-tabular font-medium text-[var(--text-primary)]">
                     {selectedOrder.paid_at ? formatDateVN(selectedOrder.paid_at) : '—'}
                   </span>
                 </div>
                 <div className="col-span-2">
-                  <span className="block text-[11px] text-[var(--text-secondary)]">Ngày tạo hệ thống</span>
+                  <span className="block text-[12px] text-[var(--text-secondary)]">Ngày tạo hệ thống</span>
                   <span className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
                     {formatDateTimeVN(selectedOrder.created_at)}
                   </span>
@@ -999,8 +1003,7 @@ export default function OrdersPage() {
                 </div>
               )}
             </div>
-          </div>
-        </div>
+        </ModalDialog>
       )}
 
       <OrderLedgerEditModal

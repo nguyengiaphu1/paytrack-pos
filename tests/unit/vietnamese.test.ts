@@ -56,4 +56,25 @@ describe('vietnamese utilities & VND rounding', () => {
     expect(msg).toContain('PT NO CO LAN');
     expect(msg).toContain('DH-20261116-0001');
   });
+
+  it('uses polite anh/chị salutation when customerName is generic walk-in', () => {
+    const walkIn = buildZaloDebtMessage({
+      shopName: 'Shop của Mẹ',
+      customerName: 'Khách lẻ',
+      amount: 150000,
+      memo: 'PT DH-01',
+    });
+    expect(walkIn).toContain('Dạ anh/chị ơi');
+    expect(walkIn).toContain('Cảm ơn anh/chị nhiều ạ!');
+    expect(walkIn).not.toContain('Khách lẻ ơi');
+
+    const generic = buildZaloDebtMessage({
+      shopName: 'Shop của Mẹ',
+      customerName: 'Khách hàng',
+      amount: 150000,
+      memo: 'PT DH-02',
+    });
+    expect(generic).toContain('Dạ anh/chị ơi');
+    expect(generic).not.toContain('Khách hàng ơi');
+  });
 });

@@ -20,7 +20,7 @@ import {
   Users,
   WifiOff,
 } from 'lucide-react';
-import { usePosData } from '@/components/providers/PosDataProvider';
+import { useShellPosData } from '@/components/providers/PosDataProvider';
 import { BrandMark } from '@/components/ui/BrandMark';
 import { ThemeQuickToggle } from '@/components/ui/ThemeToggle';
 import { WelcomeOnboardingModal } from '@/components/welcome/WelcomeOnboardingModal';
@@ -74,10 +74,10 @@ export function AppShell({
   const {
     syncStatus: status,
     profile,
-    products,
+    productsCount,
     setProfileLocal,
     upsertProductLocal,
-  } = usePosData();
+  } = useShellPosData();
   const displayShopName = profile?.shop_name || shopName;
 
   const hydrated = useSyncExternalStore(
@@ -126,6 +126,13 @@ export function AppShell({
   return (
     <AppUserContext.Provider value={userCtxValue}>
       <div className="flex min-h-dvh flex-col bg-[var(--bg-canvas)] text-[var(--text-primary)]">
+        <a
+          href="#main-content"
+          className="no-print sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-3 focus:z-50 focus:inline-flex focus:min-h-[44px] focus:items-center focus:rounded-lg focus:bg-[var(--brand-jade)] focus:px-4 focus:text-[14px] focus:font-semibold focus:text-white"
+        >
+          Bỏ qua tới nội dung chính
+        </a>
+
         {/* Slim Translucent Top Bar (Mobile & Desktop) */}
         <header className="no-print glass-surface sticky top-0 z-20 border-x-0 border-t-0">
           <div className="mx-auto flex h-[54px] max-w-[1440px] items-center justify-between gap-2 px-3 sm:px-6">
@@ -140,10 +147,10 @@ export function AppShell({
               </span>
             </Link>
 
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex shrink-0 items-center gap-1.5">
               <SyncStatusPill status={status} />
               <div className="lg:hidden">
-                <ThemeQuickToggle compact />
+                <ThemeQuickToggle iconOnly />
               </div>
             </div>
           </div>
@@ -161,7 +168,9 @@ export function AppShell({
         )}
 
         {/* Full-Width Main Workspace (safe bottom padding for Floating Glass Dock) */}
-        <main className="min-w-0 flex-1 pb-[112px] lg:pb-[104px]">{children}</main>
+        <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 pb-[112px] outline-none lg:pb-[104px]">
+          {children}
+        </main>
 
         {/* Unified Floating Glass Dock (375px Mobile & 1280px Desktop) */}
         <div className="no-print pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-3 pb-[calc(10px+env(safe-area-inset-bottom))] lg:pb-4">
@@ -180,7 +189,7 @@ export function AppShell({
                   href={item.href}
                   prefetch={true}
                   aria-current={active ? 'page' : undefined}
-                  className={`press-tactile flex min-h-[52px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-[16px] px-1 text-[11px] font-medium transition-colors lg:min-h-[46px] lg:flex-initial lg:flex-row lg:gap-2 lg:px-4 lg:text-[14px] ${
+                  className={`press-tactile flex min-h-[52px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-[16px] px-0.5 text-[12px] font-medium transition-colors lg:min-h-[46px] lg:flex-initial lg:flex-row lg:gap-2 lg:px-4 lg:text-[14px] ${
                     active
                       ? 'bg-[var(--status-paid-bg)] font-semibold text-[var(--brand-jade-text)]'
                       : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
@@ -205,7 +214,7 @@ export function AppShell({
           open={onboardingOpen}
           userId={userId}
           profile={profile}
-          productsCount={products.length}
+          productsCount={productsCount}
           onClose={handleCloseOnboarding}
           setProfileLocal={setProfileLocal}
           upsertProductLocal={upsertProductLocal}
@@ -218,7 +227,11 @@ export function AppShell({
 function SyncStatusPill({ status }: { status: 'synced' | 'connecting' | 'offline' }) {
   if (status === 'offline') {
     return (
-      <div className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--status-overdue-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-overdue)]">
+      <div
+        role="status"
+        aria-live="polite"
+        className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--status-overdue-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-overdue)]"
+      >
         <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-overdue)]" />
         <span>Mất mạng</span>
       </div>
@@ -227,7 +240,11 @@ function SyncStatusPill({ status }: { status: 'synced' | 'connecting' | 'offline
 
   if (status === 'connecting') {
     return (
-      <div className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--status-debt-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-debt)]">
+      <div
+        role="status"
+        aria-live="polite"
+        className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--status-debt-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-debt)]"
+      >
         <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-debt)]" />
         <span>Đang nối</span>
       </div>
@@ -235,9 +252,13 @@ function SyncStatusPill({ status }: { status: 'synced' | 'connecting' | 'offline
   }
 
   return (
-    <div className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--status-paid-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-paid)]">
+    <div
+      role="status"
+      aria-live="polite"
+      className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--status-paid-bg)] px-2.5 py-1 text-[12px] font-semibold text-[var(--status-paid)]"
+    >
       <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-paid)]" />
-      <span>Đã lưu</span>
+      <span>Đã đồng bộ</span>
     </div>
   );
 }

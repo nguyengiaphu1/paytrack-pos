@@ -141,8 +141,13 @@ export interface ZaloReminderParams {
 }
 
 export function buildZaloDebtMessage(params: ZaloReminderParams): string {
+  const rawName = params.customerName.trim();
+  const normalized = stripVietnamese(rawName);
+  const greetingName =
+    !rawName || normalized === 'khach le' || normalized === 'khach hang' ? 'anh/chị' : rawName;
+
   const lines = [
-    `Dạ ${params.customerName} ơi, ${params.shopName} gửi thông tin thanh toán ạ:`,
+    `Dạ ${greetingName} ơi, ${params.shopName} gửi thông tin thanh toán ạ:`,
     `- Số tiền cần thanh toán: ${formatVND(params.amount)}`,
   ];
 
@@ -156,7 +161,7 @@ export function buildZaloDebtMessage(params: ZaloReminderParams): string {
   }
 
   lines.push(`- Nội dung CK: ${params.memo}`);
-  lines.push(`Cảm ơn ${params.customerName} nhiều ạ!`);
+  lines.push(`Cảm ơn ${greetingName} nhiều ạ!`);
 
   return lines.join('\n');
 }

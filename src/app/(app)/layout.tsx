@@ -33,7 +33,7 @@ export default async function AppLayout({
           user_id: user.id,
           shop_name:
             (user.user_metadata?.shop_name as string | undefined)?.trim() ||
-            'Tạp Hóa Mẹ',
+            'Shop của Mẹ',
         },
         { onConflict: 'user_id' }
       )
@@ -49,7 +49,7 @@ export default async function AppLayout({
       <AppShell
         userId={user.id}
         initialWelcomeSeen={Boolean(user.user_metadata?.welcome_v2_seen)}
-        shopName={typedProfile?.shop_name || 'Tạp Hóa Mẹ'}
+        shopName={typedProfile?.shop_name || 'Shop của Mẹ'}
         userEmail={user.email || ''}
       >
         {children}

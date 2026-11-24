@@ -36,9 +36,9 @@ export function RevenueCashChart({ data }: RevenueCashChartProps) {
 
   return (
     <div className="rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
-      <h3 className="mb-3 text-[15px] font-bold text-[var(--text-primary)]">
+      <h2 className="mb-3 text-[15px] font-bold text-[var(--text-primary)]">
         Doanh thu &amp; Thực thu theo ngày
-      </h3>
+      </h2>
 
       {chartData.length === 0 ? (
         <div className="flex h-[240px] items-center justify-center text-[14px] text-[var(--text-secondary)]">

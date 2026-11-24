@@ -21,7 +21,7 @@ export function EmptyStateCard({
       <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--bg-subtle)] text-[var(--brand-jade-text)]">
         <Icon className="h-6 w-6" />
       </div>
-      <h3 className="text-[16px] font-bold text-[var(--text-primary)]">{title}</h3>
+      <h2 className="text-[16px] font-bold text-[var(--text-primary)]">{title}</h2>
       {description && (
         <p className="mx-auto mt-1.5 max-w-[420px] text-[14px] leading-relaxed text-[var(--text-secondary)]">
           {description}

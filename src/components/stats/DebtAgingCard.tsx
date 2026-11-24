@@ -36,9 +36,9 @@ export function DebtAgingCard({ aging }: DebtAgingCardProps) {
 
   return (
     <div className="rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
-      <h3 className="mb-3.5 text-[15px] font-bold text-[var(--text-primary)]">
+      <h2 className="mb-3.5 text-[15px] font-bold text-[var(--text-primary)]">
         Tuổi nợ
-      </h3>
+      </h2>
 
       <div className="space-y-3.5">
         {buckets.map((b) => {
