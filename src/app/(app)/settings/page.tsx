@@ -204,7 +204,7 @@ function SettingsFormBody({
         {/* 1. Cửa hàng & VietQR */}
         <section
           id="bank"
-          className="space-y-4 rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:p-5"
+          className="glass-panel space-y-4 rounded-[24px] p-4 sm:p-5"
         >
           <h2 className="text-[15px] font-bold text-[var(--text-primary)]">
             Cửa hàng &amp; VietQR
@@ -214,7 +214,7 @@ function SettingsFormBody({
             <div>
               <label
                 htmlFor="settings-shop-name"
-                className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]"
+                className="mb-1.5 block text-[13px] font-medium text-[var(--text-secondary)]"
               >
                 Tên cửa hàng *
               </label>
@@ -227,7 +227,7 @@ function SettingsFormBody({
                   setShopName(e.target.value);
                   setSavedMsg(null);
                 }}
-                className="min-h-[46px] w-full rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
               />
             </div>
 
@@ -235,7 +235,7 @@ function SettingsFormBody({
               <div className="min-w-0">
                 <label
                   htmlFor="settings-shop-phone"
-                  className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]"
+                  className="mb-1.5 block text-[13px] font-medium text-[var(--text-secondary)]"
                 >
                   Số điện thoại
                 </label>
@@ -248,13 +248,13 @@ function SettingsFormBody({
                     setSavedMsg(null);
                   }}
                   placeholder="0901234567"
-                  className="font-mono-tabular min-h-[46px] w-full rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                  className="glass-input font-mono-tabular min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                 />
               </div>
               <div className="min-w-0">
                 <label
                   htmlFor="settings-shop-address"
-                  className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]"
+                  className="mb-1.5 block text-[13px] font-medium text-[var(--text-secondary)]"
                 >
                   Địa chỉ
                 </label>
@@ -267,17 +267,17 @@ function SettingsFormBody({
                     setSavedMsg(null);
                   }}
                   placeholder="Số nhà, đường..."
-                  className="min-h-[46px] w-full rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                  className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                 />
               </div>
             </div>
           </div>
 
-          <div className="space-y-3 border-t border-[var(--border-default)] pt-4">
+          <div className="glass-divider space-y-3 border-t pt-4">
             <div>
               <label
                 htmlFor="settings-bank-bin"
-                className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]"
+                className="mb-1.5 block text-[13px] font-medium text-[var(--text-secondary)]"
               >
                 Ngân hàng nhận QR
               </label>
@@ -291,7 +291,7 @@ function SettingsFormBody({
                   if (found) setBankName(found.shortName);
                   setSavedMsg(null);
                 }}
-                className="min-h-[46px] w-full rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
               >
                 <option value="">-- Chọn ngân hàng --</option>
                 {VIETNAM_BANKS.map((b) => (
@@ -306,7 +306,7 @@ function SettingsFormBody({
               <div className="min-w-0">
                 <label
                   htmlFor="settings-bank-account-no"
-                  className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]"
+                  className="mb-1.5 block text-[13px] font-medium text-[var(--text-secondary)]"
                 >
                   Số tài khoản
                 </label>
@@ -320,13 +320,13 @@ function SettingsFormBody({
                     setSavedMsg(null);
                   }}
                   placeholder="0123456789"
-                  className="font-mono-tabular min-h-[46px] w-full rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                  className="glass-input font-mono-tabular min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                 />
               </div>
               <div className="min-w-0">
                 <label
                   htmlFor="settings-bank-account-name"
-                  className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]"
+                  className="mb-1.5 block text-[13px] font-medium text-[var(--text-secondary)]"
                 >
                   Chủ tài khoản
                 </label>
@@ -339,7 +339,7 @@ function SettingsFormBody({
                     setSavedMsg(null);
                   }}
                   placeholder="NGUYEN THI LAN"
-                  className="min-h-[46px] w-full rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 uppercase text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                  className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] uppercase text-[var(--text-primary)] outline-none"
                 />
               </div>
             </div>
@@ -347,44 +347,46 @@ function SettingsFormBody({
         </section>
 
         {/* 2. Nhắc nợ */}
-        <section className="space-y-3.5 rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:p-5">
+        <section className="glass-panel space-y-3.5 rounded-[24px] p-4 sm:p-5">
           <h2 className="text-[15px] font-bold text-[var(--text-primary)]">Nhắc nợ</h2>
 
           <PushNotificationSetup embedded />
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--border-default)] pt-3.5">
-            <label className="flex min-h-[44px] min-w-0 flex-1 cursor-pointer items-center gap-2.5">
+          <div className="glass-divider border-t pt-3.5">
+            <div className="glass-well flex flex-wrap items-center justify-between gap-3 rounded-[16px] px-3.5 py-2">
+              <label className="flex min-h-[44px] min-w-0 flex-1 cursor-pointer items-center gap-2.5">
+                <input
+                  type="checkbox"
+                  checked={digestEnabled}
+                  onChange={(e) => {
+                    setDigestEnabled(e.target.checked);
+                    setSavedMsg(null);
+                  }}
+                  className="h-4 w-4 shrink-0 accent-[var(--brand-jade)]"
+                />
+                <span className="text-[14px] font-medium text-[var(--text-primary)]">
+                  Báo khách đến hạn mỗi ngày
+                </span>
+              </label>
+
               <input
-                type="checkbox"
-                checked={digestEnabled}
+                type="time"
+                value={digestHour}
                 onChange={(e) => {
-                  setDigestEnabled(e.target.checked);
+                  setDigestHour(e.target.value);
                   setSavedMsg(null);
                 }}
-                className="h-4 w-4 shrink-0 accent-[var(--brand-jade)]"
+                aria-label="Giờ nhắc mỗi ngày"
+                className="glass-input font-mono-tabular min-h-[44px] shrink-0 rounded-[14px] px-3 text-[16px] text-[var(--text-primary)] outline-none"
               />
-              <span className="text-[14px] font-medium text-[var(--text-primary)]">
-                Báo khách đến hạn mỗi ngày
-              </span>
-            </label>
-
-            <input
-              type="time"
-              value={digestHour}
-              onChange={(e) => {
-                setDigestHour(e.target.value);
-                setSavedMsg(null);
-              }}
-              aria-label="Giờ nhắc mỗi ngày"
-              className="font-mono-tabular min-h-[44px] shrink-0 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-            />
+            </div>
           </div>
         </section>
 
         {errorMsg && (
           <div
             role="alert"
-            className="animate-fade-in rounded-[10px] border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-4 py-3 text-[14px] font-medium text-[var(--status-overdue)]"
+            className="glass-badge-overdue animate-fade-in rounded-[16px] px-4 py-3 text-[14px] font-medium"
           >
             {errorMsg}
           </div>
@@ -393,7 +395,7 @@ function SettingsFormBody({
         {savedMsg && (
           <div
             role="status"
-            className="animate-fade-in flex items-center gap-2 rounded-[10px] border border-[var(--status-paid-border)] bg-[var(--status-paid-bg)] px-4 py-3 text-[14px] font-semibold text-[var(--status-paid)]"
+            className="glass-badge-paid animate-fade-in flex items-center gap-2 rounded-[16px] px-4 py-3 text-[14px] font-semibold"
           >
             <CheckCircle2 className="h-5 w-5 shrink-0" />
             <span>{savedMsg}</span>
@@ -403,7 +405,7 @@ function SettingsFormBody({
         <button
           type="submit"
           disabled={saving}
-          className="press-tactile flex min-h-[50px] w-full items-center justify-center gap-2 rounded-[12px] bg-[var(--brand-jade)] px-5 text-[16px] font-bold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+          className="glass-btn-primary press-tactile flex min-h-[50px] w-full items-center justify-center gap-2 rounded-full px-5 text-[16px] font-bold disabled:opacity-60"
         >
           {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
           <span>{saving ? 'Đang lưu...' : 'Lưu cài đặt'}</span>
@@ -414,7 +416,7 @@ function SettingsFormBody({
       <SettingsThemeSelector />
 
       {/* 4. Tài khoản */}
-      <section className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:p-5">
+      <section className="glass-panel flex flex-wrap items-center justify-between gap-3 rounded-[24px] p-4 sm:p-5">
         <div className="min-w-0 flex-1">
           <h2 className="text-[15px] font-bold text-[var(--text-primary)]">Tài khoản</h2>
           {userEmail && (
@@ -427,7 +429,7 @@ function SettingsFormBody({
           <button
             type="button"
             onClick={openOnboarding}
-            className="press-tactile flex min-h-[46px] shrink-0 items-center gap-2 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-3.5 text-[14px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
+            className="glass-btn-secondary press-tactile flex min-h-[46px] shrink-0 items-center gap-2 rounded-full px-4 text-[14px] font-semibold"
           >
             <BookOpen className="h-4 w-4 text-[var(--brand-jade-text)]" />
             <span>Thiết lập nhanh</span>
@@ -435,7 +437,7 @@ function SettingsFormBody({
           <button
             type="button"
             onClick={handleLogout}
-            className="press-tactile flex min-h-[46px] shrink-0 items-center gap-2 rounded-[10px] border border-[var(--status-overdue-border)] px-4 text-[14px] font-semibold text-[var(--status-overdue)] hover:bg-[var(--status-overdue-bg)]"
+            className="glass-btn-danger press-tactile flex min-h-[46px] shrink-0 items-center gap-2 rounded-full px-4 text-[14px] font-semibold"
           >
             <LogOut className="h-4 w-4" />
             <span>Đăng xuất</span>

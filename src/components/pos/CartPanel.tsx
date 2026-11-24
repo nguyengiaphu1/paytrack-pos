@@ -41,14 +41,18 @@ export function CartPanel({
 
   return (
     <div
-      className={`flex flex-col overflow-hidden rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] ${
-        isSheet ? 'min-h-0 flex-1' : 'lg:max-h-[calc(100dvh-168px)]'
+      className={`flex flex-col overflow-hidden ${
+        isSheet
+          ? 'min-h-0 flex-1'
+          : 'glass-panel rounded-[24px] lg:max-h-[calc(100dvh-168px)]'
       }`}
     >
-      {/* Header */}
-      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-[var(--border-default)] px-4 py-3">
-        <div className="flex min-w-0 items-center gap-2">
-          <ShoppingCart className="h-5 w-5 shrink-0 text-[var(--brand-jade-text)]" />
+      {/* Frosted Header */}
+      <div className="glass-modal-header flex shrink-0 items-center justify-between gap-2 px-4 py-3.5">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="glass-icon-orb flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] text-[var(--brand-jade-text)]">
+            <ShoppingCart className="h-[18px] w-[18px]" />
+          </span>
           <h2
             id={isSheet ? 'mobile-cart-sheet-title' : undefined}
             className="truncate text-[16px] font-bold text-[var(--text-primary)]"
@@ -57,7 +61,7 @@ export function CartPanel({
           </h2>
           <span
             key={items.length}
-            className="animate-badge-pop font-mono-tabular inline-flex h-6 min-w-[24px] shrink-0 items-center justify-center rounded-full bg-[var(--status-paid-bg)] px-2 text-[12px] font-bold text-[var(--brand-jade-text)]"
+            className="glass-badge-paid animate-badge-pop font-mono-tabular inline-flex h-6 min-w-[26px] shrink-0 items-center justify-center rounded-full px-2 text-[12px] font-bold"
           >
             {items.length}
           </span>
@@ -67,7 +71,7 @@ export function CartPanel({
             <button
               type="button"
               onClick={() => setConfirmClear(true)}
-              className="min-h-[44px] shrink-0 px-1.5 text-[13px] font-semibold text-[var(--status-overdue)] hover:underline"
+              className="min-h-[44px] shrink-0 rounded-full px-2.5 text-[13px] font-semibold text-[var(--status-overdue)] transition-colors hover:bg-[var(--status-overdue-bg)]"
             >
               Xóa giỏ
             </button>
@@ -78,7 +82,7 @@ export function CartPanel({
               type="button"
               onClick={onCloseSheet}
               aria-label="Đóng giỏ hàng"
-              className="press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+              className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             >
               <X className="h-5 w-5" />
             </button>
@@ -90,16 +94,14 @@ export function CartPanel({
       {showConfirmClear && (
         <div
           role="alert"
-          className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-4 py-2 text-[13px]"
+          className="glass-badge-overdue flex shrink-0 flex-wrap items-center justify-between gap-2 border-x-0 border-t-0 px-4 py-2.5 text-[13px]"
         >
-          <span className="font-semibold text-[var(--status-overdue)]">
-            Xóa toàn bộ {items.length} món?
-          </span>
+          <span className="font-semibold">Xóa toàn bộ {items.length} món?</span>
           <div className="flex shrink-0 items-center gap-1.5">
             <button
               type="button"
               onClick={() => setConfirmClear(false)}
-              className="min-h-[44px] rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[13px] font-semibold text-[var(--text-primary)]"
+              className="glass-btn-secondary press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] font-semibold"
             >
               Hủy
             </button>
@@ -109,7 +111,7 @@ export function CartPanel({
                 setConfirmClear(false);
                 onClearCart();
               }}
-              className="press-tactile min-h-[44px] rounded-lg bg-[var(--status-overdue-solid)] px-3 text-[13px] font-bold text-white"
+              className="glass-btn-danger press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] font-bold"
             >
               Xác nhận xóa
             </button>
@@ -118,7 +120,7 @@ export function CartPanel({
       )}
 
       {/* Selected Buyer Snapshot Line (name, debt, phone, address) */}
-      <div className="shrink-0 space-y-1 border-b border-[var(--border-default)] bg-[var(--bg-subtle)] px-4 py-2 text-[13px]">
+      <div className="glass-divider shrink-0 space-y-1 border-b bg-[var(--bg-subtle)] px-4 py-2.5 text-[13px]">
         <div className="flex items-center justify-between gap-2">
           <span className="shrink-0 text-[var(--text-secondary)]">Khách:</span>
           <div className="flex min-w-0 items-center gap-1.5">
@@ -126,7 +128,7 @@ export function CartPanel({
               {selectedCustomer ? selectedCustomer.name : 'Khách lẻ'}
             </span>
             {selectedCustomer && selectedCustomer.total_debt > 0 && (
-              <span className="font-mono-tabular shrink-0 rounded-full bg-[var(--status-debt-bg)] px-2 py-0.5 text-[12px] font-bold text-[var(--status-debt)]">
+              <span className="glass-badge-debt font-mono-tabular shrink-0 rounded-full px-2.5 py-0.5 text-[12px] font-bold">
                 Nợ {formatVND(selectedCustomer.total_debt)}
               </span>
             )}
@@ -151,111 +153,115 @@ export function CartPanel({
       </div>
 
       {/* Cart Items (bounded scroll in both desktop sticky card and mobile sheet) */}
-      <div className="min-h-0 flex-1 overflow-y-auto divide-y divide-[var(--border-default)] px-3">
+      <div className="min-h-0 flex-1 overflow-y-auto px-3 py-2.5">
         {items.length === 0 ? (
-          <div className="py-10 text-center text-[14px] text-[var(--text-secondary)]">
+          <div className="glass-well rounded-[16px] py-10 text-center text-[14px] text-[var(--text-secondary)]">
             Chưa chọn món nào.
           </div>
         ) : (
-          items.map((item) => {
-            const lineTotal = computeLineTotal(item.quantity, item.unit_price);
-            return (
-              <div key={item.key} className="animate-fade-in py-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <p className="break-words text-[14px] font-semibold text-[var(--text-primary)]">
-                      {item.product_name}
-                    </p>
-                    <p className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
-                      {formatVND(item.unit_price)} / {item.unit}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => onRemoveItem(item.key)}
-                    aria-label={`Xóa ${item.product_name}`}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--status-overdue-bg)] hover:text-[var(--status-overdue)]"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-
-                <div className="mt-2 flex items-center justify-between gap-2">
-                  <div className="inline-flex shrink-0 items-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)]">
+          <div className="space-y-2">
+            {items.map((item) => {
+              const lineTotal = computeLineTotal(item.quantity, item.unit_price);
+              return (
+                <div key={item.key} className="glass-well animate-fade-in rounded-[16px] p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="break-words text-[14px] font-semibold text-[var(--text-primary)]">
+                        {item.product_name}
+                      </p>
+                      <p className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
+                        {formatVND(item.unit_price)} / {item.unit}
+                      </p>
+                    </div>
                     <button
                       type="button"
-                      onClick={() => {
-                        const next = Number((item.quantity - 1).toFixed(2));
-                        if (next <= 0) onRemoveItem(item.key);
-                        else onUpdateQty(item.key, next);
-                      }}
-                      aria-label={`Giảm số lượng ${item.product_name}`}
-                      className="press-tactile flex h-11 w-11 items-center justify-center text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
+                      onClick={() => onRemoveItem(item.key)}
+                      aria-label={`Xóa ${item.product_name}`}
+                      className="press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] transition-colors hover:bg-[var(--status-overdue-bg)] hover:text-[var(--status-overdue)]"
                     >
-                      <Minus className="h-4 w-4" />
-                    </button>
-                    <QtyNumberInput
-                      value={item.quantity}
-                      onCommit={(val) => onUpdateQty(item.key, val)}
-                      ariaLabel={`Số lượng ${item.product_name}`}
-                      className="font-mono-tabular h-11 w-14 border-x border-[var(--border-default)] bg-[var(--bg-surface)] text-center text-[16px] font-semibold text-[var(--text-primary)] outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => onUpdateQty(item.key, Number((item.quantity + 1).toFixed(2)))}
-                      aria-label={`Tăng số lượng ${item.product_name}`}
-                      className="press-tactile flex h-11 w-11 items-center justify-center text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
-                    >
-                      <Plus className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
 
-                  <span className="font-mono-tabular shrink-0 text-[15px] font-bold text-[var(--text-primary)]">
-                    {formatVND(lineTotal)}
-                  </span>
+                  <div className="mt-2 flex items-center justify-between gap-2">
+                    <div className="glass-card inline-flex shrink-0 items-center overflow-hidden rounded-[13px]">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = Number((item.quantity - 1).toFixed(2));
+                          if (next <= 0) onRemoveItem(item.key);
+                          else onUpdateQty(item.key, next);
+                        }}
+                        aria-label={`Giảm số lượng ${item.product_name}`}
+                        className="press-tactile flex h-11 w-11 items-center justify-center text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-subtle)]"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </button>
+                      <QtyNumberInput
+                        value={item.quantity}
+                        onCommit={(val) => onUpdateQty(item.key, val)}
+                        ariaLabel={`Số lượng ${item.product_name}`}
+                        className="glass-divider font-mono-tabular h-11 w-14 border-x bg-transparent text-center text-[16px] font-semibold text-[var(--text-primary)] outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => onUpdateQty(item.key, Number((item.quantity + 1).toFixed(2)))}
+                        aria-label={`Tăng số lượng ${item.product_name}`}
+                        className="press-tactile flex h-11 w-11 items-center justify-center text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-subtle)]"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    <span className="font-mono-tabular shrink-0 text-[15px] font-bold text-[var(--text-primary)]">
+                      {formatVND(lineTotal)}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            );
-          })
+              );
+            })}
+          </div>
         )}
       </div>
 
-      {/* Totals + Checkout CTA */}
-      <div className="shrink-0 space-y-2.5 border-t border-[var(--border-default)] bg-[var(--bg-subtle)] p-3.5">
-        <div className="flex items-center justify-between gap-2 text-[14px]">
-          <span className="text-[var(--text-secondary)]">Tạm tính</span>
-          <span className="font-mono-tabular shrink-0 font-semibold text-[var(--text-primary)]">
-            {formatVND(subtotal)}
-          </span>
-        </div>
+      {/* Frosted Totals Well + 3D Jade Crystal Checkout CTA */}
+      <div className="glass-modal-footer shrink-0 space-y-3 p-4">
+        <div className="glass-well space-y-2.5 rounded-[16px] p-3">
+          <div className="flex items-center justify-between gap-2 text-[14px]">
+            <span className="text-[var(--text-secondary)]">Tạm tính</span>
+            <span className="font-mono-tabular shrink-0 font-semibold text-[var(--text-primary)]">
+              {formatVND(subtotal)}
+            </span>
+          </div>
 
-        <div className="space-y-1.5 text-[14px]">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <label htmlFor={discountInputId} className="shrink-0 text-[var(--text-secondary)]">
-              Giảm giá (nghìn)
-            </label>
-            <VndKInput
-              id={discountInputId}
-              compact
-              showPreview
-              align="right"
-              valueVnd={discount > 0 ? discount : null}
-              onChangeVnd={(val) => onChangeDiscount(val ?? 0)}
-              placeholder="0"
-              className="w-full sm:max-w-[220px]"
-            />
+          <div className="space-y-1.5 text-[14px]">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <label htmlFor={discountInputId} className="shrink-0 text-[var(--text-secondary)]">
+                Giảm giá (nghìn)
+              </label>
+              <VndKInput
+                id={discountInputId}
+                compact
+                showPreview
+                align="right"
+                valueVnd={discount > 0 ? discount : null}
+                onChangeVnd={(val) => onChangeDiscount(val ?? 0)}
+                placeholder="0"
+                className="w-full sm:max-w-[210px]"
+              />
+            </div>
+          </div>
+
+          <div className="glass-divider flex flex-wrap items-baseline justify-between gap-2 border-t pt-2.5">
+            <span className="text-[15px] font-bold text-[var(--text-primary)]">Tổng cộng</span>
+            <span className="font-mono-tabular shrink-0 text-[20px] font-bold text-[var(--brand-jade-text)]">
+              {formatVND(total)}
+            </span>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-baseline justify-between gap-2 border-t border-[var(--border-default)] pt-2">
-          <span className="text-[15px] font-bold text-[var(--text-primary)]">Tổng cộng</span>
-          <span className="font-mono-tabular shrink-0 text-[20px] font-bold text-[var(--brand-jade-text)]">
-            {formatVND(total)}
-          </span>
-        </div>
-
         {safeDiscount !== discount && (
-          <p className="text-[12px] text-[var(--status-debt)]">
+          <p className="text-[12px] font-medium text-[var(--status-debt)]">
             Giảm giá tối đa bằng tổng tiền đơn.
           </p>
         )}
@@ -264,7 +270,7 @@ export function CartPanel({
           type="button"
           disabled={items.length === 0}
           onClick={onOpenCheckout}
-          className="press-tactile flex min-h-[50px] w-full items-center justify-center rounded-lg bg-[var(--brand-jade)] px-3 text-center text-[15px] font-bold text-white transition-colors hover:bg-[var(--brand-jade-hover)] disabled:cursor-not-allowed disabled:opacity-45 sm:px-4 sm:text-[16px]"
+          className="glass-btn-primary press-tactile flex min-h-[52px] w-full items-center justify-center rounded-full px-4 text-center text-[15px] font-bold disabled:cursor-not-allowed disabled:opacity-45 sm:text-[16px]"
         >
           Thanh toán ({formatVND(total)})
         </button>

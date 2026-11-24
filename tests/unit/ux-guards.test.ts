@@ -39,12 +39,23 @@ const BANNED_SCATTERED_SLOP_IN_TSX = [
   'rounded-3xl',
 ];
 
-describe('PayTrack POS 60-30-10 Floating Glass Dock, PWA, and Anti-AI-Slop architectural guards', () => {
-  it('defines 60-30-10 Light/Dark tokens, .glass-dock, .glass-surface, print light lock, and reduced motion/transparency fallbacks in globals.css', () => {
+describe('PayTrack POS Liquid Glass, Floating Glass Dock, PWA, and Anti-AI-Slop architectural guards', () => {
+  it('defines Liquid Glass Light/Dark tokens, 4-tier optical utilities, ambient backdrop, print light lock, and reduced motion/transparency fallbacks in globals.css', () => {
     const css = readRel('src/app/globals.css');
     expect(css).toContain(':root[data-theme="dark"]');
+    expect(css).toContain('body::before');
     expect(css).toContain('.glass-dock');
     expect(css).toContain('.glass-surface');
+    expect(css).toContain('.glass-panel');
+    expect(css).toContain('.glass-card');
+    expect(css).toContain('.glass-card-interactive');
+    expect(css).toContain('.glass-modal');
+    expect(css).toContain('.glass-well');
+    expect(css).toContain('.glass-input');
+    expect(css).toContain('.glass-btn-primary');
+    expect(css).toContain('.glass-btn-secondary');
+    expect(css).toContain('.glass-chip');
+    expect(css).toContain('.glass-chip-active');
     expect(css).toContain('backdrop-filter: blur(');
     expect(css).toContain('@media (prefers-reduced-transparency: reduce)');
     expect(css).toContain('.theme-transitioning');

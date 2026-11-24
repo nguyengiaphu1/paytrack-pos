@@ -326,7 +326,7 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
       className={
         embedded
           ? 'space-y-3'
-          : 'space-y-3 rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:p-5'
+          : 'glass-panel space-y-3 rounded-[24px] p-4 sm:p-5'
       }
     >
       <div className="flex flex-wrap items-center justify-between gap-2.5">
@@ -335,8 +335,8 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
             Thông báo trên máy này
           </span>
           {envState.subscribed && (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--status-paid-bg)] px-2 py-0.5 text-[12px] font-semibold text-[var(--status-paid)]">
-              <CheckCircle2 className="h-3 w-3" />
+            <span className="glass-badge-paid inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold">
+              <CheckCircle2 className="h-3.5 w-3.5" />
               Đang bật
             </span>
           )}
@@ -345,7 +345,7 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
         {envState.loading ? (
           <span className="text-[13px] text-[var(--text-secondary)]">Đang kiểm tra...</span>
         ) : !envState.pushSupported ? (
-          <span className="text-[12px] text-[var(--text-secondary)]">
+          <span className="glass-badge-neutral rounded-full px-2.5 py-1 text-[12px] font-medium">
             Cần cài ra Màn hình chính
           </span>
         ) : !envState.subscribed ? (
@@ -353,7 +353,7 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
             type="button"
             disabled={busy}
             onClick={handleEnablePush}
-            className="press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-[10px] bg-[var(--brand-jade)] px-4 text-[13px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+            className="glass-btn-primary press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-[13px] font-semibold disabled:opacity-60"
           >
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bell className="h-4 w-4" />}
             <span>Bật thông báo</span>
@@ -363,7 +363,7 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
             type="button"
             disabled={busy}
             onClick={handleDisablePush}
-            className="press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-[10px] border border-[var(--border-default)] px-3.5 text-[13px] font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] disabled:opacity-60"
+            className="glass-btn-secondary press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-[13px] font-semibold text-[var(--text-secondary)] disabled:opacity-60"
           >
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <BellOff className="h-4 w-4" />}
             <span>Tắt</span>
@@ -372,8 +372,8 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
       </div>
 
       {envState.isIOS && !envState.isStandalone && (
-        <div className="rounded-[10px] border border-[var(--status-debt-border)] bg-[var(--status-debt-bg)] p-3 text-[13px] text-[var(--text-primary)]">
-          <div className="flex items-center gap-1.5 font-semibold text-[var(--status-debt)]">
+        <div className="glass-badge-debt rounded-[16px] p-3 text-[13px]">
+          <div className="flex flex-wrap items-center gap-1.5 font-semibold">
             <Smartphone className="h-4 w-4 shrink-0" />
             <span>iPhone: Chia sẻ</span>
             <Share className="h-3.5 w-3.5 shrink-0" />
@@ -383,19 +383,25 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
       )}
 
       {errorMsg && (
-        <div className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3 py-2 text-[13px] font-medium text-[var(--status-overdue)]">
+        <div
+          role="alert"
+          className="glass-badge-overdue rounded-[14px] px-3.5 py-2.5 text-[13px] font-medium"
+        >
           {errorMsg}
         </div>
       )}
 
       {statusMsg && (
-        <div className="rounded-lg border border-[var(--status-paid-border)] bg-[var(--status-paid-bg)] px-3 py-2 text-[13px] font-medium text-[var(--status-paid)]">
+        <div
+          role="status"
+          className="glass-badge-paid rounded-[14px] px-3.5 py-2.5 text-[13px] font-medium"
+        >
           {statusMsg}
         </div>
       )}
 
       {hasWarning && (
-        <div className="flex items-center justify-between gap-2 rounded-lg border border-[var(--status-debt-border)] bg-[var(--status-debt-bg)] px-3 py-2 text-[12px] text-[var(--status-debt)]">
+        <div className="glass-badge-debt flex items-center justify-between gap-2 rounded-[16px] px-3.5 py-2 text-[12px]">
           <span className="flex min-w-0 items-center gap-1.5 font-semibold">
             <AlertTriangle className="h-4 w-4 shrink-0" />
             <span className="truncate">
@@ -408,7 +414,7 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
             type="button"
             disabled={busy}
             onClick={handleDispatchDue}
-            className="press-tactile min-h-[44px] shrink-0 rounded-md border border-[var(--status-debt)] bg-[var(--bg-surface)] px-2.5 text-[12px] font-semibold text-[var(--status-debt)]"
+            className="glass-btn-secondary press-tactile min-h-[44px] shrink-0 rounded-full px-3.5 text-[12px] font-semibold text-[var(--status-debt)]"
           >
             Gửi ngay
           </button>
@@ -416,7 +422,7 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
       )}
 
       {/* Collapsible Technical Diagnostics (clean by default, full power on demand) */}
-      <details className="group rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-subtle)] px-3 py-2 text-[12px] text-[var(--text-secondary)]">
+      <details className="glass-well group rounded-[16px] px-3.5 py-2 text-[12px] text-[var(--text-secondary)]">
         <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-2 font-medium text-[var(--text-secondary)]">
           <span>
             Kiểm tra kết nối ({devices.length} máy
@@ -425,14 +431,14 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
           <ChevronDown className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180" />
         </summary>
 
-        <div className="space-y-2.5 border-t border-[var(--border-default)] pt-2.5 pb-1">
+        <div className="glass-divider space-y-2.5 border-t pt-2.5 pb-1">
           {envState.subscribed && (
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 disabled={busy}
                 onClick={handleSendTest}
-                className="press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[12px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-canvas)] disabled:opacity-60"
+                className="glass-btn-secondary press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[12px] font-semibold text-[var(--text-primary)] disabled:opacity-60"
               >
                 <Send className="h-3.5 w-3.5 text-[var(--brand-jade-text)]" />
                 <span>Gửi thử</span>
@@ -441,7 +447,7 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
                 type="button"
                 disabled={busy}
                 onClick={handleDispatchDue}
-                className="press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[12px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-canvas)] disabled:opacity-60"
+                className="glass-btn-secondary press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[12px] font-semibold text-[var(--text-primary)] disabled:opacity-60"
               >
                 <Clock className="h-3.5 w-3.5 text-[var(--brand-jade-text)]" />
                 <span>Gửi lịch đến hạn</span>

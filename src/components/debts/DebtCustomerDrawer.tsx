@@ -2,9 +2,12 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import {
+  AlertCircle,
   Banknote,
   BellPlus,
   Check,
+  Clock,
+  Copy,
   Loader2,
   MapPin,
   Pencil,
@@ -15,11 +18,14 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import {
+  buildZaloDebtMessage,
   formatDateTimeVN,
   formatDateVN,
   formatVND,
+  getTodayVN,
   stripVietnamese,
 } from '@/lib/vietnamese';
+import { sanitizeVietQRMemo } from '@/lib/vietqr';
 import { formatPaymentAccount } from '@/lib/ledger';
 import { ModalDialog } from '@/components/ui/ModalDialog';
 import type {
@@ -38,6 +44,7 @@ interface DebtCustomerDrawerProps {
   onClose: () => void;
   customer: Customer | null;
   profile: ShopProfile | null;
+  initialOpenCollect?: boolean;
   onDataUpdated: () => void;
 }
 
@@ -56,6 +63,7 @@ function DebtCustomerDrawerBody({
   onClose,
   customer,
   profile,
+  initialOpenCollect = false,
   onDataUpdated,
 }: Omit<DebtCustomerDrawerProps, 'open' | 'customer'> & { customer: Customer }) {
   const [unpaidOrders, setUnpaidOrders] = useState<Order[]>([]);
@@ -70,10 +78,13 @@ function DebtCustomerDrawerBody({
   const [editNote, setEditNote] = useState(customer.note ?? '');
   const [savingInfo, setSavingInfo] = useState(false);
 
-  const [collectOpen, setCollectOpen] = useState(false);
+  const [collectOpen, setCollectOpen] = useState(
+    () => Boolean(initialOpenCollect && customer.total_debt > 0)
+  );
   const [collectOrderId, setCollectOrderId] = useState<string | null>(null);
   const [reminderOpen, setReminderOpen] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
+  const [copiedZalo, setCopiedZalo] = useState(false);
 
   const fetchCustomerDetails = useCallback(async (customerId: string) => {
     const supabase = createClient();
@@ -170,16 +181,43 @@ function DebtCustomerDrawerBody({
     fetchCustomerDetails(customer.id);
   }
 
+  async function handleCopyZaloMessage() {
+    const text = buildZaloDebtMessage({
+      shopName: profile?.shop_name || 'Shop của Mẹ',
+      customerName: customer.name,
+      amount: customer.total_debt,
+      bankName: profile?.bank_name,
+      accountNo: profile?.bank_account_no,
+      accountName: profile?.bank_account_name,
+      memo: sanitizeVietQRMemo(`PT NO ${customer.name}`),
+      orderCodes: unpaidOrders.map((o) => o.order_code),
+    });
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedZalo(true);
+      setTimeout(() => setCopiedZalo(false), 2200);
+    } catch {
+      setQrOpen(true);
+    }
+  }
+
+  const todayVN = getTodayVN();
+  const isOverdue =
+    customer.total_debt > 0 && customer.next_due_date && customer.next_due_date < todayVN;
+  const isDueToday =
+    customer.total_debt > 0 && customer.next_due_date && customer.next_due_date === todayVN;
+
   return (
     <>
       <ModalDialog
         open={true}
         onClose={onClose}
         ariaLabelledBy="debt-customer-drawer-title"
-        backdropClassName="animate-backdrop-in fixed inset-0 z-40 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"
-        panelClassName="animate-sheet-up sm:animate-modal-in max-h-[93dvh] w-full max-w-[560px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]"
+        backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-40 flex items-end justify-end p-0 sm:items-stretch"
+        panelClassName="animate-sheet-up sm:animate-drawer-in glass-modal max-h-[93dvh] w-full overflow-y-auto rounded-t-[26px] sm:h-full sm:max-h-dvh sm:max-w-[520px] sm:rounded-l-[28px] sm:rounded-tr-none"
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
+        <div className="glass-modal-header sticky top-0 z-10 flex items-start justify-between gap-2 px-4 py-3.5 sm:px-5">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <h2
@@ -188,145 +226,186 @@ function DebtCustomerDrawerBody({
               >
                 {customer.name}
               </h2>
-                <button
-                  type="button"
-                  onClick={() => setEditingInfo((v) => !v)}
-                  aria-label="Sửa thông tin khách"
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
-                >
-                  <Pencil className="h-4 w-4" />
-                </button>
-              </div>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[13px] text-[var(--text-secondary)]">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!editingInfo) {
+                    setEditName(customer.name);
+                    setEditPhone(customer.phone ?? '');
+                    setEditAddress(customer.address ?? '');
+                    setEditNote(customer.note ?? '');
+                  }
+                  setEditingInfo((v) => !v);
+                }}
+                aria-label="Sửa thông tin khách"
+                aria-pressed={editingInfo}
+                className={`press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
+                  editingInfo ? 'glass-chip-active' : 'glass-btn-secondary text-[var(--text-secondary)]'
+                }`}
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+            </div>
+            {(customer.phone || customer.address) && (
+              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-[var(--text-secondary)]">
                 {customer.phone && (
-                  <span className="font-mono-tabular inline-flex items-center gap-1">
-                    <Phone className="h-3.5 w-3.5 shrink-0" />
-                    {customer.phone}
+                  <span className="font-mono-tabular inline-flex items-center gap-1.5">
+                    <Phone className="h-3.5 w-3.5 shrink-0 opacity-75" />
+                    <span>{customer.phone}</span>
                   </span>
                 )}
                 {customer.address && (
-                  <span className="inline-flex min-w-0 items-center gap-1 truncate">
-                    <MapPin className="h-3.5 w-3.5 shrink-0" />
+                  <span className="inline-flex min-w-0 max-w-full items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5 shrink-0 opacity-75" />
                     <span className="truncate">{customer.address}</span>
                   </span>
                 )}
               </div>
-            </div>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Đóng"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-
-          <div className="space-y-4 p-4">
-            {editingInfo && (
-              <form
-                onSubmit={handleSaveInfo}
-                className="animate-fade-in space-y-2.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] p-3.5"
-              >
-                <p className="text-[13px] font-bold text-[var(--text-primary)]">
-                  Sửa thông tin khách
-                </p>
-                <input
-                  type="text"
-                  required
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  placeholder="Họ tên"
-                  className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-                />
-                <input
-                  type="tel"
-                  value={editPhone}
-                  onChange={(e) => setEditPhone(e.target.value)}
-                  placeholder="Số điện thoại"
-                  className="font-mono-tabular min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-                />
-                <input
-                  type="text"
-                  value={editAddress}
-                  onChange={(e) => setEditAddress(e.target.value)}
-                  placeholder="Địa chỉ"
-                  className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-                />
-                <input
-                  type="text"
-                  value={editNote}
-                  onChange={(e) => setEditNote(e.target.value)}
-                  placeholder="Ghi chú"
-                  className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-                />
-                <div className="flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setEditingInfo(false)}
-                    className="min-h-[44px] rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[13px] font-semibold text-[var(--text-primary)]"
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={savingInfo}
-                    className="press-tactile flex min-h-[44px] items-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-4 text-[13px] font-semibold text-white"
-                  >
-                    {savingInfo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                    <span>Lưu</span>
-                  </button>
-                </div>
-              </form>
             )}
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Đóng"
+            className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
 
-            {customer.note && !editingInfo && (
-              <p className="break-words rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] px-3.5 py-2 text-[13px] text-[var(--text-secondary)]">
-                Ghi chú: {customer.note}
+        <div className="space-y-4 p-4 sm:p-5">
+          {editingInfo && (
+            <form
+              onSubmit={handleSaveInfo}
+              className="glass-well animate-fade-in space-y-2.5 rounded-[20px] p-4"
+            >
+              <p className="text-[14px] font-bold text-[var(--text-primary)]">
+                Sửa thông tin khách
+              </p>
+              <input
+                type="text"
+                required
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Họ tên"
+                aria-label="Họ tên khách hàng"
+                className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-secondary)]"
+              />
+              <input
+                type="tel"
+                value={editPhone}
+                onChange={(e) => setEditPhone(e.target.value)}
+                placeholder="Số điện thoại"
+                aria-label="Số điện thoại khách hàng"
+                className="glass-input font-mono-tabular min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-secondary)]"
+              />
+              <input
+                type="text"
+                value={editAddress}
+                onChange={(e) => setEditAddress(e.target.value)}
+                placeholder="Địa chỉ"
+                aria-label="Địa chỉ khách hàng"
+                className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-secondary)]"
+              />
+              <input
+                type="text"
+                value={editNote}
+                onChange={(e) => setEditNote(e.target.value)}
+                placeholder="Ghi chú"
+                aria-label="Ghi chú khách hàng"
+                className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-secondary)]"
+              />
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setEditingInfo(false)}
+                  className="glass-btn-secondary press-tactile min-h-[44px] rounded-full px-4 text-[13px] font-semibold"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingInfo}
+                  className="glass-btn-primary press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-5 text-[13px] font-semibold disabled:opacity-60"
+                >
+                  {savingInfo ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Check className="h-4 w-4" />
+                  )}
+                  <span>Lưu</span>
+                </button>
+              </div>
+            </form>
+          )}
+
+          {customer.note && !editingInfo && (
+            <div className="glass-well break-words rounded-[16px] px-3.5 py-2.5 text-[13px] text-[var(--text-secondary)]">
+              <span className="font-semibold text-[var(--text-primary)]">Ghi chú:</span>{' '}
+              {customer.note}
+            </div>
+          )}
+
+          {/* Prominent Debt Balance Well & Action Grid */}
+          <div className="glass-well rounded-[20px] p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-[13px] font-semibold text-[var(--text-secondary)]">
+                Đang nợ
+              </span>
+              {isOverdue ? (
+                <span className="glass-badge-overdue inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>Quá hạn</span>
+                </span>
+              ) : isDueToday ? (
+                <span className="glass-badge-debt inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold">
+                  <Clock className="h-3.5 w-3.5 shrink-0" />
+                  <span>Đến hạn hôm nay</span>
+                </span>
+              ) : customer.total_debt <= 0 ? (
+                <span className="glass-badge-paid inline-flex items-center rounded-full px-2.5 py-0.5 text-[12px] font-semibold">
+                  Đã hết nợ
+                </span>
+              ) : null}
+            </div>
+
+            <p
+              className={`font-mono-tabular mt-1.5 break-words text-[24px] font-bold ${
+                customer.total_debt > 0
+                  ? 'text-[var(--status-debt)]'
+                  : 'text-[var(--brand-jade-text)]'
+              }`}
+            >
+              {formatVND(customer.total_debt)}
+            </p>
+
+            {customer.next_due_date && customer.total_debt > 0 && (
+              <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
+                Hẹn thu:{' '}
+                <strong className="font-mono-tabular text-[var(--text-primary)]">
+                  {formatDateVN(customer.next_due_date)}
+                </strong>
               </p>
             )}
 
-            <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-subtle)] p-4">
-              <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <span className="text-[14px] font-medium text-[var(--text-secondary)]">
-                  Đang nợ
-                </span>
-                <span
-                  className={`font-mono-tabular text-[20px] font-bold sm:text-[24px] ${
-                    customer.total_debt > 0
-                      ? 'text-[var(--status-debt)]'
-                      : 'text-[var(--brand-jade-text)]'
-                  }`}
-                >
-                  {formatVND(customer.total_debt)}
-                </span>
-              </div>
-              {customer.next_due_date && customer.total_debt > 0 && (
-                <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
-                  Hẹn thu:{' '}
-                  <strong className="font-mono-tabular text-[var(--text-primary)]">
-                    {formatDateVN(customer.next_due_date)}
-                  </strong>
-                </p>
-              )}
-
-              {customer.total_debt > 0 && (
-                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {customer.total_debt > 0 && (
+              <>
+                <div className="mt-3.5 grid grid-cols-2 gap-2 sm:grid-cols-3">
                   <button
                     type="button"
                     onClick={() => {
                       setCollectOrderId(null);
                       setCollectOpen(true);
                     }}
-                    className="press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-2.5 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
+                    className="glass-btn-primary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-[14px] px-2.5 text-[14px] font-semibold"
                   >
                     <Banknote className="h-4 w-4 shrink-0" />
-                    <span className="truncate">Thu tiền</span>
+                    <span className="truncate">Thu nợ</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setQrOpen(true)}
-                    className="press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--brand-jade)] bg-[var(--bg-surface)] px-2.5 text-[14px] font-semibold text-[var(--brand-jade-text)] hover:bg-[var(--status-paid-bg)]"
+                    className="glass-btn-secondary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-[14px] px-2.5 text-[14px] font-semibold text-[var(--brand-jade-text)]"
                   >
                     <QrCode className="h-4 w-4 shrink-0" />
                     <span className="truncate">Tạo QR</span>
@@ -334,139 +413,181 @@ function DebtCustomerDrawerBody({
                   <button
                     type="button"
                     onClick={() => setReminderOpen(true)}
-                    className="press-tactile col-span-2 flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-2.5 text-[14px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] sm:col-span-1"
+                    className="glass-btn-secondary press-tactile col-span-2 flex min-h-[48px] items-center justify-center gap-1.5 rounded-[14px] px-2.5 text-[14px] font-semibold sm:col-span-1"
                   >
-                    <BellPlus className="h-4 w-4 shrink-0" />
-                    <span className="truncate">Hẹn nhắc</span>
+                    <BellPlus className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
+                    <span className="truncate">Nhắc nợ</span>
                   </button>
                 </div>
-              )}
-            </div>
 
-            {loading ? (
-              <p className="py-4 text-center text-[14px] text-[var(--text-secondary)]">
-                Đang tải...
-              </p>
-            ) : (
-              <>
-                {reminders.length > 0 && (
-                  <div>
-                    <h3 className="mb-2 text-[14px] font-bold text-[var(--text-primary)]">
-                      Lịch nhắc ({reminders.length})
-                    </h3>
-                    <div className="divide-y divide-[var(--border-default)] rounded-lg border border-[var(--border-default)]">
-                      {reminders.map((rem) => (
-                        <div
-                          key={rem.id}
-                          className="flex items-center justify-between gap-2 px-3.5 py-2.5 text-[13px]"
-                        >
-                          <div className="min-w-0 flex-1">
-                            <p className="font-mono-tabular font-semibold text-[var(--brand-jade-text)]">
-                              {formatDateTimeVN(rem.scheduled_for)}
-                            </p>
-                            {rem.message && (
-                              <p className="break-words text-[var(--text-secondary)]">
-                                {rem.message}
-                              </p>
-                            )}
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => handleDismissReminder(rem.id)}
-                            aria-label="Xóa lịch nhắc"
-                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--status-overdue-bg)] hover:text-[var(--status-overdue)]"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div>
-                  <h3 className="mb-2 text-[14px] font-bold text-[var(--text-primary)]">
-                    Đơn còn nợ ({unpaidOrders.length})
-                  </h3>
-                  {unpaidOrders.length === 0 ? (
-                    <p className="rounded-lg border border-[var(--border-default)] p-3.5 text-[13px] text-[var(--text-secondary)]">
-                      Không còn đơn nợ.
-                    </p>
+                <button
+                  type="button"
+                  onClick={() => void handleCopyZaloMessage()}
+                  className={`press-tactile mt-2.5 flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-full px-4 text-[13px] font-semibold ${
+                    copiedZalo ? 'glass-chip-active' : 'glass-btn-secondary'
+                  }`}
+                >
+                  {copiedZalo ? (
+                    <Check className="h-4 w-4 shrink-0" />
                   ) : (
-                    <div className="divide-y divide-[var(--border-default)] rounded-lg border border-[var(--border-default)]">
-                      {unpaidOrders.map((ord) => (
-                        <div
-                          key={ord.id}
-                          className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-3"
-                        >
-                          <div className="min-w-0 flex-1">
-                            <p className="font-mono-tabular truncate text-[13px] font-bold text-[var(--text-primary)]">
-                              {ord.order_code}
-                            </p>
-                            <p className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
-                              {formatDateVN(ord.purchased_at || ord.created_at)} · Tổng{' '}
-                              {formatVND(ord.total_amount)}
-                            </p>
-                          </div>
-                          <div className="flex shrink-0 items-center gap-2">
-                            <span className="font-mono-tabular text-[14px] font-bold text-[var(--status-debt)]">
-                              {formatVND(ord.remaining_amount)}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setCollectOrderId(ord.id);
-                                setCollectOpen(true);
-                              }}
-                              className="press-tactile min-h-[44px] shrink-0 rounded-md border border-[var(--brand-jade)] px-3 text-[12px] font-semibold text-[var(--brand-jade-text)] hover:bg-[var(--status-paid-bg)]"
-                            >
-                              Thu đơn này
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                    <Copy className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
                   )}
-                </div>
-
-                <div>
-                  <h3 className="mb-2 text-[14px] font-bold text-[var(--text-primary)]">
-                    Lịch sử thu ({payments.length})
-                  </h3>
-                  {payments.length === 0 ? (
-                    <p className="rounded-lg border border-[var(--border-default)] p-3.5 text-[13px] text-[var(--text-secondary)]">
-                      Chưa có đợt thu nào.
-                    </p>
-                  ) : (
-                    <div className="divide-y divide-[var(--border-default)] rounded-lg border border-[var(--border-default)]">
-                      {payments.map((pay) => (
-                        <div
-                          key={pay.id}
-                          className="flex items-center justify-between gap-2 px-3.5 py-2.5 text-[13px]"
-                        >
-                          <div className="min-w-0 flex-1">
-                            <p className="break-words font-medium text-[var(--text-primary)]">
-                              {pay.note || 'Thu tiền'}
-                              {pay.payment_account
-                                ? ` · TK ${formatPaymentAccount(pay.payment_account, pay.payment_account_note)}`
-                                : ''}
-                            </p>
-                            <p className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
-                              {formatDateVN(pay.paid_at)} ·{' '}
-                              {pay.payment_method === 'transfer' ? 'CK' : 'Tiền mặt'}
-                            </p>
-                          </div>
-                          <span className="shrink-0 font-mono-tabular font-bold text-[var(--brand-jade-text)]">
-                            +{formatVND(pay.amount)}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                  <span>{copiedZalo ? 'Đã chép tin nhắn Zalo' : 'Sao chép tin nhắn Zalo'}</span>
+                </button>
               </>
             )}
           </div>
+
+          {loading ? (
+            <div aria-busy="true" aria-label="Đang tải chi tiết công nợ" className="space-y-3">
+              <div className="glass-well rounded-[16px] p-4">
+                <div className="skeleton-shimmer h-4 w-32 rounded-[10px]" />
+                <div className="skeleton-shimmer mt-2.5 h-12 w-full rounded-[12px]" />
+              </div>
+              <div className="glass-well rounded-[16px] p-4">
+                <div className="skeleton-shimmer h-4 w-28 rounded-[10px]" />
+                <div className="skeleton-shimmer mt-2.5 h-12 w-full rounded-[12px]" />
+              </div>
+            </div>
+          ) : (
+            <>
+              {reminders.length > 0 && (
+                <section>
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <h3 className="text-[14px] font-bold text-[var(--text-primary)]">
+                      Lịch nhắc
+                    </h3>
+                    <span className="glass-badge-neutral font-mono-tabular rounded-full px-2.5 py-0.5 text-[12px] font-semibold">
+                      {reminders.length}
+                    </span>
+                  </div>
+                  <div className="glass-well divide-y divide-[var(--glass-border-subtle)] rounded-[16px]">
+                    {reminders.map((rem) => (
+                      <div
+                        key={rem.id}
+                        className="flex items-center justify-between gap-2.5 px-3.5 py-3 text-[13px]"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="font-mono-tabular font-semibold text-[var(--brand-jade-text)]">
+                            {formatDateTimeVN(rem.scheduled_for)}
+                          </p>
+                          {rem.message && (
+                            <p className="mt-0.5 break-words text-[var(--text-secondary)]">
+                              {rem.message}
+                            </p>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleDismissReminder(rem.id)}
+                          aria-label="Xóa lịch nhắc"
+                          className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--status-overdue)]"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              <section>
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <h3 className="text-[14px] font-bold text-[var(--text-primary)]">
+                    Đơn còn nợ
+                  </h3>
+                  <span
+                    className={`font-mono-tabular rounded-full px-2.5 py-0.5 text-[12px] font-semibold ${
+                      unpaidOrders.length > 0 ? 'glass-badge-debt' : 'glass-badge-paid'
+                    }`}
+                  >
+                    {unpaidOrders.length}
+                  </span>
+                </div>
+                {unpaidOrders.length === 0 ? (
+                  <p className="glass-well rounded-[16px] p-4 text-[13px] text-[var(--text-secondary)]">
+                    Không còn đơn nợ.
+                  </p>
+                ) : (
+                  <div className="glass-well divide-y divide-[var(--glass-border-subtle)] rounded-[16px]">
+                    {unpaidOrders.map((ord) => (
+                      <div
+                        key={ord.id}
+                        className="flex flex-wrap items-center justify-between gap-2.5 px-3.5 py-3"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="font-mono-tabular truncate text-[14px] font-bold text-[var(--text-primary)]">
+                            {ord.order_code}
+                          </p>
+                          <p className="font-mono-tabular mt-0.5 text-[12px] text-[var(--text-secondary)]">
+                            {formatDateVN(ord.purchased_at || ord.created_at)} · Tổng{' '}
+                            {formatVND(ord.total_amount)}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-2.5">
+                          <span className="font-mono-tabular text-[14px] font-bold text-[var(--status-debt)]">
+                            {formatVND(ord.remaining_amount)}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCollectOrderId(ord.id);
+                              setCollectOpen(true);
+                            }}
+                            className="glass-btn-secondary press-tactile min-h-[44px] shrink-0 rounded-full px-3.5 text-[12px] font-semibold text-[var(--brand-jade-text)]"
+                          >
+                            Thu đơn này
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              <section>
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <h3 className="text-[14px] font-bold text-[var(--text-primary)]">
+                    Lịch sử thu
+                  </h3>
+                  <span className="glass-badge-neutral font-mono-tabular rounded-full px-2.5 py-0.5 text-[12px] font-semibold">
+                    {payments.length}
+                  </span>
+                </div>
+                {payments.length === 0 ? (
+                  <p className="glass-well rounded-[16px] p-4 text-[13px] text-[var(--text-secondary)]">
+                    Chưa có đợt thu nào.
+                  </p>
+                ) : (
+                  <div className="glass-well divide-y divide-[var(--glass-border-subtle)] rounded-[16px]">
+                    {payments.map((pay) => (
+                      <div
+                        key={pay.id}
+                        className="flex items-center justify-between gap-2.5 px-3.5 py-3 text-[13px]"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="break-words font-semibold text-[var(--text-primary)]">
+                            {pay.note || 'Thu tiền'}
+                            {pay.payment_account
+                              ? ` · TK ${formatPaymentAccount(pay.payment_account, pay.payment_account_note)}`
+                              : ''}
+                          </p>
+                          <p className="font-mono-tabular mt-0.5 text-[12px] text-[var(--text-secondary)]">
+                            {formatDateVN(pay.paid_at)} ·{' '}
+                            {pay.payment_method === 'transfer' ? 'Chuyển khoản' : 'Tiền mặt'}
+                          </p>
+                        </div>
+                        <span className="glass-badge-paid font-mono-tabular shrink-0 rounded-full px-2.5 py-1 text-[13px] font-bold">
+                          +{formatVND(pay.amount)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            </>
+          )}
+        </div>
       </ModalDialog>
 
       <CollectDebtModal

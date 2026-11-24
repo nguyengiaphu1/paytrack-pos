@@ -37,7 +37,7 @@ export function ModalDialog({
   onClose,
   ariaLabel,
   ariaLabelledBy,
-  backdropClassName = 'animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4',
+  backdropClassName = 'animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4',
   panelClassName,
   closeOnBackdrop = true,
   closeOnEscape = true,

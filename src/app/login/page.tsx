@@ -109,52 +109,57 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-dvh flex-col bg-[var(--bg-canvas)] px-4 py-6 sm:py-10">
-      <div className="mx-auto flex w-full max-w-[440px] items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <BrandMark className="h-10 w-10 shrink-0" />
-          <div className="min-w-0">
-            <h1 className="truncate text-[20px] font-bold tracking-[-0.015em] text-[var(--text-primary)]">
-              PayTrack POS
-            </h1>
-            <p className="truncate text-[12px] text-[var(--text-secondary)]">
-              Sổ bán hàng &amp; Công nợ
-            </p>
-          </div>
-        </div>
+    <main className="flex min-h-dvh flex-col px-4 py-5 sm:px-6 sm:py-8">
+      {/* Floating glass theme switch in top-right corner */}
+      <div className="mx-auto flex w-full max-w-[1120px] items-center justify-end">
         <ThemeQuickToggle compact />
       </div>
 
-      <div className="mx-auto my-auto w-full max-w-[440px] py-8">
-        <section className="animate-fade-in glass-surface rounded-[16px] p-5 sm:p-6">
+      <div className="mx-auto my-auto w-full max-w-[440px] py-6 sm:py-8">
+        <section className="animate-fade-in glass-panel rounded-[28px] p-5 sm:p-7">
+          {/* Luminous BrandMark Orb & Hero Title */}
+          <div className="mb-6 flex flex-col items-center text-center">
+            <div className="glass-icon-orb mb-3.5 flex h-16 w-16 items-center justify-center rounded-[20px] p-2.5">
+              <BrandMark className="h-11 w-11 shrink-0" />
+            </div>
+            <h1 className="text-[22px] font-bold tracking-[-0.02em] text-[var(--text-primary)] sm:text-[24px]">
+              PayTrack POS
+            </h1>
+            <p className="mt-0.5 text-[13px] font-medium text-[var(--text-secondary)]">
+              Sổ bán hàng &amp; Công nợ
+            </p>
+          </div>
+
           {mode !== 'forgot' && (
-            <div className="mb-5 grid grid-cols-2 gap-1.5 rounded-[10px] bg-[var(--bg-subtle)] p-1">
+            <div className="glass-well mb-5 grid grid-cols-2 gap-1.5 rounded-[18px] p-1.5">
               <button
                 type="button"
+                aria-pressed={mode === 'login'}
                 onClick={() => {
                   setMode('login');
                   setErrorMessage(null);
                   setSuccessMessage(null);
                 }}
-                className={`min-h-[44px] rounded-[8px] px-3 text-[14px] font-semibold transition-colors ${
+                className={`press-tactile min-h-[44px] rounded-[14px] px-3 text-[14px] font-semibold transition-all ${
                   mode === 'login'
-                    ? 'border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--brand-jade-text)]'
-                    : 'text-[var(--text-secondary)]'
+                    ? 'glass-chip-active'
+                    : 'border border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 Đăng nhập
               </button>
               <button
                 type="button"
+                aria-pressed={mode === 'signup'}
                 onClick={() => {
                   setMode('signup');
                   setErrorMessage(null);
                   setSuccessMessage(null);
                 }}
-                className={`min-h-[44px] rounded-[8px] px-3 text-[14px] font-semibold transition-colors ${
+                className={`press-tactile min-h-[44px] rounded-[14px] px-3 text-[14px] font-semibold transition-all ${
                   mode === 'signup'
-                    ? 'border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--brand-jade-text)]'
-                    : 'text-[var(--text-secondary)]'
+                    ? 'glass-chip-active'
+                    : 'border border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 Đăng ký
@@ -163,7 +168,7 @@ export default function LoginPage() {
           )}
 
           {mode === 'forgot' && (
-            <h2 className="mb-4 text-[16px] font-bold text-[var(--text-primary)]">
+            <h2 className="mb-4 text-center text-[16px] font-bold text-[var(--text-primary)]">
               Đặt lại mật khẩu
             </h2>
           )}
@@ -171,7 +176,7 @@ export default function LoginPage() {
           {errorMessage && (
             <div
               role="alert"
-              className="mb-4 rounded-[10px] border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3.5 py-2.5 text-[14px] font-medium text-[var(--status-overdue)]"
+              className="glass-badge-overdue mb-4 rounded-[16px] px-3.5 py-2.5 text-[14px] font-medium"
             >
               {errorMessage}
             </div>
@@ -180,7 +185,7 @@ export default function LoginPage() {
           {successMessage && (
             <div
               role="status"
-              className="mb-4 rounded-[10px] border border-[var(--status-paid-border)] bg-[var(--status-paid-bg)] px-3.5 py-2.5 text-[14px] font-medium text-[var(--status-paid)]"
+              className="glass-badge-paid mb-4 rounded-[16px] px-3.5 py-2.5 text-[14px] font-medium"
             >
               {successMessage}
             </div>
@@ -203,7 +208,7 @@ export default function LoginPage() {
                     value={shopName}
                     onChange={(e) => setShopName(e.target.value)}
                     placeholder="Shop của Mẹ"
-                    className="min-h-[48px] w-full rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] pr-3.5 pl-10 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                    className="glass-input min-h-[48px] w-full rounded-[14px] pr-3.5 pl-10 text-[16px] text-[var(--text-primary)] outline-none"
                   />
                 </div>
               </div>
@@ -226,7 +231,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tenban@gmail.com"
-                  className="min-h-[48px] w-full rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] pr-3.5 pl-10 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                  className="glass-input min-h-[48px] w-full rounded-[14px] pr-3.5 pl-10 text-[16px] text-[var(--text-primary)] outline-none"
                 />
               </div>
             </div>
@@ -248,7 +253,7 @@ export default function LoginPage() {
                         setErrorMessage(null);
                         setSuccessMessage(null);
                       }}
-                      className="min-h-[44px] text-[13px] font-medium text-[var(--brand-jade-text)] hover:underline"
+                      className="min-h-[44px] text-[13px] font-semibold text-[var(--brand-jade-text)] hover:underline"
                     >
                       Quên mật khẩu?
                     </button>
@@ -265,13 +270,13 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Từ 6 ký tự"
-                    className="min-h-[48px] w-full rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] pr-12 pl-10 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                    className="glass-input min-h-[48px] w-full rounded-[14px] pr-12 pl-10 text-[16px] text-[var(--text-primary)] outline-none"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
                     aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                    className="absolute top-1/2 right-1 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+                    className="press-tactile absolute top-1/2 right-1 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-[12px] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -282,7 +287,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="press-tactile flex min-h-[50px] w-full items-center justify-center gap-2 rounded-[10px] bg-[var(--brand-jade)] px-4 text-[16px] font-semibold text-white transition-colors hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+              className="glass-btn-primary press-tactile flex min-h-[50px] w-full items-center justify-center gap-2 rounded-full px-5 text-[16px] font-bold disabled:opacity-60"
             >
               {loading && <Loader2 className="h-5 w-5 animate-spin" />}
               <span>
@@ -295,17 +300,17 @@ export default function LoginPage() {
 
           {mode !== 'forgot' && (
             <>
-              <div className="my-4 flex items-center gap-3">
-                <div className="h-px flex-1 bg-[var(--border-default)]" />
-                <span className="text-[12px] text-[var(--text-secondary)]">hoặc</span>
-                <div className="h-px flex-1 bg-[var(--border-default)]" />
+              <div className="my-5 flex items-center gap-3">
+                <div className="glass-divider h-px flex-1 border-t" />
+                <span className="text-[12px] font-medium text-[var(--text-secondary)]">hoặc</span>
+                <div className="glass-divider h-px flex-1 border-t" />
               </div>
 
               <button
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={googleLoading || loading}
-                className="press-tactile flex min-h-[48px] w-full items-center justify-center gap-2.5 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 text-[14px] font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-subtle)] disabled:opacity-60"
+                className="glass-btn-secondary press-tactile flex min-h-[48px] w-full items-center justify-center gap-2.5 rounded-full px-5 text-[14px] font-semibold disabled:opacity-60"
               >
                 {googleLoading ? (
                   <Loader2 className="h-5 w-5 animate-spin text-[var(--brand-jade-text)]" />
@@ -335,7 +340,7 @@ export default function LoginPage() {
           )}
 
           {mode === 'forgot' && (
-            <div className="mt-4 border-t border-[var(--border-default)] pt-3 text-center">
+            <div className="glass-divider mt-5 border-t pt-3.5 text-center">
               <button
                 type="button"
                 onClick={() => {

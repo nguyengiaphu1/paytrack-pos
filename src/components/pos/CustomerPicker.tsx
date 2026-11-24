@@ -98,7 +98,7 @@ export function CustomerPicker({
   return (
     <>
       <div
-        className={`flex min-w-0 items-center gap-2 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 py-1 transition-colors hover:border-[var(--brand-jade)] ${className}`}
+        className={`glass-card glass-card-interactive flex min-w-0 items-center gap-2 rounded-[20px] px-3 py-1.5 ${className}`}
       >
         <button
           type="button"
@@ -107,19 +107,19 @@ export function CustomerPicker({
             setCreating(false);
             setQuery('');
           }}
-          className="press-tactile flex min-h-[44px] min-w-0 flex-1 items-center justify-between gap-2 py-0.5 text-left"
+          className="press-tactile flex min-h-[46px] min-w-0 flex-1 items-center justify-between gap-2.5 py-0.5 text-left"
         >
           <div className="flex min-w-0 flex-1 items-center gap-2.5">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]">
-              <UserCheck className="h-4 w-4" />
+            <div className="glass-icon-orb flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] text-[var(--brand-jade-text)]">
+              <UserCheck className="h-[18px] w-[18px]" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                <span className="truncate text-[15px] font-semibold text-[var(--text-primary)]">
+                <span className="truncate text-[15px] font-bold text-[var(--text-primary)]">
                   {selectedCustomer ? selectedCustomer.name : 'Khách lẻ'}
                 </span>
                 {selectedCustomer && selectedCustomer.total_debt > 0 && (
-                  <span className="font-mono-tabular shrink-0 rounded-full bg-[var(--status-debt-bg)] px-2 py-0.5 text-[12px] font-bold text-[var(--status-debt)]">
+                  <span className="glass-badge-debt font-mono-tabular shrink-0 rounded-full px-2.5 py-0.5 text-[12px] font-bold">
                     Nợ {formatVND(selectedCustomer.total_debt)}
                   </span>
                 )}
@@ -143,7 +143,7 @@ export function CustomerPicker({
             </div>
           </div>
 
-          <span className="shrink-0 text-[13px] font-semibold text-[var(--brand-jade-text)]">
+          <span className="glass-chip shrink-0 rounded-full px-3 py-1.5 text-[13px] font-semibold text-[var(--brand-jade-text)]">
             {selectedCustomer ? 'Đổi' : 'Chọn khách'}
           </span>
         </button>
@@ -153,7 +153,7 @@ export function CustomerPicker({
             type="button"
             onClick={() => onSelect(null)}
             aria-label="Chuyển về khách lẻ"
-            className="press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]"
+            className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
             <X className="h-4 w-4" />
           </button>
@@ -164,12 +164,13 @@ export function CustomerPicker({
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         ariaLabelledBy="customer-picker-modal-title"
-        panelClassName="animate-sheet-up sm:animate-modal-in max-h-[90dvh] w-full max-w-[460px] overflow-y-auto rounded-t-[14px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[10px]"
+        backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
+        panelClassName="animate-sheet-up sm:animate-modal-in glass-modal flex max-h-[90dvh] w-full max-w-[460px] flex-col overflow-hidden rounded-t-[26px] sm:rounded-[26px]"
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5">
+        <div className="glass-modal-header flex shrink-0 items-center justify-between gap-2 px-5 py-3.5">
           <h2
             id="customer-picker-modal-title"
-            className="min-w-0 flex-1 truncate text-[16px] font-bold"
+            className="min-w-0 flex-1 truncate text-[16px] font-bold text-[var(--text-primary)]"
           >
             {creating ? 'Thêm khách mới' : 'Khách hàng'}
           </h2>
@@ -177,7 +178,7 @@ export function CustomerPicker({
             type="button"
             onClick={() => setModalOpen(false)}
             aria-label="Đóng"
-            className="press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+            className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
             <X className="h-5 w-5" />
           </button>
@@ -187,82 +188,86 @@ export function CustomerPicker({
           <form
             onSubmit={handleCreateCustomer}
             noValidate
-            className="space-y-3.5 p-4 pb-[calc(16px+env(safe-area-inset-bottom))] sm:pb-4"
+            className="flex min-h-0 flex-1 flex-col"
           >
-            {error && (
-              <div
-                role="alert"
-                className="rounded-lg border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3 py-2 text-[14px] text-[var(--status-overdue)]"
-              >
-                {error}
+            <div className="flex-1 space-y-3.5 overflow-y-auto p-4 sm:p-5">
+              {error && (
+                <div
+                  role="alert"
+                  className="glass-badge-overdue rounded-[14px] px-3.5 py-2.5 text-[14px] font-medium"
+                >
+                  {error}
+                </div>
+              )}
+              <div className="glass-well space-y-3 rounded-[18px] p-3.5">
+                <div>
+                  <label htmlFor="cust-new-name" className="mb-1 block text-[14px] font-medium">
+                    Họ tên *
+                  </label>
+                  <input
+                    id="cust-new-name"
+                    data-autofocus
+                    type="text"
+                    required
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder="Cô Lan, Chị Hoa..."
+                    className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="cust-new-phone" className="mb-1 block text-[14px] font-medium">
+                    Số điện thoại
+                  </label>
+                  <input
+                    id="cust-new-phone"
+                    type="tel"
+                    value={newPhone}
+                    onChange={(e) => setNewPhone(e.target.value)}
+                    placeholder="0901234567"
+                    className="glass-input font-mono-tabular min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="cust-new-address" className="mb-1 block text-[14px] font-medium">
+                    Địa chỉ giao hàng
+                  </label>
+                  <input
+                    id="cust-new-address"
+                    type="text"
+                    value={newAddress}
+                    onChange={(e) => setNewAddress(e.target.value)}
+                    placeholder="Số nhà, đường, khu vực..."
+                    className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="cust-new-note" className="mb-1 block text-[14px] font-medium">
+                    Ghi chú
+                  </label>
+                  <input
+                    id="cust-new-note"
+                    type="text"
+                    value={newNote}
+                    onChange={(e) => setNewNote(e.target.value)}
+                    placeholder="Tùy chọn"
+                    className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
+                  />
+                </div>
               </div>
-            )}
-            <div>
-              <label htmlFor="cust-new-name" className="mb-1 block text-[14px] font-medium">
-                Họ tên *
-              </label>
-              <input
-                id="cust-new-name"
-                data-autofocus
-                type="text"
-                required
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                placeholder="Cô Lan, Chị Hoa..."
-                className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-              />
             </div>
-            <div>
-              <label htmlFor="cust-new-phone" className="mb-1 block text-[14px] font-medium">
-                Số điện thoại
-              </label>
-              <input
-                id="cust-new-phone"
-                type="tel"
-                value={newPhone}
-                onChange={(e) => setNewPhone(e.target.value)}
-                placeholder="0901234567"
-                className="font-mono-tabular min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-              />
-            </div>
-            <div>
-              <label htmlFor="cust-new-address" className="mb-1 block text-[14px] font-medium">
-                Địa chỉ giao hàng
-              </label>
-              <input
-                id="cust-new-address"
-                type="text"
-                value={newAddress}
-                onChange={(e) => setNewAddress(e.target.value)}
-                placeholder="Số nhà, đường, khu vực..."
-                className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-              />
-            </div>
-            <div>
-              <label htmlFor="cust-new-note" className="mb-1 block text-[14px] font-medium">
-                Ghi chú
-              </label>
-              <input
-                id="cust-new-note"
-                type="text"
-                value={newNote}
-                onChange={(e) => setNewNote(e.target.value)}
-                placeholder="Tùy chọn"
-                className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
-              />
-            </div>
-            <div className="flex gap-2.5 pt-1">
+            <div className="glass-modal-footer flex shrink-0 gap-2.5 px-4 py-3 pb-[calc(12px+env(safe-area-inset-bottom))] sm:px-5 sm:pb-3.5">
               <button
                 type="button"
                 onClick={() => setCreating(false)}
-                className="press-tactile min-h-[48px] shrink-0 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 text-[14px] font-semibold"
+                className="glass-btn-secondary press-tactile min-h-[48px] shrink-0 rounded-full px-5 text-[14px] font-semibold"
               >
                 Quay lại
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="press-tactile flex min-h-[48px] min-w-0 flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--brand-jade)] px-4 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+                className="glass-btn-primary press-tactile flex min-h-[48px] min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-5 text-[15px] font-semibold disabled:opacity-60"
               >
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
                 <span className="truncate">{saving ? 'Đang lưu...' : 'Lưu & Chọn'}</span>
@@ -270,10 +275,10 @@ export function CustomerPicker({
             </div>
           </form>
         ) : (
-          <div className="space-y-3 p-4 pb-[calc(16px+env(safe-area-inset-bottom))] sm:pb-4">
+          <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4 pb-[calc(16px+env(safe-area-inset-bottom))] sm:p-5 sm:pb-5">
             <div className="flex gap-2">
               <div className="relative min-w-0 flex-1">
-                <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
+                <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
                 <input
                   data-autofocus
                   type="search"
@@ -288,7 +293,7 @@ export function CustomerPicker({
                   }}
                   placeholder="Tìm tên, SĐT, địa chỉ..."
                   aria-label="Tìm khách hàng theo tên, số điện thoại hoặc địa chỉ"
-                  className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] pr-3 pl-9 text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                  className="glass-input min-h-[46px] w-full rounded-[14px] pr-3.5 pl-10 text-[16px] text-[var(--text-primary)] outline-none"
                 />
               </div>
               <button
@@ -297,14 +302,14 @@ export function CustomerPicker({
                   setNewName(query.trim());
                   setCreating(true);
                 }}
-                className="press-tactile flex min-h-[46px] shrink-0 items-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-3.5 text-[14px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
+                className="glass-btn-primary press-tactile flex min-h-[46px] shrink-0 items-center gap-1.5 rounded-[14px] px-4 text-[14px] font-semibold"
               >
                 <UserPlus className="h-4 w-4" />
                 <span>Thêm</span>
               </button>
             </div>
 
-            <div className="max-h-[340px] divide-y divide-[var(--border-default)] overflow-y-auto rounded-lg border border-[var(--border-default)]">
+            <div className="glass-well max-h-[360px] space-y-1.5 overflow-y-auto rounded-[18px] p-2">
               <button
                 type="button"
                 aria-current={selectedCustomerId === null ? 'true' : undefined}
@@ -312,8 +317,10 @@ export function CustomerPicker({
                   onSelect(null);
                   setModalOpen(false);
                 }}
-                className={`flex min-h-[52px] w-full items-center justify-between gap-2 px-3.5 py-2.5 text-left hover:bg-[var(--bg-subtle)] ${
-                  selectedCustomerId === null ? 'bg-[var(--status-paid-bg)]' : ''
+                className={`flex min-h-[52px] w-full items-center justify-between gap-2 rounded-[14px] px-3.5 py-2.5 text-left ${
+                  selectedCustomerId === null
+                    ? 'glass-chip-active'
+                    : 'glass-card glass-card-interactive'
                 }`}
               >
                 <span className="min-w-0 flex-1 truncate font-semibold text-[var(--text-primary)]">
@@ -338,8 +345,8 @@ export function CustomerPicker({
                       onSelect(c);
                       setModalOpen(false);
                     }}
-                    className={`flex min-h-[54px] w-full items-center justify-between gap-2 px-3.5 py-2.5 text-left hover:bg-[var(--bg-subtle)] ${
-                      isSelected ? 'bg-[var(--status-paid-bg)]' : ''
+                    className={`flex min-h-[56px] w-full items-center justify-between gap-2 rounded-[14px] px-3.5 py-2.5 text-left ${
+                      isSelected ? 'glass-chip-active' : 'glass-card glass-card-interactive'
                     }`}
                   >
                     <div className="min-w-0 flex-1">
@@ -356,11 +363,13 @@ export function CustomerPicker({
                     </div>
                     <div className="shrink-0 text-right">
                       {c.total_debt > 0 ? (
-                        <span className="font-mono-tabular rounded-full bg-[var(--status-debt-bg)] px-2.5 py-0.5 text-[12px] font-semibold text-[var(--status-debt)]">
+                        <span className="glass-badge-debt font-mono-tabular rounded-full px-2.5 py-0.5 text-[12px] font-semibold">
                           Nợ {formatVND(c.total_debt)}
                         </span>
                       ) : (
-                        <span className="text-[12px] text-[var(--text-secondary)]">0đ</span>
+                        <span className="glass-badge-neutral font-mono-tabular rounded-full px-2.5 py-0.5 text-[12px] font-medium">
+                          0đ
+                        </span>
                       )}
                     </div>
                   </button>

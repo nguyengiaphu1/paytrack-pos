@@ -282,12 +282,15 @@ export function WelcomeOnboardingModal({
       closeOnBackdrop={!finishing}
       closeOnEscape={!finishing}
       ariaLabelledBy="welcome-onboarding-title"
-      panelClassName="animate-sheet-up sm:animate-modal-in flex max-h-[92dvh] w-full max-w-[540px] flex-col overflow-hidden rounded-t-[16px] border border-[var(--border-default)] bg-[var(--bg-surface)] sm:rounded-[12px]"
+      backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
+      panelClassName="glass-modal animate-sheet-up sm:animate-modal-in flex max-h-[92dvh] w-full max-w-[540px] flex-col overflow-hidden rounded-t-[26px] sm:rounded-[26px]"
     >
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 border-b border-[var(--border-default)] px-4 py-3.5 sm:px-5">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <BrandMark className="h-9 w-9 shrink-0" />
+      <div className="glass-modal-header flex items-center justify-between gap-3 px-4 py-3.5 sm:px-5">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="glass-icon-orb flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] p-1.5">
+            <BrandMark className="h-8 w-8 shrink-0" />
+          </div>
           <div className="min-w-0">
             <h2
               id="welcome-onboarding-title"
@@ -305,18 +308,18 @@ export function WelcomeOnboardingModal({
           disabled={finishing}
           onClick={markOnboardingSeenAndClose}
           aria-label="Đóng"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+          className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
       {/* Body: Calm 3-Step Progressive Checklist */}
-      <div className="flex-1 space-y-2.5 overflow-y-auto p-4 sm:p-5">
+      <div className="flex-1 space-y-3 overflow-y-auto p-4 sm:p-5">
         {errorMsg && (
           <div
             role="alert"
-            className="rounded-[10px] border border-[var(--status-overdue-border)] bg-[var(--status-overdue-bg)] px-3.5 py-2.5 text-[14px] font-medium text-[var(--status-overdue)]"
+            className="glass-badge-overdue rounded-[16px] px-3.5 py-2.5 text-[14px] font-medium"
           >
             {errorMsg}
           </div>
@@ -324,24 +327,20 @@ export function WelcomeOnboardingModal({
 
         {/* Step 1: Shop Info */}
         <div
-          className={`rounded-[10px] border transition-colors ${
-            activeStep === 1
-              ? 'border-[var(--brand-jade)] bg-[var(--bg-canvas)]'
-              : 'border-[var(--border-default)] bg-[var(--bg-canvas)]'
+          className={`rounded-[20px] transition-all ${
+            activeStep === 1 ? 'glass-card' : 'glass-well'
           }`}
         >
           <button
             type="button"
             aria-expanded={activeStep === 1}
             onClick={() => setActiveStep(1)}
-            className="flex min-h-[52px] w-full items-center justify-between gap-2 px-3.5 py-2.5 text-left"
+            className="flex min-h-[54px] w-full items-center justify-between gap-2 px-3.5 py-2.5 text-left"
           >
             <div className="flex min-w-0 items-center gap-2.5">
               <span
-                className={`font-mono-tabular flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[12px] font-bold ${
-                  step1Done
-                    ? 'bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]'
-                    : 'bg-[var(--bg-subtle)] text-[var(--text-secondary)]'
+                className={`font-mono-tabular flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-bold ${
+                  step1Done ? 'glass-badge-paid' : 'glass-badge-neutral'
                 }`}
               >
                 {step1Done ? <CheckCircle2 className="h-4 w-4" /> : '1'}
@@ -353,7 +352,7 @@ export function WelcomeOnboardingModal({
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
               {step1Done && (
-                <span className="rounded-full bg-[var(--status-paid-bg)] px-2 py-0.5 text-[12px] font-semibold text-[var(--status-paid)]">
+                <span className="glass-badge-paid rounded-full px-2.5 py-0.5 text-[12px] font-semibold">
                   Đã lưu
                 </span>
               )}
@@ -368,13 +367,13 @@ export function WelcomeOnboardingModal({
           {activeStep === 1 && (
             <form
               onSubmit={handleSaveShop}
-              className="space-y-3 border-t border-[var(--border-default)] px-3.5 py-3"
+              className="glass-divider space-y-3 border-t px-3.5 py-3.5"
             >
               <div className="grid gap-2.5 sm:grid-cols-2">
                 <div>
                   <label
                     htmlFor="welcome-shop-name"
-                    className="mb-1 block text-[12px] font-medium text-[var(--text-secondary)]"
+                    className="mb-1.5 block text-[12px] font-medium text-[var(--text-secondary)]"
                   >
                     Tên shop
                   </label>
@@ -384,13 +383,13 @@ export function WelcomeOnboardingModal({
                     value={shopName}
                     onChange={(e) => setShopName(e.target.value)}
                     placeholder="VD: Shop Mẹ Lan"
-                    className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                    className="glass-input min-h-[44px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="welcome-shop-phone"
-                    className="mb-1 block text-[12px] font-medium text-[var(--text-secondary)]"
+                    className="mb-1.5 block text-[12px] font-medium text-[var(--text-secondary)]"
                   >
                     SĐT / Zalo
                   </label>
@@ -400,7 +399,7 @@ export function WelcomeOnboardingModal({
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="0901234567"
-                    className="font-mono-tabular min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                    className="glass-input font-mono-tabular min-h-[44px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                   />
                 </div>
               </div>
@@ -408,14 +407,14 @@ export function WelcomeOnboardingModal({
                 <button
                   type="button"
                   onClick={() => setActiveStep(2)}
-                  className="min-h-[44px] px-3 text-[13px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  className="glass-btn-secondary press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] font-semibold text-[var(--text-secondary)]"
                 >
                   Qua bước 2
                 </button>
                 <button
                   type="submit"
                   disabled={savingShop}
-                  className="press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-4 text-[13px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+                  className="glass-btn-primary press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-[13px] font-semibold disabled:opacity-60"
                 >
                   {savingShop && <Loader2 className="h-4 w-4 animate-spin" />}
                   <span>{shopSaved ? 'Đã lưu' : 'Lưu & tiếp tục'}</span>
@@ -427,24 +426,20 @@ export function WelcomeOnboardingModal({
 
         {/* Step 2: Bank Account */}
         <div
-          className={`rounded-[10px] border transition-colors ${
-            activeStep === 2
-              ? 'border-[var(--brand-jade)] bg-[var(--bg-canvas)]'
-              : 'border-[var(--border-default)] bg-[var(--bg-canvas)]'
+          className={`rounded-[20px] transition-all ${
+            activeStep === 2 ? 'glass-card' : 'glass-well'
           }`}
         >
           <button
             type="button"
             aria-expanded={activeStep === 2}
             onClick={() => setActiveStep(2)}
-            className="flex min-h-[52px] w-full items-center justify-between gap-2 px-3.5 py-2.5 text-left"
+            className="flex min-h-[54px] w-full items-center justify-between gap-2 px-3.5 py-2.5 text-left"
           >
             <div className="flex min-w-0 items-center gap-2.5">
               <span
-                className={`font-mono-tabular flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[12px] font-bold ${
-                  step2Done
-                    ? 'bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]'
-                    : 'bg-[var(--bg-subtle)] text-[var(--text-secondary)]'
+                className={`font-mono-tabular flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-bold ${
+                  step2Done ? 'glass-badge-paid' : 'glass-badge-neutral'
                 }`}
               >
                 {step2Done ? <CheckCircle2 className="h-4 w-4" /> : '2'}
@@ -456,7 +451,7 @@ export function WelcomeOnboardingModal({
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
               {step2Done && (
-                <span className="rounded-full bg-[var(--status-paid-bg)] px-2 py-0.5 text-[12px] font-semibold text-[var(--status-paid)]">
+                <span className="glass-badge-paid rounded-full px-2.5 py-0.5 text-[12px] font-semibold">
                   Đã có
                 </span>
               )}
@@ -471,13 +466,13 @@ export function WelcomeOnboardingModal({
           {activeStep === 2 && (
             <form
               onSubmit={handleSaveBank}
-              className="space-y-3 border-t border-[var(--border-default)] px-3.5 py-3"
+              className="glass-divider space-y-3 border-t px-3.5 py-3.5"
             >
               <div className="grid gap-2.5 sm:grid-cols-2">
                 <div>
                   <label
                     htmlFor="welcome-bank-bin"
-                    className="mb-1 block text-[12px] font-medium text-[var(--text-secondary)]"
+                    className="mb-1.5 block text-[12px] font-medium text-[var(--text-secondary)]"
                   >
                     Ngân hàng
                   </label>
@@ -490,7 +485,7 @@ export function WelcomeOnboardingModal({
                       const found = VIETNAM_BANKS.find((b) => b.bin === nextBin);
                       if (found) setBankName(found.shortName);
                     }}
-                    className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                    className="glass-input min-h-[44px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                   >
                     <option value="">-- Chọn ngân hàng --</option>
                     {VIETNAM_BANKS.map((bank) => (
@@ -503,7 +498,7 @@ export function WelcomeOnboardingModal({
                 <div>
                   <label
                     htmlFor="welcome-bank-acc"
-                    className="mb-1 block text-[12px] font-medium text-[var(--text-secondary)]"
+                    className="mb-1.5 block text-[12px] font-medium text-[var(--text-secondary)]"
                   >
                     Số tài khoản
                   </label>
@@ -514,14 +509,14 @@ export function WelcomeOnboardingModal({
                     value={bankAccountNo}
                     onChange={(e) => setBankAccountNo(e.target.value)}
                     placeholder="VD: 1903..."
-                    className="font-mono-tabular min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                    className="glass-input font-mono-tabular min-h-[44px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                   />
                 </div>
               </div>
               <div>
                 <label
                   htmlFor="welcome-bank-holder"
-                  className="mb-1 block text-[12px] font-medium text-[var(--text-secondary)]"
+                  className="mb-1.5 block text-[12px] font-medium text-[var(--text-secondary)]"
                 >
                   Tên chủ tài khoản (không dấu)
                 </label>
@@ -531,21 +526,21 @@ export function WelcomeOnboardingModal({
                   value={bankAccountName}
                   onChange={(e) => setBankAccountName(e.target.value)}
                   placeholder="NGUYEN THI LAN"
-                  className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[16px] uppercase text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                  className="glass-input min-h-[44px] w-full rounded-[14px] px-3.5 text-[16px] uppercase text-[var(--text-primary)] outline-none"
                 />
               </div>
               <div className="flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setActiveStep(3)}
-                  className="min-h-[44px] px-3 text-[13px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  className="glass-btn-secondary press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] font-semibold text-[var(--text-secondary)]"
                 >
                   Qua bước 3
                 </button>
                 <button
                   type="submit"
                   disabled={savingBank}
-                  className="press-tactile inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-lg bg-[var(--brand-jade)] px-4 text-[13px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60"
+                  className="glass-btn-primary press-tactile inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full px-4 text-[13px] font-semibold disabled:opacity-60"
                 >
                   {savingBank && <Loader2 className="h-4 w-4 animate-spin" />}
                   <span>{bankSaved ? 'Đã lưu' : 'Lưu & tiếp tục'}</span>
@@ -557,24 +552,20 @@ export function WelcomeOnboardingModal({
 
         {/* Step 3: First Product */}
         <div
-          className={`rounded-[10px] border transition-colors ${
-            activeStep === 3
-              ? 'border-[var(--brand-jade)] bg-[var(--bg-canvas)]'
-              : 'border-[var(--border-default)] bg-[var(--bg-canvas)]'
+          className={`rounded-[20px] transition-all ${
+            activeStep === 3 ? 'glass-card' : 'glass-well'
           }`}
         >
           <button
             type="button"
             aria-expanded={activeStep === 3}
             onClick={() => setActiveStep(3)}
-            className="flex min-h-[52px] w-full items-center justify-between gap-2 px-3.5 py-2.5 text-left"
+            className="flex min-h-[54px] w-full items-center justify-between gap-2 px-3.5 py-2.5 text-left"
           >
             <div className="flex min-w-0 items-center gap-2.5">
               <span
-                className={`font-mono-tabular flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[12px] font-bold ${
-                  step3Done
-                    ? 'bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]'
-                    : 'bg-[var(--bg-subtle)] text-[var(--text-secondary)]'
+                className={`font-mono-tabular flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-bold ${
+                  step3Done ? 'glass-badge-paid' : 'glass-badge-neutral'
                 }`}
               >
                 {step3Done ? <CheckCircle2 className="h-4 w-4" /> : '3'}
@@ -586,7 +577,7 @@ export function WelcomeOnboardingModal({
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
               {step3Done && (
-                <span className="rounded-full bg-[var(--status-paid-bg)] px-2 py-0.5 text-[12px] font-semibold text-[var(--status-paid)]">
+                <span className="glass-badge-paid rounded-full px-2.5 py-0.5 text-[12px] font-semibold">
                   {Math.max(productsCount, prodSavedCount)} món
                 </span>
               )}
@@ -601,13 +592,13 @@ export function WelcomeOnboardingModal({
           {activeStep === 3 && (
             <form
               onSubmit={handleAddFirstProduct}
-              className="space-y-3 border-t border-[var(--border-default)] px-3.5 py-3"
+              className="glass-divider space-y-3 border-t px-3.5 py-3.5"
             >
               {lastAddedProdName && (
                 <p
                   role="status"
                   aria-live="polite"
-                  className="rounded-lg border border-[var(--status-paid-border)] bg-[var(--status-paid-bg)] px-3 py-1.5 text-[13px] font-semibold text-[var(--brand-jade-text)]"
+                  className="glass-badge-paid rounded-[14px] px-3 py-2 text-[13px] font-semibold"
                 >
                   Đã thêm &ldquo;{lastAddedProdName}&rdquo; vào danh sách.
                 </p>
@@ -615,7 +606,7 @@ export function WelcomeOnboardingModal({
               <div>
                 <label
                   htmlFor="welcome-prod-name"
-                  className="mb-1 block text-[12px] font-medium text-[var(--text-secondary)]"
+                  className="mb-1.5 block text-[12px] font-medium text-[var(--text-secondary)]"
                 >
                   Tên món hàng
                 </label>
@@ -625,14 +616,14 @@ export function WelcomeOnboardingModal({
                   value={prodName}
                   onChange={(e) => setProdName(e.target.value)}
                   placeholder="VD: Mật ong rừng 500ml"
-                  className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                  className="glass-input min-h-[44px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                 />
               </div>
               <div className="grid gap-2.5 sm:grid-cols-2">
                 <div>
                   <label
                     htmlFor="welcome-prod-price"
-                    className="mb-1 block text-[12px] font-medium text-[var(--text-secondary)]"
+                    className="mb-1.5 block text-[12px] font-medium text-[var(--text-secondary)]"
                   >
                     Giá bán (nghìn)
                   </label>
@@ -647,7 +638,7 @@ export function WelcomeOnboardingModal({
                 <div>
                   <label
                     htmlFor="welcome-prod-unit"
-                    className="mb-1 block text-[12px] font-medium text-[var(--text-secondary)]"
+                    className="mb-1.5 block text-[12px] font-medium text-[var(--text-secondary)]"
                   >
                     Đơn vị
                   </label>
@@ -657,7 +648,7 @@ export function WelcomeOnboardingModal({
                     value={prodUnit}
                     onChange={(e) => setProdUnit(e.target.value)}
                     placeholder="cái / hộp / chai"
-                    className="min-h-[44px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)]"
+                    className="glass-input min-h-[44px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
                   />
                 </div>
               </div>
@@ -665,7 +656,7 @@ export function WelcomeOnboardingModal({
                 <button
                   type="submit"
                   disabled={savingProd}
-                  className="press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 text-[13px] font-semibold text-[var(--brand-jade-text)] hover:bg-[var(--status-paid-bg)] disabled:opacity-60"
+                  className="glass-btn-secondary press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-[13px] font-semibold text-[var(--brand-jade-text)] disabled:opacity-60"
                 >
                   {savingProd && <Loader2 className="h-4 w-4 animate-spin" />}
                   <span>Thêm món vào danh sách</span>
@@ -677,12 +668,12 @@ export function WelcomeOnboardingModal({
       </div>
 
       {/* Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 border-t border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3.5 pb-[calc(14px+env(safe-area-inset-bottom))] sm:px-5 sm:pb-3.5">
+      <div className="glass-modal-footer flex flex-wrap items-center justify-between gap-2.5 px-4 py-3.5 pb-[calc(14px+env(safe-area-inset-bottom))] sm:px-5 sm:pb-3.5">
         <button
           type="button"
           disabled={finishing}
           onClick={markOnboardingSeenAndClose}
-          className="press-tactile min-h-[48px] flex-1 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 text-[14px] font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] disabled:opacity-60 sm:flex-none"
+          className="glass-btn-secondary press-tactile min-h-[48px] flex-1 rounded-full px-4 text-[14px] font-semibold text-[var(--text-secondary)] disabled:opacity-60 sm:flex-none"
         >
           Để sau
         </button>
@@ -690,7 +681,7 @@ export function WelcomeOnboardingModal({
           type="button"
           disabled={finishing}
           onClick={() => void saveDirtyAndStart()}
-          className="press-tactile inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-[10px] bg-[var(--brand-jade)] px-5 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)] disabled:opacity-60 sm:flex-none"
+          className="glass-btn-primary press-tactile inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-full px-5 text-[15px] font-semibold disabled:opacity-60 sm:flex-none"
         >
           {finishing && <Loader2 className="h-4 w-4 animate-spin" />}
           <span>{hasUnsavedInputs ? 'Lưu & bắt đầu' : 'Bắt đầu lên đơn'}</span>

@@ -93,17 +93,17 @@ export function ProductCatalog({
   }, [products, query, activeCategory, showHidden]);
 
   return (
-    <div className="space-y-2.5 sm:space-y-3">
+    <div className="space-y-3 sm:space-y-3.5">
       <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {liveAnnouncement}
       </div>
 
-      {/* Search + Ad-Hoc Item Row (strictly 1-row at 375px) */}
-      <div className="flex items-center gap-2">
+      {/* Floating Glass Search + Ad-Hoc Item Bar (strictly 1-row at 375px) */}
+      <div className="glass-surface flex items-center gap-2 rounded-[20px] p-2 sm:p-2.5">
         <div className="relative min-w-0 flex-1">
           <Search
             aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]"
+            className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]"
           />
           <input
             ref={searchInputRef}
@@ -119,12 +119,12 @@ export function ProductCatalog({
             }}
             aria-label="Tìm món hàng"
             placeholder="Tìm món..."
-            className="min-h-[46px] w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] pr-2.5 pl-9 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--brand-jade)] lg:pr-10"
+            className="glass-input min-h-[46px] w-full rounded-[14px] pr-3 pl-10 text-[16px] text-[var(--text-primary)] outline-none lg:pr-10"
           />
           {!query && (
             <kbd
               aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 right-3 hidden -translate-y-1/2 items-center rounded border border-[var(--border-default)] bg-[var(--bg-subtle)] px-1.5 py-0.5 font-mono text-[12px] font-medium text-[var(--text-secondary)] lg:inline-flex"
+              className="glass-badge-neutral pointer-events-none absolute top-1/2 right-3 hidden -translate-y-1/2 items-center rounded-[8px] px-2 py-0.5 font-mono text-[12px] font-semibold lg:inline-flex"
             >
               /
             </kbd>
@@ -135,19 +135,19 @@ export function ProductCatalog({
           type="button"
           onClick={onOpenQuickItem}
           title="Thêm nhanh món ngoài danh mục vào đơn này"
-          className="press-tactile flex min-h-[46px] shrink-0 items-center justify-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-[14px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] sm:px-3.5"
+          className="glass-btn-secondary press-tactile flex min-h-[46px] shrink-0 items-center justify-center gap-1.5 rounded-[14px] px-3.5 text-[14px] font-semibold text-[var(--text-primary)] sm:px-4"
         >
           <Zap className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
           <span>Món lẻ</span>
         </button>
       </div>
 
-      {/* Category Strip (horizontal scroll on mobile) + Catalog Management (Đã ẩn / Thêm món / Sửa) */}
+      {/* Category Pills (horizontal scroll on mobile) + Catalog Management (Đã ẩn / Thêm món / Sửa) */}
       {products.length > 0 && (
         <div className="flex items-center justify-between gap-2">
           {categories.length > 1 ? (
             <div
-              className="scrollbar-none flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto touch-pan-x sm:flex-wrap sm:overflow-visible"
+              className="scrollbar-none flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto touch-pan-x py-0.5 sm:flex-wrap sm:overflow-visible"
               role="group"
               aria-label="Lọc theo danh mục"
             >
@@ -157,10 +157,10 @@ export function ProductCatalog({
                   type="button"
                   aria-pressed={activeCategory === cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`press-tactile min-h-[44px] shrink-0 whitespace-nowrap rounded-lg border px-3 text-[13px] font-medium transition-colors ${
+                  className={`press-tactile min-h-[44px] shrink-0 whitespace-nowrap rounded-full px-3.5 text-[13px] ${
                     activeCategory === cat
-                      ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] font-semibold text-[var(--brand-jade-text)]'
-                      : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'
+                      ? 'glass-chip-active font-semibold'
+                      : 'glass-chip font-medium'
                   }`}
                 >
                   {cat === 'ALL' ? 'Tất cả' : cat}
@@ -168,7 +168,7 @@ export function ProductCatalog({
               ))}
             </div>
           ) : (
-            <span className="font-mono-tabular text-[13px] font-medium text-[var(--text-secondary)]">
+            <span className="glass-badge-neutral font-mono-tabular inline-flex items-center rounded-full px-3 py-1 text-[13px] font-medium">
               {filtered.length} món
             </span>
           )}
@@ -179,10 +179,8 @@ export function ProductCatalog({
                 type="button"
                 aria-pressed={showHidden}
                 onClick={() => setShowHidden((v) => !v)}
-                className={`press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border px-2.5 text-[13px] font-medium transition-colors ${
-                  showHidden
-                    ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] font-semibold text-[var(--brand-jade-text)]'
-                    : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'
+                className={`press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 text-[13px] ${
+                  showHidden ? 'glass-chip-active font-semibold' : 'glass-chip font-medium'
                 }`}
               >
                 <EyeOff className="h-3.5 w-3.5 shrink-0" />
@@ -196,7 +194,7 @@ export function ProductCatalog({
               onClick={onOpenNewProduct}
               aria-label="Thêm món mới vào danh mục"
               title="Thêm món mới vào danh mục bán lâu dài"
-              className="press-tactile inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-2.5 text-[13px] font-semibold text-[var(--brand-jade-text)] hover:border-[var(--brand-jade)] hover:bg-[var(--status-paid-bg)]"
+              className="glass-btn-secondary press-tactile inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-full px-3 text-[13px] font-semibold text-[var(--brand-jade-text)]"
             >
               <Plus className="h-3.5 w-3.5 shrink-0" />
               <span>Thêm món</span>
@@ -206,10 +204,8 @@ export function ProductCatalog({
               type="button"
               aria-pressed={editMode}
               onClick={() => setEditMode((v) => !v)}
-              className={`press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border px-2.5 text-[13px] font-semibold transition-colors ${
-                editMode
-                  ? 'border-[var(--brand-jade)] bg-[var(--status-paid-bg)] text-[var(--brand-jade-text)]'
-                  : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
+              className={`press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 text-[13px] font-semibold ${
+                editMode ? 'glass-chip-active' : 'glass-chip'
               }`}
             >
               {editMode ? (
@@ -228,25 +224,25 @@ export function ProductCatalog({
         </div>
       )}
 
-      {/* Calm Edit-Mode Banner */}
+      {/* Calm Frosted Edit-Mode Banner */}
       {editMode && products.length > 0 && (
         <div
           role="status"
           aria-live="polite"
-          className="animate-fade-in flex items-center justify-between gap-2 rounded-[10px] border border-[var(--status-paid-border)] bg-[var(--status-paid-bg)] px-3 py-2 text-[13px] font-medium text-[var(--brand-jade-text)]"
+          className="animate-fade-in glass-badge-paid flex items-center justify-between gap-2 rounded-[18px] px-4 py-2 text-[13px] font-medium"
         >
           <span>Chạm vào món để sửa giá, vốn hoặc ẩn món.</span>
           <button
             type="button"
             onClick={() => setEditMode(false)}
-            className="press-tactile inline-flex min-h-[44px] shrink-0 items-center rounded-lg bg-[var(--bg-surface)] px-3 text-[13px] font-bold text-[var(--brand-jade-text)]"
+            className="glass-btn-secondary press-tactile inline-flex min-h-[44px] shrink-0 items-center rounded-full px-3.5 text-[13px] font-bold text-[var(--brand-jade-text)]"
           >
             Xong
           </button>
         </div>
       )}
 
-      {/* Product Grid or Empty State */}
+      {/* Sculpted 3D Glass Product Grid or Empty State */}
       {products.length === 0 ? (
         <EmptyStateCard
           icon={PackageOpen}
@@ -257,7 +253,7 @@ export function ProductCatalog({
               <button
                 type="button"
                 onClick={onOpenNewProduct}
-                className="press-tactile flex min-h-[48px] items-center gap-2 rounded-lg bg-[var(--brand-jade)] px-5 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
+                className="glass-btn-primary press-tactile flex min-h-[48px] items-center gap-2 rounded-full px-5 text-[15px] font-semibold"
               >
                 <Plus className="h-4 w-4" />
                 <span>Thêm món</span>
@@ -265,7 +261,7 @@ export function ProductCatalog({
               <button
                 type="button"
                 onClick={onOpenQuickItem}
-                className="press-tactile flex min-h-[48px] items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-5 text-[15px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
+                className="glass-btn-secondary press-tactile flex min-h-[48px] items-center gap-2 rounded-full px-5 text-[15px] font-semibold"
               >
                 <Zap className="h-4 w-4 text-[var(--brand-jade-text)]" />
                 <span>Món lẻ</span>
@@ -297,7 +293,7 @@ export function ProductCatalog({
                     setQuery('');
                     setSelectedCategory('ALL');
                   }}
-                  className="press-tactile flex min-h-[48px] items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-5 text-[15px] font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
+                  className="glass-btn-secondary press-tactile flex min-h-[48px] items-center gap-2 rounded-full px-5 text-[15px] font-semibold"
                 >
                   <span>Xem tất cả</span>
                 </button>
@@ -305,7 +301,7 @@ export function ProductCatalog({
               <button
                 type="button"
                 onClick={onOpenQuickItem}
-                className="press-tactile flex min-h-[48px] items-center gap-2 rounded-lg bg-[var(--brand-jade)] px-5 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
+                className="glass-btn-primary press-tactile flex min-h-[48px] items-center gap-2 rounded-full px-5 text-[15px] font-semibold"
               >
                 <Zap className="h-4 w-4" />
                 <span>Thêm món lẻ</span>
@@ -314,7 +310,7 @@ export function ProductCatalog({
           }
         />
       ) : (
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:items-start xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:items-start xl:grid-cols-3">
           {filtered.map((product) => {
             const qty = cartQtyByProductId[product.id] ?? 0;
             const inCart = qty > 0;
@@ -323,12 +319,12 @@ export function ProductCatalog({
             return (
               <div
                 key={product.id}
-                className={`group flex min-w-0 flex-col rounded-[10px] border transition-colors ${
+                className={`glass-card glass-card-interactive group flex min-w-0 flex-col overflow-hidden rounded-[20px] ${
                   openEditor
-                    ? 'border-dashed border-[var(--brand-jade)] bg-[var(--bg-surface)]'
+                    ? '!border-dashed !border-[var(--brand-jade)]'
                     : inCart
-                      ? 'border-[var(--brand-jade)] bg-[var(--bg-surface)]'
-                      : 'border-[var(--border-default)] bg-[var(--bg-surface)] hover:border-[var(--brand-jade)]'
+                      ? '!border-[var(--brand-jade)] ring-1 ring-[var(--brand-jade-glow)]'
+                      : ''
                 } ${!product.is_active ? 'opacity-75' : ''}`}
               >
                 <button
@@ -341,24 +337,30 @@ export function ProductCatalog({
                         ? `Sửa ${product.name}`
                         : undefined
                   }
-                  className="press-tactile flex min-h-[60px] w-full min-w-0 items-center justify-between gap-3 px-3 py-2.5 text-left active:bg-[var(--bg-subtle)] sm:min-h-[76px] sm:flex-col sm:items-stretch sm:justify-between sm:gap-1.5 sm:p-3"
+                  className="press-tactile flex min-h-[64px] w-full min-w-0 items-center justify-between gap-3 px-3.5 py-3 text-left sm:min-h-[84px] sm:flex-col sm:items-stretch sm:justify-between sm:gap-2 sm:p-3.5"
                 >
                   <div className="min-w-0 flex-1 sm:w-full">
                     <div className="flex items-start justify-between gap-2">
                       <span className="line-clamp-2 break-words text-[15px] font-semibold leading-snug text-[var(--text-primary)]">
                         {product.name}
                       </span>
-                      {openEditor && (
-                        <span className="hidden shrink-0 items-center gap-1 rounded-md bg-[var(--status-paid-bg)] px-2 py-0.5 text-[12px] font-semibold text-[var(--brand-jade-text)] sm:inline-flex">
+                      {openEditor ? (
+                        <span className="glass-badge-paid hidden shrink-0 items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold sm:inline-flex">
                           <Pencil className="h-3 w-3" />
                           {!product.is_active ? 'Hiện lại' : 'Sửa'}
                         </span>
+                      ) : (
+                        inCart && (
+                          <span className="glass-badge-paid animate-badge-pop font-mono-tabular hidden shrink-0 items-center rounded-full px-2 py-0.5 text-[12px] font-bold sm:inline-flex">
+                            ×{qty}
+                          </span>
+                        )
                       )}
                     </div>
                     <div className="mt-0.5 flex items-center gap-1.5 text-[12px] text-[var(--text-secondary)] sm:hidden">
                       <span>/ {product.unit}</span>
                       {!product.is_active && (
-                        <span className="rounded bg-[var(--bg-subtle)] px-1.5 py-0.5 text-[12px] font-medium">
+                        <span className="glass-badge-neutral rounded-full px-2 py-0.5 text-[12px] font-medium">
                           Đang ẩn
                         </span>
                       )}
@@ -374,7 +376,7 @@ export function ProductCatalog({
                       {!product.is_active ? ' · Ẩn' : ''}
                     </span>
                     {openEditor && (
-                      <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-[var(--status-paid-bg)] px-2 py-1 text-[12px] font-semibold text-[var(--brand-jade-text)] sm:hidden">
+                      <span className="glass-badge-paid inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-semibold sm:hidden">
                         <Pencil className="h-3.5 w-3.5" />
                         {!product.is_active ? 'Hiện lại' : 'Sửa'}
                       </span>
@@ -383,11 +385,11 @@ export function ProductCatalog({
                 </button>
 
                 {!editMode && inCart && (
-                  <div className="flex items-center justify-between gap-2 border-t border-[var(--border-default)] bg-[var(--bg-subtle)] px-2.5 py-1.5">
+                  <div className="glass-divider flex items-center justify-between gap-2 border-t bg-[var(--bg-subtle)] px-3 py-2">
                     <span className="text-[12px] font-medium text-[var(--text-secondary)]">
                       Số lượng ({product.unit})
                     </span>
-                    <div className="inline-flex shrink-0 items-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)]">
+                    <div className="glass-well inline-flex shrink-0 items-center overflow-hidden rounded-[14px]">
                       <button
                         type="button"
                         onClick={() => {
@@ -395,7 +397,7 @@ export function ProductCatalog({
                           onSetProductQty(product, next <= 0 ? 0 : next);
                         }}
                         aria-label={`Giảm ${product.name}`}
-                        className="press-tactile flex h-11 w-11 items-center justify-center text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
+                        className="press-tactile flex h-11 w-11 items-center justify-center text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-surface)]"
                       >
                         <Minus className="h-4 w-4" />
                       </button>
@@ -403,13 +405,13 @@ export function ProductCatalog({
                         value={qty}
                         onCommit={(val) => onSetProductQty(product, val)}
                         ariaLabel={`Số lượng ${product.name}`}
-                        className="font-mono-tabular h-11 w-14 border-x border-[var(--border-default)] bg-[var(--bg-surface)] text-center text-[16px] font-bold text-[var(--brand-jade-text)] outline-none"
+                        className="glass-divider font-mono-tabular h-11 w-14 border-x bg-transparent text-center text-[16px] font-bold text-[var(--brand-jade-text)] outline-none"
                       />
                       <button
                         type="button"
                         onClick={() => onSetProductQty(product, Number((qty + 1).toFixed(2)))}
                         aria-label={`Tăng ${product.name}`}
-                        className="press-tactile flex h-11 w-11 items-center justify-center text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
+                        className="press-tactile flex h-11 w-11 items-center justify-center text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-surface)]"
                       >
                         <Plus className="h-4 w-4" />
                       </button>

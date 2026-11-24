@@ -3,7 +3,7 @@
 import { RefreshCw, WifiOff } from 'lucide-react';
 
 function Bone({ className }: { className: string }) {
-  return <div className={`skeleton-shimmer rounded-lg ${className}`} aria-hidden="true" />;
+  return <div className={`skeleton-shimmer rounded-[12px] ${className}`} aria-hidden="true" />;
 }
 
 export function FetchErrorCard({
@@ -18,19 +18,19 @@ export function FetchErrorCard({
   return (
     <div
       role="alert"
-      className="animate-fade-in rounded-[10px] border border-[var(--status-overdue-border)] bg-[var(--bg-surface)] p-6 text-center"
+      className="animate-fade-in glass-card rounded-[24px] border-[var(--status-overdue-border)] p-6 text-center"
     >
-      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--status-overdue-bg)] text-[var(--status-overdue)]">
+      <div className="glass-badge-overdue mx-auto mb-3.5 flex h-14 w-14 items-center justify-center rounded-[18px]">
         <WifiOff className="h-6 w-6" />
       </div>
       <h2 className="text-[16px] font-bold text-[var(--text-primary)]">{title}</h2>
-      <p className="mx-auto mt-1 max-w-[420px] text-[14px] text-[var(--text-secondary)]">
+      <p className="mx-auto mt-1.5 max-w-[420px] text-[14px] text-[var(--text-secondary)]">
         {message || 'Kiểm tra kết nối mạng rồi thử lại.'}
       </p>
       <button
         type="button"
         onClick={onRetry}
-        className="press-tactile mt-4 inline-flex min-h-[48px] items-center justify-center gap-2 rounded-[10px] bg-[var(--brand-jade)] px-5 text-[15px] font-semibold text-white hover:bg-[var(--brand-jade-hover)]"
+        className="glass-btn-primary press-tactile mt-5 inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full px-6 text-[15px] font-semibold"
       >
         <RefreshCw className="h-4 w-4 shrink-0" />
         <span>Thử lại</span>
@@ -47,27 +47,26 @@ export function PosWorkspaceSkeleton() {
       className="grid gap-4 lg:grid-cols-12 lg:items-start lg:gap-5"
     >
       {/* Left Buyer Bar + Catalog Skeleton */}
-      <div className="space-y-2.5 sm:space-y-3 lg:col-span-7 xl:col-span-8">
-        <Bone className="h-[54px] w-full rounded-[10px]" />
-        <div className="flex gap-1.5 sm:gap-2">
-          <Bone className="h-[46px] flex-1" />
-          <Bone className="h-[46px] w-[84px] sm:w-24" />
-          <Bone className="h-[46px] w-[66px] sm:w-28" />
+      <div className="space-y-3 lg:col-span-7 xl:col-span-8">
+        <div className="glass-card rounded-[20px] p-3">
+          <Bone className="h-[46px] w-full rounded-[14px]" />
         </div>
-        <div className="flex gap-1.5 overflow-hidden">
-          <Bone className="h-11 w-20 shrink-0 rounded-lg" />
-          <Bone className="h-11 w-24 shrink-0 rounded-lg" />
-          <Bone className="h-11 w-20 shrink-0 rounded-lg" />
+        <div className="glass-surface flex gap-2 rounded-[20px] p-2.5">
+          <Bone className="h-[46px] flex-1 rounded-[14px]" />
+          <Bone className="h-[46px] w-[88px] rounded-[14px] sm:w-28" />
+          <Bone className="h-[46px] w-[72px] rounded-[14px] sm:w-28" />
         </div>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="flex gap-2 overflow-hidden">
+          <Bone className="h-11 w-24 shrink-0 rounded-full" />
+          <Bone className="h-11 w-28 shrink-0 rounded-full" />
+          <Bone className="h-11 w-24 shrink-0 rounded-full" />
+        </div>
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, idx) => (
-            <div
-              key={idx}
-              className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3"
-            >
+            <div key={idx} className="glass-card rounded-[20px] p-3.5">
               <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-stretch">
                 <Bone className="h-5 w-3/5 sm:w-3/4" />
-                <Bone className="h-5 w-20 sm:mt-2 sm:w-24" />
+                <Bone className="h-5 w-20 sm:mt-2.5 sm:w-24" />
               </div>
             </div>
           ))}
@@ -75,18 +74,18 @@ export function PosWorkspaceSkeleton() {
       </div>
 
       {/* Desktop Right Cart Skeleton */}
-      <div className="hidden rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 lg:col-span-5 lg:block xl:col-span-4">
+      <div className="glass-panel hidden rounded-[24px] p-5 lg:col-span-5 lg:block xl:col-span-4">
         <Bone className="h-6 w-36" />
-        <Bone className="mt-3 h-10 w-full" />
-        <div className="mt-4 space-y-2.5 border-y border-[var(--border-default)] py-4">
-          <Bone className="h-14 w-full" />
-          <Bone className="h-14 w-full" />
+        <Bone className="mt-3 h-11 w-full rounded-[14px]" />
+        <div className="glass-divider mt-4 space-y-2.5 border-y py-4">
+          <Bone className="h-16 w-full rounded-[16px]" />
+          <Bone className="h-16 w-full rounded-[16px]" />
         </div>
         <div className="mt-4 space-y-2">
           <Bone className="h-5 w-full" />
           <Bone className="h-7 w-full" />
         </div>
-        <Bone className="mt-4 h-12 w-full" />
+        <Bone className="mt-4 h-12 w-full rounded-full" />
       </div>
     </div>
   );
@@ -96,26 +95,26 @@ export function DebtsPageSkeleton() {
   return (
     <div aria-busy="true" aria-label="Đang tải sổ nợ khách hàng" className="space-y-4">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div className="col-span-2 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 sm:col-span-1">
+        <div className="glass-card col-span-2 rounded-[22px] p-4 sm:col-span-1">
           <Bone className="h-4 w-32" />
-          <Bone className="mt-2 h-8 w-40" />
+          <Bone className="mt-2.5 h-8 w-40" />
         </div>
-        <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
+        <div className="glass-card rounded-[22px] p-4">
           <Bone className="h-4 w-24" />
-          <Bone className="mt-2 h-8 w-16" />
+          <Bone className="mt-2.5 h-8 w-16" />
         </div>
-        <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
+        <div className="glass-card rounded-[22px] p-4">
           <Bone className="h-4 w-28" />
-          <Bone className="mt-2 h-8 w-16" />
+          <Bone className="mt-2.5 h-8 w-16" />
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Bone className="h-11 w-full sm:max-w-[360px]" />
+      <div className="glass-surface flex flex-col gap-3 rounded-[22px] p-3.5 sm:flex-row sm:items-center sm:justify-between">
+        <Bone className="h-11 w-full rounded-[14px] sm:max-w-[360px]" />
         <div className="flex gap-2">
-          <Bone className="h-10 w-24" />
-          <Bone className="h-10 w-28" />
-          <Bone className="h-10 w-20" />
+          <Bone className="h-11 w-24 rounded-full" />
+          <Bone className="h-11 w-28 rounded-full" />
+          <Bone className="h-11 w-20 rounded-full" />
         </div>
       </div>
 
@@ -123,7 +122,7 @@ export function DebtsPageSkeleton() {
         {Array.from({ length: 5 }).map((_, idx) => (
           <div
             key={idx}
-            className="flex items-center justify-between gap-3 rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4"
+            className="glass-card flex items-center justify-between gap-3 rounded-[20px] p-4"
           >
             <div className="flex-1 space-y-2">
               <Bone className="h-5 w-44" />
@@ -131,7 +130,7 @@ export function DebtsPageSkeleton() {
             </div>
             <div className="space-y-2 text-right">
               <Bone className="ml-auto h-5 w-24" />
-              <Bone className="ml-auto h-8 w-20" />
+              <Bone className="ml-auto h-9 w-24 rounded-full" />
             </div>
           </div>
         ))}
@@ -143,22 +142,18 @@ export function DebtsPageSkeleton() {
 export function OrdersPageSkeleton() {
   return (
     <div aria-busy="true" aria-label="Đang tải lịch sử đơn hàng" className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Bone className="h-11 w-full sm:max-w-[340px]" />
-        <div className="flex flex-wrap gap-1.5">
-          <Bone className="h-10 w-20" />
-          <Bone className="h-10 w-24" />
-          <Bone className="h-10 w-24" />
-          <Bone className="h-10 w-20" />
+      <div className="glass-surface flex flex-col gap-3 rounded-[22px] p-3.5 sm:flex-row sm:items-center sm:justify-between">
+        <Bone className="h-11 w-full rounded-[14px] sm:max-w-[340px]" />
+        <div className="flex flex-wrap gap-2">
+          <Bone className="h-11 w-24 rounded-full" />
+          <Bone className="h-11 w-28 rounded-full" />
+          <Bone className="h-11 w-24 rounded-full" />
         </div>
       </div>
 
       <div className="space-y-2.5">
         {Array.from({ length: 5 }).map((_, idx) => (
-          <div
-            key={idx}
-            className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4"
-          >
+          <div key={idx} className="glass-card rounded-[20px] p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="space-y-2">
                 <Bone className="h-5 w-40" />
@@ -181,25 +176,22 @@ export function StatsPageSkeleton() {
     <div aria-busy="true" aria-label="Đang tải thống kê bán hàng" className="space-y-4">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, idx) => (
-          <div
-            key={idx}
-            className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4"
-          >
+          <div key={idx} className="glass-card rounded-[22px] p-4">
             <Bone className="h-4 w-24" />
-            <Bone className="mt-2 h-7 w-32" />
+            <Bone className="mt-2.5 h-7 w-32" />
             <Bone className="mt-2 h-3.5 w-20" />
           </div>
         ))}
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-        <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
+        <div className="glass-panel rounded-[24px] p-5">
           <Bone className="h-5 w-52" />
           <Bone className="mt-1.5 h-4 w-64" />
-          <Bone className="mt-4 h-[240px] w-full" />
+          <Bone className="mt-4 h-[240px] w-full rounded-[18px]" />
         </div>
         <div className="space-y-4">
-          <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
+          <div className="glass-panel rounded-[24px] p-5">
             <Bone className="h-5 w-40" />
             <Bone className="mt-3 h-4 w-full rounded-full" />
             <div className="mt-4 space-y-2.5">
@@ -208,11 +200,11 @@ export function StatsPageSkeleton() {
               <Bone className="h-5 w-full" />
             </div>
           </div>
-          <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
+          <div className="glass-panel rounded-[24px] p-5">
             <Bone className="h-5 w-44" />
             <div className="mt-4 space-y-3">
-              <Bone className="h-8 w-full" />
-              <Bone className="h-8 w-full" />
+              <Bone className="h-9 w-full rounded-[14px]" />
+              <Bone className="h-9 w-full rounded-[14px]" />
             </div>
           </div>
         </div>
@@ -225,15 +217,12 @@ export function SettingsPageSkeleton() {
   return (
     <div aria-busy="true" aria-label="Đang tải cài đặt cửa hàng" className="space-y-4">
       {Array.from({ length: 3 }).map((_, idx) => (
-        <div
-          key={idx}
-          className="rounded-[10px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-5"
-        >
+        <div key={idx} className="glass-panel rounded-[24px] p-5">
           <Bone className="h-5 w-48" />
           <Bone className="mt-1.5 h-4 w-72 max-w-full" />
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <Bone className="h-12 w-full" />
-            <Bone className="h-12 w-full" />
+            <Bone className="h-12 w-full rounded-[14px]" />
+            <Bone className="h-12 w-full rounded-[14px]" />
           </div>
         </div>
       ))}

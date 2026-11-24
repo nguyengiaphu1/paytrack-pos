@@ -17,43 +17,53 @@ export function DebtAgingCard({ aging }: DebtAgingCardProps) {
     {
       label: 'Quá hạn thu',
       amount: aging.overdue,
-      badgeBg: 'bg-[var(--status-overdue-bg)] text-[var(--status-overdue)]',
+      badgeClass: 'glass-badge-overdue',
       barColor: 'var(--status-overdue)',
     },
     {
       label: 'Trong hạn / Hẹn thu',
       amount: aging.due_or_upcoming,
-      badgeBg: 'bg-[var(--status-debt-bg)] text-[var(--status-debt)]',
+      badgeClass: 'glass-badge-debt',
       barColor: 'var(--status-debt)',
     },
     {
       label: 'Chưa đặt ngày hẹn',
       amount: aging.no_due_date,
-      badgeBg: 'bg-[var(--bg-subtle)] text-[var(--text-secondary)]',
+      badgeClass: 'glass-badge-neutral',
       barColor: 'var(--text-secondary)',
     },
   ];
 
   return (
-    <div className="rounded-[12px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
-      <h2 className="mb-3.5 text-[15px] font-bold text-[var(--text-primary)]">
-        Tuổi nợ
-      </h2>
+    <section className="glass-panel min-w-0 rounded-[24px] p-4 sm:p-5">
+      <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-[16px] font-bold text-[var(--text-primary)]">Tuổi nợ</h2>
+        {total > 0 && (
+          <span className="glass-badge-debt font-mono-tabular rounded-full px-2.5 py-0.5 text-[12px] font-semibold">
+            {formatVND(total)}
+          </span>
+        )}
+      </div>
 
-      <div className="space-y-3.5">
+      <div className="space-y-3">
         {buckets.map((b) => {
           const pct = total > 0 ? Math.round((b.amount / total) * 100) : 0;
           return (
-            <div key={b.label}>
-              <div className="mb-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-[14px]">
-                <span className={`rounded-md px-2 py-0.5 text-[12px] font-semibold ${b.badgeBg}`}>
+            <div key={b.label} className="glass-well rounded-[16px] p-3">
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-[14px]">
+                <span className={`rounded-full px-2.5 py-0.5 text-[12px] font-semibold ${b.badgeClass}`}>
                   {b.label}
                 </span>
-                <span className="font-mono-tabular shrink-0 font-bold text-[var(--text-primary)]">
-                  {formatVND(b.amount)}
-                </span>
+                <div className="flex shrink-0 items-center gap-1.5">
+                  <span className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
+                    {pct}%
+                  </span>
+                  <span className="font-mono-tabular font-bold text-[var(--text-primary)]">
+                    {formatVND(b.amount)}
+                  </span>
+                </div>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--bg-subtle)]">
+              <div className="glass-well h-2.5 w-full overflow-hidden rounded-full p-0.5">
                 <div
                   className="h-full rounded-full"
                   style={{ width: `${pct}%`, backgroundColor: b.barColor }}
@@ -63,6 +73,6 @@ export function DebtAgingCard({ aging }: DebtAgingCardProps) {
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }
