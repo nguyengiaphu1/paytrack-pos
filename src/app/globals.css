@@ -1,98 +1,98 @@
 @import "tailwindcss";
 
 :root {
-  /* Optical Canvas — Crystal Mineral Pearl & Deep Forest Jade (Light Mode) */
-  --bg-canvas: #E8F3EF;
+  /* 60% Dominant Neutral Architectural Canvas — Warm Alabaster & Cool Stone (Light Mode) */
+  --bg-canvas: #EEF0F3;
   --bg-surface: #FFFFFF;
-  --bg-subtle: rgba(14, 107, 78, 0.07);
-  --border-default: rgba(12, 66, 50, 0.14);
+  --bg-subtle: rgba(15, 23, 42, 0.05);
+  --border-default: rgba(15, 23, 42, 0.12);
 
-  /* Crystal Liquid Glass Optical Materials — Pure Clear Crystal Frost */
+  /* 30% Secondary Crystal Liquid Glass — Clear Neutral Porcelain Frost */
   --glass-bg: linear-gradient(
     142deg,
-    rgba(255, 255, 255, 0.62) 0%,
-    rgba(250, 254, 252, 0.36) 52%,
-    rgba(236, 249, 244, 0.28) 100%
+    rgba(255, 255, 255, 0.72) 0%,
+    rgba(250, 251, 253, 0.48) 54%,
+    rgba(241, 244, 248, 0.36) 100%
   );
   --glass-card-bg: linear-gradient(
     145deg,
-    rgba(255, 255, 255, 0.64) 0%,
-    rgba(252, 255, 254, 0.38) 54%,
-    rgba(238, 250, 246, 0.28) 100%
+    rgba(255, 255, 255, 0.74) 0%,
+    rgba(251, 252, 254, 0.50) 56%,
+    rgba(242, 245, 249, 0.38) 100%
   );
   --glass-panel-bg: linear-gradient(
     148deg,
-    rgba(255, 255, 255, 0.68) 0%,
-    rgba(250, 254, 252, 0.44) 55%,
-    rgba(236, 249, 245, 0.34) 100%
+    rgba(255, 255, 255, 0.78) 0%,
+    rgba(250, 251, 253, 0.56) 56%,
+    rgba(242, 245, 249, 0.44) 100%
   );
   --glass-modal-bg: linear-gradient(
     152deg,
-    rgba(255, 255, 255, 0.86) 0%,
-    rgba(246, 253, 250, 0.76) 58%,
-    rgba(236, 249, 245, 0.72) 100%
+    rgba(255, 255, 255, 0.90) 0%,
+    rgba(249, 250, 252, 0.82) 58%,
+    rgba(243, 245, 249, 0.78) 100%
   );
-  --glass-modal-bar-bg: rgba(255, 255, 255, 0.56);
+  --glass-modal-bar-bg: rgba(255, 255, 255, 0.66);
   --glass-dock-bg: linear-gradient(
     165deg,
-    rgba(255, 255, 255, 0.62) 0%,
-    rgba(247, 253, 251, 0.38) 54%,
-    rgba(232, 248, 243, 0.32) 100%
+    rgba(255, 255, 255, 0.74) 0%,
+    rgba(249, 250, 252, 0.52) 56%,
+    rgba(241, 244, 248, 0.44) 100%
   );
   --glass-well-bg: linear-gradient(
     170deg,
-    rgba(255, 255, 255, 0.38) 0%,
-    rgba(218, 240, 233, 0.28) 100%
+    rgba(241, 245, 249, 0.56) 0%,
+    rgba(226, 232, 240, 0.40) 100%
   );
 
   /* Opaque-inside-Translucent Controls (Crisp Porcelain Solid inside Clear Crystal) */
   --glass-input-bg: rgba(255, 255, 255, 0.96);
   --glass-input-focus-bg: #FFFFFF;
-  --glass-solid-bg: linear-gradient(180deg, #FFFFFF 0%, #F4FAF8 100%);
-  --glass-solid-hover-bg: linear-gradient(180deg, #FFFFFF 0%, #EAF6F2 100%);
+  --glass-solid-bg: linear-gradient(180deg, #FFFFFF 0%, #F6F8FA 100%);
+  --glass-solid-hover-bg: linear-gradient(180deg, #FFFFFF 0%, #EDF1F5 100%);
 
   --glass-btn-sec-bg: linear-gradient(
     155deg,
-    rgba(255, 255, 255, 0.84) 0%,
-    rgba(244, 252, 249, 0.64) 100%
+    rgba(255, 255, 255, 0.88) 0%,
+    rgba(245, 247, 250, 0.70) 100%
   );
   --glass-btn-sec-hover-bg: linear-gradient(
     155deg,
     rgba(255, 255, 255, 0.98) 0%,
-    rgba(248, 253, 251, 0.88) 100%
+    rgba(248, 250, 252, 0.90) 100%
   );
   --glass-chip-bg: linear-gradient(
     155deg,
-    rgba(255, 255, 255, 0.72) 0%,
-    rgba(244, 252, 249, 0.46) 100%
+    rgba(255, 255, 255, 0.78) 0%,
+    rgba(245, 247, 250, 0.54) 100%
   );
   --glass-chip-active-bg: linear-gradient(
     145deg,
-    rgba(255, 255, 255, 0.90) 0%,
-    rgba(214, 248, 236, 0.76) 100%
+    rgba(255, 255, 255, 0.94) 0%,
+    rgba(226, 247, 239, 0.82) 100%
   );
-  --glass-table-head-bg: rgba(246, 253, 250, 0.78);
-  --glass-backdrop-bg: rgba(6, 30, 24, 0.36);
+  --glass-table-head-bg: rgba(248, 250, 252, 0.84);
+  --glass-backdrop-bg: rgba(15, 23, 42, 0.34);
 
   /* Directional Specular Bevel Gradients (No flat 1px gray outline) */
-  --glass-border: rgba(255, 255, 255, 0.88);
-  --glass-border-subtle: rgba(14, 78, 58, 0.11);
+  --glass-border: rgba(255, 255, 255, 0.92);
+  --glass-border-subtle: rgba(15, 23, 42, 0.09);
   --glass-rim-top: rgba(255, 255, 255, 0.98);
-  --glass-rim-bottom: rgba(10, 66, 50, 0.08);
+  --glass-rim-bottom: rgba(15, 23, 42, 0.07);
   --glass-bevel-rim: linear-gradient(
     135deg,
     rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 0.56) 24%,
-    rgba(14, 107, 78, 0.16) 52%,
-    rgba(255, 255, 255, 0.44) 76%,
-    rgba(255, 255, 255, 0.94) 100%
+    rgba(255, 255, 255, 0.62) 26%,
+    rgba(100, 116, 139, 0.16) 52%,
+    rgba(255, 255, 255, 0.50) 76%,
+    rgba(255, 255, 255, 0.96) 100%
   );
   --glass-bevel-rim-jade: linear-gradient(
     135deg,
     rgba(255, 255, 255, 0.98) 0%,
-    rgba(16, 168, 124, 0.80) 30%,
-    rgba(14, 107, 78, 0.50) 55%,
-    rgba(20, 184, 166, 0.74) 80%,
+    rgba(16, 168, 124, 0.78) 30%,
+    rgba(14, 107, 78, 0.48) 55%,
+    rgba(20, 184, 166, 0.72) 80%,
     rgba(255, 255, 255, 0.94) 100%
   );
   --glass-bevel-rim-cta: linear-gradient(
@@ -103,195 +103,195 @@
     rgba(153, 246, 228, 0.64) 100%
   );
 
-  /* Multi-Layered 3D Crystal Shadows & Specular Insets (Light Mode) */
+  /* Multi-Layered 3D Crystal Shadows & Specular Insets (Neutral Slate Depth — Light Mode) */
   --glass-shadow:
-    0 22px 48px -12px rgba(8, 62, 46, 0.26),
-    0 8px 20px -6px rgba(10, 88, 66, 0.14),
-    0 2px 6px rgba(7, 46, 35, 0.07),
-    inset 0 2px 3px rgba(255, 255, 255, 0.96),
-    inset 1.5px 0 3px rgba(255, 255, 255, 0.62),
-    inset -1.5px -1.5px 3px rgba(255, 255, 255, 0.66),
-    inset 0 -4px 8px rgba(10, 74, 56, 0.08);
-  --glass-surface-shadow:
-    0 14px 34px -12px rgba(8, 58, 44, 0.18),
-    0 4px 12px -4px rgba(10, 74, 56, 0.09),
-    inset 0 2px 3px rgba(255, 255, 255, 0.96),
-    inset 1.5px 0 2px rgba(255, 255, 255, 0.56),
-    inset 0 -3px 7px rgba(10, 72, 54, 0.06);
-  --glass-card-shadow:
-    0 14px 32px -12px rgba(8, 58, 44, 0.18),
-    0 4px 10px -3px rgba(10, 74, 56, 0.09),
-    inset 0 2px 3px rgba(255, 255, 255, 0.96),
-    inset 1.5px 0 3px rgba(255, 255, 255, 0.58),
-    inset -1px -1px 2px rgba(255, 255, 255, 0.64),
-    inset 0 -3px 6px rgba(10, 72, 54, 0.06);
-  --glass-card-shadow-hover:
-    0 22px 44px -12px rgba(10, 88, 66, 0.26),
-    0 8px 18px -5px rgba(14, 128, 96, 0.16),
+    0 22px 48px -12px rgba(15, 23, 42, 0.16),
+    0 8px 20px -6px rgba(15, 23, 42, 0.09),
+    0 2px 6px rgba(15, 23, 42, 0.05),
     inset 0 2px 3px rgba(255, 255, 255, 0.98),
     inset 1.5px 0 3px rgba(255, 255, 255, 0.68),
-    inset 0 -3px 7px rgba(14, 107, 78, 0.09);
+    inset -1.5px -1.5px 3px rgba(255, 255, 255, 0.70),
+    inset 0 -4px 8px rgba(15, 23, 42, 0.05);
+  --glass-surface-shadow:
+    0 14px 34px -12px rgba(15, 23, 42, 0.12),
+    0 4px 12px -4px rgba(15, 23, 42, 0.06),
+    inset 0 2px 3px rgba(255, 255, 255, 0.98),
+    inset 1.5px 0 2px rgba(255, 255, 255, 0.60),
+    inset 0 -3px 7px rgba(15, 23, 42, 0.04);
+  --glass-card-shadow:
+    0 14px 32px -12px rgba(15, 23, 42, 0.12),
+    0 4px 10px -3px rgba(15, 23, 42, 0.06),
+    inset 0 2px 3px rgba(255, 255, 255, 0.98),
+    inset 1.5px 0 3px rgba(255, 255, 255, 0.62),
+    inset -1px -1px 2px rgba(255, 255, 255, 0.66),
+    inset 0 -3px 6px rgba(15, 23, 42, 0.04);
+  --glass-card-shadow-hover:
+    0 20px 42px -12px rgba(15, 23, 42, 0.17),
+    0 8px 18px -5px rgba(14, 107, 78, 0.12),
+    inset 0 2px 3px rgba(255, 255, 255, 0.99),
+    inset 1.5px 0 3px rgba(255, 255, 255, 0.72),
+    inset 0 -3px 7px rgba(15, 23, 42, 0.06);
   --glass-card-selected-shadow:
-    0 18px 38px -10px rgba(14, 128, 94, 0.32),
-    0 6px 16px -4px rgba(16, 168, 128, 0.20),
+    0 18px 36px -10px rgba(14, 128, 94, 0.24),
+    0 6px 16px -4px rgba(14, 107, 78, 0.14),
     inset 0 2px 3px rgba(255, 255, 255, 0.98),
-    inset 0 -3px 8px rgba(14, 107, 78, 0.11);
+    inset 0 -3px 8px rgba(14, 107, 78, 0.09);
   --glass-panel-shadow:
-    0 22px 48px -12px rgba(7, 58, 44, 0.22),
-    0 6px 18px -5px rgba(10, 74, 56, 0.11),
-    inset 0 2px 3px rgba(255, 255, 255, 0.96),
-    inset 1.5px 0 3px rgba(255, 255, 255, 0.60),
-    inset -1.5px -1.5px 3px rgba(255, 255, 255, 0.62),
-    inset 0 -4px 8px rgba(10, 72, 54, 0.07);
-  --glass-modal-shadow:
-    0 32px 72px -16px rgba(5, 36, 28, 0.34),
-    0 12px 28px -8px rgba(8, 56, 42, 0.16),
+    0 22px 48px -12px rgba(15, 23, 42, 0.15),
+    0 6px 18px -5px rgba(15, 23, 42, 0.08),
     inset 0 2px 3px rgba(255, 255, 255, 0.98),
-    inset 1.5px 0 3px rgba(255, 255, 255, 0.60);
+    inset 1.5px 0 3px rgba(255, 255, 255, 0.64),
+    inset -1.5px -1.5px 3px rgba(255, 255, 255, 0.66),
+    inset 0 -4px 8px rgba(15, 23, 42, 0.05);
+  --glass-modal-shadow:
+    0 32px 72px -16px rgba(15, 23, 42, 0.28),
+    0 12px 28px -8px rgba(15, 23, 42, 0.14),
+    inset 0 2px 3px rgba(255, 255, 255, 0.98),
+    inset 1.5px 0 3px rgba(255, 255, 255, 0.64);
 
-  /* Crystal Jade CTA Caustic Glow Shadow (Light Mode — colored refraction glow below) */
+  /* 10% Accent — Crystal Jade CTA Caustic Glow Shadow (Light Mode) */
   --glass-btn-primary-shadow:
-    0 16px 34px -5px rgba(14, 134, 98, 0.60),
-    0 7px 16px -3px rgba(18, 184, 146, 0.44),
-    0 2px 5px rgba(6, 54, 40, 0.20),
-    inset 0 2px 3px rgba(255, 255, 255, 0.58),
-    inset 0 12px 20px -10px rgba(214, 255, 242, 0.48),
+    0 14px 30px -6px rgba(14, 118, 86, 0.46),
+    0 6px 14px -3px rgba(16, 152, 114, 0.30),
+    0 2px 5px rgba(6, 54, 40, 0.18),
+    inset 0 2px 3px rgba(255, 255, 255, 0.56),
+    inset 0 12px 20px -10px rgba(214, 255, 242, 0.46),
     inset 0 -2px 5px rgba(5, 48, 35, 0.34);
   --glass-btn-primary-hover-shadow:
-    0 20px 40px -5px rgba(14, 144, 106, 0.68),
-    0 9px 20px -3px rgba(20, 194, 158, 0.50),
-    0 2px 6px rgba(6, 54, 40, 0.22),
-    inset 0 2px 3px rgba(255, 255, 255, 0.68),
-    inset 0 14px 22px -10px rgba(226, 255, 247, 0.54),
+    0 18px 36px -6px rgba(14, 132, 96, 0.54),
+    0 8px 18px -3px rgba(18, 168, 128, 0.36),
+    0 2px 6px rgba(6, 54, 40, 0.20),
+    inset 0 2px 3px rgba(255, 255, 255, 0.66),
+    inset 0 14px 22px -10px rgba(226, 255, 247, 0.52),
     inset 0 -2px 5px rgba(5, 48, 35, 0.32);
   --glass-pill-jade-shadow:
-    0 12px 26px -4px rgba(14, 132, 98, 0.54),
-    0 5px 12px -2px rgba(18, 180, 144, 0.38),
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.56),
+    0 10px 22px -5px rgba(14, 118, 86, 0.42),
+    0 4px 10px -2px rgba(16, 152, 114, 0.28),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.54),
     inset 0 -2px 4px rgba(6, 52, 38, 0.28);
   --glass-btn-sec-shadow:
-    0 6px 16px -6px rgba(9, 54, 42, 0.14),
-    0 2px 5px rgba(9, 54, 42, 0.06),
+    0 6px 16px -6px rgba(15, 23, 42, 0.11),
+    0 2px 5px rgba(15, 23, 42, 0.05),
     inset 0 1.5px 2px rgba(255, 255, 255, 0.96),
-    inset 0 -1.5px 3px rgba(10, 68, 52, 0.05);
+    inset 0 -1.5px 3px rgba(15, 23, 42, 0.04);
   --glass-solid-shadow:
-    0 6px 16px -5px rgba(8, 58, 44, 0.16),
-    0 1px 3px rgba(8, 58, 44, 0.07),
+    0 6px 16px -6px rgba(15, 23, 42, 0.12),
+    0 1px 3px rgba(15, 23, 42, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 1);
 
-  /* Typography Ink — High Contrast Daylight Legibility */
-  --text-primary: #0B1B16;
-  --text-secondary: #2F4D44;
+  /* Typography Ink — High Contrast Neutral Charcoal */
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
 
-  /* Brand Deep Forest Jade & WCAG AA Semantic Status */
+  /* 10% Brand Deep Forest Jade & WCAG AA Semantic Status */
   --brand-jade: #0E6B4E;
   --brand-jade-hover: #0A563F;
   --brand-jade-text: #09583F;
-  --brand-jade-glow: rgba(14, 128, 94, 0.26);
+  --brand-jade-glow: rgba(14, 128, 94, 0.24);
 
   --status-paid: #085E4E;
-  --status-paid-bg: rgba(16, 168, 126, 0.18);
-  --status-paid-border: rgba(14, 134, 98, 0.38);
+  --status-paid-bg: rgba(16, 168, 126, 0.14);
+  --status-paid-border: rgba(14, 134, 98, 0.34);
 
   --status-debt: #9A4306;
-  --status-debt-bg: rgba(245, 158, 11, 0.20);
-  --status-debt-border: rgba(217, 119, 6, 0.38);
+  --status-debt-bg: rgba(245, 158, 11, 0.16);
+  --status-debt-border: rgba(217, 119, 6, 0.36);
 
   --status-overdue: #B91C1C;
   --status-overdue-solid: #B91C1C;
-  --status-overdue-bg: rgba(220, 38, 38, 0.15);
-  --status-overdue-border: rgba(220, 38, 38, 0.34);
+  --status-overdue-bg: rgba(220, 38, 38, 0.12);
+  --status-overdue-border: rgba(220, 38, 38, 0.32);
 
-  --skeleton-base: rgba(186, 218, 209, 0.56);
+  --skeleton-base: rgba(203, 213, 225, 0.56);
   --skeleton-shine: rgba(255, 255, 255, 0.88);
 }
 
 :root[data-theme="dark"] {
-  /* Optical Canvas — Obsidian Forest Jade Refraction (Dark Mode) */
-  --bg-canvas: #041013;
-  --bg-surface: #0A1B20;
-  --bg-subtle: rgba(160, 240, 218, 0.09);
-  --border-default: rgba(196, 244, 232, 0.15);
+  /* 60% Dominant Neutral Architectural Canvas — Obsidian Charcoal & Titanium (Dark Mode) */
+  --bg-canvas: #0B0D11;
+  --bg-surface: #12161D;
+  --bg-subtle: rgba(226, 232, 240, 0.07);
+  --border-default: rgba(226, 232, 240, 0.13);
 
-  /* Crystal Liquid Glass Optical Materials (Dark Mode — True Smoky Crystal) */
+  /* 30% Secondary Crystal Liquid Glass — Neutral Smoky Obsidian Crystal */
   --glass-bg: linear-gradient(
     142deg,
-    rgba(22, 56, 58, 0.44) 0%,
-    rgba(11, 30, 35, 0.30) 54%,
-    rgba(7, 21, 26, 0.26) 100%
+    rgba(36, 42, 54, 0.50) 0%,
+    rgba(20, 24, 32, 0.38) 54%,
+    rgba(13, 16, 22, 0.34) 100%
   );
   --glass-card-bg: linear-gradient(
     145deg,
-    rgba(24, 60, 62, 0.42) 0%,
-    rgba(12, 32, 37, 0.30) 56%,
-    rgba(8, 22, 27, 0.26) 100%
+    rgba(38, 45, 58, 0.48) 0%,
+    rgba(21, 26, 35, 0.38) 56%,
+    rgba(14, 18, 25, 0.34) 100%
   );
   --glass-panel-bg: linear-gradient(
     148deg,
-    rgba(20, 52, 56, 0.48) 0%,
-    rgba(10, 28, 33, 0.36) 56%,
-    rgba(7, 20, 25, 0.32) 100%
+    rgba(34, 41, 52, 0.54) 0%,
+    rgba(19, 24, 32, 0.44) 56%,
+    rgba(13, 17, 24, 0.40) 100%
   );
   --glass-modal-bg: linear-gradient(
     152deg,
-    rgba(14, 38, 43, 0.80) 0%,
-    rgba(8, 23, 28, 0.74) 58%,
-    rgba(6, 18, 23, 0.72) 100%
+    rgba(26, 32, 42, 0.86) 0%,
+    rgba(16, 20, 28, 0.82) 58%,
+    rgba(12, 15, 22, 0.80) 100%
   );
-  --glass-modal-bar-bg: rgba(10, 28, 33, 0.54);
+  --glass-modal-bar-bg: rgba(18, 22, 30, 0.66);
   --glass-dock-bg: linear-gradient(
     165deg,
-    rgba(24, 60, 62, 0.48) 0%,
-    rgba(10, 28, 33, 0.36) 55%,
-    rgba(6, 20, 25, 0.34) 100%
+    rgba(36, 43, 55, 0.58) 0%,
+    rgba(19, 24, 32, 0.48) 56%,
+    rgba(13, 17, 24, 0.44) 100%
   );
   --glass-well-bg: linear-gradient(
     170deg,
-    rgba(3, 12, 16, 0.44) 0%,
-    rgba(10, 28, 34, 0.30) 100%
+    rgba(8, 10, 14, 0.52) 0%,
+    rgba(18, 22, 30, 0.36) 100%
   );
 
-  /* Opaque-inside-Translucent Controls (Crisp High-Contrast Dark Surfaces inside Clear Glass) */
-  --glass-input-bg: rgba(5, 16, 20, 0.90);
-  --glass-input-focus-bg: rgba(4, 13, 17, 0.98);
-  --glass-solid-bg: linear-gradient(180deg, rgba(16, 42, 46, 0.94) 0%, rgba(9, 25, 30, 0.96) 100%);
-  --glass-solid-hover-bg: linear-gradient(180deg, rgba(22, 56, 60, 0.96) 0%, rgba(12, 34, 39, 0.98) 100%);
+  /* Opaque-inside-Translucent Controls (Crisp High-Contrast Neutral Dark inside Clear Glass) */
+  --glass-input-bg: rgba(11, 14, 20, 0.92);
+  --glass-input-focus-bg: rgba(8, 11, 16, 0.98);
+  --glass-solid-bg: linear-gradient(180deg, rgba(32, 39, 50, 0.94) 0%, rgba(20, 25, 34, 0.96) 100%);
+  --glass-solid-hover-bg: linear-gradient(180deg, rgba(42, 50, 64, 0.96) 0%, rgba(26, 33, 44, 0.98) 100%);
 
   --glass-btn-sec-bg: linear-gradient(
     155deg,
-    rgba(30, 68, 72, 0.56) 0%,
-    rgba(14, 36, 42, 0.42) 100%
+    rgba(44, 52, 66, 0.58) 0%,
+    rgba(24, 30, 40, 0.46) 100%
   );
   --glass-btn-sec-hover-bg: linear-gradient(
     155deg,
-    rgba(38, 84, 86, 0.72) 0%,
-    rgba(18, 46, 52, 0.58) 100%
+    rgba(56, 66, 84, 0.72) 0%,
+    rgba(30, 37, 49, 0.60) 100%
   );
   --glass-chip-bg: linear-gradient(
     155deg,
-    rgba(26, 62, 66, 0.50) 0%,
-    rgba(12, 32, 38, 0.36) 100%
+    rgba(40, 48, 62, 0.52) 0%,
+    rgba(22, 27, 36, 0.40) 100%
   );
   --glass-chip-active-bg: linear-gradient(
     145deg,
-    rgba(24, 148, 112, 0.36) 0%,
-    rgba(14, 107, 78, 0.24) 100%
+    rgba(24, 148, 112, 0.32) 0%,
+    rgba(14, 107, 78, 0.22) 100%
   );
-  --glass-table-head-bg: rgba(11, 29, 34, 0.78);
-  --glass-backdrop-bg: rgba(1, 8, 10, 0.64);
+  --glass-table-head-bg: rgba(18, 22, 30, 0.82);
+  --glass-backdrop-bg: rgba(3, 5, 8, 0.68);
 
-  /* Directional Specular Bevel Gradients (Dark Mode — Luminous Silver-Mint Edges) */
-  --glass-border: rgba(214, 252, 240, 0.24);
-  --glass-border-subtle: rgba(196, 244, 232, 0.13);
-  --glass-rim-top: rgba(224, 255, 245, 0.28);
-  --glass-rim-bottom: rgba(0, 0, 0, 0.52);
+  /* Directional Specular Bevel Gradients (Dark Mode — Luminous Neutral Titanium-Silver Edges) */
+  --glass-border: rgba(226, 232, 240, 0.20);
+  --glass-border-subtle: rgba(226, 232, 240, 0.11);
+  --glass-rim-top: rgba(241, 245, 249, 0.26);
+  --glass-rim-bottom: rgba(0, 0, 0, 0.56);
   --glass-bevel-rim: linear-gradient(
     135deg,
-    rgba(232, 255, 248, 0.58) 0%,
-    rgba(148, 238, 212, 0.20) 28%,
-    rgba(14, 107, 78, 0.08) 52%,
-    rgba(94, 234, 212, 0.18) 76%,
-    rgba(214, 255, 244, 0.46) 100%
+    rgba(241, 245, 249, 0.50) 0%,
+    rgba(203, 213, 225, 0.18) 28%,
+    rgba(100, 116, 139, 0.08) 52%,
+    rgba(148, 163, 184, 0.16) 76%,
+    rgba(226, 232, 240, 0.40) 100%
   );
   --glass-bevel-rim-jade: linear-gradient(
     135deg,
@@ -311,108 +311,109 @@
 
   /* Multi-Layered 3D Crystal Shadows & Specular Insets (Dark Mode) */
   --glass-shadow:
-    0 24px 56px -12px rgba(0, 0, 0, 0.78),
-    0 8px 22px -4px rgba(0, 0, 0, 0.54),
-    0 2px 10px -2px rgba(14, 136, 102, 0.18),
-    inset 0 2px 3px rgba(232, 255, 248, 0.32),
-    inset 1.5px 0 3px rgba(196, 255, 236, 0.16),
-    inset -1px -1px 2px rgba(110, 240, 206, 0.14),
-    inset 0 -4px 10px rgba(0, 0, 0, 0.44);
+    0 24px 56px -12px rgba(0, 0, 0, 0.80),
+    0 8px 22px -4px rgba(0, 0, 0, 0.56),
+    inset 0 2px 3px rgba(241, 245, 249, 0.24),
+    inset 1.5px 0 3px rgba(226, 232, 240, 0.12),
+    inset -1px -1px 2px rgba(203, 213, 225, 0.10),
+    inset 0 -4px 10px rgba(0, 0, 0, 0.48);
   --glass-surface-shadow:
-    0 16px 38px -12px rgba(0, 0, 0, 0.62),
-    0 4px 12px rgba(0, 0, 0, 0.36),
-    inset 0 1.5px 2px rgba(232, 255, 248, 0.26),
-    inset 1.5px 0 2px rgba(196, 255, 236, 0.12),
-    inset 0 -3px 8px rgba(0, 0, 0, 0.38);
+    0 16px 38px -12px rgba(0, 0, 0, 0.64),
+    0 4px 12px rgba(0, 0, 0, 0.38),
+    inset 0 1.5px 2px rgba(241, 245, 249, 0.20),
+    inset 1.5px 0 2px rgba(226, 232, 240, 0.10),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.42);
   --glass-card-shadow:
     0 16px 38px -12px rgba(0, 0, 0, 0.66),
     0 5px 14px -4px rgba(0, 0, 0, 0.44),
-    inset 0 1.5px 2px rgba(232, 255, 248, 0.26),
-    inset 1.5px 0 2px rgba(196, 255, 236, 0.12),
-    inset -1px -1px 2px rgba(110, 240, 206, 0.12),
-    inset 0 -3px 8px rgba(0, 0, 0, 0.38);
+    inset 0 1.5px 2px rgba(241, 245, 249, 0.20),
+    inset 1.5px 0 2px rgba(226, 232, 240, 0.10),
+    inset -1px -1px 2px rgba(203, 213, 225, 0.08),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.42);
   --glass-card-shadow-hover:
-    0 22px 48px -12px rgba(0, 0, 0, 0.76),
-    0 10px 24px -6px rgba(16, 152, 114, 0.30),
-    inset 0 2px 3px rgba(236, 255, 248, 0.34),
-    inset 1.5px 0 3px rgba(196, 255, 236, 0.18),
-    inset 0 -3px 8px rgba(0, 0, 0, 0.44);
+    0 22px 48px -12px rgba(0, 0, 0, 0.78),
+    0 10px 24px -6px rgba(16, 152, 114, 0.24),
+    inset 0 2px 3px rgba(241, 245, 249, 0.28),
+    inset 1.5px 0 3px rgba(226, 232, 240, 0.14),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.48);
   --glass-card-selected-shadow:
-    0 20px 44px -12px rgba(0, 0, 0, 0.72),
-    0 10px 26px -6px rgba(20, 178, 134, 0.34),
-    inset 0 2px 3px rgba(236, 255, 248, 0.36),
-    inset 0 -3px 8px rgba(0, 0, 0, 0.40);
+    0 20px 44px -12px rgba(0, 0, 0, 0.74),
+    0 10px 26px -6px rgba(20, 178, 134, 0.30),
+    inset 0 2px 3px rgba(236, 255, 248, 0.30),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.42);
   --glass-panel-shadow:
-    0 22px 50px -12px rgba(0, 0, 0, 0.74),
-    0 6px 18px -4px rgba(0, 0, 0, 0.48),
-    inset 0 1.5px 2px rgba(232, 255, 248, 0.28),
-    inset 1.5px 0 3px rgba(196, 255, 236, 0.14),
-    inset 0 -4px 10px rgba(0, 0, 0, 0.42);
+    0 22px 50px -12px rgba(0, 0, 0, 0.76),
+    0 6px 18px -4px rgba(0, 0, 0, 0.50),
+    inset 0 1.5px 2px rgba(241, 245, 249, 0.22),
+    inset 1.5px 0 3px rgba(226, 232, 240, 0.12),
+    inset 0 -4px 10px rgba(0, 0, 0, 0.46);
   --glass-modal-shadow:
-    0 34px 76px -14px rgba(0, 0, 0, 0.86),
-    0 12px 30px -8px rgba(0, 0, 0, 0.60),
-    inset 0 2px 3px rgba(232, 255, 248, 0.28),
-    inset 1.5px 0 3px rgba(196, 255, 236, 0.14);
+    0 34px 76px -14px rgba(0, 0, 0, 0.88),
+    0 12px 30px -8px rgba(0, 0, 0, 0.62),
+    inset 0 2px 3px rgba(241, 245, 249, 0.22),
+    inset 1.5px 0 3px rgba(226, 232, 240, 0.12);
 
-  /* Crystal Jade CTA Caustic Glow Shadow (Dark Mode) */
+  /* 10% Accent — Crystal Jade CTA Caustic Glow Shadow (Dark Mode) */
   --glass-btn-primary-shadow:
-    0 14px 34px -6px rgba(20, 184, 136, 0.54),
-    0 6px 16px -3px rgba(45, 212, 191, 0.28),
-    0 2px 8px rgba(0, 0, 0, 0.54),
+    0 14px 32px -6px rgba(20, 184, 136, 0.50),
+    0 6px 16px -3px rgba(45, 212, 191, 0.24),
+    0 2px 8px rgba(0, 0, 0, 0.56),
     inset 0 2px 3px rgba(236, 255, 248, 0.44),
     inset 0 10px 18px -10px rgba(167, 243, 208, 0.30),
     inset 0 -2px 5px rgba(3, 36, 26, 0.48);
   --glass-btn-primary-hover-shadow:
-    0 18px 40px -6px rgba(24, 198, 148, 0.64),
-    0 8px 20px -3px rgba(45, 212, 191, 0.38),
-    0 2px 8px rgba(0, 0, 0, 0.58),
+    0 18px 38px -6px rgba(24, 198, 148, 0.60),
+    0 8px 20px -3px rgba(45, 212, 191, 0.34),
+    0 2px 8px rgba(0, 0, 0, 0.60),
     inset 0 2px 3px rgba(240, 255, 250, 0.54),
     inset 0 12px 20px -10px rgba(186, 255, 232, 0.38),
     inset 0 -2px 5px rgba(3, 36, 26, 0.46);
   --glass-pill-jade-shadow:
-    0 10px 26px -5px rgba(20, 184, 136, 0.50),
-    0 4px 12px -2px rgba(45, 212, 191, 0.26),
+    0 10px 24px -5px rgba(20, 184, 136, 0.46),
+    0 4px 12px -2px rgba(45, 212, 191, 0.22),
     inset 0 1.5px 2px rgba(236, 255, 248, 0.42),
     inset 0 -2px 4px rgba(3, 34, 25, 0.44);
   --glass-btn-sec-shadow:
-    0 8px 20px -6px rgba(0, 0, 0, 0.52),
-    0 2px 6px rgba(0, 0, 0, 0.34),
-    inset 0 1.5px 2px rgba(232, 255, 248, 0.22),
-    inset 0 -1.5px 3px rgba(0, 0, 0, 0.34);
+    0 8px 20px -6px rgba(0, 0, 0, 0.54),
+    0 2px 6px rgba(0, 0, 0, 0.36),
+    inset 0 1.5px 2px rgba(241, 245, 249, 0.18),
+    inset 0 -1.5px 3px rgba(0, 0, 0, 0.38);
   --glass-solid-shadow:
-    0 8px 18px -6px rgba(0, 0, 0, 0.54),
-    0 1px 3px rgba(0, 0, 0, 0.34),
-    inset 0 1px 0 rgba(210, 252, 238, 0.24);
+    0 8px 18px -6px rgba(0, 0, 0, 0.56),
+    0 1px 3px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(226, 232, 240, 0.18);
 
-  /* Typography Ink */
-  --text-primary: #F2F9F6;
-  --text-secondary: #A6C3BA;
+  /* Typography Ink — Crisp Neutral Silver-White */
+  --text-primary: #F4F6F8;
+  --text-secondary: #9CA7B8;
 
-  /* Brand Deep Forest Jade & WCAG AA Semantic Status */
+  /* 10% Brand Deep Forest Jade & WCAG AA Semantic Status */
   --brand-jade: #158763;
   --brand-jade-hover: #117052;
   --brand-jade-text: #62E6BA;
-  --brand-jade-glow: rgba(76, 208, 166, 0.30);
+  --brand-jade-glow: rgba(76, 208, 166, 0.28);
 
   --status-paid: #62E6BA;
-  --status-paid-bg: rgba(24, 174, 128, 0.22);
-  --status-paid-border: rgba(94, 234, 212, 0.36);
+  --status-paid-bg: rgba(24, 174, 128, 0.20);
+  --status-paid-border: rgba(94, 234, 212, 0.34);
 
   --status-debt: #FBBF24;
-  --status-debt-bg: rgba(217, 140, 18, 0.24);
-  --status-debt-border: rgba(251, 191, 36, 0.38);
+  --status-debt-bg: rgba(217, 140, 18, 0.22);
+  --status-debt-border: rgba(251, 191, 36, 0.36);
 
   --status-overdue: #F87171;
   --status-overdue-solid: #DC2626;
-  --status-overdue-bg: rgba(220, 38, 38, 0.24);
-  --status-overdue-border: rgba(248, 113, 113, 0.38);
+  --status-overdue-bg: rgba(220, 38, 38, 0.22);
+  --status-overdue-border: rgba(248, 113, 113, 0.36);
 
-  --skeleton-base: rgba(24, 52, 58, 0.72);
-  --skeleton-shine: rgba(62, 112, 116, 0.72);
+  --skeleton-base: rgba(34, 41, 54, 0.74);
+  --skeleton-shine: rgba(68, 80, 102, 0.68);
 }
 
 /* ============================================================================
-   Principle 1: High-Contrast Directional Jade & Aqua Optical Backdrop (GPU)
+   Principle 1 (Strict 60-30-10): Neutral Architectural Studio Light & Shadow Backdrop
+   60% Neutral Alabaster/Stone (Light) & Obsidian/Titanium (Dark) so 30% Crystal
+   Glass refracts depth cleanly and 10% Deep Forest Jade (#0E6B4E) pops clearly.
    ============================================================================ */
 body::before {
   content: '';
@@ -422,22 +423,11 @@ body::before {
   pointer-events: none;
   transform: translateZ(0);
   background:
-    radial-gradient(56% 48% at 10% 8%, rgba(14, 128, 96, 0.56) 0%, rgba(14, 107, 78, 0.20) 44%, rgba(14, 107, 78, 0) 72%),
-    radial-gradient(52% 46% at 92% 14%, rgba(13, 168, 164, 0.50) 0%, rgba(13, 148, 136, 0.14) 48%, rgba(13, 148, 136, 0) 74%),
-    radial-gradient(58% 40% at 50% 96%, rgba(14, 107, 78, 0.50) 0%, rgba(13, 148, 136, 0.24) 46%, rgba(13, 148, 136, 0) 76%),
-    radial-gradient(46% 44% at 86% 78%, rgba(15, 118, 110, 0.40) 0%, rgba(15, 118, 110, 0) 68%),
-    radial-gradient(44% 42% at 14% 78%, rgba(20, 184, 166, 0.36) 0%, rgba(20, 184, 166, 0) 68%),
-    linear-gradient(
-      130deg,
-      rgba(232, 249, 244, 0.76) 0%,
-      rgba(196, 235, 224, 0.42) 32%,
-      rgba(14, 107, 78, 0.38) 47.4%,
-      rgba(255, 255, 255, 0.90) 49.6%,
-      rgba(153, 242, 228, 0.46) 53.2%,
-      rgba(14, 134, 118, 0.32) 74%,
-      rgba(218, 244, 238, 0.78) 100%
-    ),
-    linear-gradient(155deg, #C7E6DC 0%, #E3F3EE 38%, #CBEAE5 72%, #B5DFD6 100%);
+    radial-gradient(58% 52% at 14% 10%, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.32) 48%, rgba(255, 255, 255, 0) 76%),
+    radial-gradient(52% 48% at 88% 12%, rgba(235, 229, 220, 0.56) 0%, rgba(235, 229, 220, 0) 72%),
+    radial-gradient(56% 46% at 82% 88%, rgba(182, 194, 209, 0.44) 0%, rgba(182, 194, 209, 0) 72%),
+    radial-gradient(50% 44% at 12% 84%, rgba(196, 205, 217, 0.38) 0%, rgba(196, 205, 217, 0) 70%),
+    linear-gradient(148deg, #F5F6F8 0%, #ECEFF3 44%, #E3E7EE 78%, #ECEFF3 100%);
 }
 
 body::after {
@@ -449,51 +439,37 @@ body::after {
   transform: translateZ(0);
   background:
     linear-gradient(
-      124deg,
+      128deg,
       transparent 0%,
-      transparent 43.5%,
-      rgba(255, 255, 255, 0.80) 48.2%,
-      rgba(255, 255, 255, 0.24) 51.2%,
-      rgba(14, 107, 78, 0.16) 54.4%,
-      transparent 62%
+      transparent 38%,
+      rgba(255, 255, 255, 0.58) 47.5%,
+      rgba(255, 255, 255, 0.14) 51.5%,
+      rgba(148, 163, 184, 0.10) 56%,
+      transparent 66%
     ),
-    radial-gradient(circle at 24% 26%, rgba(255, 255, 255, 0.78) 0 100px, rgba(255, 255, 255, 0) 240px),
-    radial-gradient(circle at 76% 62%, rgba(204, 251, 241, 0.56) 0 88px, rgba(204, 251, 241, 0) 220px);
+    radial-gradient(circle at 26% 24%, rgba(255, 255, 255, 0.72) 0 110px, rgba(255, 255, 255, 0) 280px);
 }
 
 :root[data-theme="dark"] body::before {
   background:
-    radial-gradient(56% 48% at 12% 8%, rgba(14, 138, 102, 0.64) 0%, rgba(14, 107, 78, 0.26) 44%, rgba(14, 107, 78, 0) 72%),
-    radial-gradient(52% 46% at 90% 16%, rgba(13, 168, 178, 0.52) 0%, rgba(13, 148, 136, 0.18) 46%, rgba(13, 148, 136, 0) 74%),
-    radial-gradient(58% 40% at 50% 98%, rgba(16, 152, 114, 0.58) 0%, rgba(13, 148, 136, 0.24) 46%, rgba(13, 148, 136, 0) 76%),
-    radial-gradient(46% 42% at 14% 82%, rgba(14, 107, 78, 0.46) 0%, rgba(14, 107, 78, 0) 68%),
-    radial-gradient(44% 40% at 86% 80%, rgba(20, 184, 166, 0.34) 0%, rgba(20, 184, 166, 0) 66%),
-    linear-gradient(
-      130deg,
-      rgba(3, 14, 18, 0.40) 0%,
-      rgba(6, 30, 34, 0.18) 36%,
-      rgba(14, 122, 92, 0.46) 47.6%,
-      rgba(94, 234, 212, 0.34) 49.5%,
-      rgba(13, 148, 136, 0.26) 53.2%,
-      rgba(4, 20, 26, 0.24) 74%,
-      rgba(4, 16, 20, 0.42) 100%
-    ),
-    linear-gradient(148deg, #030D10 0%, #061D22 46%, #031116 100%);
+    radial-gradient(56% 50% at 14% 10%, rgba(148, 163, 184, 0.16) 0%, rgba(100, 116, 139, 0.06) 46%, rgba(100, 116, 139, 0) 74%),
+    radial-gradient(52% 46% at 88% 14%, rgba(100, 116, 139, 0.14) 0%, rgba(71, 85, 105, 0.05) 48%, rgba(71, 85, 105, 0) 74%),
+    radial-gradient(58% 42% at 50% 96%, rgba(71, 85, 105, 0.18) 0%, rgba(51, 65, 85, 0.06) 48%, rgba(51, 65, 85, 0) 76%),
+    radial-gradient(46% 42% at 84% 82%, rgba(51, 65, 85, 0.14) 0%, rgba(51, 65, 85, 0) 68%),
+    linear-gradient(150deg, #090B0F 0%, #10141B 48%, #0B0E14 100%);
 }
 
 :root[data-theme="dark"] body::after {
   background:
     linear-gradient(
-      124deg,
+      128deg,
       transparent 0%,
-      transparent 44%,
-      rgba(94, 234, 212, 0.26) 48.3%,
-      rgba(204, 251, 241, 0.14) 50.2%,
-      rgba(16, 185, 129, 0.16) 53.2%,
-      transparent 61%
+      transparent 40%,
+      rgba(226, 232, 240, 0.065) 48.2%,
+      rgba(226, 232, 240, 0.02) 51.4%,
+      transparent 60%
     ),
-    radial-gradient(circle at 22% 28%, rgba(92, 224, 179, 0.26) 0 85px, rgba(92, 224, 179, 0) 230px),
-    radial-gradient(circle at 78% 64%, rgba(45, 212, 191, 0.22) 0 80px, rgba(45, 212, 191, 0) 220px);
+    radial-gradient(circle at 22% 24%, rgba(226, 232, 240, 0.06) 0 95px, rgba(226, 232, 240, 0) 260px);
 }
 
 /* ============================================================================
