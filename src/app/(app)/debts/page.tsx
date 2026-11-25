@@ -14,7 +14,8 @@ import {
   ShoppingBag,
   Users,
 } from 'lucide-react';
-import { formatDateVN, formatVND, getTodayVN, stripVietnamese } from '@/lib/vietnamese';
+import { formatDateVN, formatVND, getTodayVN } from '@/lib/vietnamese';
+import { filterCustomersByQuery } from '@/lib/customers';
 import { usePosData } from '@/components/providers/PosDataProvider';
 import { DebtCustomerDrawer } from '@/components/debts/DebtCustomerDrawer';
 import { EmptyStateCard } from '@/components/ui/EmptyStateCard';
@@ -82,18 +83,14 @@ function DebtsContent() {
   }, [customers, todayVN]);
 
   const filtered = useMemo(() => {
-    const q = stripVietnamese(query);
-    return customers.filter((c) => {
+    const byStatus = customers.filter((c) => {
       if (filter === 'debtors' && c.total_debt <= 0) return false;
       if (filter === 'due' && (c.total_debt <= 0 || !c.next_due_date || c.next_due_date > todayVN)) {
         return false;
       }
-      if (q) {
-        const hay = stripVietnamese(`${c.name} ${c.phone ?? ''} ${c.address ?? ''}`);
-        if (!hay.includes(q) && !c.search_text.includes(q)) return false;
-      }
       return true;
     });
+    return filterCustomersByQuery(byStatus, query);
   }, [customers, filter, query, todayVN]);
 
   const activeCustomer =

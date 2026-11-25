@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { requireApiUser } from '@/lib/api-auth';
 import { getTodayVN } from '@/lib/vietnamese';
 
 interface SubscribeBody {
@@ -14,14 +14,9 @@ interface SubscribeBody {
 }
 
 export async function GET() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: 'Chưa đăng nhập' }, { status: 401 });
-  }
+  const auth = await requireApiUser();
+  if (!auth.ok) return auth.response;
+  const { supabase, user } = auth;
 
   const overdueCutoffIso = new Date(Date.now() - 2 * 60 * 1000).toISOString();
   const todayVN = getTodayVN();
@@ -94,21 +89,16 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: 'Chưa đăng nhập' }, { status: 401 });
-  }
+  const auth = await requireApiUser();
+  if (!auth.ok) return auth.response;
+  const { supabase, user } = auth;
 
   const body = (await request.json().catch(() => ({}))) as SubscribeBody;
   const endpoint = body.subscription?.endpoint;
   const p256dh = body.subscription?.keys?.p256dh;
-  const auth = body.subscription?.keys?.auth;
+  const authKey = body.subscription?.keys?.auth;
 
-  if (!endpoint || !p256dh || !auth) {
+  if (!endpoint || !p256dh || !authKey) {
     return NextResponse.json(
       { error: 'Thiếu thông tin Push Subscription hợp lệ' },
       { status: 400 }
@@ -120,7 +110,7 @@ export async function POST(request: Request) {
       user_id: user.id,
       endpoint,
       p256dh,
-      auth,
+      auth: authKey,
       device_label: body.deviceLabel?.slice(0, 80) || 'Thiết bị web',
       last_seen_at: new Date().toISOString(),
     },
@@ -135,14 +125,9 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: 'Chưa đăng nhập' }, { status: 401 });
-  }
+  const auth = await requireApiUser();
+  if (!auth.ok) return auth.response;
+  const { supabase, user } = auth;
 
   const body = (await request.json().catch(() => ({}))) as { endpoint?: string };
   if (!body.endpoint) {

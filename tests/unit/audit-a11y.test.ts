@@ -27,14 +27,13 @@ describe('Accessibility & ModalDialog guards (Impeccable Audit Step 4)', () => {
       ['src/app/(app)/page.tsx', 'mobile-cart-sheet-title', 'src/components/pos/CartPanel.tsx'],
       ['src/components/pos/CustomerPicker.tsx', 'customer-picker-modal-title'],
       ['src/components/pos/CheckoutModal.tsx', 'checkout-modal-title'],
-      ['src/components/pos/QuickItemModal.tsx', 'quick-item-modal-title'],
       ['src/components/pos/ProductFormModal.tsx', 'product-form-modal-title'],
       ['src/components/welcome/WelcomeOnboardingModal.tsx', 'welcome-onboarding-title'],
       ['src/components/invoice/InvoicePreviewModal.tsx', 'invoice-preview-modal-title'],
       ['src/components/qr/VietQRModal.tsx', 'vietqr-modal-title'],
       ['src/components/orders/OrderLedgerEditModal.tsx', 'order-ledger-edit-title'],
       ['src/components/orders/CsvImportModal.tsx', 'csv-import-modal-title'],
-      ['src/app/(app)/orders/page.tsx', 'order-detail-modal-title'],
+      ['src/components/orders/OrderDetailModal.tsx', 'order-detail-modal-title'],
       ['src/components/debts/DebtCustomerDrawer.tsx', 'debt-customer-drawer-title'],
       ['src/components/debts/ReminderModal.tsx', 'reminder-modal-title'],
       ['src/components/debts/CollectDebtModal.tsx', 'collect-debt-modal-title'],
@@ -52,18 +51,21 @@ describe('Accessibility & ModalDialog guards (Impeccable Audit Step 4)', () => {
         `${titleOwnerPath ?? relPath} must expose matching heading id "${headingId}"`
       ).toContain(headingId);
     }
+
+    // ModalHeader forwards titleId directly onto <h2 id={titleId}>
+    const modalHeader = readRel('src/components/ui/ModalHeader.tsx');
+    expect(modalHeader).toContain('id={titleId}');
   });
 
   it('associates form labels with htmlFor/id and exposes role="alert" on POS and secondary modals', () => {
     const pairs: Array<[string, string]> = [
       ['src/components/pos/CustomerPicker.tsx', 'cust-new-name'],
-      ['src/components/pos/QuickItemModal.tsx', 'quick-item-name'],
       ['src/components/pos/ProductFormModal.tsx', 'prod-name'],
-      ['src/components/pos/CheckoutModal.tsx', 'checkout-new-cust-name'],
+      ['src/components/pos/checkout/CheckoutBuyerSection.tsx', 'checkout-new-cust-name'],
       ['src/components/welcome/WelcomeOnboardingModal.tsx', 'welcome-shop-name'],
       ['src/app/(app)/settings/page.tsx', 'settings-shop-name'],
       ['src/components/orders/OrderLedgerEditModal.tsx', 'ledger-edit-customer-name'],
-      ['src/components/orders/CsvImportModal.tsx', 'csv-import-year'],
+      ['src/components/orders/CsvImportPreviewPanel.tsx', 'csv-import-year'],
       ['src/components/debts/CollectDebtModal.tsx', 'collect-paid-date'],
       ['src/components/debts/ReminderModal.tsx', 'reminder-date'],
     ];
@@ -129,8 +131,11 @@ describe('Accessibility & ModalDialog guards (Impeccable Audit Step 4)', () => {
     expect(shell).toContain('useShellPosData');
     expect(shell).not.toContain('usePosData(');
 
+    const browserExport = readRel('src/lib/browser-export.ts');
+    expect(browserExport).toContain("import('html-to-image')");
+    expect(browserExport).not.toContain("from 'html-to-image'");
+
     const invoice = readRel('src/components/invoice/InvoicePreviewModal.tsx');
-    expect(invoice).toContain("import('html-to-image')");
     expect(invoice).not.toContain("from 'html-to-image'");
 
     const receipt = readRel('src/components/invoice/ReceiptTemplate.tsx');
@@ -138,7 +143,6 @@ describe('Accessibility & ModalDialog guards (Impeccable Audit Step 4)', () => {
     expect(receipt).not.toContain("from 'qrcode'");
 
     const qr = readRel('src/components/qr/VietQRModal.tsx');
-    expect(qr).toContain("import('html-to-image')");
     expect(qr).not.toContain("from 'html-to-image'");
     expect(qr).toContain("import('qrcode')");
     expect(qr).not.toContain("from 'qrcode'");
@@ -152,34 +156,36 @@ describe('Accessibility & ModalDialog guards (Impeccable Audit Step 4)', () => {
 
     for (const relPath of [
       'src/components/pos/CheckoutModal.tsx',
+      'src/components/pos/checkout/CheckoutBuyerSection.tsx',
       'src/components/ui/PaymentAccountSelector.tsx',
       'src/components/invoice/InvoicePreviewModal.tsx',
       'src/components/qr/VietQRModal.tsx',
       'src/components/debts/CollectDebtModal.tsx',
-      'src/components/orders/CsvImportModal.tsx',
+      'src/components/orders/CsvImportPreviewPanel.tsx',
     ]) {
       expect(readRel(relPath), `${relPath} must use aria-pressed on toggle buttons`).toContain(
         'aria-pressed='
       );
     }
 
-    const checkout = readRel('src/components/pos/CheckoutModal.tsx');
-    expect(checkout).toContain("if (e.key === 'Enter')");
-    expect(checkout).toContain('void handleQuickCreateCustomer()');
+    const checkoutBuyer = readRel('src/components/pos/checkout/CheckoutBuyerSection.tsx');
+    expect(checkoutBuyer).toContain("if (e.key === 'Enter')");
+    expect(checkoutBuyer).toContain('void handleQuickCreateCustomer()');
 
     const invoice = readRel('src/components/invoice/InvoicePreviewModal.tsx');
     expect(invoice).toContain('hasBalanceDue');
   });
 
   it('enforces P1 audit fixes: keyboard-accessible /orders rows & decoupled mobile cards, QtyNumberInput focus rings, and neutral glassmorphism with WCAG AA contrast', () => {
-    const orders = readRel('src/app/(app)/orders/page.tsx');
-    expect(orders).toContain('Xem chi tiết đơn ${order.order_code}');
-    expect(orders).not.toContain('role="button"\n                  tabIndex={0}');
+    const desktopTable = readRel('src/components/orders/OrdersDesktopTable.tsx');
+    const mobileList = readRel('src/components/orders/OrdersMobileList.tsx');
+    expect(desktopTable).toContain('Xem chi tiết đơn ${order.order_code}');
+    expect(mobileList).toContain('Xem chi tiết đơn ${order.order_code}');
+    expect(mobileList).not.toContain('role="button"\n                  tabIndex={0}');
 
     for (const relPath of [
-      'src/components/pos/ProductCatalog.tsx',
+      'src/components/pos/ProductCard.tsx',
       'src/components/pos/CartPanel.tsx',
-      'src/components/pos/QuickItemModal.tsx',
     ]) {
       const src = readRel(relPath);
       expect(src, `${relPath} must use inset focus-visible ring on QtyNumberInput`).toContain(
@@ -221,9 +227,9 @@ describe('Accessibility & ModalDialog guards (Impeccable Audit Step 4)', () => {
     expect(revChart).toContain('prefers-reduced-motion: reduce');
     expect(revChart).toContain('isAnimationActive={!reducedMotion}');
 
-    const catalog = readRel('src/components/pos/ProductCatalog.tsx');
-    expect(catalog).toContain('if (!inCart)');
-    expect(catalog).not.toContain('flex h-11 w-10 items-center');
+    const productCard = readRel('src/components/pos/ProductCard.tsx');
+    expect(productCard).toContain('if (!inCart)');
+    expect(productCard).not.toContain('flex h-11 w-10 items-center');
 
     const picker = readRel('src/components/pos/CustomerPicker.tsx');
     const searchInputMatch = picker.match(/ref=\{searchInputRef\}[\s\S]{0,120}/)?.[0] ?? '';
@@ -275,12 +281,14 @@ describe('Accessibility & ModalDialog guards (Impeccable Audit Step 4)', () => {
     expect(cart).not.toContain('glass-pill-jade');
 
     const checkout = readRel('src/components/pos/CheckoutModal.tsx');
+    const checkoutSummary = readRel('src/components/pos/checkout/CheckoutOrderSummary.tsx');
+    const checkoutBuyer = readRel('src/components/pos/checkout/CheckoutBuyerSection.tsx');
     expect(checkout).toContain('closeOnBackdrop={Boolean(savedOrder)}');
-    expect(checkout).toContain('checkout-items-breakdown');
+    expect(checkoutSummary).toContain('checkout-items-breakdown');
     expect(checkout).toContain('Cần chọn khách hàng để ghi nợ');
     expect(checkout).toContain('ring-2 ring-[var(--brand-jade)]');
     expect(checkout).toContain('ring-2 ring-[var(--status-debt)]');
-    expect(checkout).toContain('Gần đây');
+    expect(checkoutBuyer).toContain('Gần đây');
 
     const picker = readRel('src/components/pos/CustomerPicker.tsx');
     expect(picker).toContain('Gần đây');

@@ -159,7 +159,7 @@ export function dateInputToVnIso(dateStr: string, referenceNow: Date = new Date(
   return new Date(`${clean}T12:00:00+07:00`).toISOString();
 }
 
-export type LedgerDatePreset = 'all' | 'today' | '7d' | 'month' | 'custom';
+export type LedgerDatePreset = 'all' | 'today' | '7d' | '30d' | 'month' | 'custom';
 
 export interface VnDateRange {
   start: string | null;
@@ -167,7 +167,7 @@ export interface VnDateRange {
 }
 
 /**
- * Computes inclusive YYYY-MM-DD date boundaries in Asia/Ho_Chi_Minh for ledger date filters.
+ * Computes inclusive YYYY-MM-DD date boundaries in Asia/Ho_Chi_Minh for ledger & analytics filters.
  */
 export function computeVnDatePresetRange(
   preset: LedgerDatePreset,
@@ -181,9 +181,10 @@ export function computeVnDatePresetRange(
   if (preset === 'today') {
     return { start: todayStr, end: todayStr };
   }
-  if (preset === '7d') {
+  if (preset === '7d' || preset === '30d') {
+    const offsetDays = preset === '7d' ? 6 : 29;
     const base = new Date(`${todayStr}T12:00:00+07:00`);
-    base.setUTCDate(base.getUTCDate() - 6);
+    base.setUTCDate(base.getUTCDate() - offsetDays);
     return { start: getTodayVN(base), end: todayStr };
   }
   if (preset === 'month') {
@@ -198,6 +199,25 @@ export function computeVnDatePresetRange(
     end = tmp;
   }
   return { start, end };
+}
+
+/**
+ * Computes inclusive ISO timestamp boundaries in Asia/Ho_Chi_Minh (`+07:00`) for analytics RPC queries.
+ */
+export function computeVnDatePresetIsoRange(
+  preset: Exclude<LedgerDatePreset, 'all'>,
+  customStart?: string,
+  customEnd?: string,
+  referenceNow: Date = new Date()
+): { startIso: string; endIso: string } {
+  const todayStr = getTodayVN(referenceNow);
+  const { start, end } = computeVnDatePresetRange(preset, customStart, customEnd, referenceNow);
+  const resolvedStart = start ?? todayStr;
+  const resolvedEnd = end ?? todayStr;
+  return {
+    startIso: `${resolvedStart}T00:00:00+07:00`,
+    endIso: `${resolvedEnd}T23:59:59.999+07:00`,
+  };
 }
 
 /**

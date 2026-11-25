@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Archive, Loader2, X } from 'lucide-react';
+import { Archive, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { formatErrorMessageVN } from '@/lib/errors';
 import { stripVietnamese } from '@/lib/vietnamese';
 import type { Product } from '@/types/database';
 import { VndKInput } from '@/components/ui/VndKInput';
 import { ModalDialog } from '@/components/ui/ModalDialog';
+import { ModalHeader } from '@/components/ui/ModalHeader';
 
 interface ProductFormModalProps {
   open: boolean;
@@ -152,22 +153,11 @@ function ProductFormModalBody({
       backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
       panelClassName="animate-sheet-up sm:animate-modal-in glass-modal flex max-h-[92dvh] w-full max-w-[460px] flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px]"
     >
-      <div className="glass-modal-header flex shrink-0 items-center justify-between gap-2 px-5 py-3.5">
-        <h2
-          id="product-form-modal-title"
-          className="min-w-0 flex-1 truncate text-[16px] font-bold text-[var(--text-primary)]"
-        >
-          {product ? 'Sửa món hàng' : 'Thêm món mới'}
-        </h2>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Đóng"
-          className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-        >
-          <X className="h-5 w-5" />
-        </button>
-      </div>
+      <ModalHeader
+        title={product ? 'Sửa món hàng' : 'Thêm món mới'}
+        titleId="product-form-modal-title"
+        onClose={onClose}
+      />
 
       <form onSubmit={handleSubmit} noValidate className="flex min-h-0 flex-1 flex-col">
         <div className="flex-1 space-y-3.5 overflow-y-auto p-4 sm:p-5">

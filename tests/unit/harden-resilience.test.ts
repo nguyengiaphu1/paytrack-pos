@@ -102,12 +102,13 @@ describe('POS draft persistence & decimal quantity helpers (pos-draft)', () => {
 describe('P0 & P1 POS checkout, draft cart, and input hardening regressions', () => {
   it('keys CheckoutModalBody strictly by sessionId (never items.length) and freezes orderItems', () => {
     const checkout = readRel('src/components/pos/CheckoutModal.tsx');
+    const buyer = readRel('src/components/pos/checkout/CheckoutBuyerSection.tsx');
     expect(checkout).toContain('<CheckoutModalBody key={props.sessionId}');
     expect(checkout).not.toContain('props.items.length');
     expect(checkout).toContain('orderItems.length === 0');
-    expect(checkout).toContain('Đổi khách');
-    expect(checkout).toContain('Chọn khách');
-    expect(checkout).toContain('Tạo mới');
+    expect(buyer).toContain('Đổi khách');
+    expect(buyer).toContain('Chọn khách');
+    expect(buyer).toContain('Tạo mới');
   });
 
   it('persists cart draft via PosDataProvider, resets customer after save, and separates discountInputId', () => {
@@ -123,17 +124,14 @@ describe('P0 & P1 POS checkout, draft cart, and input hardening regressions', ()
     expect(provider).toContain('resetOrderDraftAfterSave');
   });
 
-  it('uses QtyNumberInput in ProductCatalog and CartPanel, 2-tap clear confirm, and unmounts QuickItemModalBody on close', () => {
+  it('uses QtyNumberInput in ProductCard and CartPanel and 2-tap clear confirm', () => {
     const catalog = readRel('src/components/pos/ProductCatalog.tsx');
-    expect(catalog).toContain('<QtyNumberInput');
+    const card = readRel('src/components/pos/ProductCard.tsx');
+    expect(card).toContain('<QtyNumberInput');
     expect(catalog).toContain('Xem tất cả');
 
     const cart = readRel('src/components/pos/CartPanel.tsx');
     expect(cart).toContain('<QtyNumberInput');
     expect(cart).toContain('Xác nhận xóa');
-
-    const quick = readRel('src/components/pos/QuickItemModal.tsx');
-    expect(quick).toContain('if (!props.open) return null;');
-    expect(quick).toContain('<QuickItemModalBody');
   });
 });

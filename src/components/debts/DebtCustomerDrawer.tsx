@@ -23,10 +23,11 @@ import {
   formatDateVN,
   formatVND,
   getTodayVN,
-  stripVietnamese,
 } from '@/lib/vietnamese';
 import { sanitizeVietQRMemo } from '@/lib/vietqr';
 import { formatPaymentAccount } from '@/lib/ledger';
+import { copyTextToClipboard } from '@/lib/browser-export';
+import { buildCustomerSearchText } from '@/lib/customers';
 import { ModalDialog } from '@/components/ui/ModalDialog';
 import type {
   Customer,
@@ -38,6 +39,40 @@ import type {
 import { CollectDebtModal } from './CollectDebtModal';
 import { ReminderModal } from './ReminderModal';
 import { VietQRModal } from '@/components/qr/VietQRModal';
+
+async function loadCustomerDebtDetails(customerId: string): Promise<{
+  unpaidOrders: Order[];
+  payments: DebtPayment[];
+  reminders: DebtReminder[];
+}> {
+  const supabase = createClient();
+  const [{ data: ordRows }, { data: payRows }, { data: remRows }] = await Promise.all([
+    supabase
+      .from('orders')
+      .select('*')
+      .eq('customer_id', customerId)
+      .in('payment_status', ['unpaid', 'partial'])
+      .order('purchased_at', { ascending: true }),
+    supabase
+      .from('debt_payments')
+      .select('*')
+      .eq('customer_id', customerId)
+      .order('paid_at', { ascending: false })
+      .limit(30),
+    supabase
+      .from('debt_reminders')
+      .select('*')
+      .eq('customer_id', customerId)
+      .eq('status', 'pending')
+      .order('scheduled_for', { ascending: true }),
+  ]);
+
+  return {
+    unpaidOrders: (ordRows as Order[]) ?? [],
+    payments: (payRows as DebtPayment[]) ?? [],
+    reminders: (remRows as DebtReminder[]) ?? [],
+  };
+}
 
 interface DebtCustomerDrawerProps {
   open: boolean;
@@ -87,61 +122,20 @@ function DebtCustomerDrawerBody({
   const [copiedZalo, setCopiedZalo] = useState(false);
 
   const fetchCustomerDetails = useCallback(async (customerId: string) => {
-    const supabase = createClient();
-    const [{ data: ordRows }, { data: payRows }, { data: remRows }] = await Promise.all([
-      supabase
-        .from('orders')
-        .select('*')
-        .eq('customer_id', customerId)
-        .in('payment_status', ['unpaid', 'partial'])
-        .order('purchased_at', { ascending: true }),
-      supabase
-        .from('debt_payments')
-        .select('*')
-        .eq('customer_id', customerId)
-        .order('paid_at', { ascending: false })
-        .limit(30),
-      supabase
-        .from('debt_reminders')
-        .select('*')
-        .eq('customer_id', customerId)
-        .eq('status', 'pending')
-        .order('scheduled_for', { ascending: true }),
-    ]);
-
-    setUnpaidOrders((ordRows as Order[]) ?? []);
-    setPayments((payRows as DebtPayment[]) ?? []);
-    setReminders((remRows as DebtReminder[]) ?? []);
+    const details = await loadCustomerDebtDetails(customerId);
+    setUnpaidOrders(details.unpaidOrders);
+    setPayments(details.payments);
+    setReminders(details.reminders);
     setLoading(false);
   }, []);
 
   useEffect(() => {
     let active = true;
-    const supabase = createClient();
-    Promise.all([
-      supabase
-        .from('orders')
-        .select('*')
-        .eq('customer_id', customer.id)
-        .in('payment_status', ['unpaid', 'partial'])
-        .order('purchased_at', { ascending: true }),
-      supabase
-        .from('debt_payments')
-        .select('*')
-        .eq('customer_id', customer.id)
-        .order('paid_at', { ascending: false })
-        .limit(30),
-      supabase
-        .from('debt_reminders')
-        .select('*')
-        .eq('customer_id', customer.id)
-        .eq('status', 'pending')
-        .order('scheduled_for', { ascending: true }),
-    ]).then(([{ data: ordRows }, { data: payRows }, { data: remRows }]) => {
+    void loadCustomerDebtDetails(customer.id).then((details) => {
       if (!active) return;
-      setUnpaidOrders((ordRows as Order[]) ?? []);
-      setPayments((payRows as DebtPayment[]) ?? []);
-      setReminders((remRows as DebtReminder[]) ?? []);
+      setUnpaidOrders(details.unpaidOrders);
+      setPayments(details.payments);
+      setReminders(details.reminders);
       setLoading(false);
     });
     return () => {
@@ -159,8 +153,10 @@ function DebtCustomerDrawerBody({
         .from('customers')
         .update({
           name: editName.trim(),
-          search_text: stripVietnamese(
-            `${editName.trim()} ${editPhone.trim()} ${editAddress.trim()}`
+          search_text: buildCustomerSearchText(
+            editName.trim(),
+            editPhone.trim(),
+            editAddress.trim()
           ),
           phone: editPhone.trim() || null,
           address: editAddress.trim() || null,
@@ -194,7 +190,7 @@ function DebtCustomerDrawerBody({
     });
 
     try {
-      await navigator.clipboard.writeText(text);
+      await copyTextToClipboard(text);
       setCopiedZalo(true);
       setTimeout(() => setCopiedZalo(false), 2200);
     } catch {

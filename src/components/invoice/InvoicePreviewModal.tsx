@@ -4,6 +4,11 @@ import { useRef, useState } from 'react';
 import { Check, Download, Printer, ReceiptText, Share2, X } from 'lucide-react';
 import type { InvoiceFormat, Order, OrderItem, ShopProfile } from '@/types/database';
 import { ReceiptTemplate } from './ReceiptTemplate';
+import {
+  captureElementAsPng,
+  shareOrDownloadElementPng,
+  triggerDataUrlDownload,
+} from '@/lib/browser-export';
 import { ModalDialog } from '@/components/ui/ModalDialog';
 
 interface InvoicePreviewModalProps {
@@ -60,33 +65,17 @@ function InvoicePreviewModalBody({
     setTimeout(() => setDownloadedPng(false), 2400);
   }
 
-  async function renderPng() {
-    if (!sheetRef.current) return null;
-    const { toPng } = await import('html-to-image');
-    const dataUrl = await toPng(sheetRef.current, {
-      pixelRatio: 2,
-      backgroundColor: '#FFFFFF',
-      cacheBust: true,
-    });
-    const res = await fetch(dataUrl);
-    const blob = await res.blob();
-    return { dataUrl, blob };
-  }
-
   async function handleDownloadPng() {
     if (exporting) return;
     setExportError(null);
     setExporting(true);
     try {
-      const rendered = await renderPng();
+      const rendered = await captureElementAsPng(sheetRef.current);
       if (!rendered) {
         setExportError('Không tạo được ảnh hóa đơn, vui lòng thử lại.');
         return;
       }
-      const link = document.createElement('a');
-      link.download = `hoadon-${order.order_code}.png`;
-      link.href = rendered.dataUrl;
-      link.click();
+      triggerDataUrlDownload(rendered.dataUrl, `hoadon-${order.order_code}.png`);
       markDownloaded();
     } catch {
       setExportError('Không tải được ảnh PNG hóa đơn, vui lòng thử lại.');
@@ -100,31 +89,20 @@ function InvoicePreviewModalBody({
     setExportError(null);
     setExporting(true);
     try {
-      const rendered = await renderPng();
-      if (!rendered) {
+      const outcome = await shareOrDownloadElementPng({
+        element: sheetRef.current,
+        downloadFilename: `hoadon-${order.order_code}.png`,
+        title: `Hóa đơn ${order.order_code}`,
+        text: `${profile?.shop_name ?? 'PayTrack POS'} gửi hóa đơn ${order.order_code}`,
+      });
+      if (!outcome) {
         setExportError('Không tạo được ảnh hóa đơn, vui lòng thử lại.');
         return;
       }
-      const file = new File([rendered.blob], `hoadon-${order.order_code}.png`, {
-        type: 'image/png',
-      });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: `Hóa đơn ${order.order_code}`,
-          text: `${profile?.shop_name ?? 'PayTrack POS'} gửi hóa đơn ${order.order_code}`,
-        });
-      } else {
-        const link = document.createElement('a');
-        link.download = `hoadon-${order.order_code}.png`;
-        link.href = rendered.dataUrl;
-        link.click();
+      if (outcome === 'downloaded') {
         markDownloaded();
       }
-    } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') {
-        return;
-      }
+    } catch {
       setExportError('Không gửi được ảnh hóa đơn. Bạn có thể thử bấm Tải PNG.');
     } finally {
       setExporting(false);

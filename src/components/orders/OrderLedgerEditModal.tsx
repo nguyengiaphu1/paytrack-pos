@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { Loader2, Save, X } from 'lucide-react';
+import { Loader2, Save } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import {
   dateInputToVnIso,
@@ -13,6 +13,7 @@ import type { Order, OrderItem, PaymentAccount } from '@/types/database';
 import { PaymentAccountSelector } from '@/components/ui/PaymentAccountSelector';
 import { VndKInput } from '@/components/ui/VndKInput';
 import { ModalDialog } from '@/components/ui/ModalDialog';
+import { ModalHeader } from '@/components/ui/ModalHeader';
 
 interface OrderLedgerEditModalProps {
   open: boolean;
@@ -145,27 +146,13 @@ function OrderLedgerEditModalBody({
       backdropClassName="glass-backdrop animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
       panelClassName="glass-modal animate-sheet-up sm:animate-modal-in flex max-h-[92dvh] w-full max-w-[540px] flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px]"
     >
-      <div className="glass-modal-header flex shrink-0 items-center justify-between gap-3 px-5 py-4">
-        <div className="min-w-0 flex-1">
-          <h2
-            id="order-ledger-edit-title"
-            className="truncate text-[16px] font-bold text-[var(--text-primary)]"
-          >
-            Sửa sổ — {order.order_code}
-          </h2>
-          <p className="mt-0.5 truncate text-[12px] text-[var(--text-secondary)]">
-            Cập nhật thông tin khách, ngày, tài khoản nhận & giá vốn
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Đóng"
-          className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-        >
-          <X className="h-5 w-5" />
-        </button>
-      </div>
+      <ModalHeader
+        title={`Sửa sổ — ${order.order_code}`}
+        titleId="order-ledger-edit-title"
+        subtitle="Cập nhật thông tin khách, ngày, tài khoản nhận & giá vốn"
+        onClose={onClose}
+        className="py-4"
+      />
 
       <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-5">
