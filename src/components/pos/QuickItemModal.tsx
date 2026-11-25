@@ -127,11 +127,11 @@ function QuickItemModalBody({
       onClose={onClose}
       ariaLabelledBy="quick-item-modal-title"
       backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
-      panelClassName="animate-sheet-up sm:animate-modal-in glass-modal flex max-h-[92dvh] w-full max-w-[440px] flex-col overflow-hidden rounded-t-[26px] sm:rounded-[26px]"
+      panelClassName="animate-sheet-up sm:animate-modal-in glass-modal flex max-h-[92dvh] w-full max-w-[440px] flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px]"
     >
       <div className="glass-modal-header flex shrink-0 items-center justify-between gap-2 px-5 py-3.5">
         <div className="flex min-w-0 flex-1 items-center gap-2.5">
-          <span className="glass-icon-orb flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] text-[var(--brand-jade-text)]">
+          <span className="glass-icon-orb flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] text-[var(--brand-jade-text)]">
             <Zap className="h-[18px] w-[18px]" />
           </span>
           <h2
@@ -145,7 +145,7 @@ function QuickItemModalBody({
           type="button"
           onClick={onClose}
           aria-label="Đóng"
-          className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
           <X className="h-5 w-5" />
         </button>
@@ -190,7 +190,7 @@ function QuickItemModalBody({
                 >
                   Số lượng
                 </label>
-                <div className="glass-input inline-flex w-full items-center overflow-hidden rounded-[14px]">
+                <div className="glass-solid-control inline-flex w-full items-center overflow-hidden rounded-full">
                   <button
                     type="button"
                     onClick={() => stepQty(-1)}
@@ -204,7 +204,7 @@ function QuickItemModalBody({
                     value={qty}
                     onCommit={setQty}
                     ariaLabel="Số lượng món lẻ"
-                    className="glass-divider font-mono-tabular h-[46px] w-full min-w-0 border-x bg-transparent px-2 text-center text-[16px] font-semibold text-[var(--text-primary)] outline-none"
+                    className="glass-divider font-mono-tabular h-[46px] w-full min-w-0 border-0 border-x bg-transparent px-2 text-center text-[16px] font-bold text-[var(--brand-jade-text)] outline-none"
                   />
                   <button
                     type="button"

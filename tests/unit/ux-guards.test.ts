@@ -39,11 +39,12 @@ const BANNED_SCATTERED_SLOP_IN_TSX = [
   'rounded-3xl',
 ];
 
-describe('PayTrack POS Liquid Glass, Floating Glass Dock, PWA, and Anti-AI-Slop architectural guards', () => {
-  it('defines Liquid Glass Light/Dark tokens, 4-tier optical utilities, ambient backdrop, print light lock, and reduced motion/transparency fallbacks in globals.css', () => {
+describe('PayTrack POS Crystal Liquid Glass, Floating Glass Dock, PWA, and Anti-AI-Slop architectural guards', () => {
+  it('defines Crystal Liquid Glass Light/Dark tokens, directional specular bevels, caustic pills, Be Vietnam Pro tabular-nums, print light lock, and reduced motion/transparency fallbacks in globals.css', () => {
     const css = readRel('src/app/globals.css');
     expect(css).toContain(':root[data-theme="dark"]');
     expect(css).toContain('body::before');
+    expect(css).toContain('body::after');
     expect(css).toContain('.glass-dock');
     expect(css).toContain('.glass-surface');
     expect(css).toContain('.glass-panel');
@@ -52,11 +53,16 @@ describe('PayTrack POS Liquid Glass, Floating Glass Dock, PWA, and Anti-AI-Slop 
     expect(css).toContain('.glass-modal');
     expect(css).toContain('.glass-well');
     expect(css).toContain('.glass-input');
+    expect(css).toContain('.glass-solid-control');
     expect(css).toContain('.glass-btn-primary');
+    expect(css).toContain('.glass-pill-jade');
     expect(css).toContain('.glass-btn-secondary');
     expect(css).toContain('.glass-chip');
     expect(css).toContain('.glass-chip-active');
+    expect(css).toContain('mask-composite: exclude');
     expect(css).toContain('backdrop-filter: blur(');
+    expect(css).toContain('font-variant-numeric: tabular-nums');
+    expect(css).toContain('font-family: var(--font-sans)');
     expect(css).toContain('@media (prefers-reduced-transparency: reduce)');
     expect(css).toContain('.theme-transitioning');
     expect(css).toContain('280ms');
@@ -90,19 +96,31 @@ describe('PayTrack POS Liquid Glass, Floating Glass Dock, PWA, and Anti-AI-Slop 
     expect(fs.existsSync(path.join(ROOT, 'public/icons/icon-512-maskable.png'))).toBe(true);
   });
 
-  it('uses Floating Glass Dock without legacy 228px desktop left rail in AppShell', () => {
+  it('uses 5-tab Floating Glass Dock with header ThemeQuickToggle, no legacy 228px rail, and never renders dock on /login', () => {
     const shell = readRel('src/components/shell/AppShell.tsx');
     expect(shell).toContain('glass-dock');
     expect(shell).toContain('ThemeQuickToggle');
     expect(shell).toContain('WelcomeOnboardingModal');
     expect(shell).not.toContain('lg:w-[228px]');
+    for (const label of ['Bán hàng', 'Công nợ', 'Sổ bán', 'Thống kê', 'Cài đặt']) {
+      expect(shell).toContain(`label: '${label}'`);
+    }
+
+    const login = readRel('src/app/login/page.tsx');
+    expect(login).not.toContain('glass-dock');
+    expect(login).not.toContain('AppShell');
   });
 
-  it('exposes CustomerPicker directly on main POS screen (not hidden inside CartPanel)', () => {
+  it('exposes CustomerPicker on POS screen and keeps ProductCatalog cards compact without redundant Số lượng label', () => {
     const pos = readRel('src/app/(app)/page.tsx');
     expect(pos).toContain('<CustomerPicker');
     const cartPanel = readRel('src/components/pos/CartPanel.tsx');
     expect(cartPanel).not.toContain('<CustomerPicker');
+
+    const catalog = readRel('src/components/pos/ProductCatalog.tsx');
+    expect(catalog).toContain('Thêm SP');
+    expect(catalog).toContain('Món lẻ');
+    expect(catalog).not.toContain('Số lượng ({product.unit})');
   });
 
   it('wires BrandLoadingScreen and layout-matched page skeletons + FetchErrorCard retry across all 5 routes', () => {

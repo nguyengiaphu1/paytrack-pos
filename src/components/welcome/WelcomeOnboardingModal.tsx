@@ -283,7 +283,7 @@ export function WelcomeOnboardingModal({
       closeOnEscape={!finishing}
       ariaLabelledBy="welcome-onboarding-title"
       backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
-      panelClassName="glass-modal animate-sheet-up sm:animate-modal-in flex max-h-[92dvh] w-full max-w-[540px] flex-col overflow-hidden rounded-t-[26px] sm:rounded-[26px]"
+      panelClassName="glass-modal animate-sheet-up sm:animate-modal-in flex max-h-[92dvh] w-full max-w-[540px] flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px]"
     >
       {/* Header */}
       <div className="glass-modal-header flex items-center justify-between gap-3 px-4 py-3.5 sm:px-5">
@@ -308,7 +308,7 @@ export function WelcomeOnboardingModal({
           disabled={finishing}
           onClick={markOnboardingSeenAndClose}
           aria-label="Đóng"
-          className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
           <X className="h-5 w-5" />
         </button>
@@ -327,8 +327,8 @@ export function WelcomeOnboardingModal({
 
         {/* Step 1: Shop Info */}
         <div
-          className={`rounded-[20px] transition-all ${
-            activeStep === 1 ? 'glass-card' : 'glass-well'
+          className={`rounded-[22px] transition-all ${
+            activeStep === 1 ? 'glass-card glass-card-selected' : 'glass-well'
           }`}
         >
           <button
@@ -407,7 +407,7 @@ export function WelcomeOnboardingModal({
                 <button
                   type="button"
                   onClick={() => setActiveStep(2)}
-                  className="glass-btn-secondary press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] font-semibold text-[var(--text-secondary)]"
+                  className="glass-solid-control press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 >
                   Qua bước 2
                 </button>
@@ -426,8 +426,8 @@ export function WelcomeOnboardingModal({
 
         {/* Step 2: Bank Account */}
         <div
-          className={`rounded-[20px] transition-all ${
-            activeStep === 2 ? 'glass-card' : 'glass-well'
+          className={`rounded-[22px] transition-all ${
+            activeStep === 2 ? 'glass-card glass-card-selected' : 'glass-well'
           }`}
         >
           <button
@@ -533,7 +533,7 @@ export function WelcomeOnboardingModal({
                 <button
                   type="button"
                   onClick={() => setActiveStep(3)}
-                  className="glass-btn-secondary press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] font-semibold text-[var(--text-secondary)]"
+                  className="glass-solid-control press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 >
                   Qua bước 3
                 </button>
@@ -552,8 +552,8 @@ export function WelcomeOnboardingModal({
 
         {/* Step 3: First Product */}
         <div
-          className={`rounded-[20px] transition-all ${
-            activeStep === 3 ? 'glass-card' : 'glass-well'
+          className={`rounded-[22px] transition-all ${
+            activeStep === 3 ? 'glass-card glass-card-selected' : 'glass-well'
           }`}
         >
           <button
@@ -656,7 +656,7 @@ export function WelcomeOnboardingModal({
                 <button
                   type="submit"
                   disabled={savingProd}
-                  className="glass-btn-secondary press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-[13px] font-semibold text-[var(--brand-jade-text)] disabled:opacity-60"
+                  className="glass-solid-control press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-[13px] font-semibold text-[var(--brand-jade-text)] disabled:opacity-60"
                 >
                   {savingProd && <Loader2 className="h-4 w-4 animate-spin" />}
                   <span>Thêm món vào danh sách</span>
@@ -673,7 +673,7 @@ export function WelcomeOnboardingModal({
           type="button"
           disabled={finishing}
           onClick={markOnboardingSeenAndClose}
-          className="glass-btn-secondary press-tactile min-h-[48px] flex-1 rounded-full px-4 text-[14px] font-semibold text-[var(--text-secondary)] disabled:opacity-60 sm:flex-none"
+          className="glass-solid-control press-tactile min-h-[48px] flex-1 rounded-full px-4 text-[14px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-60 sm:flex-none"
         >
           Để sau
         </button>

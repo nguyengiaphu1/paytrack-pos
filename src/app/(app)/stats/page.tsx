@@ -118,7 +118,7 @@ export default function StatsPage() {
     <div className="mx-auto max-w-[1220px] px-3 py-4 sm:px-6 lg:py-5">
       <div className="mb-4 flex flex-col gap-3">
         <div className="flex flex-wrap items-end justify-between gap-2">
-          <h1 className="text-[20px] font-bold tracking-[-0.015em] text-[var(--text-primary)] lg:text-[24px]">
+          <h1 className="text-[22px] font-bold tracking-[-0.015em] text-[var(--text-primary)] lg:text-[24px]">
             Thống kê
           </h1>
           {accountFilter !== 'ALL' && (
@@ -129,7 +129,7 @@ export default function StatsPage() {
         </div>
 
         {/* Floating Liquid Glass Date Presets + Payment Account Filter Bar */}
-        <div className="glass-surface rounded-[22px] p-3 sm:p-3.5">
+        <div className="glass-surface rounded-[24px] p-3 sm:p-3.5">
           <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-wrap items-center gap-1.5">
               {(
@@ -146,8 +146,8 @@ export default function StatsPage() {
                   type="button"
                   aria-pressed={preset === key}
                   onClick={() => setPreset(key)}
-                  className={`press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] font-semibold transition-all ${
-                    preset === key ? 'glass-chip-active' : 'glass-chip'
+                  className={`press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] transition-all ${
+                    preset === key ? 'glass-pill-jade font-bold' : 'glass-chip font-semibold'
                   }`}
                 >
                   {label}
@@ -166,7 +166,7 @@ export default function StatsPage() {
                 id="stats-account-filter"
                 value={accountFilter}
                 onChange={(e) => setAccountFilter(e.target.value as 'ALL' | PaymentAccount)}
-                className="glass-input min-h-[44px] min-w-0 flex-1 rounded-[14px] px-3.5 text-[16px] font-medium text-[var(--text-primary)] outline-none lg:w-[210px] lg:flex-initial"
+                className="glass-input min-h-[44px] min-w-0 flex-1 rounded-full px-4 text-[16px] font-medium text-[var(--text-primary)] outline-none lg:w-[210px] lg:flex-initial"
               >
                 <option value="ALL">Tất cả TK</option>
                 {PAYMENT_ACCOUNTS.map((acc) => (
@@ -374,7 +374,7 @@ export default function StatsPage() {
 
           {/* Top Products & Top Debtors */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <section className="glass-panel min-w-0 rounded-[24px] p-4 sm:p-5">
+            <section className="glass-panel min-w-0 rounded-[26px] p-4 sm:p-5">
               <div className="mb-3.5 flex items-center justify-between gap-2">
                 <h2 className="text-[16px] font-bold text-[var(--text-primary)]">
                   Món bán chạy
@@ -386,11 +386,11 @@ export default function StatsPage() {
                 )}
               </div>
               {activeSummary.top_products.length === 0 ? (
-                <div className="glass-well rounded-[16px] px-4 py-6 text-center text-[14px] text-[var(--text-secondary)]">
+                <div className="glass-well rounded-[18px] px-4 py-6 text-center text-[14px] text-[var(--text-secondary)]">
                   Chưa có dữ liệu.
                 </div>
               ) : (
-                <div className="glass-well divide-y divide-[var(--glass-border-subtle)] rounded-[18px] px-3.5 py-1">
+                <div className="glass-well divide-y divide-[var(--glass-border-subtle)] rounded-[20px] px-3.5 py-1">
                   {activeSummary.top_products.map((prod, idx) => (
                     <div
                       key={`${prod.product_name}-${idx}`}
@@ -400,7 +400,7 @@ export default function StatsPage() {
                         <span
                           className={`font-mono-tabular flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-bold ${
                             idx === 0
-                              ? 'glass-badge-paid'
+                              ? 'glass-pill-jade'
                               : 'glass-badge-neutral'
                           }`}
                         >
@@ -424,7 +424,7 @@ export default function StatsPage() {
               )}
             </section>
 
-            <section className="glass-panel min-w-0 rounded-[24px] p-4 sm:p-5">
+            <section className="glass-panel min-w-0 rounded-[26px] p-4 sm:p-5">
               <div className="mb-3.5 flex items-center justify-between gap-2">
                 <h2 className="text-[16px] font-bold text-[var(--text-primary)]">
                   Nợ nhiều nhất
@@ -436,16 +436,16 @@ export default function StatsPage() {
                 )}
               </div>
               {activeSummary.top_debtors.length === 0 ? (
-                <div className="glass-well rounded-[16px] px-4 py-6 text-center text-[14px] text-[var(--text-secondary)]">
+                <div className="glass-well rounded-[18px] px-4 py-6 text-center text-[14px] text-[var(--text-secondary)]">
                   Không có khách nợ.
                 </div>
               ) : (
-                <div className="glass-well space-y-1 rounded-[18px] p-1.5">
+                <div className="glass-well space-y-2 rounded-[20px] p-2">
                   {activeSummary.top_debtors.map((deb) => (
                     <Link
                       key={deb.customer_id}
                       href={`/debts?customer=${deb.customer_id}`}
-                      className="press-tactile flex min-h-[48px] items-center justify-between gap-2.5 rounded-[14px] px-3 py-2 text-[14px] transition-colors hover:bg-[var(--bg-subtle)]"
+                      className="glass-solid-control press-tactile flex min-h-[48px] items-center justify-between gap-2.5 rounded-[14px] px-3.5 py-2 text-[14px]"
                     >
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-semibold text-[var(--text-primary)]">

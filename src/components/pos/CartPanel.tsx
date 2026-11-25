@@ -44,13 +44,13 @@ export function CartPanel({
       className={`flex flex-col overflow-hidden ${
         isSheet
           ? 'min-h-0 flex-1'
-          : 'glass-panel rounded-[24px] lg:max-h-[calc(100dvh-168px)]'
+          : 'glass-panel rounded-[26px] lg:max-h-[calc(100dvh-168px)]'
       }`}
     >
-      {/* Frosted Header */}
+      {/* Crystal Frosted Header */}
       <div className="glass-modal-header flex shrink-0 items-center justify-between gap-2 px-4 py-3.5">
         <div className="flex min-w-0 items-center gap-2.5">
-          <span className="glass-icon-orb flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] text-[var(--brand-jade-text)]">
+          <span className="glass-icon-orb flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] text-[var(--brand-jade-text)]">
             <ShoppingCart className="h-[18px] w-[18px]" />
           </span>
           <h2
@@ -61,7 +61,9 @@ export function CartPanel({
           </h2>
           <span
             key={items.length}
-            className="glass-badge-paid animate-badge-pop font-mono-tabular inline-flex h-6 min-w-[26px] shrink-0 items-center justify-center rounded-full px-2 text-[12px] font-bold"
+            className={`animate-badge-pop font-mono-tabular inline-flex h-6 min-w-[26px] shrink-0 items-center justify-center rounded-full px-2 text-[12px] font-bold ${
+              items.length > 0 ? 'glass-pill-jade' : 'glass-badge-neutral'
+            }`}
           >
             {items.length}
           </span>
@@ -82,7 +84,7 @@ export function CartPanel({
               type="button"
               onClick={onCloseSheet}
               aria-label="Đóng giỏ hàng"
-              className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             >
               <X className="h-5 w-5" />
             </button>
@@ -101,7 +103,7 @@ export function CartPanel({
             <button
               type="button"
               onClick={() => setConfirmClear(false)}
-              className="glass-btn-secondary press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] font-semibold"
+              className="glass-solid-control press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] font-semibold text-[var(--text-primary)]"
             >
               Hủy
             </button>
@@ -155,7 +157,7 @@ export function CartPanel({
       {/* Cart Items (bounded scroll in both desktop sticky card and mobile sheet) */}
       <div className="min-h-0 flex-1 overflow-y-auto px-3 py-2.5">
         {items.length === 0 ? (
-          <div className="glass-well rounded-[16px] py-10 text-center text-[14px] text-[var(--text-secondary)]">
+          <div className="glass-well rounded-[18px] py-10 text-center text-[14px] text-[var(--text-secondary)]">
             Chưa chọn món nào.
           </div>
         ) : (
@@ -163,7 +165,7 @@ export function CartPanel({
             {items.map((item) => {
               const lineTotal = computeLineTotal(item.quantity, item.unit_price);
               return (
-                <div key={item.key} className="glass-well animate-fade-in rounded-[16px] p-3">
+                <div key={item.key} className="glass-well animate-fade-in rounded-[18px] p-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
                       <p className="break-words text-[14px] font-semibold text-[var(--text-primary)]">
@@ -184,7 +186,7 @@ export function CartPanel({
                   </div>
 
                   <div className="mt-2 flex items-center justify-between gap-2">
-                    <div className="glass-card inline-flex shrink-0 items-center overflow-hidden rounded-[13px]">
+                    <div className="glass-solid-control inline-flex shrink-0 items-center overflow-hidden rounded-full">
                       <button
                         type="button"
                         onClick={() => {
@@ -201,7 +203,7 @@ export function CartPanel({
                         value={item.quantity}
                         onCommit={(val) => onUpdateQty(item.key, val)}
                         ariaLabel={`Số lượng ${item.product_name}`}
-                        className="glass-divider font-mono-tabular h-11 w-14 border-x bg-transparent text-center text-[16px] font-semibold text-[var(--text-primary)] outline-none"
+                        className="glass-divider font-mono-tabular h-11 w-12 border-0 border-x bg-transparent text-center text-[16px] font-semibold text-[var(--brand-jade-text)] outline-none"
                       />
                       <button
                         type="button"
@@ -224,9 +226,9 @@ export function CartPanel({
         )}
       </div>
 
-      {/* Frosted Totals Well + 3D Jade Crystal Checkout CTA */}
+      {/* Frosted Totals Well + 3D Jade Crystal Caustic Checkout CTA */}
       <div className="glass-modal-footer shrink-0 space-y-3 p-4">
-        <div className="glass-well space-y-2.5 rounded-[16px] p-3">
+        <div className="glass-well space-y-2.5 rounded-[18px] p-3">
           <div className="flex items-center justify-between gap-2 text-[14px]">
             <span className="text-[var(--text-secondary)]">Tạm tính</span>
             <span className="font-mono-tabular shrink-0 font-semibold text-[var(--text-primary)]">

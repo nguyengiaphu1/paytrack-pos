@@ -286,7 +286,7 @@ export default function OrdersPage() {
           <button
             type="button"
             onClick={handleExportCsv}
-            className="glass-btn-secondary press-tactile inline-flex min-h-[44px] items-center gap-2 rounded-full px-4 text-[13px] font-semibold"
+            className="glass-solid-control press-tactile inline-flex min-h-[44px] items-center gap-2 rounded-full px-4 text-[13px] font-semibold text-[var(--text-primary)]"
           >
             <Download className="h-4 w-4 text-[var(--brand-jade-text)]" />
             <span>Xuất CSV</span>
@@ -297,7 +297,7 @@ export default function OrdersPage() {
       {/* Totals KPI Strip */}
       {!loading && !ordersError && (
         <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="glass-card min-w-0 rounded-[20px] p-3.5 sm:p-4">
+          <div className="glass-card min-w-0 rounded-[22px] p-3.5 sm:p-4">
             <p className="flex items-center gap-1.5 text-[12px] font-medium text-[var(--text-secondary)]">
               <span
                 aria-hidden="true"
@@ -309,7 +309,7 @@ export default function OrdersPage() {
               {formatVND(totals.totalRevenue)}
             </p>
           </div>
-          <div className="glass-card min-w-0 rounded-[20px] p-3.5 sm:p-4">
+          <div className="glass-card min-w-0 rounded-[22px] p-3.5 sm:p-4">
             <p className="flex items-center gap-1.5 text-[12px] font-medium text-[var(--text-secondary)]">
               <span
                 aria-hidden="true"
@@ -321,7 +321,7 @@ export default function OrdersPage() {
               {formatVND(totals.totalCost)}
             </p>
           </div>
-          <div className="glass-card min-w-0 rounded-[20px] p-3.5 sm:p-4">
+          <div className="glass-card min-w-0 rounded-[22px] p-3.5 sm:p-4">
             <p className="flex items-center gap-1.5 text-[12px] font-medium text-[var(--text-secondary)]">
               <span
                 aria-hidden="true"
@@ -343,7 +343,7 @@ export default function OrdersPage() {
               {formatVND(totals.totalProfit)}
             </p>
           </div>
-          <div className="glass-card min-w-0 rounded-[20px] p-3.5 sm:p-4">
+          <div className="glass-card min-w-0 rounded-[22px] p-3.5 sm:p-4">
             <p className="flex items-center gap-1.5 text-[12px] font-medium text-[var(--text-secondary)]">
               <span
                 aria-hidden="true"
@@ -358,8 +358,8 @@ export default function OrdersPage() {
         </div>
       )}
 
-      {/* Sculpted Frosted Command Bar — Airy Search + 3 Frosted Selects */}
-      <div className="glass-surface mb-4 space-y-3 rounded-[22px] p-3.5 sm:p-4">
+      {/* Sculpted Crystal Command Bar — Opaque-inside-Translucent Pill Search + 3 Selects */}
+      <div className="glass-surface mb-4 space-y-3 rounded-[24px] p-3.5 sm:p-4">
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-12 lg:items-end">
           {/* Search Input */}
           <div className="min-w-0 lg:col-span-5">
@@ -372,7 +372,7 @@ export default function OrdersPage() {
             <div className="relative">
               <Search
                 aria-hidden="true"
-                className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]"
+                className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]"
               />
               <input
                 id="orders-search"
@@ -381,7 +381,7 @@ export default function OrdersPage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Tìm tên khách, SĐT, địa chỉ, món hàng..."
-                className="glass-input min-h-[46px] w-full rounded-[14px] pr-11 pl-10 text-[16px] text-[var(--text-primary)] outline-none"
+                className="glass-input min-h-[46px] w-full rounded-full pr-11 pl-10 text-[16px] text-[var(--text-primary)] outline-none"
               />
               {query && (
                 <button
@@ -620,7 +620,7 @@ export default function OrdersPage() {
             <button
               type="button"
               onClick={clearAllFilters}
-              className="glass-btn-secondary press-tactile inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold text-[var(--text-primary)]"
+              className="glass-solid-control press-tactile inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold text-[var(--text-primary)]"
             >
               <RotateCcw className="h-3.5 w-3.5 text-[var(--brand-jade-text)]" />
               <span>Xóa lọc</span>
@@ -647,7 +647,7 @@ export default function OrdersPage() {
               <button
                 type="button"
                 onClick={clearAllFilters}
-                className="glass-btn-secondary press-tactile inline-flex min-h-[48px] items-center justify-center rounded-full px-5 text-[15px] font-semibold"
+                className="glass-solid-control press-tactile inline-flex min-h-[48px] items-center justify-center rounded-full px-5 text-[15px] font-semibold text-[var(--text-primary)]"
               >
                 Xóa bộ lọc
               </button>
@@ -664,7 +664,7 @@ export default function OrdersPage() {
       ) : (
         <>
           {/* Desktop 12-Column Table (>= 1024px) */}
-          <div className="glass-panel animate-fade-in hidden overflow-x-auto overflow-y-auto max-h-[calc(100dvh-260px)] rounded-[24px] lg:block">
+          <div className="glass-panel animate-fade-in hidden overflow-x-auto overflow-y-auto max-h-[calc(100dvh-260px)] rounded-[26px] lg:block">
             <table className="w-full border-collapse text-left text-[13px]">
               <thead className="glass-table-head sticky top-0 z-10 text-[12px] font-semibold text-[var(--text-secondary)]">
                 <tr>
@@ -762,7 +762,7 @@ export default function OrdersPage() {
                                 e.stopPropagation();
                                 setCollectTargetOrder(order);
                               }}
-                              className="glass-chip-active press-tactile inline-flex min-h-[44px] items-center gap-1 rounded-full px-3 text-[12px] font-semibold"
+                              className="glass-pill-jade press-tactile inline-flex min-h-[44px] items-center gap-1 rounded-full px-3 text-[12px] font-semibold"
                             >
                               <Banknote className="h-3.5 w-3.5" />
                               <span>Thu</span>
@@ -806,7 +806,7 @@ export default function OrdersPage() {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') void openOrderDetail(order);
                   }}
-                  className="glass-card glass-card-interactive cursor-pointer rounded-[20px] p-4"
+                  className="glass-card glass-card-interactive cursor-pointer rounded-[22px] p-4"
                 >
                   <div className="flex items-start justify-between gap-2.5">
                     <div className="min-w-0 flex-1">
@@ -903,7 +903,7 @@ export default function OrdersPage() {
                           e.stopPropagation();
                           setCollectTargetOrder(order);
                         }}
-                        className="glass-chip-active press-tactile inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold"
+                        className="glass-pill-jade press-tactile inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold"
                       >
                         <Banknote className="h-4 w-4" />
                         <span>Thu tiền</span>
@@ -921,7 +921,7 @@ export default function OrdersPage() {
                 type="button"
                 disabled={loadingMoreOrders}
                 onClick={() => void loadMoreOrders()}
-                className="glass-btn-secondary press-tactile inline-flex min-h-[48px] items-center gap-2 rounded-full px-6 text-[14px] font-semibold disabled:opacity-60"
+                className="glass-solid-control press-tactile inline-flex min-h-[48px] items-center gap-2 rounded-full px-6 text-[14px] font-semibold text-[var(--text-primary)] disabled:opacity-60"
               >
                 {loadingMoreOrders && <Loader2 className="h-4 w-4 animate-spin" />}
                 <span>{loadingMoreOrders ? 'Đang tải...' : 'Tải thêm đơn cũ'}</span>
@@ -938,7 +938,7 @@ export default function OrdersPage() {
           onClose={() => setSelectedOrder(null)}
           ariaLabelledBy="order-detail-modal-title"
           backdropClassName="glass-backdrop animate-backdrop-in fixed inset-0 z-40 flex items-end justify-center p-0 sm:items-center sm:p-4"
-          panelClassName="glass-modal animate-sheet-up sm:animate-modal-in flex max-h-[92dvh] w-full max-w-[540px] flex-col overflow-hidden rounded-t-[26px] sm:rounded-[26px]"
+          panelClassName="glass-modal animate-sheet-up sm:animate-modal-in flex max-h-[92dvh] w-full max-w-[540px] flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px]"
         >
           <div className="glass-modal-header flex shrink-0 items-center justify-between gap-3 px-5 py-4">
             <div className="min-w-0 flex-1">
@@ -964,7 +964,7 @@ export default function OrdersPage() {
               type="button"
               onClick={() => setSelectedOrder(null)}
               aria-label="Đóng"
-              className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)]"
+              className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             >
               <X className="h-5 w-5" />
             </button>
@@ -972,7 +972,7 @@ export default function OrdersPage() {
 
           <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-5">
             {/* 12-field Metadata Summary */}
-            <div className="glass-well grid grid-cols-2 gap-x-3 gap-y-2.5 rounded-[16px] p-3.5 text-[13px]">
+            <div className="glass-well grid grid-cols-2 gap-x-3 gap-y-2.5 rounded-[18px] p-3.5 text-[13px]">
               <div className="min-w-0">
                 <span className="block text-[12px] text-[var(--text-secondary)]">SĐT</span>
                 <span className="font-mono-tabular font-medium text-[var(--text-primary)]">
@@ -1019,12 +1019,12 @@ export default function OrdersPage() {
             </div>
 
             {loadingItems ? (
-              <div className="glass-well space-y-2.5 rounded-[16px] p-3.5">
+              <div className="glass-well space-y-2.5 rounded-[18px] p-3.5">
                 <div className="skeleton-shimmer h-5 w-3/4 rounded-lg" />
                 <div className="skeleton-shimmer h-4 w-1/2 rounded-lg" />
               </div>
             ) : (
-              <div className="glass-well divide-y divide-[var(--glass-border-subtle)] rounded-[16px]">
+              <div className="glass-well divide-y divide-[var(--glass-border-subtle)] rounded-[18px]">
                 {selectedItems.map((item) => (
                   <div
                     key={item.id}
@@ -1050,7 +1050,7 @@ export default function OrdersPage() {
             )}
 
             {/* Financial Breakdown */}
-            <div className="glass-well space-y-2 rounded-[16px] p-3.5 text-[14px]">
+            <div className="glass-well space-y-2 rounded-[18px] p-3.5 text-[14px]">
               <div className="flex justify-between gap-2">
                 <span className="text-[var(--text-secondary)]">Giá bán</span>
                 <span className="font-mono-tabular shrink-0 font-bold text-[var(--text-primary)]">
@@ -1092,7 +1092,7 @@ export default function OrdersPage() {
               <button
                 type="button"
                 onClick={() => setEditOpen(true)}
-                className="glass-btn-secondary press-tactile flex min-h-[48px] w-full items-center justify-center gap-1.5 rounded-[14px] px-3 text-[14px] font-semibold"
+                className="glass-solid-control press-tactile flex min-h-[48px] w-full items-center justify-center gap-1.5 rounded-full px-3 text-[14px] font-semibold text-[var(--text-primary)]"
               >
                 <Pencil className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
                 <span>Sửa sổ</span>
@@ -1104,7 +1104,7 @@ export default function OrdersPage() {
                 <button
                   type="button"
                   onClick={() => setEditOpen(true)}
-                  className="glass-btn-secondary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-[14px] px-2.5 text-[13px] font-semibold sm:text-[14px]"
+                  className="glass-solid-control press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2.5 text-[13px] font-semibold text-[var(--text-primary)] sm:text-[14px]"
                 >
                   <Pencil className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
                   <span className="truncate">Sửa sổ</span>
@@ -1112,7 +1112,7 @@ export default function OrdersPage() {
                 <button
                   type="button"
                   onClick={() => setCollectTargetOrder(selectedOrder)}
-                  className="glass-btn-primary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-[14px] px-2.5 text-[13px] font-semibold sm:text-[14px]"
+                  className="glass-btn-primary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2.5 text-[13px] font-semibold sm:text-[14px]"
                 >
                   <Banknote className="h-4 w-4 shrink-0" />
                   <span className="truncate">Thu tiền</span>
@@ -1120,7 +1120,7 @@ export default function OrdersPage() {
                 <button
                   type="button"
                   onClick={() => setInvoiceOpen(true)}
-                  className="glass-btn-secondary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-[14px] px-2.5 text-[13px] font-semibold sm:text-[14px]"
+                  className="glass-solid-control press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2.5 text-[13px] font-semibold text-[var(--text-primary)] sm:text-[14px]"
                 >
                   <ReceiptText className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
                   <span className="truncate">Hóa đơn</span>
@@ -1128,7 +1128,7 @@ export default function OrdersPage() {
                 <button
                   type="button"
                   onClick={() => setQrOpen(true)}
-                  className="glass-chip-active press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-[14px] px-2.5 text-[13px] font-semibold sm:text-[14px]"
+                  className="glass-solid-control press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2.5 text-[13px] font-semibold text-[var(--brand-jade-text)] sm:text-[14px]"
                 >
                   <QrCode className="h-4 w-4 shrink-0" />
                   <span className="truncate">Mã VietQR</span>
@@ -1139,7 +1139,7 @@ export default function OrdersPage() {
                 <button
                   type="button"
                   onClick={() => setEditOpen(true)}
-                  className="glass-btn-secondary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-[14px] px-2.5 text-[13px] font-semibold sm:text-[14px]"
+                  className="glass-solid-control press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2.5 text-[13px] font-semibold text-[var(--text-primary)] sm:text-[14px]"
                 >
                   <Pencil className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
                   <span className="truncate">Sửa sổ</span>
@@ -1147,7 +1147,7 @@ export default function OrdersPage() {
                 <button
                   type="button"
                   onClick={() => setInvoiceOpen(true)}
-                  className="glass-btn-secondary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-[14px] px-2.5 text-[13px] font-semibold sm:text-[14px]"
+                  className="glass-solid-control press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2.5 text-[13px] font-semibold text-[var(--text-primary)] sm:text-[14px]"
                 >
                   <ReceiptText className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
                   <span className="truncate">Hóa đơn</span>
@@ -1155,7 +1155,7 @@ export default function OrdersPage() {
                 <button
                   type="button"
                   onClick={() => setQrOpen(true)}
-                  className="glass-btn-primary press-tactile col-span-2 flex min-h-[48px] items-center justify-center gap-1.5 rounded-[14px] px-2.5 text-[13px] font-semibold sm:col-span-1 sm:text-[14px]"
+                  className="glass-btn-primary press-tactile col-span-2 flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2.5 text-[13px] font-semibold sm:col-span-1 sm:text-[14px]"
                 >
                   <QrCode className="h-4 w-4 shrink-0" />
                   <span className="truncate">Mã VietQR</span>
@@ -1170,13 +1170,13 @@ export default function OrdersPage() {
                   <button
                     type="button"
                     onClick={() => setCancelConfirmOpen(true)}
-                    className="glass-badge-overdue press-tactile flex min-h-[48px] w-full items-center justify-center gap-1.5 rounded-[14px] text-[14px] font-semibold transition-opacity hover:opacity-90"
+                    className="glass-badge-overdue press-tactile flex min-h-[48px] w-full items-center justify-center gap-1.5 rounded-full text-[14px] font-semibold transition-opacity hover:opacity-90"
                   >
                     <XCircle className="h-4 w-4 shrink-0" />
                     <span>Hủy đơn</span>
                   </button>
                 ) : (
-                  <div className="glass-badge-overdue animate-fade-in space-y-3 rounded-[18px] p-4">
+                  <div className="glass-badge-overdue animate-fade-in space-y-3 rounded-[20px] p-4">
                     <div className="flex items-start gap-2 text-[13px]">
                       <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                       <div className="min-w-0 flex-1 break-words">
@@ -1201,7 +1201,7 @@ export default function OrdersPage() {
                       <button
                         type="button"
                         onClick={() => setCancelConfirmOpen(false)}
-                        className="glass-btn-secondary press-tactile min-h-[48px] flex-1 rounded-[14px] px-3 text-[13px] font-semibold sm:text-[14px]"
+                        className="glass-solid-control press-tactile min-h-[48px] flex-1 rounded-full px-3 text-[13px] font-semibold text-[var(--text-primary)] sm:text-[14px]"
                       >
                         Giữ lại
                       </button>
@@ -1209,7 +1209,7 @@ export default function OrdersPage() {
                         type="button"
                         disabled={cancelling}
                         onClick={handleConfirmCancel}
-                        className="glass-btn-danger press-tactile flex min-h-[48px] flex-1 items-center justify-center gap-1.5 rounded-[14px] px-3 text-[13px] font-semibold disabled:opacity-60 sm:text-[14px]"
+                        className="glass-btn-danger press-tactile flex min-h-[48px] flex-1 items-center justify-center gap-1.5 rounded-full px-3 text-[13px] font-semibold disabled:opacity-60 sm:text-[14px]"
                       >
                         {cancelling && <Loader2 className="h-4 w-4 animate-spin" />}
                         <span>{cancelling ? 'Đang hủy...' : 'Xác nhận hủy'}</span>

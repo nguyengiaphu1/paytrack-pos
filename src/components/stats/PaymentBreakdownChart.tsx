@@ -20,7 +20,7 @@ export function PaymentBreakdownChart({ breakdown }: PaymentBreakdownChartProps)
   ];
 
   return (
-    <section className="glass-panel min-w-0 rounded-[24px] p-4 sm:p-5">
+    <section className="glass-panel min-w-0 rounded-[26px] p-4 sm:p-5">
       <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-[16px] font-bold text-[var(--text-primary)]">
           Tỷ trọng thanh toán
@@ -49,7 +49,7 @@ export function PaymentBreakdownChart({ breakdown }: PaymentBreakdownChartProps)
           })}
       </div>
 
-      <div className="glass-well divide-y divide-[var(--glass-border-subtle)] rounded-[18px] px-3.5 py-1">
+      <div className="glass-well divide-y divide-[var(--glass-border-subtle)] rounded-[20px] px-3.5 py-1">
         {rows.map((r) => {
           const pct = total > 0 ? Math.round((r.amount / total) * 100) : 0;
           return (

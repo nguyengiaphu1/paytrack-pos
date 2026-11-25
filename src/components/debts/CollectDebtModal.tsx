@@ -112,7 +112,7 @@ function CollectDebtModalBody({
       onClose={onClose}
       ariaLabelledBy="collect-debt-modal-title"
       backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
-      panelClassName="animate-sheet-up sm:animate-modal-in glass-modal max-h-[92dvh] w-full max-w-[480px] overflow-y-auto rounded-t-[26px] sm:rounded-[26px]"
+      panelClassName="animate-sheet-up sm:animate-modal-in glass-modal max-h-[92dvh] w-full max-w-[480px] overflow-y-auto rounded-t-[28px] sm:rounded-[28px]"
     >
       <div className="glass-modal-header sticky top-0 z-10 flex items-center justify-between gap-2 px-4 py-3.5 sm:px-5">
         <div className="flex min-w-0 flex-1 items-center gap-2.5">
@@ -133,13 +133,16 @@ function CollectDebtModalBody({
           type="button"
           onClick={onClose}
           aria-label="Đóng"
-          className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4 p-4 sm:p-5">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4 p-4 pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))] sm:p-5 sm:pb-5"
+      >
         {error && (
           <div
             role="alert"
@@ -150,7 +153,7 @@ function CollectDebtModalBody({
         )}
 
         {/* Before / After Debt Preview Well */}
-        <div className="glass-well space-y-2 rounded-[18px] p-4 text-[14px]">
+        <div className="glass-well space-y-2 rounded-[20px] p-4 text-[14px]">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="min-w-0 text-[var(--text-secondary)]">
               {selectedOrder ? `Nợ đơn ${selectedOrder.order_code}` : 'Tổng nợ hiện tại'}
@@ -227,10 +230,10 @@ function CollectDebtModalBody({
               type="button"
               aria-pressed={isPayingFull}
               onClick={() => setAmountVnd(maxAllowed)}
-              className={`press-tactile min-h-[44px] shrink-0 rounded-full px-3 text-[12px] font-semibold ${
+              className={`press-tactile min-h-[44px] shrink-0 rounded-full px-3.5 text-[12px] font-semibold ${
                 isPayingFull
-                  ? 'glass-chip-active'
-                  : 'glass-chip text-[var(--brand-jade-text)]'
+                  ? 'glass-pill-jade'
+                  : 'glass-solid-control text-[var(--brand-jade-text)]'
               }`}
             >
               Trả hết ({formatVND(maxAllowed)})
@@ -257,7 +260,7 @@ function CollectDebtModalBody({
                 aria-pressed={method === 'cash'}
                 onClick={() => setMethod('cash')}
                 className={`press-tactile min-h-[46px] rounded-full px-2.5 text-[13px] ${
-                  method === 'cash' ? 'glass-chip-active font-bold' : 'glass-chip font-semibold'
+                  method === 'cash' ? 'glass-pill-jade font-bold' : 'glass-chip font-semibold'
                 }`}
               >
                 Tiền mặt
@@ -268,7 +271,7 @@ function CollectDebtModalBody({
                 onClick={() => setMethod('transfer')}
                 className={`press-tactile min-h-[46px] rounded-full px-2.5 text-[13px] ${
                   method === 'transfer'
-                    ? 'glass-chip-active font-bold'
+                    ? 'glass-pill-jade font-bold'
                     : 'glass-chip font-semibold'
                 }`}
               >

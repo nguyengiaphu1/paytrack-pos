@@ -143,7 +143,7 @@ function OrderLedgerEditModalBody({
       onClose={onClose}
       ariaLabelledBy="order-ledger-edit-title"
       backdropClassName="glass-backdrop animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
-      panelClassName="glass-modal animate-sheet-up sm:animate-modal-in flex max-h-[92dvh] w-full max-w-[540px] flex-col overflow-hidden rounded-t-[26px] sm:rounded-[26px]"
+      panelClassName="glass-modal animate-sheet-up sm:animate-modal-in flex max-h-[92dvh] w-full max-w-[540px] flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px]"
     >
       <div className="glass-modal-header flex shrink-0 items-center justify-between gap-3 px-5 py-4">
         <div className="min-w-0 flex-1">
@@ -161,7 +161,7 @@ function OrderLedgerEditModalBody({
           type="button"
           onClick={onClose}
           aria-label="Đóng"
-          className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)]"
+          className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
           <X className="h-5 w-5" />
         </button>
@@ -369,11 +369,11 @@ function OrderLedgerEditModalBody({
           </div>
         </div>
 
-        <div className="glass-modal-footer shrink-0 px-5 py-3.5">
+        <div className="glass-modal-footer shrink-0 px-5 py-3.5 pb-[calc(14px+env(safe-area-inset-bottom))] sm:pb-3.5">
           <button
             type="submit"
             disabled={saving}
-            className="glass-btn-primary press-tactile flex min-h-[50px] w-full items-center justify-center gap-2 rounded-[14px] px-4 text-[16px] font-bold disabled:opacity-60"
+            className="glass-btn-primary press-tactile flex min-h-[50px] w-full items-center justify-center gap-2 rounded-full px-4 text-[16px] font-bold disabled:opacity-60"
           >
             {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
             <span>{saving ? 'Đang lưu...' : 'Lưu thay đổi'}</span>

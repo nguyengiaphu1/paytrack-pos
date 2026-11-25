@@ -141,12 +141,12 @@ function InvoicePreviewModalBody({
       open
       onClose={onClose}
       ariaLabelledBy="invoice-preview-modal-title"
-      panelClassName="animate-sheet-up sm:animate-modal-in glass-modal max-h-[94dvh] w-full max-w-[600px] overflow-y-auto rounded-t-[26px] sm:rounded-[26px]"
+      panelClassName="animate-sheet-up sm:animate-modal-in glass-modal max-h-[94dvh] w-full max-w-[600px] overflow-y-auto rounded-t-[28px] sm:rounded-[28px]"
     >
       {/* Compact Sticky Title Header (hidden during window.print) */}
       <div className="no-print glass-modal-header sticky top-0 z-10 flex items-center justify-between gap-2 px-4 py-3.5 sm:px-5">
         <div className="flex min-w-0 flex-1 items-center gap-2.5">
-          <span className="glass-icon-orb flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] text-[var(--brand-jade-text)]">
+          <span className="glass-icon-orb flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] text-[var(--brand-jade-text)]">
             <ReceiptText className="h-4.5 w-4.5 shrink-0" />
           </span>
           <h2
@@ -160,7 +160,7 @@ function InvoicePreviewModalBody({
           type="button"
           onClick={onClose}
           aria-label="Đóng"
-          className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
           <X className="h-5 w-5" />
         </button>
@@ -171,7 +171,7 @@ function InvoicePreviewModalBody({
         <div
           role="group"
           aria-label="Chọn khổ hóa đơn"
-          className="glass-well inline-flex rounded-full p-1"
+          className="glass-well inline-flex gap-1 rounded-full p-1"
         >
           <button
             type="button"
@@ -179,8 +179,8 @@ function InvoicePreviewModalBody({
             onClick={() => setFormat('a5')}
             className={`press-tactile min-h-[44px] rounded-full px-3.5 font-semibold transition-all ${
               format === 'a5'
-                ? 'glass-chip-active'
-                : 'border border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                ? 'glass-pill-jade'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`}
           >
             Khổ A5 / PNG
@@ -191,8 +191,8 @@ function InvoicePreviewModalBody({
             onClick={() => setFormat('80mm')}
             className={`press-tactile min-h-[44px] rounded-full px-3.5 font-semibold transition-all ${
               format === '80mm'
-                ? 'glass-chip-active'
-                : 'border border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                ? 'glass-pill-jade'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`}
           >
             Nhiệt 80mm
@@ -200,7 +200,7 @@ function InvoicePreviewModalBody({
         </div>
 
         {order.customer_id && (
-          <label className="glass-chip inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full px-3.5 font-medium text-[var(--text-primary)]">
+          <label className="glass-solid-control inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full px-3.5 font-medium text-[var(--text-primary)]">
             <input
               type="checkbox"
               checked={showCumulativeDebt}
@@ -212,7 +212,7 @@ function InvoicePreviewModalBody({
         )}
 
         <label
-          className={`glass-chip inline-flex min-h-[44px] items-center gap-2 rounded-full px-3.5 font-medium text-[var(--text-primary)] ${
+          className={`glass-solid-control inline-flex min-h-[44px] items-center gap-2 rounded-full px-3.5 font-medium text-[var(--text-primary)] ${
             profile?.bank_bin && profile?.bank_account_no
               ? 'cursor-pointer'
               : 'cursor-not-allowed opacity-60'
@@ -282,12 +282,12 @@ function InvoicePreviewModalBody({
           type="button"
           disabled={exporting}
           onClick={handleDownloadPng}
-          className="glass-btn-secondary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2 text-[12px] font-semibold disabled:opacity-50 sm:px-3 sm:text-[14px]"
+          className="glass-solid-control press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2 text-[12px] font-semibold text-[var(--text-primary)] disabled:opacity-50 sm:px-3 sm:text-[14px]"
         >
           {downloadedPng ? (
             <Check className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
           ) : (
-            <Download className="h-4 w-4 shrink-0" />
+            <Download className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
           )}
           <span className="truncate">
             {exporting ? 'Đang tạo...' : downloadedPng ? 'Đã tải' : 'Tải PNG'}
@@ -296,9 +296,9 @@ function InvoicePreviewModalBody({
         <button
           type="button"
           onClick={handlePrint}
-          className="glass-btn-secondary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2 text-[12px] font-semibold sm:px-3 sm:text-[14px]"
+          className="glass-solid-control press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2 text-[12px] font-semibold text-[var(--text-primary)] sm:px-3 sm:text-[14px]"
         >
-          <Printer className="h-4 w-4 shrink-0" />
+          <Printer className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
           <span className="truncate">In / PDF</span>
         </button>
         <button

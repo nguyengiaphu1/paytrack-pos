@@ -35,7 +35,7 @@ export function DebtAgingCard({ aging }: DebtAgingCardProps) {
   ];
 
   return (
-    <section className="glass-panel min-w-0 rounded-[24px] p-4 sm:p-5">
+    <section className="glass-panel min-w-0 rounded-[26px] p-4 sm:p-5">
       <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-[16px] font-bold text-[var(--text-primary)]">Tuổi nợ</h2>
         {total > 0 && (
@@ -49,7 +49,7 @@ export function DebtAgingCard({ aging }: DebtAgingCardProps) {
         {buckets.map((b) => {
           const pct = total > 0 ? Math.round((b.amount / total) * 100) : 0;
           return (
-            <div key={b.label} className="glass-well rounded-[16px] p-3">
+            <div key={b.label} className="glass-well rounded-[18px] p-3">
               <div className="mb-2 flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-[14px]">
                 <span className={`rounded-full px-2.5 py-0.5 text-[12px] font-semibold ${b.badgeClass}`}>
                   {b.label}

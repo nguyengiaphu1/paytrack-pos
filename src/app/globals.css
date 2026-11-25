@@ -1,193 +1,402 @@
 @import "tailwindcss";
 
 :root {
-  /* Optical Canvas — Morning Jade Pearl */
-  --bg-canvas: #E9F1EE;
+  /* Optical Canvas — Crystal Mineral Pearl & Deep Forest Jade (Light Mode) */
+  --bg-canvas: #E8F3EF;
   --bg-surface: #FFFFFF;
-  --bg-subtle: rgba(226, 238, 233, 0.76);
-  --border-default: rgba(15, 54, 42, 0.12);
+  --bg-subtle: rgba(14, 107, 78, 0.07);
+  --border-default: rgba(12, 66, 50, 0.14);
 
-  /* Liquid Glass Optical Materials (Light Mode — true frosted translucency) */
-  --glass-bg: linear-gradient(155deg, rgba(255, 255, 255, 0.68) 0%, rgba(246, 252, 249, 0.48) 100%);
-  --glass-card-bg: linear-gradient(155deg, rgba(255, 255, 255, 0.72) 0%, rgba(248, 253, 251, 0.48) 100%);
-  --glass-panel-bg: linear-gradient(155deg, rgba(255, 255, 255, 0.74) 0%, rgba(244, 251, 248, 0.54) 100%);
-  --glass-modal-bg: linear-gradient(160deg, rgba(255, 255, 255, 0.88) 0%, rgba(245, 251, 248, 0.78) 100%);
-  --glass-modal-bar-bg: rgba(252, 254, 253, 0.74);
-  --glass-dock-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.74) 0%, rgba(243, 251, 247, 0.56) 100%);
-  --glass-well-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.36) 0%, rgba(226, 240, 234, 0.44) 100%);
-  --glass-input-bg: rgba(255, 255, 255, 0.66);
-  --glass-input-focus-bg: rgba(255, 255, 255, 0.90);
-  --glass-btn-sec-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.80) 0%, rgba(240, 248, 245, 0.56) 100%);
-  --glass-btn-sec-hover-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(245, 252, 249, 0.78) 100%);
-  --glass-chip-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.76) 0%, rgba(241, 249, 246, 0.54) 100%);
-  --glass-chip-active-bg: linear-gradient(180deg, rgba(16, 155, 114, 0.24) 0%, rgba(14, 118, 88, 0.14) 100%);
-  --glass-table-head-bg: rgba(244, 251, 248, 0.78);
-  --glass-backdrop-bg: rgba(10, 28, 23, 0.34);
+  /* Crystal Liquid Glass Optical Materials — Pure Clear Crystal Frost */
+  --glass-bg: linear-gradient(
+    142deg,
+    rgba(255, 255, 255, 0.62) 0%,
+    rgba(250, 254, 252, 0.36) 52%,
+    rgba(236, 249, 244, 0.28) 100%
+  );
+  --glass-card-bg: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.64) 0%,
+    rgba(252, 255, 254, 0.38) 54%,
+    rgba(238, 250, 246, 0.28) 100%
+  );
+  --glass-panel-bg: linear-gradient(
+    148deg,
+    rgba(255, 255, 255, 0.68) 0%,
+    rgba(250, 254, 252, 0.44) 55%,
+    rgba(236, 249, 245, 0.34) 100%
+  );
+  --glass-modal-bg: linear-gradient(
+    152deg,
+    rgba(255, 255, 255, 0.86) 0%,
+    rgba(246, 253, 250, 0.76) 58%,
+    rgba(236, 249, 245, 0.72) 100%
+  );
+  --glass-modal-bar-bg: rgba(255, 255, 255, 0.56);
+  --glass-dock-bg: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.62) 0%,
+    rgba(247, 253, 251, 0.38) 54%,
+    rgba(232, 248, 243, 0.32) 100%
+  );
+  --glass-well-bg: linear-gradient(
+    170deg,
+    rgba(255, 255, 255, 0.38) 0%,
+    rgba(218, 240, 233, 0.28) 100%
+  );
 
-  /* Specular Rim & 3D Depth Shadows (Light Mode) */
-  --glass-border: rgba(255, 255, 255, 0.82);
-  --glass-border-subtle: rgba(15, 54, 42, 0.12);
-  --glass-rim-top: rgba(255, 255, 255, 0.96);
-  --glass-rim-bottom: rgba(14, 52, 40, 0.08);
+  /* Opaque-inside-Translucent Controls (Crisp Porcelain Solid inside Clear Crystal) */
+  --glass-input-bg: rgba(255, 255, 255, 0.96);
+  --glass-input-focus-bg: #FFFFFF;
+  --glass-solid-bg: linear-gradient(180deg, #FFFFFF 0%, #F4FAF8 100%);
+  --glass-solid-hover-bg: linear-gradient(180deg, #FFFFFF 0%, #EAF6F2 100%);
+
+  --glass-btn-sec-bg: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.84) 0%,
+    rgba(244, 252, 249, 0.64) 100%
+  );
+  --glass-btn-sec-hover-bg: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(248, 253, 251, 0.88) 100%
+  );
+  --glass-chip-bg: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.72) 0%,
+    rgba(244, 252, 249, 0.46) 100%
+  );
+  --glass-chip-active-bg: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.90) 0%,
+    rgba(214, 248, 236, 0.76) 100%
+  );
+  --glass-table-head-bg: rgba(246, 253, 250, 0.78);
+  --glass-backdrop-bg: rgba(6, 30, 24, 0.36);
+
+  /* Directional Specular Bevel Gradients (No flat 1px gray outline) */
+  --glass-border: rgba(255, 255, 255, 0.88);
+  --glass-border-subtle: rgba(14, 78, 58, 0.11);
+  --glass-rim-top: rgba(255, 255, 255, 0.98);
+  --glass-rim-bottom: rgba(10, 66, 50, 0.08);
+  --glass-bevel-rim: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.56) 24%,
+    rgba(14, 107, 78, 0.16) 52%,
+    rgba(255, 255, 255, 0.44) 76%,
+    rgba(255, 255, 255, 0.94) 100%
+  );
+  --glass-bevel-rim-jade: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(16, 168, 124, 0.80) 30%,
+    rgba(14, 107, 78, 0.50) 55%,
+    rgba(20, 184, 166, 0.74) 80%,
+    rgba(255, 255, 255, 0.94) 100%
+  );
+  --glass-bevel-rim-cta: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.84) 0%,
+    rgba(167, 243, 208, 0.38) 34%,
+    rgba(7, 68, 50, 0.24) 64%,
+    rgba(153, 246, 228, 0.64) 100%
+  );
+
+  /* Multi-Layered 3D Crystal Shadows & Specular Insets (Light Mode) */
   --glass-shadow:
-    0 18px 42px -14px rgba(10, 42, 33, 0.26),
-    0 6px 16px -4px rgba(10, 42, 33, 0.12),
-    0 0 0 1px rgba(14, 52, 40, 0.09),
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.98),
-    inset 0 -1px 0 rgba(14, 52, 40, 0.08);
+    0 22px 48px -12px rgba(8, 62, 46, 0.26),
+    0 8px 20px -6px rgba(10, 88, 66, 0.14),
+    0 2px 6px rgba(7, 46, 35, 0.07),
+    inset 0 2px 3px rgba(255, 255, 255, 0.96),
+    inset 1.5px 0 3px rgba(255, 255, 255, 0.62),
+    inset -1.5px -1.5px 3px rgba(255, 255, 255, 0.66),
+    inset 0 -4px 8px rgba(10, 74, 56, 0.08);
   --glass-surface-shadow:
-    0 10px 28px -12px rgba(12, 44, 35, 0.16),
-    0 2px 6px rgba(12, 44, 35, 0.07),
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -1px 0 rgba(14, 52, 40, 0.06);
+    0 14px 34px -12px rgba(8, 58, 44, 0.18),
+    0 4px 12px -4px rgba(10, 74, 56, 0.09),
+    inset 0 2px 3px rgba(255, 255, 255, 0.96),
+    inset 1.5px 0 2px rgba(255, 255, 255, 0.56),
+    inset 0 -3px 7px rgba(10, 72, 54, 0.06);
   --glass-card-shadow:
-    0 12px 28px -12px rgba(11, 44, 34, 0.18),
-    0 3px 8px -2px rgba(11, 44, 34, 0.08),
-    0 0 0 1px rgba(14, 52, 40, 0.08),
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.96),
-    inset 0 -1px 0 rgba(14, 52, 40, 0.06);
+    0 14px 32px -12px rgba(8, 58, 44, 0.18),
+    0 4px 10px -3px rgba(10, 74, 56, 0.09),
+    inset 0 2px 3px rgba(255, 255, 255, 0.96),
+    inset 1.5px 0 3px rgba(255, 255, 255, 0.58),
+    inset -1px -1px 2px rgba(255, 255, 255, 0.64),
+    inset 0 -3px 6px rgba(10, 72, 54, 0.06);
   --glass-card-shadow-hover:
-    0 18px 36px -12px rgba(10, 56, 42, 0.24),
-    0 6px 14px -4px rgba(10, 56, 42, 0.11),
-    0 0 0 1px rgba(14, 107, 78, 0.26),
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.98),
-    inset 0 -1px 0 rgba(14, 107, 78, 0.08);
+    0 22px 44px -12px rgba(10, 88, 66, 0.26),
+    0 8px 18px -5px rgba(14, 128, 96, 0.16),
+    inset 0 2px 3px rgba(255, 255, 255, 0.98),
+    inset 1.5px 0 3px rgba(255, 255, 255, 0.68),
+    inset 0 -3px 7px rgba(14, 107, 78, 0.09);
+  --glass-card-selected-shadow:
+    0 18px 38px -10px rgba(14, 128, 94, 0.32),
+    0 6px 16px -4px rgba(16, 168, 128, 0.20),
+    inset 0 2px 3px rgba(255, 255, 255, 0.98),
+    inset 0 -3px 8px rgba(14, 107, 78, 0.11);
   --glass-panel-shadow:
-    0 16px 38px -14px rgba(10, 44, 34, 0.20),
-    0 4px 12px -3px rgba(10, 44, 34, 0.09),
-    0 0 0 1px rgba(14, 52, 40, 0.09),
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.96),
-    inset 0 -1px 0 rgba(14, 52, 40, 0.06);
+    0 22px 48px -12px rgba(7, 58, 44, 0.22),
+    0 6px 18px -5px rgba(10, 74, 56, 0.11),
+    inset 0 2px 3px rgba(255, 255, 255, 0.96),
+    inset 1.5px 0 3px rgba(255, 255, 255, 0.60),
+    inset -1.5px -1.5px 3px rgba(255, 255, 255, 0.62),
+    inset 0 -4px 8px rgba(10, 72, 54, 0.07);
   --glass-modal-shadow:
-    0 28px 64px -16px rgba(7, 30, 24, 0.32),
-    0 10px 24px -8px rgba(7, 30, 24, 0.15),
-    0 0 0 1px rgba(14, 52, 40, 0.10),
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.96);
+    0 32px 72px -16px rgba(5, 36, 28, 0.34),
+    0 12px 28px -8px rgba(8, 56, 42, 0.16),
+    inset 0 2px 3px rgba(255, 255, 255, 0.98),
+    inset 1.5px 0 3px rgba(255, 255, 255, 0.60);
+
+  /* Crystal Jade CTA Caustic Glow Shadow (Light Mode — colored refraction glow below) */
   --glass-btn-primary-shadow:
-    0 10px 22px -8px rgba(14, 107, 78, 0.54),
-    0 3px 8px -2px rgba(14, 107, 78, 0.28),
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.36),
-    inset 0 -1.5px 0 rgba(6, 52, 38, 0.28);
+    0 16px 34px -5px rgba(14, 134, 98, 0.60),
+    0 7px 16px -3px rgba(18, 184, 146, 0.44),
+    0 2px 5px rgba(6, 54, 40, 0.20),
+    inset 0 2px 3px rgba(255, 255, 255, 0.58),
+    inset 0 12px 20px -10px rgba(214, 255, 242, 0.48),
+    inset 0 -2px 5px rgba(5, 48, 35, 0.34);
+  --glass-btn-primary-hover-shadow:
+    0 20px 40px -5px rgba(14, 144, 106, 0.68),
+    0 9px 20px -3px rgba(20, 194, 158, 0.50),
+    0 2px 6px rgba(6, 54, 40, 0.22),
+    inset 0 2px 3px rgba(255, 255, 255, 0.68),
+    inset 0 14px 22px -10px rgba(226, 255, 247, 0.54),
+    inset 0 -2px 5px rgba(5, 48, 35, 0.32);
+  --glass-pill-jade-shadow:
+    0 12px 26px -4px rgba(14, 132, 98, 0.54),
+    0 5px 12px -2px rgba(18, 180, 144, 0.38),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.56),
+    inset 0 -2px 4px rgba(6, 52, 38, 0.28);
   --glass-btn-sec-shadow:
-    0 4px 12px -4px rgba(12, 44, 34, 0.12),
-    0 1px 3px rgba(12, 44, 34, 0.06),
-    0 0 0 1px rgba(14, 52, 40, 0.09),
-    inset 0 1px 0 rgba(255, 255, 255, 0.94);
+    0 6px 16px -6px rgba(9, 54, 42, 0.14),
+    0 2px 5px rgba(9, 54, 42, 0.06),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.96),
+    inset 0 -1.5px 3px rgba(10, 68, 52, 0.05);
+  --glass-solid-shadow:
+    0 6px 16px -5px rgba(8, 58, 44, 0.16),
+    0 1px 3px rgba(8, 58, 44, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
 
-  /* Typography Ink */
-  --text-primary: #101A17;
-  --text-secondary: #3E514B;
+  /* Typography Ink — High Contrast Daylight Legibility */
+  --text-primary: #0B1B16;
+  --text-secondary: #2F4D44;
 
-  /* Brand Jade & WCAG AA Semantic Status */
+  /* Brand Deep Forest Jade & WCAG AA Semantic Status */
   --brand-jade: #0E6B4E;
   --brand-jade-hover: #0A563F;
-  --brand-jade-text: #0A5A41;
-  --brand-jade-glow: rgba(14, 107, 78, 0.22);
+  --brand-jade-text: #09583F;
+  --brand-jade-glow: rgba(14, 128, 94, 0.26);
 
-  --status-paid: #0A685B;
-  --status-paid-bg: rgba(16, 163, 118, 0.16);
-  --status-paid-border: rgba(14, 134, 98, 0.36);
+  --status-paid: #085E4E;
+  --status-paid-bg: rgba(16, 168, 126, 0.18);
+  --status-paid-border: rgba(14, 134, 98, 0.38);
 
   --status-debt: #9A4306;
-  --status-debt-bg: rgba(245, 158, 11, 0.18);
-  --status-debt-border: rgba(217, 119, 6, 0.36);
+  --status-debt-bg: rgba(245, 158, 11, 0.20);
+  --status-debt-border: rgba(217, 119, 6, 0.38);
 
   --status-overdue: #B91C1C;
   --status-overdue-solid: #B91C1C;
-  --status-overdue-bg: rgba(220, 38, 38, 0.13);
-  --status-overdue-border: rgba(220, 38, 38, 0.32);
+  --status-overdue-bg: rgba(220, 38, 38, 0.15);
+  --status-overdue-border: rgba(220, 38, 38, 0.34);
 
-  --skeleton-base: rgba(196, 214, 208, 0.55);
-  --skeleton-shine: rgba(255, 255, 255, 0.85);
+  --skeleton-base: rgba(186, 218, 209, 0.56);
+  --skeleton-shine: rgba(255, 255, 255, 0.88);
 }
 
 :root[data-theme="dark"] {
-  /* Optical Canvas — Obsidian Emerald Refraction */
-  --bg-canvas: #081014;
-  --bg-surface: #121D23;
-  --bg-subtle: rgba(28, 42, 49, 0.64);
-  --border-default: rgba(224, 242, 236, 0.14);
+  /* Optical Canvas — Obsidian Forest Jade Refraction (Dark Mode) */
+  --bg-canvas: #041013;
+  --bg-surface: #0A1B20;
+  --bg-subtle: rgba(160, 240, 218, 0.09);
+  --border-default: rgba(196, 244, 232, 0.15);
 
-  /* Liquid Glass Optical Materials (Dark Mode — true frosted translucency) */
-  --glass-bg: linear-gradient(155deg, rgba(22, 38, 46, 0.62) 0%, rgba(12, 22, 28, 0.48) 100%);
-  --glass-card-bg: linear-gradient(155deg, rgba(26, 44, 52, 0.58) 0%, rgba(13, 24, 30, 0.46) 100%);
-  --glass-panel-bg: linear-gradient(155deg, rgba(24, 41, 49, 0.66) 0%, rgba(12, 22, 28, 0.54) 100%);
-  --glass-modal-bg: linear-gradient(160deg, rgba(22, 38, 46, 0.84) 0%, rgba(11, 20, 26, 0.80) 100%);
-  --glass-modal-bar-bg: rgba(17, 30, 36, 0.76);
-  --glass-dock-bg: linear-gradient(180deg, rgba(24, 42, 50, 0.72) 0%, rgba(12, 22, 28, 0.60) 100%);
-  --glass-well-bg: linear-gradient(180deg, rgba(7, 15, 20, 0.46) 0%, rgba(16, 28, 35, 0.38) 100%);
-  --glass-input-bg: rgba(8, 16, 22, 0.52);
-  --glass-input-focus-bg: rgba(10, 21, 28, 0.78);
-  --glass-btn-sec-bg: linear-gradient(180deg, rgba(38, 58, 68, 0.66) 0%, rgba(20, 34, 42, 0.54) 100%);
-  --glass-btn-sec-hover-bg: linear-gradient(180deg, rgba(48, 72, 82, 0.78) 0%, rgba(26, 44, 54, 0.68) 100%);
-  --glass-chip-bg: linear-gradient(180deg, rgba(32, 50, 60, 0.62) 0%, rgba(18, 30, 38, 0.50) 100%);
-  --glass-chip-active-bg: linear-gradient(180deg, rgba(34, 184, 136, 0.28) 0%, rgba(17, 128, 94, 0.18) 100%);
-  --glass-table-head-bg: rgba(16, 28, 35, 0.80);
-  --glass-backdrop-bg: rgba(2, 8, 11, 0.62);
+  /* Crystal Liquid Glass Optical Materials (Dark Mode — True Smoky Crystal) */
+  --glass-bg: linear-gradient(
+    142deg,
+    rgba(22, 56, 58, 0.44) 0%,
+    rgba(11, 30, 35, 0.30) 54%,
+    rgba(7, 21, 26, 0.26) 100%
+  );
+  --glass-card-bg: linear-gradient(
+    145deg,
+    rgba(24, 60, 62, 0.42) 0%,
+    rgba(12, 32, 37, 0.30) 56%,
+    rgba(8, 22, 27, 0.26) 100%
+  );
+  --glass-panel-bg: linear-gradient(
+    148deg,
+    rgba(20, 52, 56, 0.48) 0%,
+    rgba(10, 28, 33, 0.36) 56%,
+    rgba(7, 20, 25, 0.32) 100%
+  );
+  --glass-modal-bg: linear-gradient(
+    152deg,
+    rgba(14, 38, 43, 0.80) 0%,
+    rgba(8, 23, 28, 0.74) 58%,
+    rgba(6, 18, 23, 0.72) 100%
+  );
+  --glass-modal-bar-bg: rgba(10, 28, 33, 0.54);
+  --glass-dock-bg: linear-gradient(
+    165deg,
+    rgba(24, 60, 62, 0.48) 0%,
+    rgba(10, 28, 33, 0.36) 55%,
+    rgba(6, 20, 25, 0.34) 100%
+  );
+  --glass-well-bg: linear-gradient(
+    170deg,
+    rgba(3, 12, 16, 0.44) 0%,
+    rgba(10, 28, 34, 0.30) 100%
+  );
 
-  /* Specular Rim & 3D Depth Shadows (Dark Mode) */
-  --glass-border: rgba(235, 250, 245, 0.18);
-  --glass-border-subtle: rgba(226, 242, 236, 0.12);
-  --glass-rim-top: rgba(240, 255, 250, 0.24);
-  --glass-rim-bottom: rgba(0, 0, 0, 0.45);
+  /* Opaque-inside-Translucent Controls (Crisp High-Contrast Dark Surfaces inside Clear Glass) */
+  --glass-input-bg: rgba(5, 16, 20, 0.90);
+  --glass-input-focus-bg: rgba(4, 13, 17, 0.98);
+  --glass-solid-bg: linear-gradient(180deg, rgba(16, 42, 46, 0.94) 0%, rgba(9, 25, 30, 0.96) 100%);
+  --glass-solid-hover-bg: linear-gradient(180deg, rgba(22, 56, 60, 0.96) 0%, rgba(12, 34, 39, 0.98) 100%);
+
+  --glass-btn-sec-bg: linear-gradient(
+    155deg,
+    rgba(30, 68, 72, 0.56) 0%,
+    rgba(14, 36, 42, 0.42) 100%
+  );
+  --glass-btn-sec-hover-bg: linear-gradient(
+    155deg,
+    rgba(38, 84, 86, 0.72) 0%,
+    rgba(18, 46, 52, 0.58) 100%
+  );
+  --glass-chip-bg: linear-gradient(
+    155deg,
+    rgba(26, 62, 66, 0.50) 0%,
+    rgba(12, 32, 38, 0.36) 100%
+  );
+  --glass-chip-active-bg: linear-gradient(
+    145deg,
+    rgba(24, 148, 112, 0.36) 0%,
+    rgba(14, 107, 78, 0.24) 100%
+  );
+  --glass-table-head-bg: rgba(11, 29, 34, 0.78);
+  --glass-backdrop-bg: rgba(1, 8, 10, 0.64);
+
+  /* Directional Specular Bevel Gradients (Dark Mode — Luminous Silver-Mint Edges) */
+  --glass-border: rgba(214, 252, 240, 0.24);
+  --glass-border-subtle: rgba(196, 244, 232, 0.13);
+  --glass-rim-top: rgba(224, 255, 245, 0.28);
+  --glass-rim-bottom: rgba(0, 0, 0, 0.52);
+  --glass-bevel-rim: linear-gradient(
+    135deg,
+    rgba(232, 255, 248, 0.58) 0%,
+    rgba(148, 238, 212, 0.20) 28%,
+    rgba(14, 107, 78, 0.08) 52%,
+    rgba(94, 234, 212, 0.18) 76%,
+    rgba(214, 255, 244, 0.46) 100%
+  );
+  --glass-bevel-rim-jade: linear-gradient(
+    135deg,
+    rgba(220, 255, 244, 0.72) 0%,
+    rgba(52, 211, 153, 0.68) 32%,
+    rgba(14, 134, 98, 0.34) 56%,
+    rgba(45, 212, 191, 0.62) 82%,
+    rgba(220, 255, 244, 0.66) 100%
+  );
+  --glass-bevel-rim-cta: linear-gradient(
+    135deg,
+    rgba(236, 255, 248, 0.68) 0%,
+    rgba(110, 231, 183, 0.32) 34%,
+    rgba(4, 38, 28, 0.34) 66%,
+    rgba(94, 234, 212, 0.52) 100%
+  );
+
+  /* Multi-Layered 3D Crystal Shadows & Specular Insets (Dark Mode) */
   --glass-shadow:
-    0 22px 48px -12px rgba(0, 0, 0, 0.76),
-    0 6px 18px -4px rgba(0, 0, 0, 0.50),
-    0 0 0 1px rgba(255, 255, 255, 0.09),
-    inset 0 1.5px 0 rgba(240, 255, 250, 0.26),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.46);
+    0 24px 56px -12px rgba(0, 0, 0, 0.78),
+    0 8px 22px -4px rgba(0, 0, 0, 0.54),
+    0 2px 10px -2px rgba(14, 136, 102, 0.18),
+    inset 0 2px 3px rgba(232, 255, 248, 0.32),
+    inset 1.5px 0 3px rgba(196, 255, 236, 0.16),
+    inset -1px -1px 2px rgba(110, 240, 206, 0.14),
+    inset 0 -4px 10px rgba(0, 0, 0, 0.44);
   --glass-surface-shadow:
-    0 12px 30px -12px rgba(0, 0, 0, 0.58),
-    0 2px 8px rgba(0, 0, 0, 0.34),
-    inset 0 1px 0 rgba(240, 255, 250, 0.18),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.36);
+    0 16px 38px -12px rgba(0, 0, 0, 0.62),
+    0 4px 12px rgba(0, 0, 0, 0.36),
+    inset 0 1.5px 2px rgba(232, 255, 248, 0.26),
+    inset 1.5px 0 2px rgba(196, 255, 236, 0.12),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.38);
   --glass-card-shadow:
-    0 14px 34px -12px rgba(0, 0, 0, 0.64),
-    0 4px 12px -3px rgba(0, 0, 0, 0.42),
-    0 0 0 1px rgba(255, 255, 255, 0.08),
-    inset 0 1.5px 0 rgba(240, 255, 250, 0.20),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.38);
+    0 16px 38px -12px rgba(0, 0, 0, 0.66),
+    0 5px 14px -4px rgba(0, 0, 0, 0.44),
+    inset 0 1.5px 2px rgba(232, 255, 248, 0.26),
+    inset 1.5px 0 2px rgba(196, 255, 236, 0.12),
+    inset -1px -1px 2px rgba(110, 240, 206, 0.12),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.38);
   --glass-card-shadow-hover:
-    0 20px 42px -12px rgba(0, 0, 0, 0.74),
-    0 8px 18px -4px rgba(10, 95, 70, 0.26),
-    0 0 0 1px rgba(86, 212, 170, 0.34),
-    inset 0 1.5px 0 rgba(240, 255, 250, 0.28),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.44);
+    0 22px 48px -12px rgba(0, 0, 0, 0.76),
+    0 10px 24px -6px rgba(16, 152, 114, 0.30),
+    inset 0 2px 3px rgba(236, 255, 248, 0.34),
+    inset 1.5px 0 3px rgba(196, 255, 236, 0.18),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.44);
+  --glass-card-selected-shadow:
+    0 20px 44px -12px rgba(0, 0, 0, 0.72),
+    0 10px 26px -6px rgba(20, 178, 134, 0.34),
+    inset 0 2px 3px rgba(236, 255, 248, 0.36),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.40);
   --glass-panel-shadow:
-    0 18px 42px -12px rgba(0, 0, 0, 0.70),
-    0 6px 16px -4px rgba(0, 0, 0, 0.44),
-    0 0 0 1px rgba(255, 255, 255, 0.09),
-    inset 0 1.5px 0 rgba(240, 255, 250, 0.22),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.42);
+    0 22px 50px -12px rgba(0, 0, 0, 0.74),
+    0 6px 18px -4px rgba(0, 0, 0, 0.48),
+    inset 0 1.5px 2px rgba(232, 255, 248, 0.28),
+    inset 1.5px 0 3px rgba(196, 255, 236, 0.14),
+    inset 0 -4px 10px rgba(0, 0, 0, 0.42);
   --glass-modal-shadow:
-    0 32px 72px -14px rgba(0, 0, 0, 0.84),
-    0 12px 28px -8px rgba(0, 0, 0, 0.56),
-    0 0 0 1px rgba(240, 255, 250, 0.14),
-    inset 0 1.5px 0 rgba(240, 255, 250, 0.24);
+    0 34px 76px -14px rgba(0, 0, 0, 0.86),
+    0 12px 30px -8px rgba(0, 0, 0, 0.60),
+    inset 0 2px 3px rgba(232, 255, 248, 0.28),
+    inset 1.5px 0 3px rgba(196, 255, 236, 0.14);
+
+  /* Crystal Jade CTA Caustic Glow Shadow (Dark Mode) */
   --glass-btn-primary-shadow:
-    0 10px 24px -6px rgba(16, 152, 110, 0.52),
-    0 3px 10px -2px rgba(0, 0, 0, 0.42),
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.30),
-    inset 0 -1.5px 0 rgba(4, 38, 28, 0.42);
+    0 14px 34px -6px rgba(20, 184, 136, 0.54),
+    0 6px 16px -3px rgba(45, 212, 191, 0.28),
+    0 2px 8px rgba(0, 0, 0, 0.54),
+    inset 0 2px 3px rgba(236, 255, 248, 0.44),
+    inset 0 10px 18px -10px rgba(167, 243, 208, 0.30),
+    inset 0 -2px 5px rgba(3, 36, 26, 0.48);
+  --glass-btn-primary-hover-shadow:
+    0 18px 40px -6px rgba(24, 198, 148, 0.64),
+    0 8px 20px -3px rgba(45, 212, 191, 0.38),
+    0 2px 8px rgba(0, 0, 0, 0.58),
+    inset 0 2px 3px rgba(240, 255, 250, 0.54),
+    inset 0 12px 20px -10px rgba(186, 255, 232, 0.38),
+    inset 0 -2px 5px rgba(3, 36, 26, 0.46);
+  --glass-pill-jade-shadow:
+    0 10px 26px -5px rgba(20, 184, 136, 0.50),
+    0 4px 12px -2px rgba(45, 212, 191, 0.26),
+    inset 0 1.5px 2px rgba(236, 255, 248, 0.42),
+    inset 0 -2px 4px rgba(3, 34, 25, 0.44);
   --glass-btn-sec-shadow:
-    0 6px 16px -4px rgba(0, 0, 0, 0.48),
-    0 2px 4px rgba(0, 0, 0, 0.30),
-    0 0 0 1px rgba(240, 255, 250, 0.10),
-    inset 0 1px 0 rgba(240, 255, 250, 0.18);
+    0 8px 20px -6px rgba(0, 0, 0, 0.52),
+    0 2px 6px rgba(0, 0, 0, 0.34),
+    inset 0 1.5px 2px rgba(232, 255, 248, 0.22),
+    inset 0 -1.5px 3px rgba(0, 0, 0, 0.34);
+  --glass-solid-shadow:
+    0 8px 18px -6px rgba(0, 0, 0, 0.54),
+    0 1px 3px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(210, 252, 238, 0.24);
 
   /* Typography Ink */
-  --text-primary: #F2F7F5;
-  --text-secondary: #A4B8B2;
+  --text-primary: #F2F9F6;
+  --text-secondary: #A6C3BA;
 
-  /* Brand Jade & WCAG AA Semantic Status */
+  /* Brand Deep Forest Jade & WCAG AA Semantic Status */
   --brand-jade: #158763;
   --brand-jade-hover: #117052;
-  --brand-jade-text: #5CE0B3;
-  --brand-jade-glow: rgba(76, 195, 155, 0.28);
+  --brand-jade-text: #62E6BA;
+  --brand-jade-glow: rgba(76, 208, 166, 0.30);
 
-  --status-paid: #5CE0B3;
-  --status-paid-bg: rgba(24, 168, 122, 0.22);
-  --status-paid-border: rgba(86, 212, 170, 0.36);
+  --status-paid: #62E6BA;
+  --status-paid-bg: rgba(24, 174, 128, 0.22);
+  --status-paid-border: rgba(94, 234, 212, 0.36);
 
   --status-debt: #FBBF24;
   --status-debt-bg: rgba(217, 140, 18, 0.24);
@@ -198,347 +407,535 @@
   --status-overdue-bg: rgba(220, 38, 38, 0.24);
   --status-overdue-border: rgba(248, 113, 113, 0.38);
 
-  --skeleton-base: rgba(34, 52, 62, 0.72);
-  --skeleton-shine: rgba(68, 96, 110, 0.72);
+  --skeleton-base: rgba(24, 52, 58, 0.72);
+  --skeleton-shine: rgba(62, 112, 116, 0.72);
 }
 
-/* Lush Optical Wallpaper Layer 1 — Vivid Jade, Sunlit Amber & Ocean Teal Mesh */
+/* ============================================================================
+   Principle 1: High-Contrast Directional Jade & Aqua Optical Backdrop (GPU)
+   ============================================================================ */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   z-index: -2;
   pointer-events: none;
+  transform: translateZ(0);
   background:
-    radial-gradient(52% 46% at 12% 10%, rgba(16, 176, 126, 0.46) 0%, rgba(16, 176, 126, 0) 68%),
-    radial-gradient(48% 44% at 88% 14%, rgba(245, 168, 72, 0.42) 0%, rgba(245, 168, 72, 0) 66%),
-    radial-gradient(54% 48% at 78% 82%, rgba(14, 165, 164, 0.40) 0%, rgba(14, 165, 164, 0) 68%),
-    radial-gradient(46% 42% at 18% 86%, rgba(242, 132, 98, 0.30) 0%, rgba(242, 132, 98, 0) 66%),
-    radial-gradient(38% 34% at 50% 48%, rgba(52, 211, 153, 0.26) 0%, rgba(52, 211, 153, 0) 70%),
-    linear-gradient(135deg, #D5EEE5 0%, #E7F4F0 42%, #F6ECE0 74%, #D7ECEB 100%);
+    radial-gradient(56% 48% at 10% 8%, rgba(14, 128, 96, 0.56) 0%, rgba(14, 107, 78, 0.20) 44%, rgba(14, 107, 78, 0) 72%),
+    radial-gradient(52% 46% at 92% 14%, rgba(13, 168, 164, 0.50) 0%, rgba(13, 148, 136, 0.14) 48%, rgba(13, 148, 136, 0) 74%),
+    radial-gradient(58% 40% at 50% 96%, rgba(14, 107, 78, 0.50) 0%, rgba(13, 148, 136, 0.24) 46%, rgba(13, 148, 136, 0) 76%),
+    radial-gradient(46% 44% at 86% 78%, rgba(15, 118, 110, 0.40) 0%, rgba(15, 118, 110, 0) 68%),
+    radial-gradient(44% 42% at 14% 78%, rgba(20, 184, 166, 0.36) 0%, rgba(20, 184, 166, 0) 68%),
+    linear-gradient(
+      130deg,
+      rgba(232, 249, 244, 0.76) 0%,
+      rgba(196, 235, 224, 0.42) 32%,
+      rgba(14, 107, 78, 0.38) 47.4%,
+      rgba(255, 255, 255, 0.90) 49.6%,
+      rgba(153, 242, 228, 0.46) 53.2%,
+      rgba(14, 134, 118, 0.32) 74%,
+      rgba(218, 244, 238, 0.78) 100%
+    ),
+    linear-gradient(155deg, #C7E6DC 0%, #E3F3EE 38%, #CBEAE5 72%, #B5DFD6 100%);
 }
 
-/* Lush Optical Wallpaper Layer 2 — Sculpted Botanical Glass Ribbons & Light Orbs */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image:
-    radial-gradient(circle at 24% 28%, rgba(255, 255, 255, 0.72) 0 110px, rgba(255, 255, 255, 0) 240px),
-    radial-gradient(circle at 76% 64%, rgba(255, 255, 255, 0.56) 0 90px, rgba(255, 255, 255, 0) 220px),
-    repeating-linear-gradient(
-      -32deg,
-      rgba(255, 255, 255, 0.16) 0px,
-      rgba(255, 255, 255, 0.16) 2px,
-      transparent 2px,
-      transparent 68px
-    );
-  opacity: 0.78;
+  transform: translateZ(0);
+  background:
+    linear-gradient(
+      124deg,
+      transparent 0%,
+      transparent 43.5%,
+      rgba(255, 255, 255, 0.80) 48.2%,
+      rgba(255, 255, 255, 0.24) 51.2%,
+      rgba(14, 107, 78, 0.16) 54.4%,
+      transparent 62%
+    ),
+    radial-gradient(circle at 24% 26%, rgba(255, 255, 255, 0.78) 0 100px, rgba(255, 255, 255, 0) 240px),
+    radial-gradient(circle at 76% 62%, rgba(204, 251, 241, 0.56) 0 88px, rgba(204, 251, 241, 0) 220px);
 }
 
 :root[data-theme="dark"] body::before {
   background:
-    radial-gradient(52% 46% at 14% 10%, rgba(16, 185, 129, 0.52) 0%, rgba(16, 185, 129, 0) 68%),
-    radial-gradient(48% 44% at 88% 16%, rgba(14, 165, 178, 0.44) 0%, rgba(14, 165, 178, 0) 66%),
-    radial-gradient(52% 48% at 76% 84%, rgba(217, 134, 34, 0.34) 0%, rgba(217, 134, 34, 0) 68%),
-    radial-gradient(44% 40% at 16% 84%, rgba(20, 150, 118, 0.38) 0%, rgba(20, 150, 118, 0) 66%),
-    radial-gradient(36% 34% at 50% 48%, rgba(52, 211, 153, 0.22) 0%, rgba(52, 211, 153, 0) 70%),
-    linear-gradient(135deg, #051117 0%, #091B22 48%, #07131A 100%);
+    radial-gradient(56% 48% at 12% 8%, rgba(14, 138, 102, 0.64) 0%, rgba(14, 107, 78, 0.26) 44%, rgba(14, 107, 78, 0) 72%),
+    radial-gradient(52% 46% at 90% 16%, rgba(13, 168, 178, 0.52) 0%, rgba(13, 148, 136, 0.18) 46%, rgba(13, 148, 136, 0) 74%),
+    radial-gradient(58% 40% at 50% 98%, rgba(16, 152, 114, 0.58) 0%, rgba(13, 148, 136, 0.24) 46%, rgba(13, 148, 136, 0) 76%),
+    radial-gradient(46% 42% at 14% 82%, rgba(14, 107, 78, 0.46) 0%, rgba(14, 107, 78, 0) 68%),
+    radial-gradient(44% 40% at 86% 80%, rgba(20, 184, 166, 0.34) 0%, rgba(20, 184, 166, 0) 66%),
+    linear-gradient(
+      130deg,
+      rgba(3, 14, 18, 0.40) 0%,
+      rgba(6, 30, 34, 0.18) 36%,
+      rgba(14, 122, 92, 0.46) 47.6%,
+      rgba(94, 234, 212, 0.34) 49.5%,
+      rgba(13, 148, 136, 0.26) 53.2%,
+      rgba(4, 20, 26, 0.24) 74%,
+      rgba(4, 16, 20, 0.42) 100%
+    ),
+    linear-gradient(148deg, #030D10 0%, #061D22 46%, #031116 100%);
 }
 
 :root[data-theme="dark"] body::after {
-  background-image:
-    radial-gradient(circle at 22% 30%, rgba(92, 224, 179, 0.26) 0 90px, rgba(92, 224, 179, 0) 240px),
-    radial-gradient(circle at 78% 66%, rgba(56, 189, 198, 0.22) 0 85px, rgba(56, 189, 198, 0) 230px),
-    repeating-linear-gradient(
-      -32deg,
-      rgba(240, 255, 250, 0.05) 0px,
-      rgba(240, 255, 250, 0.05) 1.5px,
-      transparent 1.5px,
-      transparent 72px
-    );
-  opacity: 0.9;
+  background:
+    linear-gradient(
+      124deg,
+      transparent 0%,
+      transparent 44%,
+      rgba(94, 234, 212, 0.26) 48.3%,
+      rgba(204, 251, 241, 0.14) 50.2%,
+      rgba(16, 185, 129, 0.16) 53.2%,
+      transparent 61%
+    ),
+    radial-gradient(circle at 22% 28%, rgba(92, 224, 179, 0.26) 0 85px, rgba(92, 224, 179, 0) 230px),
+    radial-gradient(circle at 78% 64%, rgba(45, 212, 191, 0.22) 0 80px, rgba(45, 212, 191, 0) 220px);
 }
 
 /* ============================================================================
-   Liquid Glass Surface Tiers & Tactile 3D Controls
+   Principle 2, 3 & 4: 3D Crystal Specular Bevel Glass Tiers & Caustic Controls
+   Placed inside @layer components so Tailwind utilities (fixed/sticky/etc.) win.
    ============================================================================ */
+@layer components {
+  /* Shared Directional Specular Bevel Rim Helper (135° reflective crystal edge) */
+  .glass-dock,
+  .glass-surface,
+  .glass-panel,
+  .glass-card,
+  .glass-modal,
+  .glass-btn-primary,
+  .glass-pill-jade,
+  .glass-btn-secondary,
+  .glass-btn-danger,
+  .glass-chip,
+  .glass-chip-active,
+  .glass-icon-orb {
+    position: relative;
+    border: none;
+  }
 
-/* Tier 4: Sculpted Floating Dock */
-.glass-dock {
-  background: var(--glass-dock-bg);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
-  backdrop-filter: blur(28px) saturate(200%);
-}
+  .glass-dock::before,
+  .glass-surface::before,
+  .glass-panel::before,
+  .glass-card::before,
+  .glass-modal::before,
+  .glass-btn-primary::before,
+  .glass-pill-jade::before,
+  .glass-btn-secondary::before,
+  .glass-btn-danger::before,
+  .glass-chip::before,
+  .glass-chip-active::before,
+  .glass-icon-orb::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.25px;
+    background: var(--glass-bevel-rim);
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 2;
+  }
 
-/* Tier 3: Structural Frosted Surface (Top Bar, Filter Strips, Sticky Bars) */
-.glass-surface {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-surface-shadow);
-  -webkit-backdrop-filter: blur(22px) saturate(180%);
-  backdrop-filter: blur(22px) saturate(180%);
-}
+  .glass-dock::before,
+  .glass-panel::before,
+  .glass-modal::before {
+    padding: 1.5px;
+  }
 
-/* Tier 3B: Elevated Glass Panel (Cart, Desktop Ledger Table, Settings Section, Login Card) */
-.glass-panel {
-  background: var(--glass-panel-bg);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-panel-shadow);
-  -webkit-backdrop-filter: blur(22px) saturate(185%);
-  backdrop-filter: blur(22px) saturate(185%);
-}
+  /* Tier 4: Sculpted 3D Crystal Floating Dock */
+  .glass-dock {
+    background: var(--glass-dock-bg);
+    box-shadow: var(--glass-shadow);
+    -webkit-backdrop-filter: blur(28px) saturate(215%);
+    backdrop-filter: blur(28px) saturate(215%);
+  }
 
-/* Tier 2: 3D Elevated Glass Card (KPI, Product, Order/Debt Card, Chart) */
-.glass-card {
-  background: var(--glass-card-bg);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-card-shadow);
-  -webkit-backdrop-filter: blur(18px) saturate(175%);
-  backdrop-filter: blur(18px) saturate(175%);
-}
+  /* Tier 3: Structural Clear Crystal Surface (Top Bar, Search Tray, Filter Bars) */
+  .glass-surface {
+    background: var(--glass-bg);
+    box-shadow: var(--glass-surface-shadow);
+    -webkit-backdrop-filter: blur(22px) saturate(200%);
+    backdrop-filter: blur(22px) saturate(200%);
+  }
 
-.glass-card-interactive {
-  transition:
-    transform 170ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 190ms cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 170ms ease,
-    background-color 170ms ease;
-}
+  /* Tier 3B: Elevated Crystal Glass Panel (Cart, Ledger Table, Settings Section, Login) */
+  .glass-panel {
+    background: var(--glass-panel-bg);
+    box-shadow: var(--glass-panel-shadow);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    backdrop-filter: blur(24px) saturate(200%);
+  }
 
-.glass-card-interactive:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--glass-card-shadow-hover);
-}
+  /* Tier 2: 3D Elevated Crystal Card (Product, Buyer Bar, KPI, Order/Debt Card) */
+  .glass-card {
+    background: var(--glass-card-bg);
+    box-shadow: var(--glass-card-shadow);
+    -webkit-backdrop-filter: blur(20px) saturate(190%);
+    backdrop-filter: blur(20px) saturate(190%);
+  }
 
-.glass-card-interactive:active:not(:disabled) {
-  transform: translateY(0) scale(0.985);
-}
+  .glass-card-selected {
+    box-shadow: var(--glass-card-selected-shadow);
+  }
 
-/* Tier 4B: Thick Frosted Modal / Drawer / Sheet */
-.glass-modal {
-  background: var(--glass-modal-bg);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-modal-shadow);
-  -webkit-backdrop-filter: blur(28px) saturate(195%);
-  backdrop-filter: blur(28px) saturate(195%);
-}
+  .glass-card-selected::before {
+    padding: 1.5px;
+    background: var(--glass-bevel-rim-jade);
+  }
 
-.glass-modal-header {
-  background: var(--glass-modal-bar-bg);
-  border-bottom: 1px solid var(--glass-border-subtle);
-  -webkit-backdrop-filter: blur(18px) saturate(170%);
-  backdrop-filter: blur(18px) saturate(170%);
-}
+  .glass-card-editing {
+    outline: 1.5px dashed var(--brand-jade);
+    outline-offset: -2px;
+  }
 
-.glass-modal-footer {
-  background: var(--glass-modal-bar-bg);
-  border-top: 1px solid var(--glass-border-subtle);
-  -webkit-backdrop-filter: blur(18px) saturate(170%);
-  backdrop-filter: blur(18px) saturate(170%);
-}
+  .glass-card-interactive {
+    transition:
+      transform 170ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 190ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 170ms ease;
+  }
 
-.glass-backdrop {
-  background-color: var(--glass-backdrop-bg);
-  -webkit-backdrop-filter: blur(8px) saturate(125%);
-  backdrop-filter: blur(8px) saturate(125%);
-}
+  .glass-card-interactive:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--glass-card-shadow-hover);
+  }
 
-/* Tier 1: Recessed Frosted Well (Nested Trays, Summary Boxes, Line Item Lists) */
-.glass-well {
-  background: var(--glass-well-bg);
-  border: 1px solid var(--glass-border-subtle);
-  box-shadow:
-    inset 0 1px 3px rgba(10, 38, 30, 0.08),
-    0 1px 0 var(--glass-rim-top);
-}
+  .glass-card-interactive:active:not(:disabled) {
+    transform: translateY(0) scale(0.985);
+  }
 
-:root[data-theme="dark"] .glass-well {
-  box-shadow:
-    inset 0 1px 4px rgba(0, 0, 0, 0.36),
-    0 1px 0 rgba(240, 255, 250, 0.06);
-}
+  /* Tier 4B: Thick Crystal Modal / Drawer / Sheet */
+  .glass-modal {
+    background: var(--glass-modal-bg);
+    box-shadow: var(--glass-modal-shadow);
+    -webkit-backdrop-filter: blur(30px) saturate(210%);
+    backdrop-filter: blur(30px) saturate(210%);
+  }
 
-/* Recessed Optical Glass Input */
-.glass-input {
-  background-color: var(--glass-input-bg);
-  border: 1px solid var(--glass-border-subtle);
-  box-shadow:
-    inset 0 1.5px 3px rgba(10, 40, 31, 0.07),
-    0 1px 0 var(--glass-rim-top);
-  transition:
-    border-color 150ms ease,
-    box-shadow 170ms ease,
-    background-color 150ms ease;
-}
+  .glass-modal-header {
+    background: var(--glass-modal-bar-bg);
+    border-bottom: 1px solid var(--glass-border-subtle);
+    -webkit-backdrop-filter: blur(18px) saturate(175%);
+    backdrop-filter: blur(18px) saturate(175%);
+  }
 
-:root[data-theme="dark"] .glass-input {
-  box-shadow:
-    inset 0 1.5px 4px rgba(0, 0, 0, 0.42),
-    0 1px 0 rgba(240, 255, 250, 0.07);
-}
+  .glass-modal-footer {
+    background: var(--glass-modal-bar-bg);
+    border-top: 1px solid var(--glass-border-subtle);
+    -webkit-backdrop-filter: blur(18px) saturate(175%);
+    backdrop-filter: blur(18px) saturate(175%);
+  }
 
-.glass-input:focus,
-.glass-input:focus-within {
-  background-color: var(--glass-input-focus-bg);
-  border-color: var(--brand-jade);
-  box-shadow:
-    0 0 0 3px var(--brand-jade-glow),
-    inset 0 1px 2px rgba(10, 40, 31, 0.05);
-}
+  .glass-backdrop {
+    background-color: var(--glass-backdrop-bg);
+    -webkit-backdrop-filter: blur(10px) saturate(135%);
+    backdrop-filter: blur(10px) saturate(135%);
+  }
 
-/* 3D Convex Jade Crystal Primary Button */
-.glass-btn-primary {
-  background: linear-gradient(180deg, #148461 0%, #0E6B4E 55%, #0B5940 100%);
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  color: #FFFFFF;
-  box-shadow: var(--glass-btn-primary-shadow);
-  transition:
-    transform 130ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 160ms ease,
-    filter 150ms ease;
-}
+  /* Tier 1: Recessed Crystal Well (Nested Trays, Summary Boxes, Segmented Tracks) */
+  .glass-well {
+    background: var(--glass-well-bg);
+    box-shadow:
+      inset 0 2px 5px rgba(8, 52, 39, 0.10),
+      inset 0 0 0 1px rgba(14, 78, 58, 0.08),
+      0 1px 0 var(--glass-rim-top);
+  }
 
-:root[data-theme="dark"] .glass-btn-primary {
-  background: linear-gradient(180deg, #1FA379 0%, #158763 55%, #116D50 100%);
-  border-color: rgba(167, 243, 208, 0.28);
-}
+  :root[data-theme="dark"] .glass-well {
+    box-shadow:
+      inset 0 2px 6px rgba(0, 0, 0, 0.44),
+      inset 0 0 0 1px rgba(196, 244, 232, 0.08),
+      0 1px 0 rgba(224, 255, 245, 0.08);
+  }
 
-.glass-btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  filter: brightness(1.05);
-}
+  /* Principle 4: Opaque-inside-Translucent Crisp Input */
+  .glass-input {
+    background-color: var(--glass-input-bg);
+    border: 1px solid rgba(14, 86, 64, 0.14);
+    box-shadow:
+      0 4px 12px -4px rgba(8, 54, 40, 0.11),
+      0 1px 2px rgba(8, 54, 40, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.96);
+    transition:
+      border-color 150ms ease,
+      box-shadow 170ms ease,
+      background-color 150ms ease;
+  }
 
-.glass-btn-primary:active:not(:disabled) {
-  transform: translateY(0) scale(0.975);
-}
+  :root[data-theme="dark"] .glass-input {
+    border-color: rgba(186, 244, 228, 0.18);
+    box-shadow:
+      inset 0 2px 5px rgba(0, 0, 0, 0.50),
+      0 1px 0 rgba(210, 252, 238, 0.12);
+  }
 
-/* 3D Convex Frosted Secondary Button */
-.glass-btn-secondary {
-  background: var(--glass-btn-sec-bg);
-  border: 1px solid var(--glass-border);
-  color: var(--text-primary);
-  box-shadow: var(--glass-btn-sec-shadow);
-  transition:
-    transform 130ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 160ms ease,
-    background 150ms ease,
-    border-color 150ms ease;
-}
+  .glass-input:focus,
+  .glass-input:focus-within {
+    background-color: var(--glass-input-focus-bg);
+    border-color: var(--brand-jade);
+    box-shadow:
+      0 0 0 3px var(--brand-jade-glow),
+      0 6px 16px -6px rgba(14, 107, 78, 0.22);
+  }
 
-.glass-btn-secondary:hover:not(:disabled) {
-  background: var(--glass-btn-sec-hover-bg);
-  transform: translateY(-1px);
-}
+  /* Principle 4: Opaque-inside-Translucent Crisp Solid Pill / Stepper Control */
+  .glass-solid-control {
+    background: var(--glass-solid-bg);
+    border: 1px solid rgba(14, 92, 68, 0.12);
+    box-shadow: var(--glass-solid-shadow);
+    transition:
+      transform 130ms cubic-bezier(0.22, 1, 0.36, 1),
+      background 150ms ease,
+      box-shadow 160ms ease,
+      border-color 150ms ease;
+  }
 
-.glass-btn-secondary:active:not(:disabled) {
-  transform: translateY(0) scale(0.975);
-}
+  :root[data-theme="dark"] .glass-solid-control {
+    border-color: rgba(180, 246, 226, 0.18);
+  }
 
-/* 3D Convex Crimson Danger Button */
-.glass-btn-danger {
-  background: linear-gradient(180deg, #DC2626 0%, #B91C1C 100%);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  color: #FFFFFF;
-  box-shadow:
-    0 10px 22px -8px rgba(185, 28, 28, 0.48),
-    0 2px 6px rgba(185, 28, 28, 0.22),
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.28);
-  transition:
-    transform 130ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 150ms ease;
-}
+  .glass-solid-control:hover:not(:disabled) {
+    background: var(--glass-solid-hover-bg);
+    border-color: var(--status-paid-border);
+  }
 
-.glass-btn-danger:hover:not(:disabled) {
-  transform: translateY(-1px);
-  filter: brightness(1.05);
-}
+  /* Principle 3: Glossy Deep Forest Jade Crystal Primary Button + Caustic Glow */
+  .glass-btn-primary {
+    background: linear-gradient(
+      148deg,
+      rgba(22, 166, 124, 0.88) 0%,
+      rgba(14, 114, 84, 0.94) 52%,
+      rgba(9, 86, 63, 0.96) 100%
+    );
+    color: #FFFFFF;
+    box-shadow: var(--glass-btn-primary-shadow);
+    -webkit-backdrop-filter: blur(16px) saturate(190%);
+    backdrop-filter: blur(16px) saturate(190%);
+    transition:
+      transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 170ms ease,
+      filter 150ms ease;
+  }
 
-.glass-btn-danger:active:not(:disabled) {
-  transform: translateY(0) scale(0.975);
-}
+  .glass-btn-primary::before {
+    background: var(--glass-bevel-rim-cta);
+  }
 
-/* Tactile Frosted Chips & Active Luminous Jade Chips */
-.glass-chip {
-  background: var(--glass-chip-bg);
-  border: 1px solid var(--glass-border);
-  color: var(--text-secondary);
-  box-shadow:
-    0 3px 10px -4px rgba(12, 44, 34, 0.10),
-    0 0 0 1px var(--glass-border-subtle),
-    inset 0 1px 0 var(--glass-rim-top);
-  transition:
-    transform 130ms cubic-bezier(0.22, 1, 0.36, 1),
-    background 150ms ease,
-    border-color 150ms ease,
-    color 150ms ease,
-    box-shadow 150ms ease;
-}
+  :root[data-theme="dark"] .glass-btn-primary {
+    background: linear-gradient(
+      148deg,
+      rgba(32, 188, 142, 0.88) 0%,
+      rgba(18, 138, 102, 0.94) 54%,
+      rgba(11, 98, 72, 0.96) 100%
+    );
+  }
 
-.glass-chip:hover:not(:disabled) {
-  color: var(--text-primary);
-  border-color: var(--status-paid-border);
-}
+  .glass-btn-primary:hover:not(:disabled) {
+    transform: translateY(-1.5px);
+    box-shadow: var(--glass-btn-primary-hover-shadow);
+    filter: brightness(1.04);
+  }
 
-.glass-chip-active {
-  background: var(--glass-chip-active-bg);
-  border: 1px solid var(--brand-jade);
-  color: var(--brand-jade-text);
-  box-shadow:
-    0 6px 16px -6px var(--brand-jade-glow),
-    inset 0 1px 0 var(--glass-rim-top);
-}
+  .glass-btn-primary:active:not(:disabled) {
+    transform: translateY(0) scale(0.975);
+  }
 
-/* Jewel-Like Semantic Glass Badges */
-.glass-badge-paid {
-  background: var(--status-paid-bg);
-  border: 1px solid var(--status-paid-border);
-  color: var(--status-paid);
-  box-shadow: inset 0 1px 0 var(--glass-rim-top);
-}
+  /* Principle 3: Luminous Jade Crystal Active Pill (Dock Tab, Active Filter, Active Segment) */
+  .glass-pill-jade {
+    background: linear-gradient(
+      148deg,
+      rgba(22, 164, 122, 0.90) 0%,
+      rgba(14, 112, 82, 0.95) 54%,
+      rgba(9, 86, 63, 0.97) 100%
+    );
+    color: #FFFFFF;
+    box-shadow: var(--glass-pill-jade-shadow);
+    -webkit-backdrop-filter: blur(14px) saturate(190%);
+    backdrop-filter: blur(14px) saturate(190%);
+    transition:
+      transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 160ms ease,
+      filter 150ms ease;
+  }
 
-.glass-badge-debt {
-  background: var(--status-debt-bg);
-  border: 1px solid var(--status-debt-border);
-  color: var(--status-debt);
-  box-shadow: inset 0 1px 0 var(--glass-rim-top);
-}
+  .glass-pill-jade::before {
+    background: var(--glass-bevel-rim-cta);
+  }
 
-.glass-badge-overdue {
-  background: var(--status-overdue-bg);
-  border: 1px solid var(--status-overdue-border);
-  color: var(--status-overdue);
-  box-shadow: inset 0 1px 0 var(--glass-rim-top);
-}
+  :root[data-theme="dark"] .glass-pill-jade {
+    background: linear-gradient(
+      148deg,
+      rgba(32, 188, 142, 0.88) 0%,
+      rgba(18, 138, 102, 0.94) 54%,
+      rgba(11, 98, 72, 0.97) 100%
+    );
+  }
 
-.glass-badge-neutral {
-  background: var(--bg-subtle);
-  border: 1px solid var(--glass-border-subtle);
-  color: var(--text-secondary);
-  box-shadow: inset 0 1px 0 var(--glass-rim-top);
-}
+  /* 3D Convex Frosted Secondary Button */
+  .glass-btn-secondary {
+    background: var(--glass-btn-sec-bg);
+    color: var(--text-primary);
+    box-shadow: var(--glass-btn-sec-shadow);
+    -webkit-backdrop-filter: blur(16px) saturate(185%);
+    backdrop-filter: blur(16px) saturate(185%);
+    transition:
+      transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 160ms ease,
+      background 150ms ease;
+  }
 
-.glass-table-head {
-  background: var(--glass-table-head-bg);
-  -webkit-backdrop-filter: blur(16px) saturate(165%);
-  backdrop-filter: blur(16px) saturate(165%);
-  border-bottom: 1px solid var(--glass-border-subtle);
-}
+  .glass-btn-secondary:hover:not(:disabled) {
+    background: var(--glass-btn-sec-hover-bg);
+    transform: translateY(-1px);
+  }
 
-.glass-divider {
-  border-color: var(--glass-border-subtle);
-}
+  .glass-btn-secondary:active:not(:disabled) {
+    transform: translateY(0) scale(0.975);
+  }
 
-.glass-icon-orb {
-  background: var(--glass-chip-active-bg);
-  border: 1px solid var(--status-paid-border);
-  box-shadow:
-    0 8px 20px -8px var(--brand-jade-glow),
-    inset 0 1.5px 0 var(--glass-rim-top);
+  /* 3D Convex Crimson Danger Button + Caustic Glow */
+  .glass-btn-danger {
+    background: linear-gradient(
+      148deg,
+      rgba(232, 56, 56, 0.92) 0%,
+      rgba(185, 28, 28, 0.96) 100%
+    );
+    color: #FFFFFF;
+    box-shadow:
+      0 12px 26px -6px rgba(185, 28, 28, 0.50),
+      0 4px 10px -2px rgba(220, 38, 38, 0.30),
+      inset 0 2px 3px rgba(255, 255, 255, 0.40),
+      inset 0 -2px 4px rgba(110, 12, 12, 0.36);
+    transition:
+      transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 150ms ease;
+  }
+
+  .glass-btn-danger::before {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.66) 0%,
+      rgba(254, 202, 202, 0.24) 40%,
+      rgba(127, 29, 29, 0.24) 70%,
+      rgba(254, 202, 202, 0.44) 100%
+    );
+  }
+
+  .glass-btn-danger:hover:not(:disabled) {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+  }
+
+  .glass-btn-danger:active:not(:disabled) {
+    transform: translateY(0) scale(0.975);
+  }
+
+  /* Tactile Crystal Chips & Luminous Jade Active Chips (Safe for nested text across routes) */
+  .glass-chip {
+    background: var(--glass-chip-bg);
+    color: var(--text-secondary);
+    box-shadow:
+      0 6px 14px -6px rgba(9, 54, 40, 0.14),
+      inset 0 1.5px 2px var(--glass-rim-top),
+      inset 0 -1.5px 3px var(--glass-rim-bottom);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(16px) saturate(180%);
+    transition:
+      transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
+      background 150ms ease,
+      color 150ms ease,
+      box-shadow 160ms ease;
+  }
+
+  .glass-chip:hover:not(:disabled) {
+    color: var(--text-primary);
+    transform: translateY(-1px);
+  }
+
+  .glass-chip-active {
+    background: var(--glass-chip-active-bg);
+    color: var(--brand-jade-text);
+    box-shadow:
+      0 8px 20px -6px var(--brand-jade-glow),
+      inset 0 1.5px 2px var(--glass-rim-top),
+      inset 0 -1.5px 3px rgba(14, 107, 78, 0.10);
+    -webkit-backdrop-filter: blur(16px) saturate(190%);
+    backdrop-filter: blur(16px) saturate(190%);
+  }
+
+  .glass-chip-active::before {
+    background: var(--glass-bevel-rim-jade);
+  }
+
+  /* Jewel-Like Semantic Crystal Badges */
+  .glass-badge-paid {
+    background: var(--status-paid-bg);
+    border: 1px solid var(--status-paid-border);
+    color: var(--status-paid);
+    box-shadow:
+      0 4px 12px -5px rgba(14, 134, 98, 0.22),
+      inset 0 1px 0 var(--glass-rim-top);
+  }
+
+  .glass-badge-debt {
+    background: var(--status-debt-bg);
+    border: 1px solid var(--status-debt-border);
+    color: var(--status-debt);
+    box-shadow:
+      0 4px 12px -5px rgba(217, 119, 6, 0.20),
+      inset 0 1px 0 var(--glass-rim-top);
+  }
+
+  .glass-badge-overdue {
+    background: var(--status-overdue-bg);
+    border: 1px solid var(--status-overdue-border);
+    color: var(--status-overdue);
+    box-shadow:
+      0 4px 12px -5px rgba(220, 38, 38, 0.22),
+      inset 0 1px 0 var(--glass-rim-top);
+  }
+
+  .glass-badge-neutral {
+    background: var(--glass-chip-bg);
+    border: 1px solid var(--glass-border-subtle);
+    color: var(--text-secondary);
+    box-shadow: inset 0 1px 0 var(--glass-rim-top);
+  }
+
+  .glass-table-head {
+    background: var(--glass-table-head-bg);
+    -webkit-backdrop-filter: blur(18px) saturate(175%);
+    backdrop-filter: blur(18px) saturate(175%);
+    border-bottom: 1px solid var(--glass-border-subtle);
+  }
+
+  .glass-divider {
+    border-color: var(--glass-border-subtle);
+  }
+
+  .glass-icon-orb {
+    background: var(--glass-chip-active-bg);
+    box-shadow:
+      0 8px 20px -6px var(--brand-jade-glow),
+      inset 0 1.5px 2px var(--glass-rim-top),
+      inset 0 -2px 4px rgba(14, 107, 78, 0.10);
+  }
+
+  .glass-icon-orb::before {
+    background: var(--glass-bevel-rim-jade);
+  }
 }
 
 @media (prefers-reduced-transparency: reduce) {
@@ -551,9 +948,19 @@ body::after {
   .glass-modal-footer,
   .glass-table-head {
     background: var(--bg-surface);
-    border-color: var(--border-default);
+    border: 1px solid var(--border-default);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+  }
+
+  .glass-dock::before,
+  .glass-surface::before,
+  .glass-panel::before,
+  .glass-card::before,
+  .glass-modal::before,
+  .glass-btn-secondary::before,
+  .glass-chip::before {
+    display: none;
   }
 
   .glass-backdrop {
@@ -563,10 +970,11 @@ body::after {
 
   .glass-well,
   .glass-input,
+  .glass-solid-control,
   .glass-chip,
   .glass-btn-secondary {
     background: var(--bg-surface);
-    border-color: var(--border-default);
+    border: 1px solid var(--border-default);
   }
 }
 
@@ -657,9 +1065,11 @@ body::after {
   }
 }
 
+/* Principle 4: Số tiền, số lượng & SĐT dùng Be Vietnam Pro + tabular-nums căn cột sắc nét */
 .font-mono-tabular {
-  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
 .scrollbar-none {
@@ -812,7 +1222,8 @@ body::after {
   .glass-btn-secondary:hover:not(:disabled),
   .glass-btn-secondary:active:not(:disabled),
   .glass-btn-danger:hover:not(:disabled),
-  .glass-btn-danger:active:not(:disabled) {
+  .glass-btn-danger:active:not(:disabled),
+  .glass-chip:hover:not(:disabled) {
     transform: none !important;
   }
 

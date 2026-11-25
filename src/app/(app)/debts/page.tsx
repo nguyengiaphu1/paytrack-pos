@@ -102,7 +102,7 @@ function DebtsContent() {
   return (
     <div className="mx-auto max-w-[1160px] px-3 py-4 sm:px-6 lg:py-5">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h1 className="text-[20px] font-bold tracking-[-0.015em] text-[var(--text-primary)] lg:text-[24px]">
+        <h1 className="text-[22px] font-bold tracking-[-0.015em] text-[var(--text-primary)] lg:text-[24px]">
           Công nợ
         </h1>
         {!loading && !customersError && summary.totalShopDebt > 0 && (
@@ -194,16 +194,16 @@ function DebtsContent() {
           </div>
 
           {/* Floating Frosted Search & Filter Bar */}
-          <div className="glass-surface mb-4 flex flex-col gap-3 rounded-[22px] p-3.5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="glass-surface mb-4 flex flex-col gap-3 rounded-[24px] p-3.5 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative flex-1 sm:max-w-[380px]">
-              <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
+              <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
               <input
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Tìm tên, SĐT, địa chỉ..."
                 aria-label="Tìm khách công nợ"
-                className="glass-input min-h-[46px] w-full rounded-[14px] pr-3.5 pl-10 text-[16px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-secondary)]"
+                className="glass-input min-h-[46px] w-full rounded-full pr-4 pl-10 text-[16px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-secondary)]"
               />
             </div>
 
@@ -227,11 +227,11 @@ function DebtsContent() {
                     aria-pressed={active}
                     onClick={() => setFilter(key)}
                     className={`press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-[13px] ${
-                      active ? 'glass-chip-active font-bold' : 'glass-chip font-semibold'
+                      active ? 'glass-pill-jade font-bold' : 'glass-chip font-semibold'
                     }`}
                   >
                     <span>{label}</span>
-                    <span className="font-mono-tabular text-[12px] opacity-80">({count})</span>
+                    <span className="font-mono-tabular text-[12px] opacity-90">({count})</span>
                   </button>
                 );
               })}
@@ -259,7 +259,7 @@ function DebtsContent() {
                       setQuery('');
                       setFilter('all');
                     }}
-                    className="glass-btn-secondary press-tactile inline-flex min-h-[48px] items-center gap-2 rounded-full px-5 text-[14px] font-semibold"
+                    className="glass-solid-control press-tactile inline-flex min-h-[48px] items-center gap-2 rounded-full px-5 text-[14px] font-semibold text-[var(--text-primary)]"
                   >
                     <Users className="h-4 w-4 text-[var(--brand-jade-text)]" />
                     <span>Xem tất cả</span>
@@ -292,7 +292,7 @@ function DebtsContent() {
                       setOpenCollectDirectly(false);
                       setSelectedCustomerId(cust.id);
                     }}
-                    className="glass-card glass-card-interactive cursor-pointer rounded-[20px] p-4"
+                    className="glass-card glass-card-interactive cursor-pointer rounded-[22px] p-4"
                   >
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div className="min-w-0 flex-1">
@@ -377,7 +377,7 @@ function DebtsContent() {
                               setOpenCollectDirectly(false);
                               setSelectedCustomerId(cust.id);
                             }}
-                            className="glass-btn-secondary press-tactile inline-flex min-h-[44px] items-center gap-1 rounded-full px-3.5 text-[13px] font-semibold"
+                            className="glass-solid-control press-tactile inline-flex min-h-[44px] items-center gap-1 rounded-full px-3.5 text-[13px] font-semibold text-[var(--text-primary)]"
                           >
                             <span>Chi tiết</span>
                             <ChevronRight className="h-4 w-4 shrink-0 text-[var(--text-secondary)]" />

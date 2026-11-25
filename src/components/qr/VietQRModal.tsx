@@ -268,11 +268,11 @@ function VietQRModalBody({
       open
       onClose={onClose}
       ariaLabelledBy="vietqr-modal-title"
-      panelClassName="animate-sheet-up sm:animate-modal-in glass-modal max-h-[92dvh] w-full max-w-[468px] overflow-y-auto rounded-t-[26px] sm:rounded-[26px]"
+      panelClassName="animate-sheet-up sm:animate-modal-in glass-modal max-h-[92dvh] w-full max-w-[468px] overflow-y-auto rounded-t-[28px] sm:rounded-[28px]"
     >
       <div className="glass-modal-header sticky top-0 z-10 flex items-center justify-between gap-2 px-4 py-3.5 sm:px-5">
         <div className="flex min-w-0 flex-1 items-center gap-2.5">
-          <span className="glass-icon-orb flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] text-[var(--brand-jade-text)]">
+          <span className="glass-icon-orb flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] text-[var(--brand-jade-text)]">
             <QrCode className="h-4.5 w-4.5 shrink-0" />
           </span>
           <h2
@@ -286,7 +286,7 @@ function VietQRModalBody({
             type="button"
             onClick={onClose}
             aria-label="Đóng"
-            className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
             <X className="h-5 w-5" />
           </button>
@@ -325,8 +325,8 @@ function VietQRModalBody({
                     onClick={() => setMode('total_debt')}
                     className={`press-tactile min-h-[44px] truncate rounded-full px-1.5 text-[12px] font-semibold transition-all disabled:opacity-40 sm:px-2 sm:text-[13px] ${
                       mode === 'total_debt'
-                        ? 'glass-chip-active'
-                        : 'border border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                        ? 'glass-pill-jade'
+                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                   >
                     Tổng nợ
@@ -338,8 +338,8 @@ function VietQRModalBody({
                     onClick={() => setMode('single_order')}
                     className={`press-tactile min-h-[44px] truncate rounded-full px-1.5 text-[12px] font-semibold transition-all disabled:opacity-40 sm:px-2 sm:text-[13px] ${
                       mode === 'single_order'
-                        ? 'glass-chip-active'
-                        : 'border border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                        ? 'glass-pill-jade'
+                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                   >
                     Theo đơn
@@ -353,8 +353,8 @@ function VietQRModalBody({
                     }}
                     className={`press-tactile min-h-[44px] truncate rounded-full px-1.5 text-[12px] font-semibold transition-all sm:px-2 sm:text-[13px] ${
                       mode === 'custom'
-                        ? 'glass-chip-active'
-                        : 'border border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                        ? 'glass-pill-jade'
+                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                   >
                     Sửa tiền
@@ -482,7 +482,7 @@ function VietQRModalBody({
                   type="button"
                   disabled={!qrDataUrl || exporting}
                   onClick={handleDownloadPng}
-                  className="glass-btn-secondary press-tactile flex min-h-[48px] items-center justify-center gap-2 rounded-full px-3 text-[14px] font-semibold disabled:opacity-50"
+                  className="glass-solid-control press-tactile flex min-h-[48px] items-center justify-center gap-2 rounded-full px-3 text-[14px] font-semibold text-[var(--text-primary)] disabled:opacity-50"
                 >
                   {downloadedPng ? (
                     <>
@@ -491,7 +491,7 @@ function VietQRModalBody({
                     </>
                   ) : (
                     <>
-                      <Download className="h-4 w-4" />
+                      <Download className="h-4 w-4 text-[var(--brand-jade-text)]" />
                       <span>{exporting ? 'Đang xuất ảnh...' : 'Tải ảnh QR'}</span>
                     </>
                   )}
@@ -511,7 +511,7 @@ function VietQRModalBody({
                 type="button"
                 disabled={effectiveAmount <= 0}
                 onClick={handleCopyZalo}
-                className="glass-btn-secondary press-tactile flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full px-4 text-[14px] font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+                className="glass-solid-control press-tactile flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full px-4 text-[14px] font-semibold text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {copiedZalo ? (
                   <>

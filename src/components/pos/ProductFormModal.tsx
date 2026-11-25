@@ -137,7 +137,7 @@ function ProductFormModalBody({
       onClose={onClose}
       ariaLabelledBy="product-form-modal-title"
       backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
-      panelClassName="animate-sheet-up sm:animate-modal-in glass-modal flex max-h-[92dvh] w-full max-w-[460px] flex-col overflow-hidden rounded-t-[26px] sm:rounded-[26px]"
+      panelClassName="animate-sheet-up sm:animate-modal-in glass-modal flex max-h-[92dvh] w-full max-w-[460px] flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px]"
     >
       <div className="glass-modal-header flex shrink-0 items-center justify-between gap-2 px-5 py-3.5">
         <h2
@@ -150,7 +150,7 @@ function ProductFormModalBody({
           type="button"
           onClick={onClose}
           aria-label="Đóng"
-          className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
           <X className="h-5 w-5" />
         </button>
@@ -281,7 +281,7 @@ function ProductFormModalBody({
               type="button"
               disabled={saving}
               onClick={handleArchive}
-              className="glass-btn-secondary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-4 text-[14px] font-semibold text-[var(--text-secondary)] disabled:opacity-60"
+              className="glass-solid-control press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-4 text-[14px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-60"
             >
               <Archive className="h-4 w-4" />
               <span>{product.is_active ? 'Ẩn món' : 'Hiện lại'}</span>

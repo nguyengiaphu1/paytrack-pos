@@ -34,9 +34,9 @@ export function ThemeQuickToggle({
         onClick={cyclePreference}
         aria-label={`Giao diện: ${label}`}
         title={`Giao diện: ${label}`}
-        className="glass-btn-secondary press-tactile flex h-[44px] w-[44px] items-center justify-center rounded-full text-[var(--text-secondary)] transition-all hover:text-[var(--text-primary)] lg:h-[46px] lg:w-[46px]"
+        className="glass-solid-control press-tactile flex h-[44px] w-[44px] items-center justify-center rounded-full text-[var(--brand-jade-text)] transition-all hover:opacity-95"
       >
-        <Icon className="h-[18px] w-[18px] text-[var(--brand-jade-text)]" />
+        <Icon className="h-[18px] w-[18px]" />
       </button>
     );
   }
@@ -47,7 +47,7 @@ export function ThemeQuickToggle({
       onClick={cyclePreference}
       aria-label={`Đổi giao diện: ${label}`}
       title={`Giao diện: ${label}`}
-      className="glass-btn-secondary press-tactile inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-4 text-[13px] font-semibold text-[var(--text-primary)]"
+      className="glass-solid-control press-tactile inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-4 text-[13px] font-semibold text-[var(--text-primary)]"
     >
       <Icon className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
       <span>{compact ? label : `Giao diện: ${label}`}</span>
@@ -80,7 +80,7 @@ export function SettingsThemeSelector() {
         Giao diện
       </h2>
 
-      <div className="glass-well grid grid-cols-3 gap-2 rounded-[18px] p-1.5">
+      <div className="glass-well grid grid-cols-3 gap-1.5 rounded-full p-1.5">
         {THEME_OPTIONS.map((opt) => {
           const Icon = opt.icon;
           const active = preference === opt.value;
@@ -90,10 +90,10 @@ export function SettingsThemeSelector() {
               type="button"
               onClick={() => setPreference(opt.value)}
               aria-pressed={active}
-              className={`press-tactile flex min-h-[48px] items-center justify-center gap-2 rounded-[14px] px-2 text-[14px] font-semibold transition-all ${
+              className={`press-tactile flex min-h-[46px] items-center justify-center gap-2 rounded-full px-2 text-[14px] font-semibold transition-all ${
                 active
-                  ? 'glass-chip-active'
-                  : 'border border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
+                  ? 'glass-pill-jade'
+                  : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
               <Icon className="h-4 w-4 shrink-0" />

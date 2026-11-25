@@ -36,3 +36,5 @@ Thumbs.db
 !.impeccable/critique/ignore.md
 .impeccable/audit/
 .impeccable/tmp/
+.taste/
+.taste-skill/

@@ -38,7 +38,7 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-[720px] px-3 py-4 sm:px-6 lg:py-5">
       <div className="mb-4">
-        <h1 className="text-[20px] font-bold tracking-[-0.015em] text-[var(--text-primary)] lg:text-[24px]">
+        <h1 className="text-[22px] font-bold tracking-[-0.02em] text-[var(--text-primary)] lg:text-[24px]">
           Cài đặt
         </h1>
       </div>
@@ -416,7 +416,7 @@ function SettingsFormBody({
       <SettingsThemeSelector />
 
       {/* 4. Tài khoản */}
-      <section className="glass-panel flex flex-wrap items-center justify-between gap-3 rounded-[24px] p-4 sm:p-5">
+      <section className="glass-panel flex flex-wrap items-center justify-between gap-3 rounded-[26px] p-4 sm:p-5">
         <div className="min-w-0 flex-1">
           <h2 className="text-[15px] font-bold text-[var(--text-primary)]">Tài khoản</h2>
           {userEmail && (
@@ -429,7 +429,7 @@ function SettingsFormBody({
           <button
             type="button"
             onClick={openOnboarding}
-            className="glass-btn-secondary press-tactile flex min-h-[46px] shrink-0 items-center gap-2 rounded-full px-4 text-[14px] font-semibold"
+            className="glass-solid-control press-tactile flex min-h-[46px] shrink-0 items-center gap-2 rounded-full px-4 text-[14px] font-semibold text-[var(--text-primary)]"
           >
             <BookOpen className="h-4 w-4 text-[var(--brand-jade-text)]" />
             <span>Thiết lập nhanh</span>

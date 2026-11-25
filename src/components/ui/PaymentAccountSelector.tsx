@@ -66,7 +66,7 @@ export function PaymentAccountSelector({
         onClick={() => selectAccount(acc)}
         className={`press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] transition-all ${
           active
-            ? 'glass-chip-active font-semibold'
+            ? 'glass-pill-jade font-semibold'
             : 'glass-chip font-medium text-[var(--text-primary)]'
         }`}
       >
