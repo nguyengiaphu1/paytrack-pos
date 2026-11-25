@@ -35,7 +35,7 @@ export function RevenueCashChart({ data }: RevenueCashChartProps) {
   }));
 
   return (
-    <section className="glass-panel rounded-[24px] p-4 sm:p-5">
+    <section className="glass-panel rounded-[26px] p-4 sm:p-5">
       <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-[16px] font-bold text-[var(--text-primary)]">
           Doanh thu &amp; Thực thu theo ngày
@@ -46,11 +46,11 @@ export function RevenueCashChart({ data }: RevenueCashChartProps) {
       </div>
 
       {chartData.length === 0 ? (
-        <div className="glass-well flex h-[240px] items-center justify-center rounded-[18px] text-[14px] text-[var(--text-secondary)]">
+        <div className="glass-well flex h-[240px] items-center justify-center rounded-[20px] text-[14px] text-[var(--text-secondary)]">
           Chưa có dữ liệu.
         </div>
       ) : (
-        <div className="glass-well rounded-[18px] p-2.5 sm:p-3.5">
+        <div className="glass-well rounded-[20px] p-2.5 sm:p-3.5">
           <div className="h-[260px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
@@ -61,7 +61,11 @@ export function RevenueCashChart({ data }: RevenueCashChartProps) {
                 />
                 <XAxis
                   dataKey="label"
-                  tick={{ fontSize: 12, fill: 'var(--text-secondary)' }}
+                  tick={{
+                    fontSize: 12,
+                    fill: 'var(--text-secondary)',
+                    fontFamily: 'var(--font-sans), system-ui, sans-serif',
+                  }}
                   axisLine={{ stroke: 'var(--glass-border-subtle)' }}
                   tickLine={false}
                 />
@@ -73,7 +77,11 @@ export function RevenueCashChart({ data }: RevenueCashChartProps) {
                         ? `${Math.round(val / 1_000)}k`
                         : String(val)
                   }
-                  tick={{ fontSize: 12, fill: 'var(--text-secondary)' }}
+                  tick={{
+                    fontSize: 12,
+                    fill: 'var(--text-secondary)',
+                    fontFamily: 'var(--font-sans), system-ui, sans-serif',
+                  }}
                   axisLine={false}
                   tickLine={false}
                   width={48}
@@ -92,20 +100,25 @@ export function RevenueCashChart({ data }: RevenueCashChartProps) {
                   contentStyle={{
                     backgroundColor: 'var(--bg-surface)',
                     border: '1px solid var(--glass-border)',
-                    boxShadow: 'var(--glass-card-shadow)',
+                    boxShadow: 'var(--glass-panel-shadow)',
                     color: 'var(--text-primary)',
-                    borderRadius: '14px',
+                    borderRadius: '16px',
                     padding: '10px 14px',
-                    fontFamily: 'var(--font-mono), monospace',
+                    fontFamily: 'var(--font-sans), system-ui, sans-serif',
+                    fontVariantNumeric: 'tabular-nums',
                     fontSize: '13px',
                   }}
                 />
                 <Legend
                   formatter={(value) => (value === 'revenue' ? 'Doanh thu' : 'Thực thu')}
-                  wrapperStyle={{ fontSize: '13px', color: 'var(--text-primary)', paddingTop: '6px' }}
+                  wrapperStyle={{
+                    fontSize: '13px',
+                    color: 'var(--text-primary)',
+                    paddingTop: '6px',
+                  }}
                 />
-                <Bar dataKey="revenue" fill="var(--brand-jade)" radius={[6, 6, 0, 0]} maxBarSize={28} />
-                <Bar dataKey="collected" fill="var(--status-debt)" radius={[6, 6, 0, 0]} maxBarSize={28} />
+                <Bar dataKey="revenue" fill="var(--brand-jade)" radius={[8, 8, 0, 0]} maxBarSize={28} />
+                <Bar dataKey="collected" fill="var(--status-debt)" radius={[8, 8, 0, 0]} maxBarSize={28} />
               </BarChart>
             </ResponsiveContainer>
           </div>

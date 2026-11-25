@@ -363,7 +363,7 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
             type="button"
             disabled={busy}
             onClick={handleDisablePush}
-            className="glass-btn-secondary press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-[13px] font-semibold text-[var(--text-secondary)] disabled:opacity-60"
+            className="glass-solid-control press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-[13px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-60"
           >
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <BellOff className="h-4 w-4" />}
             <span>Tắt</span>
@@ -414,7 +414,7 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
             type="button"
             disabled={busy}
             onClick={handleDispatchDue}
-            className="glass-btn-secondary press-tactile min-h-[44px] shrink-0 rounded-full px-3.5 text-[12px] font-semibold text-[var(--status-debt)]"
+            className="glass-solid-control press-tactile min-h-[44px] shrink-0 rounded-full px-3.5 text-[12px] font-semibold text-[var(--status-debt)]"
           >
             Gửi ngay
           </button>
@@ -422,7 +422,7 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
       )}
 
       {/* Collapsible Technical Diagnostics (clean by default, full power on demand) */}
-      <details className="glass-well group rounded-[16px] px-3.5 py-2 text-[12px] text-[var(--text-secondary)]">
+      <details className="glass-well group rounded-[18px] px-3.5 py-2 text-[12px] text-[var(--text-secondary)]">
         <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-2 font-medium text-[var(--text-secondary)]">
           <span>
             Kiểm tra kết nối ({devices.length} máy
@@ -438,7 +438,7 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
                 type="button"
                 disabled={busy}
                 onClick={handleSendTest}
-                className="glass-btn-secondary press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[12px] font-semibold text-[var(--text-primary)] disabled:opacity-60"
+                className="glass-solid-control press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[12px] font-semibold text-[var(--text-primary)] disabled:opacity-60"
               >
                 <Send className="h-3.5 w-3.5 text-[var(--brand-jade-text)]" />
                 <span>Gửi thử</span>
@@ -447,7 +447,7 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
                 type="button"
                 disabled={busy}
                 onClick={handleDispatchDue}
-                className="glass-btn-secondary press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[12px] font-semibold text-[var(--text-primary)] disabled:opacity-60"
+                className="glass-solid-control press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[12px] font-semibold text-[var(--text-primary)] disabled:opacity-60"
               >
                 <Clock className="h-3.5 w-3.5 text-[var(--brand-jade-text)]" />
                 <span>Gửi lịch đến hạn</span>

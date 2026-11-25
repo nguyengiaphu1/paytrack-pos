@@ -131,7 +131,7 @@ export default function LoginPage() {
           </div>
 
           {mode !== 'forgot' && (
-            <div className="glass-well mb-5 grid grid-cols-2 gap-1.5 rounded-[18px] p-1.5">
+            <div className="glass-well mb-5 grid grid-cols-2 gap-1.5 rounded-full p-1.5">
               <button
                 type="button"
                 aria-pressed={mode === 'login'}
@@ -140,10 +140,10 @@ export default function LoginPage() {
                   setErrorMessage(null);
                   setSuccessMessage(null);
                 }}
-                className={`press-tactile min-h-[44px] rounded-[14px] px-3 text-[14px] font-semibold transition-all ${
+                className={`press-tactile min-h-[44px] rounded-full px-3 text-[14px] font-semibold transition-all ${
                   mode === 'login'
-                    ? 'glass-chip-active'
-                    : 'border border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
+                    ? 'glass-pill-jade'
+                    : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 Đăng nhập
@@ -156,10 +156,10 @@ export default function LoginPage() {
                   setErrorMessage(null);
                   setSuccessMessage(null);
                 }}
-                className={`press-tactile min-h-[44px] rounded-[14px] px-3 text-[14px] font-semibold transition-all ${
+                className={`press-tactile min-h-[44px] rounded-full px-3 text-[14px] font-semibold transition-all ${
                   mode === 'signup'
-                    ? 'glass-chip-active'
-                    : 'border border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
+                    ? 'glass-pill-jade'
+                    : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 Đăng ký
@@ -310,7 +310,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={googleLoading || loading}
-                className="glass-btn-secondary press-tactile flex min-h-[48px] w-full items-center justify-center gap-2.5 rounded-full px-5 text-[14px] font-semibold disabled:opacity-60"
+                className="glass-solid-control press-tactile flex min-h-[48px] w-full items-center justify-center gap-2.5 rounded-full px-5 text-[14px] font-semibold text-[var(--text-primary)] disabled:opacity-60"
               >
                 {googleLoading ? (
                   <Loader2 className="h-5 w-5 animate-spin text-[var(--brand-jade-text)]" />

@@ -99,7 +99,7 @@ function ReminderModalBody({
       onClose={onClose}
       ariaLabelledBy="reminder-modal-title"
       backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
-      panelClassName="animate-sheet-up sm:animate-modal-in glass-modal max-h-[92dvh] w-full max-w-[460px] overflow-y-auto rounded-t-[26px] sm:rounded-[26px]"
+      panelClassName="animate-sheet-up sm:animate-modal-in glass-modal max-h-[92dvh] w-full max-w-[460px] overflow-y-auto rounded-t-[28px] sm:rounded-[28px]"
     >
       <div className="glass-modal-header sticky top-0 z-10 flex items-center justify-between gap-2 px-4 py-3.5 sm:px-5">
         <div className="flex min-w-0 flex-1 items-center gap-2.5">
@@ -120,13 +120,16 @@ function ReminderModalBody({
           type="button"
           onClick={onClose}
           aria-label="Đóng"
-          className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4 p-4 sm:p-5">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4 p-4 pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))] sm:p-5 sm:pb-5"
+      >
         {error && (
           <div
             role="alert"
@@ -137,7 +140,7 @@ function ReminderModalBody({
         )}
 
         {/* Customer Debt Summary Well */}
-        <div className="glass-well flex flex-wrap items-center justify-between gap-2 rounded-[18px] px-3.5 py-3">
+        <div className="glass-well flex flex-wrap items-center justify-between gap-2 rounded-[20px] px-3.5 py-3">
           <div className="min-w-0">
             <p className="text-[12px] font-semibold text-[var(--text-secondary)]">
               Khoản cần nhắc
@@ -166,7 +169,7 @@ function ReminderModalBody({
                   aria-pressed={active}
                   onClick={() => setDate(preset.value)}
                   className={`press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] ${
-                    active ? 'glass-chip-active font-bold' : 'glass-chip font-semibold'
+                    active ? 'glass-pill-jade font-bold' : 'glass-chip font-semibold'
                   }`}
                 >
                   {preset.label}
@@ -226,7 +229,7 @@ function ReminderModalBody({
                   aria-pressed={active}
                   onClick={() => setTime(preset)}
                   className={`font-mono-tabular press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] ${
-                    active ? 'glass-chip-active font-bold' : 'glass-chip font-semibold'
+                    active ? 'glass-pill-jade font-bold' : 'glass-chip font-semibold'
                   }`}
                 >
                   {preset}

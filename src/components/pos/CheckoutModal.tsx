@@ -456,7 +456,7 @@ function CheckoutModalBody({
         onClose={onClose}
         ariaLabelledBy="checkout-modal-title"
         backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-40 flex items-end justify-center p-0 sm:items-center sm:p-4"
-        panelClassName="animate-sheet-up sm:animate-modal-in glass-modal flex max-h-[92dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[26px] sm:rounded-[26px]"
+        panelClassName="animate-sheet-up sm:animate-modal-in glass-modal flex max-h-[92dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px]"
       >
         <div className="glass-modal-header flex shrink-0 items-center justify-between gap-2 px-5 py-3.5">
           <h2
@@ -469,7 +469,7 @@ function CheckoutModalBody({
             type="button"
             onClick={onClose}
             aria-label="Đóng"
-            className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
             <X className="h-5 w-5" />
           </button>
@@ -477,7 +477,7 @@ function CheckoutModalBody({
 
           {savedOrder ? (
             <div className="flex-1 space-y-4 overflow-y-auto p-5 pb-[calc(20px+env(safe-area-inset-bottom))] sm:pb-5">
-              <div className="glass-card rounded-[22px] p-5 text-center">
+              <div className="glass-card glass-card-selected rounded-[22px] p-5 text-center">
                 <div className="glass-icon-orb mx-auto flex h-14 w-14 items-center justify-center rounded-[18px] text-[var(--brand-jade-text)]">
                   <CheckCircle2 className="h-7 w-7" />
                 </div>
@@ -528,7 +528,9 @@ function CheckoutModalBody({
                   type="button"
                   onClick={() => setInvoiceOpen(true)}
                   className={`press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-3 text-[13px] font-semibold sm:text-[14px] ${
-                    savedOrder.remaining_amount === 0 ? 'glass-btn-primary' : 'glass-btn-secondary'
+                    savedOrder.remaining_amount === 0
+                      ? 'glass-btn-primary'
+                      : 'glass-solid-control text-[var(--text-primary)]'
                   }`}
                 >
                   <ReceiptText
@@ -542,7 +544,9 @@ function CheckoutModalBody({
                   type="button"
                   onClick={() => setQrOpen(true)}
                   className={`press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-3 text-[13px] font-semibold sm:text-[14px] ${
-                    savedOrder.remaining_amount > 0 ? 'glass-btn-primary' : 'glass-btn-secondary'
+                    savedOrder.remaining_amount > 0
+                      ? 'glass-btn-primary'
+                      : 'glass-solid-control text-[var(--text-primary)]'
                   }`}
                 >
                   <QrCode
@@ -557,7 +561,7 @@ function CheckoutModalBody({
               <button
                 type="button"
                 onClick={onClose}
-                className="glass-btn-secondary press-tactile flex min-h-[48px] w-full items-center justify-center rounded-full text-[15px] font-semibold"
+                className="glass-solid-control press-tactile flex min-h-[48px] w-full items-center justify-center rounded-full text-[15px] font-semibold text-[var(--text-primary)]"
               >
                 Bán đơn mới
               </button>
@@ -578,7 +582,7 @@ function CheckoutModalBody({
                 )}
 
                 {/* Buyer Identity Verification Card + Inline Switcher */}
-                <div ref={buyerCardRef} className="glass-card rounded-[20px] p-3.5">
+                <div ref={buyerCardRef} className="glass-card rounded-[22px] p-3.5">
                   <div className="flex items-start justify-between gap-2.5">
                     <div className="flex min-w-0 flex-1 items-start gap-2.5">
                       <div className="glass-icon-orb mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] text-[var(--brand-jade-text)]">
@@ -625,7 +629,7 @@ function CheckoutModalBody({
                           ? focusBuyerSection('search')
                           : setPickerMode('closed')
                       }
-                      className="glass-btn-secondary press-tactile min-h-[44px] shrink-0 rounded-full px-3.5 text-[13px] font-semibold text-[var(--brand-jade-text)]"
+                      className="glass-solid-control press-tactile min-h-[44px] shrink-0 rounded-full px-3.5 text-[13px] font-semibold text-[var(--brand-jade-text)]"
                     >
                       {pickerMode !== 'closed'
                         ? 'Đóng'
@@ -928,7 +932,7 @@ function CheckoutModalBody({
                       }}
                       className={`press-tactile min-h-[48px] rounded-[16px] px-2.5 text-[13px] sm:px-3 sm:text-[14px] ${
                         choice === 'full_transfer'
-                          ? 'glass-chip-active font-bold'
+                          ? 'glass-pill-jade font-bold'
                           : 'glass-chip font-semibold text-[var(--text-primary)]'
                       }`}
                     >
@@ -943,7 +947,7 @@ function CheckoutModalBody({
                       }}
                       className={`press-tactile min-h-[48px] rounded-[16px] px-2.5 text-[13px] sm:px-3 sm:text-[14px] ${
                         choice === 'full_cash'
-                          ? 'glass-chip-active font-bold'
+                          ? 'glass-pill-jade font-bold'
                           : 'glass-chip font-semibold text-[var(--text-primary)]'
                       }`}
                     >
@@ -993,7 +997,7 @@ function CheckoutModalBody({
                       <button
                         type="button"
                         onClick={() => focusBuyerSection('search')}
-                        className="glass-btn-secondary press-tactile min-h-[44px] rounded-full px-3 text-[13px] font-bold text-[var(--status-debt)]"
+                        className="glass-solid-control press-tactile min-h-[44px] rounded-full px-3 text-[13px] font-bold text-[var(--status-debt)]"
                       >
                         Chọn khách
                       </button>
@@ -1015,7 +1019,7 @@ function CheckoutModalBody({
                       <button
                         type="button"
                         onClick={() => setShowChangeCalc(true)}
-                        className="glass-chip press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold text-[var(--brand-jade-text)]"
+                        className="glass-solid-control press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold text-[var(--brand-jade-text)]"
                       >
                         <Calculator className="h-4 w-4 shrink-0" />
                         <span>Tính tiền thối (nếu khách đưa dư)</span>
@@ -1098,7 +1102,7 @@ function CheckoutModalBody({
                               setPaidVnd(total);
                               setError(null);
                             }}
-                            className="glass-btn-secondary press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] font-bold"
+                            className="glass-solid-control press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] font-bold text-[var(--text-primary)]"
                           >
                             Tiền mặt đủ
                           </button>
@@ -1155,7 +1159,7 @@ function CheckoutModalBody({
                         </p>
                       )}
                     </div>
-                    <span className="glass-chip inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-1 text-[12px] font-semibold text-[var(--brand-jade-text)]">
+                    <span className="glass-solid-control inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-1 text-[12px] font-semibold text-[var(--brand-jade-text)]">
                       <span>{detailsExpanded ? 'Thu gọn' : 'Chỉnh sửa'}</span>
                       {detailsExpanded ? (
                         <ChevronUp className="h-3.5 w-3.5" />

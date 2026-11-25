@@ -215,7 +215,7 @@ function DebtCustomerDrawerBody({
         onClose={onClose}
         ariaLabelledBy="debt-customer-drawer-title"
         backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-40 flex items-end justify-end p-0 sm:items-stretch"
-        panelClassName="animate-sheet-up sm:animate-drawer-in glass-modal max-h-[93dvh] w-full overflow-y-auto rounded-t-[26px] sm:h-full sm:max-h-dvh sm:max-w-[520px] sm:rounded-l-[28px] sm:rounded-tr-none"
+        panelClassName="animate-sheet-up sm:animate-drawer-in glass-modal max-h-[93dvh] w-full overflow-y-auto rounded-t-[28px] sm:h-full sm:max-h-dvh sm:max-w-[520px] sm:rounded-l-[28px] sm:rounded-tr-none"
       >
         <div className="glass-modal-header sticky top-0 z-10 flex items-start justify-between gap-2 px-4 py-3.5 sm:px-5">
           <div className="min-w-0 flex-1">
@@ -240,7 +240,9 @@ function DebtCustomerDrawerBody({
                 aria-label="Sửa thông tin khách"
                 aria-pressed={editingInfo}
                 className={`press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
-                  editingInfo ? 'glass-chip-active' : 'glass-btn-secondary text-[var(--text-secondary)]'
+                  editingInfo
+                    ? 'glass-pill-jade'
+                    : 'glass-solid-control text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 <Pencil className="h-4 w-4" />
@@ -267,17 +269,17 @@ function DebtCustomerDrawerBody({
             type="button"
             onClick={onClose}
             aria-label="Đóng"
-            className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="space-y-4 p-4 sm:p-5">
+        <div className="space-y-4 p-4 pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))] sm:p-5 sm:pb-5">
           {editingInfo && (
             <form
               onSubmit={handleSaveInfo}
-              className="glass-well animate-fade-in space-y-2.5 rounded-[20px] p-4"
+              className="glass-well animate-fade-in space-y-2.5 rounded-[22px] p-4"
             >
               <p className="text-[14px] font-bold text-[var(--text-primary)]">
                 Sửa thông tin khách
@@ -319,7 +321,7 @@ function DebtCustomerDrawerBody({
                 <button
                   type="button"
                   onClick={() => setEditingInfo(false)}
-                  className="glass-btn-secondary press-tactile min-h-[44px] rounded-full px-4 text-[13px] font-semibold"
+                  className="glass-solid-control press-tactile min-h-[44px] rounded-full px-4 text-[13px] font-semibold text-[var(--text-primary)]"
                 >
                   Hủy
                 </button>
@@ -340,14 +342,14 @@ function DebtCustomerDrawerBody({
           )}
 
           {customer.note && !editingInfo && (
-            <div className="glass-well break-words rounded-[16px] px-3.5 py-2.5 text-[13px] text-[var(--text-secondary)]">
+            <div className="glass-well break-words rounded-[18px] px-3.5 py-2.5 text-[13px] text-[var(--text-secondary)]">
               <span className="font-semibold text-[var(--text-primary)]">Ghi chú:</span>{' '}
               {customer.note}
             </div>
           )}
 
           {/* Prominent Debt Balance Well & Action Grid */}
-          <div className="glass-well rounded-[20px] p-4">
+          <div className="glass-well rounded-[22px] p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-[13px] font-semibold text-[var(--text-secondary)]">
                 Đang nợ
@@ -397,7 +399,7 @@ function DebtCustomerDrawerBody({
                       setCollectOrderId(null);
                       setCollectOpen(true);
                     }}
-                    className="glass-btn-primary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-[14px] px-2.5 text-[14px] font-semibold"
+                    className="glass-btn-primary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2.5 text-[14px] font-semibold"
                   >
                     <Banknote className="h-4 w-4 shrink-0" />
                     <span className="truncate">Thu nợ</span>
@@ -405,7 +407,7 @@ function DebtCustomerDrawerBody({
                   <button
                     type="button"
                     onClick={() => setQrOpen(true)}
-                    className="glass-btn-secondary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-[14px] px-2.5 text-[14px] font-semibold text-[var(--brand-jade-text)]"
+                    className="glass-solid-control press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2.5 text-[14px] font-semibold text-[var(--brand-jade-text)]"
                   >
                     <QrCode className="h-4 w-4 shrink-0" />
                     <span className="truncate">Tạo QR</span>
@@ -413,7 +415,7 @@ function DebtCustomerDrawerBody({
                   <button
                     type="button"
                     onClick={() => setReminderOpen(true)}
-                    className="glass-btn-secondary press-tactile col-span-2 flex min-h-[48px] items-center justify-center gap-1.5 rounded-[14px] px-2.5 text-[14px] font-semibold sm:col-span-1"
+                    className="glass-solid-control press-tactile col-span-2 flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2.5 text-[14px] font-semibold text-[var(--text-primary)] sm:col-span-1"
                   >
                     <BellPlus className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
                     <span className="truncate">Nhắc nợ</span>
@@ -424,7 +426,7 @@ function DebtCustomerDrawerBody({
                   type="button"
                   onClick={() => void handleCopyZaloMessage()}
                   className={`press-tactile mt-2.5 flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-full px-4 text-[13px] font-semibold ${
-                    copiedZalo ? 'glass-chip-active' : 'glass-btn-secondary'
+                    copiedZalo ? 'glass-pill-jade' : 'glass-solid-control text-[var(--text-primary)]'
                   }`}
                 >
                   {copiedZalo ? (
@@ -440,11 +442,11 @@ function DebtCustomerDrawerBody({
 
           {loading ? (
             <div aria-busy="true" aria-label="Đang tải chi tiết công nợ" className="space-y-3">
-              <div className="glass-well rounded-[16px] p-4">
+              <div className="glass-well rounded-[18px] p-4">
                 <div className="skeleton-shimmer h-4 w-32 rounded-[10px]" />
                 <div className="skeleton-shimmer mt-2.5 h-12 w-full rounded-[12px]" />
               </div>
-              <div className="glass-well rounded-[16px] p-4">
+              <div className="glass-well rounded-[18px] p-4">
                 <div className="skeleton-shimmer h-4 w-28 rounded-[10px]" />
                 <div className="skeleton-shimmer mt-2.5 h-12 w-full rounded-[12px]" />
               </div>
@@ -461,7 +463,7 @@ function DebtCustomerDrawerBody({
                       {reminders.length}
                     </span>
                   </div>
-                  <div className="glass-well divide-y divide-[var(--glass-border-subtle)] rounded-[16px]">
+                  <div className="glass-well divide-y divide-[var(--glass-border-subtle)] rounded-[18px]">
                     {reminders.map((rem) => (
                       <div
                         key={rem.id}
@@ -481,7 +483,7 @@ function DebtCustomerDrawerBody({
                           type="button"
                           onClick={() => handleDismissReminder(rem.id)}
                           aria-label="Xóa lịch nhắc"
-                          className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--status-overdue)]"
+                          className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--status-overdue)]"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -505,11 +507,11 @@ function DebtCustomerDrawerBody({
                   </span>
                 </div>
                 {unpaidOrders.length === 0 ? (
-                  <p className="glass-well rounded-[16px] p-4 text-[13px] text-[var(--text-secondary)]">
+                  <p className="glass-well rounded-[18px] p-4 text-[13px] text-[var(--text-secondary)]">
                     Không còn đơn nợ.
                   </p>
                 ) : (
-                  <div className="glass-well divide-y divide-[var(--glass-border-subtle)] rounded-[16px]">
+                  <div className="glass-well divide-y divide-[var(--glass-border-subtle)] rounded-[18px]">
                     {unpaidOrders.map((ord) => (
                       <div
                         key={ord.id}
@@ -534,7 +536,7 @@ function DebtCustomerDrawerBody({
                               setCollectOrderId(ord.id);
                               setCollectOpen(true);
                             }}
-                            className="glass-btn-secondary press-tactile min-h-[44px] shrink-0 rounded-full px-3.5 text-[12px] font-semibold text-[var(--brand-jade-text)]"
+                            className="glass-pill-jade press-tactile min-h-[44px] shrink-0 rounded-full px-3.5 text-[12px] font-semibold"
                           >
                             Thu đơn này
                           </button>
@@ -555,11 +557,11 @@ function DebtCustomerDrawerBody({
                   </span>
                 </div>
                 {payments.length === 0 ? (
-                  <p className="glass-well rounded-[16px] p-4 text-[13px] text-[var(--text-secondary)]">
+                  <p className="glass-well rounded-[18px] p-4 text-[13px] text-[var(--text-secondary)]">
                     Chưa có đợt thu nào.
                   </p>
                 ) : (
-                  <div className="glass-well divide-y divide-[var(--glass-border-subtle)] rounded-[16px]">
+                  <div className="glass-well divide-y divide-[var(--glass-border-subtle)] rounded-[18px]">
                     {payments.map((pay) => (
                       <div
                         key={pay.id}
