@@ -15,7 +15,7 @@ export function PaymentBreakdownChart({ breakdown }: PaymentBreakdownChartProps)
 
   const rows = [
     { label: 'Tiền mặt', amount: breakdown.cash, color: 'var(--brand-jade)' },
-    { label: 'Chuyển khoản', amount: breakdown.transfer, color: 'var(--status-paid)' },
+    { label: 'Chuyển khoản', amount: breakdown.transfer, color: 'var(--chart-transfer)' },
     { label: 'Ghi nợ', amount: breakdown.debt, color: 'var(--status-debt)' },
   ];
 
@@ -33,7 +33,7 @@ export function PaymentBreakdownChart({ breakdown }: PaymentBreakdownChartProps)
       </div>
 
       {/* Stacked proportion strip inside recessed glass well */}
-      <div className="glass-well mb-4 flex h-4 w-full overflow-hidden rounded-full p-0.5">
+      <div className="glass-well mb-4 flex h-4 w-full gap-0.5 overflow-hidden rounded-full p-0.5">
         {total > 0 &&
           rows.map((r) => {
             const pct = (r.amount / total) * 100;
@@ -41,7 +41,7 @@ export function PaymentBreakdownChart({ breakdown }: PaymentBreakdownChartProps)
             return (
               <div
                 key={r.label}
-                className="h-full first:rounded-l-full last:rounded-r-full"
+                className="h-full rounded-full"
                 style={{ width: `${pct}%`, backgroundColor: r.color }}
                 title={`${r.label}: ${formatVND(r.amount)}`}
               />

@@ -20,9 +20,16 @@ import {
   X,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { loadCheckoutPrefs, saveCheckoutPrefs } from '@/lib/checkout-prefs';
+import {
+  loadCheckoutPrefs,
+  loadRecentCustomerIds,
+  recordRecentCustomerId,
+  resolveRecentCustomers,
+  saveCheckoutPrefs,
+} from '@/lib/checkout-prefs';
 import { formatErrorMessageVN } from '@/lib/errors';
 import {
+  computeLineTotal,
   computeOrderTotals,
   formatDateVN,
   formatVND,
@@ -85,10 +92,11 @@ function CheckoutModalBody({
   // cart on save cannot mutate or zero-out the active checkout state.
   const [orderItems] = useState<CartItem[]>(() => items);
   const [orderDiscount] = useState<number>(() => discount);
-  const { subtotal, total } = computeOrderTotals(orderItems, orderDiscount);
+  const { subtotal, discount: safeDiscount, total } = computeOrderTotals(orderItems, orderDiscount);
   const totalCost = computeItemsCostTotal(orderItems);
   const missingAnyCost = orderItems.some((i) => i.cost_price === null);
   const todayVN = getTodayVN();
+  const [showItemsBreakdown, setShowItemsBreakdown] = useState(false);
 
   const buyerCardRef = useRef<HTMLDivElement>(null);
   const searchCustInputRef = useRef<HTMLInputElement>(null);
@@ -129,6 +137,14 @@ function CheckoutModalBody({
   const [qrOpen, setQrOpen] = useState(false);
   const [invoiceOpen, setInvoiceOpen] = useState(false);
 
+  const [recentCustomerIds, setRecentCustomerIds] = useState<string[]>(() =>
+    loadRecentCustomerIds()
+  );
+  const recentCustomers = useMemo(
+    () => resolveRecentCustomers(customers, recentCustomerIds, 4),
+    [customers, recentCustomerIds]
+  );
+
   const filteredCustomers = useMemo(() => {
     const q = stripVietnamese(customerQuery);
     if (!q) return customers.slice(0, 20);
@@ -141,6 +157,9 @@ function CheckoutModalBody({
   }, [customers, customerQuery]);
 
   function applySelectedCustomer(customer: Customer | null) {
+    if (customer) {
+      setRecentCustomerIds(recordRecentCustomerId(customer.id));
+    }
     setActiveCustomer(customer);
     onSelectCustomer(customer);
     setBuyerName(customer?.name ?? '');
@@ -454,6 +473,7 @@ function CheckoutModalBody({
       <ModalDialog
         open
         onClose={onClose}
+        closeOnBackdrop={Boolean(savedOrder)}
         ariaLabelledBy="checkout-modal-title"
         backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-40 flex items-end justify-center p-0 sm:items-center sm:p-4"
         panelClassName="animate-sheet-up sm:animate-modal-in glass-modal flex max-h-[92dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px]"
@@ -659,8 +679,21 @@ function CheckoutModalBody({
                             }}
                             placeholder="Tìm tên, SĐT, địa chỉ..."
                             aria-label="Tìm khách hàng trong thanh toán"
-                            className="glass-input min-h-[44px] w-full rounded-[14px] pr-3 pl-10 text-[16px] text-[var(--text-primary)] outline-none"
+                            className="glass-input min-h-[44px] w-full rounded-[14px] pr-11 pl-10 text-[16px] text-[var(--text-primary)] outline-none [&::-webkit-search-cancel-button]:hidden"
                           />
+                          {customerQuery && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setCustomerQuery('');
+                                searchCustInputRef.current?.focus();
+                              }}
+                              aria-label="Xóa từ khóa tìm khách hàng"
+                              className="press-tactile absolute top-1/2 right-0.5 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          )}
                         </div>
                         <button
                           type="button"
@@ -671,6 +704,41 @@ function CheckoutModalBody({
                           <span>Tạo mới</span>
                         </button>
                       </div>
+
+                      {!customerQuery.trim() && recentCustomers.length > 0 && (
+                        <div className="space-y-1.5">
+                          <p className="text-[12px] font-semibold text-[var(--text-secondary)]">
+                            Gần đây
+                          </p>
+                          <div
+                            role="group"
+                            aria-label="Khách hàng chọn gần đây"
+                            className="flex flex-wrap gap-1.5"
+                          >
+                            {recentCustomers.map((c) => {
+                              const isSelected = activeCustomer?.id === c.id;
+                              return (
+                                <button
+                                  key={c.id}
+                                  type="button"
+                                  aria-pressed={isSelected}
+                                  onClick={() => applySelectedCustomer(c)}
+                                  className={`press-tactile inline-flex min-h-[44px] max-w-full items-center gap-1.5 rounded-full px-3 text-[13px] ${
+                                    isSelected
+                                      ? 'glass-chip-active font-semibold'
+                                      : 'glass-chip font-medium text-[var(--text-primary)]'
+                                  }`}
+                                >
+                                  {isSelected && (
+                                    <Check aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+                                  )}
+                                  <span className="truncate">{c.name}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
 
                       <div className="glass-well max-h-48 space-y-1.5 overflow-y-auto rounded-[16px] p-1.5">
                         {activeCustomer && (
@@ -845,6 +913,23 @@ function CheckoutModalBody({
 
                 {/* Order Totals Summary (Recessed Glass Well) */}
                 <div className="glass-well space-y-2 rounded-[18px] p-4">
+                  {safeDiscount > 0 && (
+                    <div className="glass-divider space-y-1 border-b pb-2 text-[13px]">
+                      <div className="flex items-baseline justify-between gap-2 text-[var(--text-secondary)]">
+                        <span>Tạm tính</span>
+                        <span className="font-mono-tabular font-medium text-[var(--text-primary)]">
+                          {formatVND(subtotal)}
+                        </span>
+                      </div>
+                      <div className="flex items-baseline justify-between gap-2 text-[var(--status-debt)]">
+                        <span>Giảm giá</span>
+                        <span className="font-mono-tabular font-semibold">
+                          -{formatVND(safeDiscount)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <span className="text-[14px] font-medium text-[var(--text-secondary)]">
                       Tổng đơn ({orderItems.length} món)
@@ -854,10 +939,59 @@ function CheckoutModalBody({
                     </span>
                   </div>
 
-                  {itemsPreviewText && (
-                    <p className="line-clamp-2 text-[12px] text-[var(--text-secondary)]">
-                      {itemsPreviewText}
-                    </p>
+                  {orderItems.length > 0 && (
+                    <div className="space-y-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowItemsBreakdown((v) => !v)}
+                        aria-expanded={showItemsBreakdown}
+                        aria-controls="checkout-items-breakdown"
+                        className="flex min-h-[44px] w-full items-center justify-between gap-2 rounded-[12px] px-2 text-left text-[12px] font-semibold text-[var(--brand-jade-text)] transition-colors hover:bg-[var(--bg-subtle)]"
+                      >
+                        <span className="min-w-0 truncate">
+                          {showItemsBreakdown
+                            ? `Thu gọn chi tiết ${orderItems.length} món`
+                            : `Xem chi tiết ${orderItems.length} món`}
+                        </span>
+                        {showItemsBreakdown ? (
+                          <ChevronUp className="h-4 w-4 shrink-0" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 shrink-0" />
+                        )}
+                      </button>
+
+                      {!showItemsBreakdown && itemsPreviewText && (
+                        <p className="line-clamp-2 px-2 text-[12px] text-[var(--text-secondary)]">
+                          {itemsPreviewText}
+                        </p>
+                      )}
+
+                      {showItemsBreakdown && (
+                        <ul
+                          id="checkout-items-breakdown"
+                          className="glass-divider space-y-1.5 border-t pt-2 text-[13px]"
+                        >
+                          {orderItems.map((item) => (
+                            <li
+                              key={item.key}
+                              className="flex items-start justify-between gap-3"
+                            >
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate font-medium text-[var(--text-primary)]">
+                                  {item.product_name}
+                                </p>
+                                <p className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
+                                  {item.quantity} {item.unit} × {formatVND(item.unit_price)}
+                                </p>
+                              </div>
+                              <span className="font-mono-tabular shrink-0 font-semibold text-[var(--text-primary)]">
+                                {formatVND(computeLineTotal(item.unit_price, item.quantity))}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   )}
 
                   {totalCost > 0 ? (
@@ -930,13 +1064,16 @@ function CheckoutModalBody({
                         setShowChangeCalc(false);
                         setCashTenderedVnd(null);
                       }}
-                      className={`press-tactile min-h-[48px] rounded-[16px] px-2.5 text-[13px] sm:px-3 sm:text-[14px] ${
+                      className={`press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-[16px] px-2.5 text-[13px] sm:px-3 sm:text-[14px] ${
                         choice === 'full_transfer'
-                          ? 'glass-pill-jade font-bold'
+                          ? 'glass-chip-active ring-2 ring-[var(--brand-jade)] font-bold'
                           : 'glass-chip font-semibold text-[var(--text-primary)]'
                       }`}
                     >
-                      Chuyển khoản đủ
+                      {choice === 'full_transfer' && (
+                        <Check aria-hidden="true" className="h-4 w-4 shrink-0" />
+                      )}
+                      <span>Chuyển khoản đủ</span>
                     </button>
                     <button
                       type="button"
@@ -945,13 +1082,16 @@ function CheckoutModalBody({
                         setChoice('full_cash');
                         setPaidVnd(total);
                       }}
-                      className={`press-tactile min-h-[48px] rounded-[16px] px-2.5 text-[13px] sm:px-3 sm:text-[14px] ${
+                      className={`press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-[16px] px-2.5 text-[13px] sm:px-3 sm:text-[14px] ${
                         choice === 'full_cash'
-                          ? 'glass-pill-jade font-bold'
+                          ? 'glass-chip-active ring-2 ring-[var(--brand-jade)] font-bold'
                           : 'glass-chip font-semibold text-[var(--text-primary)]'
                       }`}
                     >
-                      Tiền mặt đủ
+                      {choice === 'full_cash' && (
+                        <Check aria-hidden="true" className="h-4 w-4 shrink-0" />
+                      )}
+                      <span>Tiền mặt đủ</span>
                     </button>
                     <button
                       type="button"
@@ -962,13 +1102,16 @@ function CheckoutModalBody({
                         setShowChangeCalc(false);
                         setCashTenderedVnd(null);
                       }}
-                      className={`press-tactile min-h-[48px] rounded-[16px] px-2.5 text-[13px] sm:px-3 sm:text-[14px] ${
+                      className={`press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-[16px] px-2.5 text-[13px] sm:px-3 sm:text-[14px] ${
                         choice === 'partial'
-                          ? 'glass-badge-debt font-bold'
+                          ? 'glass-badge-debt ring-2 ring-[var(--status-debt)] font-bold'
                           : 'glass-chip font-semibold text-[var(--text-primary)]'
                       }`}
                     >
-                      Trả một phần
+                      {choice === 'partial' && (
+                        <Check aria-hidden="true" className="h-4 w-4 shrink-0" />
+                      )}
+                      <span>Trả một phần</span>
                     </button>
                     <button
                       type="button"
@@ -979,13 +1122,16 @@ function CheckoutModalBody({
                         setShowChangeCalc(false);
                         setCashTenderedVnd(null);
                       }}
-                      className={`press-tactile min-h-[48px] rounded-[16px] px-2.5 text-[13px] sm:px-3 sm:text-[14px] ${
+                      className={`press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-[16px] px-2.5 text-[13px] sm:px-3 sm:text-[14px] ${
                         choice === 'unpaid'
-                          ? 'glass-badge-debt font-bold'
+                          ? 'glass-badge-debt ring-2 ring-[var(--status-debt)] font-bold'
                           : 'glass-chip font-semibold text-[var(--text-primary)]'
                       }`}
                     >
-                      Ghi nợ hết
+                      {choice === 'unpaid' && (
+                        <Check aria-hidden="true" className="h-4 w-4 shrink-0" />
+                      )}
+                      <span>Ghi nợ hết</span>
                     </button>
                   </div>
                 </div>
@@ -1301,7 +1447,27 @@ function CheckoutModalBody({
               </div>
 
               {/* Sticky Submit Footer */}
-              <div className="glass-modal-footer shrink-0 px-4 py-3 pb-[calc(12px+env(safe-area-inset-bottom))] sm:px-5 sm:pb-3.5">
+              <div className="glass-modal-footer shrink-0 space-y-2 px-4 py-3 pb-[calc(12px+env(safe-area-inset-bottom))] sm:px-5 sm:pb-3.5">
+                {remaining > 0 && !activeCustomer && (
+                  <div
+                    role="alert"
+                    className="glass-badge-debt flex items-center justify-between gap-2 rounded-[14px] px-3 py-1.5"
+                  >
+                    <span className="inline-flex min-w-0 items-center gap-1.5 text-[12px] font-semibold">
+                      <AlertTriangle className="h-4 w-4 shrink-0" />
+                      <span className="truncate">Cần chọn khách hàng để ghi nợ</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => focusBuyerSection('search')}
+                      className="glass-solid-control press-tactile inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-full px-3 text-[13px] font-semibold text-[var(--text-primary)]"
+                    >
+                      <UserPlus className="h-3.5 w-3.5" />
+                      <span>Chọn khách</span>
+                    </button>
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   disabled={

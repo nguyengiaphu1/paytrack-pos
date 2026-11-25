@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 import {
   getQuickPickAccounts,
   loadCheckoutPrefs,
@@ -56,7 +56,7 @@ export function PaymentAccountSelector({
     setRecentAccounts(recordRecentPaymentAccount(acc));
   }
 
-  function renderChip(acc: PaymentAccount) {
+  function renderChip(acc: PaymentAccount, fullWidth = false) {
     const active = value === acc;
     return (
       <button
@@ -64,13 +64,16 @@ export function PaymentAccountSelector({
         type="button"
         aria-pressed={active}
         onClick={() => selectAccount(acc)}
-        className={`press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] transition-all ${
+        className={`press-tactile inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full px-3.5 text-[13px] transition-[transform,background-color,color] ${
+          fullWidth ? 'w-full' : ''
+        } ${
           active
-            ? 'glass-pill-jade font-semibold'
+            ? 'glass-chip-active font-semibold'
             : 'glass-chip font-medium text-[var(--text-primary)]'
         }`}
       >
-        {acc}
+        {active && <Check aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />}
+        <span className="truncate">{acc}</span>
       </button>
     );
   }
@@ -108,7 +111,7 @@ export function PaymentAccountSelector({
           role="group"
           aria-label={label || 'Tài khoản thanh toán'}
         >
-          {quickPicks.map(renderChip)}
+          {quickPicks.map((acc) => renderChip(acc))}
           <button
             type="button"
             onClick={() => setExpanded(true)}
@@ -138,15 +141,17 @@ export function PaymentAccountSelector({
                 </button>
               )}
             </div>
-            <div className="flex flex-wrap gap-2">{PERSONAL_ACCOUNTS.map(renderChip)}</div>
+            <div className="grid grid-cols-2 gap-2">
+              {PERSONAL_ACCOUNTS.map((acc) => renderChip(acc, true))}
+            </div>
           </div>
 
           <div className="glass-divider space-y-2 border-t pt-2.5">
             <span className="block text-[12px] font-semibold text-[var(--text-secondary)]">
               Vận chuyển & Khác
             </span>
-            <div className="flex flex-wrap gap-2">
-              {LOGISTICS_AND_OTHER_ACCOUNTS.map(renderChip)}
+            <div className="grid grid-cols-2 gap-2">
+              {LOGISTICS_AND_OTHER_ACCOUNTS.map((acc) => renderChip(acc, true))}
             </div>
           </div>
         </div>

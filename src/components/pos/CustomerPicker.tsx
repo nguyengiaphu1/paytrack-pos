@@ -1,8 +1,13 @@
 'use client';
 
-import { useMemo, useState, type FormEvent } from 'react';
+import { useMemo, useRef, useState, type FormEvent } from 'react';
 import { Check, Loader2, MapPin, Phone, Plus, Search, UserCheck, UserPlus, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import {
+  loadRecentCustomerIds,
+  recordRecentCustomerId,
+  resolveRecentCustomers,
+} from '@/lib/checkout-prefs';
 import { formatErrorMessageVN } from '@/lib/errors';
 import { formatVND, stripVietnamese } from '@/lib/vietnamese';
 import type { Customer } from '@/types/database';
@@ -13,6 +18,8 @@ interface CustomerPickerProps {
   selectedCustomerId: string | null;
   onSelect: (customer: Customer | null) => void;
   onCustomerCreated: (customer: Customer) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   className?: string;
 }
 
@@ -21,11 +28,25 @@ export function CustomerPicker({
   selectedCustomerId,
   onSelect,
   onCustomerCreated,
+  open,
+  onOpenChange,
   className = '',
 }: CustomerPickerProps) {
-  const [modalOpen, setModalOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const modalOpen = open ?? internalOpen;
+  const setModalOpen = (next: boolean) => {
+    if (next) {
+      setRecentCustomerIds(loadRecentCustomerIds());
+    }
+    if (onOpenChange) onOpenChange(next);
+    else setInternalOpen(next);
+  };
+  const [recentCustomerIds, setRecentCustomerIds] = useState<string[]>(() =>
+    loadRecentCustomerIds()
+  );
   const [creating, setCreating] = useState(false);
   const [query, setQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [newName, setNewName] = useState('');
   const [newPhone, setNewPhone] = useState('');
   const [newAddress, setNewAddress] = useState('');
@@ -38,6 +59,11 @@ export function CustomerPicker({
     [customers, selectedCustomerId]
   );
 
+  const recentCustomers = useMemo(
+    () => resolveRecentCustomers(customers, recentCustomerIds, 4),
+    [customers, recentCustomerIds]
+  );
+
   const filtered = useMemo(() => {
     const q = stripVietnamese(query);
     if (!q) return customers;
@@ -46,6 +72,14 @@ export function CustomerPicker({
       return hay.includes(q) || c.search_text.includes(q);
     });
   }, [customers, query]);
+
+  function handleSelectCustomer(customer: Customer | null) {
+    if (customer) {
+      setRecentCustomerIds(recordRecentCustomerId(customer.id));
+    }
+    onSelect(customer);
+    setModalOpen(false);
+  }
 
   async function handleCreateCustomer(e: FormEvent) {
     e.preventDefault();
@@ -81,6 +115,7 @@ export function CustomerPicker({
       if (insertErr) throw insertErr;
       const created = data as Customer;
       onCustomerCreated(created);
+      setRecentCustomerIds(recordRecentCustomerId(created.id));
       onSelect(created);
       setNewName('');
       setNewPhone('');
@@ -178,7 +213,7 @@ export function CustomerPicker({
             type="button"
             onClick={() => setModalOpen(false)}
             aria-label="Đóng"
-            className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
             <X className="h-5 w-5" />
           </button>
@@ -280,6 +315,7 @@ export function CustomerPicker({
               <div className="relative min-w-0 flex-1">
                 <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
                 <input
+                  ref={searchInputRef}
                   data-autofocus
                   type="search"
                   value={query}
@@ -287,14 +323,26 @@ export function CustomerPicker({
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && query.trim() && filtered.length === 1) {
                       e.preventDefault();
-                      onSelect(filtered[0]);
-                      setModalOpen(false);
+                      handleSelectCustomer(filtered[0]);
                     }
                   }}
                   placeholder="Tìm tên, SĐT, địa chỉ..."
                   aria-label="Tìm khách hàng theo tên, số điện thoại hoặc địa chỉ"
-                  className="glass-input min-h-[46px] w-full rounded-[14px] pr-3.5 pl-10 text-[16px] text-[var(--text-primary)] outline-none"
+                  className="glass-input min-h-[46px] w-full rounded-[14px] pr-11 pl-10 text-[16px] text-[var(--text-primary)] outline-none [&::-webkit-search-cancel-button]:hidden"
                 />
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQuery('');
+                      searchInputRef.current?.focus();
+                    }}
+                    aria-label="Xóa từ khóa tìm khách hàng"
+                    className="press-tactile absolute top-1/2 right-0.5 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
               </div>
               <button
                 type="button"
@@ -309,14 +357,42 @@ export function CustomerPicker({
               </button>
             </div>
 
+            {!query.trim() && recentCustomers.length > 0 && (
+              <div className="space-y-1.5">
+                <p className="text-[12px] font-semibold text-[var(--text-secondary)]">Gần đây</p>
+                <div
+                  role="group"
+                  aria-label="Khách hàng chọn gần đây"
+                  className="flex flex-wrap gap-1.5"
+                >
+                  {recentCustomers.map((c) => {
+                    const isSelected = selectedCustomerId === c.id;
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        aria-pressed={isSelected}
+                        onClick={() => handleSelectCustomer(c)}
+                        className={`press-tactile inline-flex min-h-[44px] max-w-full items-center gap-1.5 rounded-full px-3 text-[13px] ${
+                          isSelected
+                            ? 'glass-chip-active font-semibold'
+                            : 'glass-chip font-medium text-[var(--text-primary)]'
+                        }`}
+                      >
+                        {isSelected && <Check aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />}
+                        <span className="truncate">{c.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             <div className="glass-well max-h-[360px] space-y-1.5 overflow-y-auto rounded-[18px] p-2">
               <button
                 type="button"
                 aria-current={selectedCustomerId === null ? 'true' : undefined}
-                onClick={() => {
-                  onSelect(null);
-                  setModalOpen(false);
-                }}
+                onClick={() => handleSelectCustomer(null)}
                 className={`flex min-h-[52px] w-full items-center justify-between gap-2 rounded-[14px] px-3.5 py-2.5 text-left ${
                   selectedCustomerId === null
                     ? 'glass-chip-active'
@@ -341,10 +417,7 @@ export function CustomerPicker({
                     key={c.id}
                     type="button"
                     aria-current={isSelected ? 'true' : undefined}
-                    onClick={() => {
-                      onSelect(c);
-                      setModalOpen(false);
-                    }}
+                    onClick={() => handleSelectCustomer(c)}
                     className={`flex min-h-[56px] w-full items-center justify-between gap-2 rounded-[14px] px-3.5 py-2.5 text-left ${
                       isSelected ? 'glass-chip-active' : 'glass-card glass-card-interactive'
                     }`}

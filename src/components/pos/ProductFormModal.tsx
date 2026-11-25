@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Archive, Loader2, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { formatErrorMessageVN } from '@/lib/errors';
@@ -41,22 +41,34 @@ function ProductFormModalBody({
   const [sku, setSku] = useState(product?.sku ?? '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [invalidField, setInvalidField] = useState<'name' | 'price' | 'cost' | null>(null);
+  const alertRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (error) {
+      alertRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [error]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (saving) return;
     setError(null);
+    setInvalidField(null);
 
     const trimmedName = name.trim();
     if (!trimmedName) {
+      setInvalidField('name');
       setError('Vui lòng nhập tên sản phẩm');
       return;
     }
     if (priceVnd === null || !Number.isFinite(priceVnd) || priceVnd < 0) {
+      setInvalidField('price');
       setError('Giá bán phải hợp lệ (>= 0)');
       return;
     }
     if (costPriceVnd !== null && (!Number.isFinite(costPriceVnd) || costPriceVnd < 0)) {
+      setInvalidField('cost');
       setError('Giá vốn phải hợp lệ (>= 0)');
       return;
     }
@@ -135,6 +147,7 @@ function ProductFormModalBody({
     <ModalDialog
       open
       onClose={onClose}
+      closeOnBackdrop={false}
       ariaLabelledBy="product-form-modal-title"
       backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
       panelClassName="animate-sheet-up sm:animate-modal-in glass-modal flex max-h-[92dvh] w-full max-w-[460px] flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px]"
@@ -160,6 +173,7 @@ function ProductFormModalBody({
         <div className="flex-1 space-y-3.5 overflow-y-auto p-4 sm:p-5">
           {error && (
             <div
+              ref={alertRef}
               role="alert"
               className="glass-badge-overdue rounded-[14px] px-3.5 py-2.5 text-[14px] font-medium"
             >
@@ -180,10 +194,16 @@ function ProductFormModalBody({
                 data-autofocus
                 type="text"
                 required
+                aria-invalid={invalidField === 'name' || undefined}
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (invalidField === 'name') setInvalidField(null);
+                }}
                 placeholder="VD: Mật ong rừng 500ml..."
-                className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
+                className={`glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none ${
+                  invalidField === 'name' ? 'ring-2 ring-[var(--status-overdue)]' : ''
+                }`}
               />
             </div>
 
@@ -198,8 +218,12 @@ function ProductFormModalBody({
                 <VndKInput
                   id="prod-price-k"
                   required
+                  invalid={invalidField === 'price'}
                   valueVnd={priceVnd}
-                  onChangeVnd={setPriceVnd}
+                  onChangeVnd={(val) => {
+                    setPriceVnd(val);
+                    if (invalidField === 'price') setInvalidField(null);
+                  }}
                   placeholder="150"
                   showPreview
                 />
@@ -232,8 +256,12 @@ function ProductFormModalBody({
                 </label>
                 <VndKInput
                   id="prod-cost-k"
+                  invalid={invalidField === 'cost'}
                   valueVnd={costPriceVnd}
-                  onChangeVnd={setCostPriceVnd}
+                  onChangeVnd={(val) => {
+                    setCostPriceVnd(val);
+                    if (invalidField === 'cost') setInvalidField(null);
+                  }}
                   placeholder="110"
                   showPreview
                 />

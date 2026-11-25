@@ -140,7 +140,7 @@ export default function LoginPage() {
                   setErrorMessage(null);
                   setSuccessMessage(null);
                 }}
-                className={`press-tactile min-h-[44px] rounded-full px-3 text-[14px] font-semibold transition-all ${
+                className={`press-tactile min-h-[44px] rounded-full px-3 text-[14px] font-semibold transition-[transform,background-color,color] ${
                   mode === 'login'
                     ? 'glass-pill-jade'
                     : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
@@ -156,7 +156,7 @@ export default function LoginPage() {
                   setErrorMessage(null);
                   setSuccessMessage(null);
                 }}
-                className={`press-tactile min-h-[44px] rounded-full px-3 text-[14px] font-semibold transition-all ${
+                className={`press-tactile min-h-[44px] rounded-full px-3 text-[14px] font-semibold transition-[transform,background-color,color] ${
                   mode === 'signup'
                     ? 'glass-pill-jade'
                     : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'

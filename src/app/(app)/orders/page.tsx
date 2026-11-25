@@ -271,7 +271,7 @@ export default function OrdersPage() {
             <ReceiptText className="h-5 w-5 text-[var(--brand-jade-text)]" />
           </div>
           <div className="min-w-0">
-            <h1 className="truncate text-[20px] font-bold tracking-[-0.015em] text-[var(--text-primary)] lg:text-[24px]">
+            <h1 className="truncate text-[22px] font-bold tracking-[-0.015em] text-[var(--text-primary)] lg:text-[24px]">
               Sổ bán hàng
             </h1>
             {!loading && !ordersError && (
@@ -701,13 +701,23 @@ export default function OrdersPage() {
                       <td className="font-mono-tabular px-3 py-3.5 text-center text-[var(--text-secondary)]">
                         {idx + 1}
                       </td>
-                      <td className="px-3 py-3.5">
-                        <p className="font-semibold text-[var(--text-primary)]">
-                          {order.customer_name_snapshot}
-                        </p>
-                        <p className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
-                          {order.order_code}
-                        </p>
+                      <td className="px-3 py-2">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void openOrderDetail(order);
+                          }}
+                          aria-label={`Xem chi tiết đơn ${order.order_code} của ${order.customer_name_snapshot}`}
+                          className="block min-h-[44px] w-full rounded-[10px] px-1 py-1 text-left transition-colors hover:text-[var(--brand-jade-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-jade)]"
+                        >
+                          <span className="block font-semibold text-[var(--text-primary)]">
+                            {order.customer_name_snapshot}
+                          </span>
+                          <span className="font-mono-tabular block text-[12px] text-[var(--text-secondary)]">
+                            {order.order_code}
+                          </span>
+                        </button>
                       </td>
                       <td
                         className="max-w-[160px] truncate px-3 py-3.5 text-[var(--text-secondary)]"
@@ -798,89 +808,96 @@ export default function OrdersPage() {
                 Boolean(order.customer_id);
 
               return (
-                <div
+                <article
                   key={order.id}
-                  onClick={() => void openOrderDetail(order)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') void openOrderDetail(order);
-                  }}
-                  className="glass-card glass-card-interactive cursor-pointer rounded-[22px] p-4"
+                  className="glass-card glass-card-interactive rounded-[22px] p-4"
                 >
-                  <div className="flex items-start justify-between gap-2.5">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="font-mono-tabular text-[12px] font-semibold text-[var(--text-secondary)]">
-                          #{idx + 1}
-                        </span>
-                        <span className="truncate text-[15px] font-bold text-[var(--text-primary)]">
-                          {order.customer_name_snapshot}
-                        </span>
-                        <span
-                          className={`rounded-full px-2.5 py-0.5 text-[12px] font-semibold ${badge.className}`}
-                        >
-                          {badge.label}
-                        </span>
+                  <button
+                    type="button"
+                    onClick={() => void openOrderDetail(order)}
+                    aria-label={`Xem chi tiết đơn ${order.order_code} của ${order.customer_name_snapshot}`}
+                    className="block w-full rounded-[16px] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-jade)]"
+                  >
+                    <div className="flex items-start justify-between gap-2.5">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="font-mono-tabular text-[12px] font-semibold text-[var(--text-secondary)]">
+                            #{idx + 1}
+                          </span>
+                          <span className="truncate text-[15px] font-bold text-[var(--text-primary)]">
+                            {order.customer_name_snapshot}
+                          </span>
+                          <span
+                            className={`rounded-full px-2.5 py-0.5 text-[12px] font-semibold ${badge.className}`}
+                          >
+                            {badge.label}
+                          </span>
+                        </div>
+                        {(order.customer_phone_snapshot || order.customer_address_snapshot) && (
+                          <p className="mt-1 truncate text-[12px] text-[var(--text-secondary)]">
+                            {order.customer_phone_snapshot ? (
+                              <span className="font-mono-tabular">
+                                {order.customer_phone_snapshot}
+                              </span>
+                            ) : null}
+                            {order.customer_phone_snapshot && order.customer_address_snapshot
+                              ? ' · '
+                              : ''}
+                            {order.customer_address_snapshot ?? ''}
+                          </p>
+                        )}
                       </div>
-                      {(order.customer_phone_snapshot || order.customer_address_snapshot) && (
-                        <p className="mt-1 truncate text-[12px] text-[var(--text-secondary)]">
-                          {order.customer_phone_snapshot ? (
-                            <span className="font-mono-tabular">{order.customer_phone_snapshot}</span>
-                          ) : null}
-                          {order.customer_phone_snapshot && order.customer_address_snapshot
-                            ? ' · '
-                            : ''}
-                          {order.customer_address_snapshot ?? ''}
-                        </p>
-                      )}
-                    </div>
-                    <span className="font-mono-tabular shrink-0 text-[16px] font-bold text-[var(--text-primary)]">
-                      {formatVND(order.total_amount)}
-                    </span>
-                  </div>
-
-                  {/* Items Summary */}
-                  <p className="mt-2.5 line-clamp-2 break-words text-[13px] text-[var(--text-primary)]">
-                    {summarizeOrderItems(order.order_items, 3)}
-                  </p>
-
-                  {/* Recessed Cost / Sale / Profit Tray */}
-                  <div className="glass-well mt-3 grid grid-cols-3 gap-2 rounded-[16px] px-3 py-2.5 text-[12px]">
-                    <div className="min-w-0">
-                      <span className="block text-[12px] text-[var(--text-secondary)]">Giá vốn</span>
-                      <span className="font-mono-tabular block truncate font-semibold text-[var(--text-primary)]">
-                        {formatVND(order.total_cost ?? 0)}
-                      </span>
-                      {missingCost && (
-                        <span className="text-[12px] font-semibold text-[var(--status-debt)]">
-                          Chưa nhập vốn
-                        </span>
-                      )}
-                    </div>
-                    <div className="min-w-0 text-center">
-                      <span className="block text-[12px] text-[var(--text-secondary)]">Giá bán</span>
-                      <span className="font-mono-tabular block truncate font-bold text-[var(--text-primary)]">
+                      <span className="font-mono-tabular shrink-0 text-[16px] font-bold text-[var(--text-primary)]">
                         {formatVND(order.total_amount)}
                       </span>
                     </div>
-                    <div className="min-w-0 text-right">
-                      <span className="block text-[12px] text-[var(--text-secondary)]">Lãi</span>
-                      <span
-                        className={`font-mono-tabular block truncate font-bold ${
-                          order.payment_status === 'cancelled'
-                            ? 'text-[var(--text-secondary)]'
-                            : profit >= 0
-                              ? 'text-[var(--brand-jade-text)]'
-                              : 'text-[var(--status-overdue)]'
-                        }`}
-                      >
-                        {order.payment_status === 'cancelled' ? '—' : formatVND(profit)}
-                      </span>
-                    </div>
-                  </div>
 
-                  {/* Footer Metadata + Quick Collect */}
+                    {/* Items Summary */}
+                    <p className="mt-2.5 line-clamp-2 break-words text-[13px] text-[var(--text-primary)]">
+                      {summarizeOrderItems(order.order_items, 3)}
+                    </p>
+
+                    {/* Recessed Cost / Sale / Profit Tray */}
+                    <div className="glass-well mt-3 grid grid-cols-3 gap-2 rounded-[16px] px-3 py-2.5 text-[12px]">
+                      <div className="min-w-0">
+                        <span className="block text-[12px] text-[var(--text-secondary)]">
+                          Giá vốn
+                        </span>
+                        <span className="font-mono-tabular block truncate font-semibold text-[var(--text-primary)]">
+                          {formatVND(order.total_cost ?? 0)}
+                        </span>
+                        {missingCost && (
+                          <span className="text-[12px] font-semibold text-[var(--status-debt)]">
+                            Chưa nhập vốn
+                          </span>
+                        )}
+                      </div>
+                      <div className="min-w-0 text-center">
+                        <span className="block text-[12px] text-[var(--text-secondary)]">
+                          Giá bán
+                        </span>
+                        <span className="font-mono-tabular block truncate font-bold text-[var(--text-primary)]">
+                          {formatVND(order.total_amount)}
+                        </span>
+                      </div>
+                      <div className="min-w-0 text-right">
+                        <span className="block text-[12px] text-[var(--text-secondary)]">Lãi</span>
+                        <span
+                          className={`font-mono-tabular block truncate font-bold ${
+                            order.payment_status === 'cancelled'
+                              ? 'text-[var(--text-secondary)]'
+                              : profit >= 0
+                                ? 'text-[var(--brand-jade-text)]'
+                                : 'text-[var(--status-overdue)]'
+                          }`}
+                        >
+                          {order.payment_status === 'cancelled' ? '—' : formatVND(profit)}
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* Footer Metadata + Quick Collect (sibling of detail trigger, zero nested interactives) */}
                   <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[12px] text-[var(--text-secondary)]">
                     <div className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-0.5">
                       <span className="font-mono-tabular">
@@ -899,10 +916,7 @@ export default function OrdersPage() {
                     {canQuickCollect && (
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setCollectTargetOrder(order);
-                        }}
+                        onClick={() => setCollectTargetOrder(order)}
                         className="glass-pill-jade press-tactile inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold"
                       >
                         <Banknote className="h-4 w-4" />
@@ -910,7 +924,7 @@ export default function OrdersPage() {
                       </button>
                     )}
                   </div>
-                </div>
+                </article>
               );
             })}
           </div>

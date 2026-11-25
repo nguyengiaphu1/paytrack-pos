@@ -10,11 +10,13 @@ import {
 interface ThemeQuickToggleProps {
   compact?: boolean;
   iconOnly?: boolean;
+  responsiveLabel?: boolean;
 }
 
 export function ThemeQuickToggle({
   compact = false,
   iconOnly = false,
+  responsiveLabel = false,
 }: ThemeQuickToggleProps) {
   const { preference, resolvedTheme, cyclePreference } = useTheme();
 
@@ -27,6 +29,21 @@ export function ThemeQuickToggle({
 
   const label = getThemePreferenceLabelVN(preference);
 
+  if (responsiveLabel) {
+    return (
+      <button
+        type="button"
+        onClick={cyclePreference}
+        aria-label={`Đổi giao diện: ${label}`}
+        title={`Giao diện: ${label}`}
+        className="glass-solid-control press-tactile inline-flex h-[44px] w-[44px] items-center justify-center gap-1.5 rounded-full text-[13px] font-semibold text-[var(--text-primary)] transition-[transform,opacity,background-color,color] hover:opacity-95 sm:w-auto sm:px-3.5"
+      >
+        <Icon className="h-[18px] w-[18px] shrink-0 text-[var(--brand-jade-text)]" />
+        <span className="hidden sm:inline">{label}</span>
+      </button>
+    );
+  }
+
   if (iconOnly) {
     return (
       <button
@@ -34,7 +51,7 @@ export function ThemeQuickToggle({
         onClick={cyclePreference}
         aria-label={`Giao diện: ${label}`}
         title={`Giao diện: ${label}`}
-        className="glass-solid-control press-tactile flex h-[44px] w-[44px] items-center justify-center rounded-full text-[var(--brand-jade-text)] transition-all hover:opacity-95"
+        className="glass-solid-control press-tactile flex h-[44px] w-[44px] items-center justify-center rounded-full text-[var(--brand-jade-text)] transition-[transform,opacity,background-color,color] hover:opacity-95"
       >
         <Icon className="h-[18px] w-[18px]" />
       </button>
@@ -90,7 +107,7 @@ export function SettingsThemeSelector() {
               type="button"
               onClick={() => setPreference(opt.value)}
               aria-pressed={active}
-              className={`press-tactile flex min-h-[46px] items-center justify-center gap-2 rounded-full px-2 text-[14px] font-semibold transition-all ${
+              className={`press-tactile flex min-h-[46px] items-center justify-center gap-2 rounded-full px-2 text-[14px] font-semibold transition-[transform,opacity,background-color,color] ${
                 active
                   ? 'glass-pill-jade'
                   : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'

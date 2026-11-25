@@ -151,7 +151,7 @@ export function AppShell({
 
             <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               <SyncStatusPill status={status} />
-              <ThemeQuickToggle iconOnly />
+              <ThemeQuickToggle responsiveLabel />
             </div>
           </header>
         </div>
@@ -195,9 +195,9 @@ export function AppShell({
                   href={item.href}
                   prefetch={true}
                   aria-current={active ? 'page' : undefined}
-                  className={`press-tactile relative flex min-h-[54px] min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-[24px] px-0 text-[12px] tracking-[-0.015em] leading-none transition-all lg:min-h-[46px] lg:flex-initial lg:flex-row lg:gap-2 lg:rounded-full lg:px-4 lg:text-[14px] lg:tracking-normal ${
+                  className={`press-tactile relative flex min-h-[54px] min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-[24px] px-0 text-[12px] tracking-[-0.015em] leading-none transition-[transform,background-color,color] lg:min-h-[46px] lg:flex-initial lg:flex-row lg:gap-2 lg:rounded-full lg:px-4 lg:text-[14px] lg:tracking-normal ${
                     active
-                      ? 'glass-pill-jade font-semibold'
+                      ? 'glass-chip-active font-semibold'
                       : 'font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
                   }`}
                 >

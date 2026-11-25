@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { BarChart3 } from 'lucide-react';
@@ -7,11 +8,25 @@ import { formatDateVN, formatVND, getTodayVN } from '@/lib/vietnamese';
 import { PAYMENT_ACCOUNTS } from '@/lib/ledger';
 import { usePosData } from '@/components/providers/PosDataProvider';
 import type { AnalyticsSummary, PaymentAccount } from '@/types/database';
-import { RevenueCashChart } from '@/components/stats/RevenueCashChart';
 import { PaymentBreakdownChart } from '@/components/stats/PaymentBreakdownChart';
 import { DebtAgingCard } from '@/components/stats/DebtAgingCard';
 import { EmptyStateCard } from '@/components/ui/EmptyStateCard';
 import { FetchErrorCard, StatsPageSkeleton } from '@/components/ui/PageSkeletons';
+
+const RevenueCashChart = dynamic(
+  () => import('@/components/stats/RevenueCashChart').then((m) => m.RevenueCashChart),
+  {
+    ssr: false,
+    loading: () => (
+      <section className="glass-panel rounded-[26px] p-4 sm:p-5">
+        <div className="skeleton-shimmer mb-3.5 h-5 w-52 rounded-full" />
+        <div className="glass-well rounded-[20px] p-3">
+          <div className="skeleton-shimmer h-[260px] w-full rounded-[14px]" />
+        </div>
+      </section>
+    ),
+  }
+);
 
 type DatePreset = 'today' | '7d' | '30d' | 'month' | 'custom';
 
@@ -146,7 +161,7 @@ export default function StatsPage() {
                   type="button"
                   aria-pressed={preset === key}
                   onClick={() => setPreset(key)}
-                  className={`press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] transition-all ${
+                  className={`press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] transition-[transform,background-color,color] ${
                     preset === key ? 'glass-pill-jade font-bold' : 'glass-chip font-semibold'
                   }`}
                 >

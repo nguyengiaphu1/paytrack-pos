@@ -17,9 +17,9 @@
   );
   --glass-card-bg: linear-gradient(
     145deg,
-    rgba(255, 255, 255, 0.86) 0%,
-    rgba(252, 253, 255, 0.72) 56%,
-    rgba(245, 247, 251, 0.60) 100%
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(252, 253, 255, 0.86) 56%,
+    rgba(245, 247, 251, 0.80) 100%
   );
   --glass-panel-bg: linear-gradient(
     148deg,
@@ -54,23 +54,23 @@
 
   --glass-btn-sec-bg: linear-gradient(
     155deg,
-    rgba(255, 255, 255, 0.92) 0%,
-    rgba(244, 246, 250, 0.78) 100%
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(244, 246, 250, 0.88) 100%
   );
   --glass-btn-sec-hover-bg: linear-gradient(
     155deg,
     rgba(255, 255, 255, 0.99) 0%,
-    rgba(248, 250, 252, 0.94) 100%
+    rgba(248, 250, 252, 0.95) 100%
   );
   --glass-chip-bg: linear-gradient(
     155deg,
-    rgba(255, 255, 255, 0.84) 0%,
-    rgba(244, 246, 250, 0.64) 100%
+    rgba(255, 255, 255, 0.90) 0%,
+    rgba(244, 246, 250, 0.80) 100%
   );
   --glass-chip-active-bg: linear-gradient(
     145deg,
     rgba(255, 255, 255, 0.96) 0%,
-    rgba(226, 247, 239, 0.88) 100%
+    rgba(226, 247, 239, 0.92) 100%
   );
   --glass-table-head-bg: rgba(248, 250, 252, 0.90);
   --glass-backdrop-bg: rgba(15, 23, 42, 0.40);
@@ -121,24 +121,17 @@
     inset 1.5px 0 2px rgba(255, 255, 255, 0.72),
     inset 0 -3px 7px rgba(15, 23, 42, 0.05);
   --glass-card-shadow:
-    0 16px 34px -10px rgba(15, 23, 42, 0.22),
-    0 6px 14px -4px rgba(15, 23, 42, 0.12),
-    0 1px 3px rgba(15, 23, 42, 0.07),
-    inset 0 2px 3px rgba(255, 255, 255, 1),
-    inset 1.5px 0 3px rgba(255, 255, 255, 0.74),
-    inset -1px -1px 2px rgba(255, 255, 255, 0.72),
-    inset 0 -3px 6px rgba(15, 23, 42, 0.05);
+    0 14px 28px -10px rgba(15, 23, 42, 0.22),
+    0 4px 10px -4px rgba(15, 23, 42, 0.12),
+    inset 0 1.5px 2px rgba(255, 255, 255, 1);
   --glass-card-shadow-hover:
-    0 22px 44px -10px rgba(15, 23, 42, 0.28),
-    0 10px 20px -5px rgba(14, 107, 78, 0.16),
-    inset 0 2px 3px rgba(255, 255, 255, 1),
-    inset 1.5px 0 3px rgba(255, 255, 255, 0.82),
-    inset 0 -3px 7px rgba(15, 23, 42, 0.07);
+    0 20px 38px -10px rgba(15, 23, 42, 0.28),
+    0 8px 16px -5px rgba(14, 107, 78, 0.16),
+    inset 0 2px 3px rgba(255, 255, 255, 1);
   --glass-card-selected-shadow:
-    0 20px 40px -10px rgba(14, 128, 94, 0.30),
-    0 8px 18px -4px rgba(14, 107, 78, 0.18),
-    inset 0 2px 3px rgba(255, 255, 255, 1),
-    inset 0 -3px 8px rgba(14, 107, 78, 0.10);
+    0 18px 34px -10px rgba(14, 128, 94, 0.30),
+    0 6px 14px -4px rgba(14, 107, 78, 0.18),
+    inset 0 1.5px 2px rgba(255, 255, 255, 1);
   --glass-panel-shadow:
     0 24px 50px -12px rgba(15, 23, 42, 0.24),
     0 8px 20px -5px rgba(15, 23, 42, 0.13),
@@ -153,25 +146,21 @@
     inset 0 2px 3px rgba(255, 255, 255, 1),
     inset 1.5px 0 3px rgba(255, 255, 255, 0.72);
 
-  /* 10% Accent — Crystal Jade CTA Caustic Glow Shadow (Light Mode) */
+  /* 10% Accent — Crystal Jade CTA Caustic Glow Shadow (Light Mode, tight specular rim keeps white ink >= 5.5:1) */
   --glass-btn-primary-shadow:
-    0 14px 30px -6px rgba(14, 118, 86, 0.48),
-    0 6px 14px -3px rgba(16, 152, 114, 0.32),
-    0 2px 5px rgba(6, 54, 40, 0.20),
-    inset 0 2px 3px rgba(255, 255, 255, 0.58),
-    inset 0 12px 20px -10px rgba(214, 255, 242, 0.48),
-    inset 0 -2px 5px rgba(5, 48, 35, 0.34);
+    0 12px 26px -6px rgba(10, 92, 68, 0.44),
+    0 4px 10px -2px rgba(14, 114, 84, 0.28),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.44),
+    inset 0 -2px 4px rgba(5, 48, 35, 0.34);
   --glass-btn-primary-hover-shadow:
-    0 18px 36px -6px rgba(14, 132, 96, 0.56),
-    0 8px 18px -3px rgba(18, 168, 128, 0.38),
-    0 2px 6px rgba(6, 54, 40, 0.22),
-    inset 0 2px 3px rgba(255, 255, 255, 0.68),
-    inset 0 14px 22px -10px rgba(226, 255, 247, 0.54),
-    inset 0 -2px 5px rgba(5, 48, 35, 0.32);
+    0 16px 32px -6px rgba(10, 92, 68, 0.52),
+    0 6px 14px -3px rgba(14, 114, 84, 0.34),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.52),
+    inset 0 -2px 4px rgba(5, 48, 35, 0.32);
   --glass-pill-jade-shadow:
-    0 10px 22px -5px rgba(14, 118, 86, 0.44),
-    0 4px 10px -2px rgba(16, 152, 114, 0.30),
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.56),
+    0 8px 18px -5px rgba(10, 92, 68, 0.40),
+    0 3px 8px -2px rgba(14, 114, 84, 0.26),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.42),
     inset 0 -2px 4px rgba(6, 52, 38, 0.28);
   --glass-btn-sec-shadow:
     0 6px 16px -6px rgba(15, 23, 42, 0.16),
@@ -187,24 +176,26 @@
   --text-primary: #0B111A;
   --text-secondary: #1E293B;
 
-  /* 10% Brand Deep Forest Jade & WCAG AA Semantic Status */
+  /* 10% Brand Deep Forest Jade & WCAG AA/AAA Semantic Status (Opaque-inside-Translucent Porcelain Tints) */
   --brand-jade: #0E6B4E;
   --brand-jade-hover: #0A563F;
   --brand-jade-text: #09583F;
   --brand-jade-glow: rgba(14, 128, 94, 0.24);
 
-  --status-paid: #085E4E;
-  --status-paid-bg: rgba(16, 168, 126, 0.15);
+  --status-paid: #075444;
+  --status-paid-bg: rgba(232, 250, 243, 0.92);
   --status-paid-border: rgba(14, 134, 98, 0.36);
 
-  --status-debt: #9A4306;
-  --status-debt-bg: rgba(245, 158, 11, 0.18);
-  --status-debt-border: rgba(217, 119, 6, 0.38);
+  --status-debt: #8A3B04;
+  --status-debt-bg: rgba(254, 243, 212, 0.94);
+  --status-debt-border: rgba(217, 119, 6, 0.42);
 
-  --status-overdue: #B91C1C;
+  --status-overdue: #9F1616;
   --status-overdue-solid: #B91C1C;
-  --status-overdue-bg: rgba(220, 38, 38, 0.14);
-  --status-overdue-border: rgba(220, 38, 38, 0.34);
+  --status-overdue-bg: rgba(254, 232, 232, 0.94);
+  --status-overdue-border: rgba(220, 38, 38, 0.38);
+
+  --chart-transfer: #0284C7;
 
   --skeleton-base: rgba(186, 196, 210, 0.56);
   --skeleton-shine: rgba(255, 255, 255, 0.88);
@@ -227,9 +218,9 @@
   );
   --glass-card-bg: linear-gradient(
     145deg,
-    rgba(52, 62, 78, 0.74) 0%,
-    rgba(31, 38, 50, 0.64) 56%,
-    rgba(21, 26, 36, 0.58) 100%
+    rgba(48, 57, 72, 0.84) 0%,
+    rgba(31, 38, 50, 0.78) 56%,
+    rgba(21, 26, 36, 0.74) 100%
   );
   --glass-panel-bg: linear-gradient(
     148deg,
@@ -264,23 +255,23 @@
 
   --glass-btn-sec-bg: linear-gradient(
     155deg,
-    rgba(56, 66, 84, 0.68) 0%,
-    rgba(32, 39, 52, 0.56) 100%
+    rgba(52, 62, 78, 0.84) 0%,
+    rgba(32, 39, 52, 0.78) 100%
   );
   --glass-btn-sec-hover-bg: linear-gradient(
     155deg,
-    rgba(68, 80, 102, 0.80) 0%,
-    rgba(40, 48, 64, 0.68) 100%
+    rgba(64, 76, 96, 0.92) 0%,
+    rgba(40, 48, 64, 0.86) 100%
   );
   --glass-chip-bg: linear-gradient(
     155deg,
-    rgba(52, 62, 78, 0.64) 0%,
-    rgba(30, 37, 49, 0.52) 100%
+    rgba(48, 57, 72, 0.82) 0%,
+    rgba(30, 37, 49, 0.76) 100%
   );
   --glass-chip-active-bg: linear-gradient(
     145deg,
-    rgba(24, 148, 112, 0.36) 0%,
-    rgba(14, 107, 78, 0.26) 100%
+    rgba(18, 96, 72, 0.64) 0%,
+    rgba(12, 72, 54, 0.58) 100%
   );
   --glass-table-head-bg: rgba(24, 30, 40, 0.86);
   --glass-backdrop-bg: rgba(5, 8, 13, 0.72);
@@ -329,23 +320,17 @@
     inset 1.5px 0 2px rgba(241, 245, 249, 0.14),
     inset 0 -3px 8px rgba(0, 0, 0, 0.46);
   --glass-card-shadow:
-    0 18px 40px -10px rgba(0, 0, 0, 0.80),
-    0 6px 16px -4px rgba(0, 0, 0, 0.58),
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.30),
-    inset 1.5px 0 2px rgba(241, 245, 249, 0.14),
-    inset -1px -1px 2px rgba(203, 213, 225, 0.12),
-    inset 0 -3px 8px rgba(0, 0, 0, 0.46);
+    0 14px 30px -10px rgba(0, 0, 0, 0.76),
+    0 4px 12px -4px rgba(0, 0, 0, 0.52),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.28);
   --glass-card-shadow-hover:
-    0 24px 50px -10px rgba(0, 0, 0, 0.88),
-    0 10px 24px -6px rgba(16, 152, 114, 0.28),
-    inset 0 2px 3px rgba(255, 255, 255, 0.36),
-    inset 1.5px 0 3px rgba(241, 245, 249, 0.18),
-    inset 0 -3px 8px rgba(0, 0, 0, 0.50);
+    0 20px 42px -10px rgba(0, 0, 0, 0.84),
+    0 8px 18px -6px rgba(16, 152, 114, 0.28),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.34);
   --glass-card-selected-shadow:
-    0 22px 46px -10px rgba(0, 0, 0, 0.84),
-    0 10px 26px -6px rgba(20, 178, 134, 0.34),
-    inset 0 2px 3px rgba(236, 255, 248, 0.36),
-    inset 0 -3px 8px rgba(0, 0, 0, 0.44);
+    0 18px 38px -10px rgba(0, 0, 0, 0.82),
+    0 8px 20px -6px rgba(20, 178, 134, 0.32),
+    inset 0 1.5px 2px rgba(236, 255, 248, 0.34);
   --glass-panel-shadow:
     0 24px 52px -12px rgba(0, 0, 0, 0.84),
     0 8px 20px -4px rgba(0, 0, 0, 0.60),
@@ -358,25 +343,21 @@
     inset 0 2px 3px rgba(255, 255, 255, 0.28),
     inset 1.5px 0 3px rgba(241, 245, 249, 0.14);
 
-  /* 10% Accent — Crystal Jade CTA Caustic Glow Shadow (Dark Mode) */
+  /* 10% Accent — Crystal Jade CTA Caustic Glow Shadow (Dark Mode, tight specular rim keeps white ink >= 5.1:1) */
   --glass-btn-primary-shadow:
-    0 14px 32px -6px rgba(20, 184, 136, 0.52),
-    0 6px 16px -3px rgba(45, 212, 191, 0.26),
-    0 2px 8px rgba(0, 0, 0, 0.60),
-    inset 0 2px 3px rgba(236, 255, 248, 0.46),
-    inset 0 10px 18px -10px rgba(167, 243, 208, 0.32),
-    inset 0 -2px 5px rgba(3, 36, 26, 0.48);
+    0 12px 26px -6px rgba(16, 148, 108, 0.46),
+    0 4px 12px -2px rgba(0, 0, 0, 0.56),
+    inset 0 1.5px 2px rgba(236, 255, 248, 0.38),
+    inset 0 -2px 4px rgba(3, 36, 26, 0.48);
   --glass-btn-primary-hover-shadow:
-    0 18px 38px -6px rgba(24, 198, 148, 0.62),
-    0 8px 20px -3px rgba(45, 212, 191, 0.36),
-    0 2px 8px rgba(0, 0, 0, 0.64),
-    inset 0 2px 3px rgba(240, 255, 250, 0.56),
-    inset 0 12px 20px -10px rgba(186, 255, 232, 0.40),
-    inset 0 -2px 5px rgba(3, 36, 26, 0.46);
+    0 16px 32px -6px rgba(18, 166, 122, 0.54),
+    0 6px 14px -2px rgba(0, 0, 0, 0.62),
+    inset 0 1.5px 2px rgba(240, 255, 250, 0.46),
+    inset 0 -2px 4px rgba(3, 36, 26, 0.46);
   --glass-pill-jade-shadow:
-    0 10px 24px -5px rgba(20, 184, 136, 0.48),
-    0 4px 12px -2px rgba(45, 212, 191, 0.24),
-    inset 0 1.5px 2px rgba(236, 255, 248, 0.44),
+    0 8px 20px -5px rgba(16, 148, 108, 0.44),
+    0 3px 10px -2px rgba(0, 0, 0, 0.48),
+    inset 0 1.5px 2px rgba(236, 255, 248, 0.36),
     inset 0 -2px 4px rgba(3, 34, 25, 0.44);
   --glass-btn-sec-shadow:
     0 8px 20px -6px rgba(0, 0, 0, 0.62),
@@ -392,24 +373,26 @@
   --text-primary: #F4F6F8;
   --text-secondary: #B4BECE;
 
-  /* 10% Brand Deep Forest Jade & WCAG AA Semantic Status */
-  --brand-jade: #158763;
-  --brand-jade-hover: #117052;
+  /* 10% Brand Deep Forest Jade & WCAG AA/AAA Semantic Status (Deep Smoked-Slate Tints) */
+  --brand-jade: #127A59;
+  --brand-jade-hover: #0E6347;
   --brand-jade-text: #62E6BA;
   --brand-jade-glow: rgba(76, 208, 166, 0.28);
 
   --status-paid: #62E6BA;
-  --status-paid-bg: rgba(24, 174, 128, 0.22);
-  --status-paid-border: rgba(94, 234, 212, 0.36);
+  --status-paid-bg: rgba(10, 56, 44, 0.84);
+  --status-paid-border: rgba(94, 234, 212, 0.38);
 
-  --status-debt: #FBBF24;
-  --status-debt-bg: rgba(217, 140, 18, 0.24);
-  --status-debt-border: rgba(251, 191, 36, 0.38);
+  --status-debt: #FCD34D;
+  --status-debt-bg: rgba(66, 42, 10, 0.86);
+  --status-debt-border: rgba(251, 191, 36, 0.42);
 
-  --status-overdue: #F87171;
+  --status-overdue: #FCA5A5;
   --status-overdue-solid: #DC2626;
-  --status-overdue-bg: rgba(220, 38, 38, 0.24);
-  --status-overdue-border: rgba(248, 113, 113, 0.38);
+  --status-overdue-bg: rgba(74, 18, 22, 0.86);
+  --status-overdue-border: rgba(248, 113, 113, 0.42);
+
+  --chart-transfer: #38BDF8;
 
   --skeleton-base: rgba(42, 50, 65, 0.74);
   --skeleton-shine: rgba(78, 92, 118, 0.68);
@@ -581,12 +564,13 @@ body::after {
     backdrop-filter: blur(24px) saturate(200%);
   }
 
-  /* Tier 2: 3D Elevated Crystal Card (Product, Buyer Bar, KPI, Order/Debt Card) */
+  /* Tier 2: 3D Elevated Crystal Card (Product, Buyer Bar, KPI, Order/Debt Card)
+     Uses crisp translucent gradient + specular bevel + layout/style containment without
+     per-item backdrop-filter so long scrolling lists stay smooth at 60fps on iPhone Safari */
   .glass-card {
     background: var(--glass-card-bg);
     box-shadow: var(--glass-card-shadow);
-    -webkit-backdrop-filter: blur(20px) saturate(190%);
-    backdrop-filter: blur(20px) saturate(190%);
+    contain: layout style;
   }
 
   .glass-card-selected {
@@ -606,7 +590,6 @@ body::after {
   .glass-card-interactive {
     transition:
       transform 170ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 190ms cubic-bezier(0.22, 1, 0.36, 1),
       background-color 170ms ease;
   }
 
@@ -651,25 +634,25 @@ body::after {
   .glass-well {
     background: var(--glass-well-bg);
     box-shadow:
-      inset 0 2px 5px rgba(8, 52, 39, 0.10),
-      inset 0 0 0 1px rgba(14, 78, 58, 0.08),
+      inset 0 2px 5px rgba(15, 23, 42, 0.10),
+      inset 0 0 0 1px var(--glass-border-subtle),
       0 1px 0 var(--glass-rim-top);
   }
 
   :root[data-theme="dark"] .glass-well {
     box-shadow:
       inset 0 2px 6px rgba(0, 0, 0, 0.44),
-      inset 0 0 0 1px rgba(196, 244, 232, 0.08),
-      0 1px 0 rgba(224, 255, 245, 0.08);
+      inset 0 0 0 1px var(--glass-border-subtle),
+      0 1px 0 rgba(241, 245, 249, 0.08);
   }
 
   /* Principle 4: Opaque-inside-Translucent Crisp Input */
   .glass-input {
     background-color: var(--glass-input-bg);
-    border: 1px solid rgba(14, 86, 64, 0.14);
+    border: 1px solid var(--border-default);
     box-shadow:
-      0 4px 12px -4px rgba(8, 54, 40, 0.11),
-      0 1px 2px rgba(8, 54, 40, 0.06),
+      0 4px 12px -4px rgba(15, 23, 42, 0.11),
+      0 1px 2px rgba(15, 23, 42, 0.06),
       inset 0 1px 0 rgba(255, 255, 255, 0.96);
     transition:
       border-color 150ms ease,
@@ -678,10 +661,10 @@ body::after {
   }
 
   :root[data-theme="dark"] .glass-input {
-    border-color: rgba(186, 244, 228, 0.18);
+    border-color: var(--border-default);
     box-shadow:
       inset 0 2px 5px rgba(0, 0, 0, 0.50),
-      0 1px 0 rgba(210, 252, 238, 0.12);
+      0 1px 0 rgba(241, 245, 249, 0.10);
   }
 
   .glass-input:focus,
@@ -696,17 +679,16 @@ body::after {
   /* Principle 4: Opaque-inside-Translucent Crisp Solid Pill / Stepper Control */
   .glass-solid-control {
     background: var(--glass-solid-bg);
-    border: 1px solid rgba(14, 92, 68, 0.12);
+    border: 1px solid var(--border-default);
     box-shadow: var(--glass-solid-shadow);
     transition:
       transform 130ms cubic-bezier(0.22, 1, 0.36, 1),
       background 150ms ease,
-      box-shadow 160ms ease,
       border-color 150ms ease;
   }
 
   :root[data-theme="dark"] .glass-solid-control {
-    border-color: rgba(180, 246, 226, 0.18);
+    border-color: var(--border-default);
   }
 
   .glass-solid-control:hover:not(:disabled) {
@@ -714,21 +696,25 @@ body::after {
     border-color: var(--status-paid-border);
   }
 
-  /* Principle 3: Glossy Deep Forest Jade Crystal Primary Button + Caustic Glow */
+  .glass-solid-control:focus-within {
+    border-color: var(--brand-jade);
+    box-shadow:
+      0 0 0 3px var(--brand-jade-glow),
+      var(--glass-solid-shadow);
+  }
+
+  /* Principle 3: Glossy Deep Forest Jade Crystal Primary Button + Caustic Glow (WCAG AA >= 5.1:1) */
   .glass-btn-primary {
     background: linear-gradient(
       148deg,
-      rgba(22, 166, 124, 0.88) 0%,
-      rgba(14, 114, 84, 0.94) 52%,
-      rgba(9, 86, 63, 0.96) 100%
+      rgba(14, 114, 84, 0.96) 0%,
+      rgba(10, 92, 68, 0.98) 54%,
+      rgba(7, 68, 50, 0.99) 100%
     );
     color: #FFFFFF;
     box-shadow: var(--glass-btn-primary-shadow);
-    -webkit-backdrop-filter: blur(16px) saturate(190%);
-    backdrop-filter: blur(16px) saturate(190%);
     transition:
       transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 170ms ease,
       filter 150ms ease;
   }
 
@@ -739,9 +725,9 @@ body::after {
   :root[data-theme="dark"] .glass-btn-primary {
     background: linear-gradient(
       148deg,
-      rgba(32, 188, 142, 0.88) 0%,
-      rgba(18, 138, 102, 0.94) 54%,
-      rgba(11, 98, 72, 0.96) 100%
+      rgba(18, 128, 94, 0.96) 0%,
+      rgba(13, 102, 74, 0.98) 54%,
+      rgba(9, 76, 55, 0.99) 100%
     );
   }
 
@@ -755,21 +741,18 @@ body::after {
     transform: translateY(0) scale(0.975);
   }
 
-  /* Principle 3: Luminous Jade Crystal Active Pill (Dock Tab, Active Filter, Active Segment) */
+  /* Principle 3: Luminous Jade Crystal Active Pill (Dock Tab, Active Filter, Active Segment — WCAG AA >= 5.1:1) */
   .glass-pill-jade {
     background: linear-gradient(
       148deg,
-      rgba(22, 164, 122, 0.90) 0%,
-      rgba(14, 112, 82, 0.95) 54%,
-      rgba(9, 86, 63, 0.97) 100%
+      rgba(14, 114, 84, 0.96) 0%,
+      rgba(10, 92, 68, 0.98) 54%,
+      rgba(7, 68, 50, 0.99) 100%
     );
     color: #FFFFFF;
     box-shadow: var(--glass-pill-jade-shadow);
-    -webkit-backdrop-filter: blur(14px) saturate(190%);
-    backdrop-filter: blur(14px) saturate(190%);
     transition:
       transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 160ms ease,
       filter 150ms ease;
   }
 
@@ -780,9 +763,9 @@ body::after {
   :root[data-theme="dark"] .glass-pill-jade {
     background: linear-gradient(
       148deg,
-      rgba(32, 188, 142, 0.88) 0%,
-      rgba(18, 138, 102, 0.94) 54%,
-      rgba(11, 98, 72, 0.97) 100%
+      rgba(18, 128, 94, 0.96) 0%,
+      rgba(13, 102, 74, 0.98) 54%,
+      rgba(9, 76, 55, 0.99) 100%
     );
   }
 
@@ -791,11 +774,8 @@ body::after {
     background: var(--glass-btn-sec-bg);
     color: var(--text-primary);
     box-shadow: var(--glass-btn-sec-shadow);
-    -webkit-backdrop-filter: blur(16px) saturate(185%);
-    backdrop-filter: blur(16px) saturate(185%);
     transition:
       transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 160ms ease,
       background 150ms ease;
   }
 
@@ -808,18 +788,18 @@ body::after {
     transform: translateY(0) scale(0.975);
   }
 
-  /* 3D Convex Crimson Danger Button + Caustic Glow */
+  /* 3D Convex Crimson Danger Button + Caustic Glow (WCAG AA >= 5.5:1) */
   .glass-btn-danger {
     background: linear-gradient(
       148deg,
-      rgba(232, 56, 56, 0.92) 0%,
-      rgba(185, 28, 28, 0.96) 100%
+      rgba(198, 32, 32, 0.96) 0%,
+      rgba(162, 22, 22, 0.98) 100%
     );
     color: #FFFFFF;
     box-shadow:
-      0 12px 26px -6px rgba(185, 28, 28, 0.50),
-      0 4px 10px -2px rgba(220, 38, 38, 0.30),
-      inset 0 2px 3px rgba(255, 255, 255, 0.40),
+      0 12px 26px -6px rgba(162, 22, 22, 0.48),
+      0 4px 10px -2px rgba(198, 32, 32, 0.28),
+      inset 0 1.5px 2px rgba(255, 255, 255, 0.36),
       inset 0 -2px 4px rgba(110, 12, 12, 0.36);
     transition:
       transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -850,16 +830,13 @@ body::after {
     background: var(--glass-chip-bg);
     color: var(--text-secondary);
     box-shadow:
-      0 6px 14px -6px rgba(9, 54, 40, 0.14),
+      0 6px 14px -6px rgba(15, 23, 42, 0.14),
       inset 0 1.5px 2px var(--glass-rim-top),
       inset 0 -1.5px 3px var(--glass-rim-bottom);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
-    backdrop-filter: blur(16px) saturate(180%);
     transition:
       transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
       background 150ms ease,
-      color 150ms ease,
-      box-shadow 160ms ease;
+      color 150ms ease;
   }
 
   .glass-chip:hover:not(:disabled) {
@@ -874,8 +851,6 @@ body::after {
       0 8px 20px -6px var(--brand-jade-glow),
       inset 0 1.5px 2px var(--glass-rim-top),
       inset 0 -1.5px 3px rgba(14, 107, 78, 0.10);
-    -webkit-backdrop-filter: blur(16px) saturate(190%);
-    backdrop-filter: blur(16px) saturate(190%);
   }
 
   .glass-chip-active::before {
@@ -961,8 +936,13 @@ body::after {
   .glass-panel::before,
   .glass-card::before,
   .glass-modal::before,
+  .glass-btn-primary::before,
+  .glass-pill-jade::before,
   .glass-btn-secondary::before,
-  .glass-chip::before {
+  .glass-btn-danger::before,
+  .glass-chip::before,
+  .glass-chip-active::before,
+  .glass-icon-orb::before {
     display: none;
   }
 
@@ -978,6 +958,23 @@ body::after {
   .glass-btn-secondary {
     background: var(--bg-surface);
     border: 1px solid var(--border-default);
+  }
+
+  .glass-btn-primary,
+  .glass-pill-jade {
+    background: var(--brand-jade);
+    border: 1px solid var(--brand-jade-hover);
+  }
+
+  .glass-btn-danger {
+    background: var(--status-overdue-solid);
+    border: 1px solid var(--status-overdue);
+  }
+
+  .glass-chip-active,
+  .glass-icon-orb {
+    background: var(--status-paid-bg);
+    border: 1px solid var(--status-paid-border);
   }
 }
 
@@ -1083,6 +1080,14 @@ body::after {
   display: none;
 }
 
+/* Right-edge fade cue signaling horizontal category scroll on narrow mobile viewports */
+@media (max-width: 639px) {
+  .scroll-fade-x {
+    -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 26px), transparent 100%);
+    mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 26px), transparent 100%);
+  }
+}
+
 @keyframes paytrack-shimmer {
   0% {
     background-position: 200% 0;
@@ -1174,8 +1179,7 @@ body::after {
   transition:
     transform 120ms cubic-bezier(0.22, 1, 0.36, 1),
     background-color 150ms ease,
-    border-color 150ms ease,
-    box-shadow 160ms ease;
+    border-color 150ms ease;
 }
 
 .press-tactile:active:not(:disabled) {
