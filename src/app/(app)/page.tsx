@@ -144,9 +144,9 @@ export default function PosWorkspacePage() {
         cart.length > 0 ? 'pb-24 lg:pb-5' : ''
       }`}
     >
-      {/* Sculpted Page Header + Contextual Glass Alerts */}
+      {/* Crisp Unboxed Workspace Header + Contextual Crystal Pills */}
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2 sm:mb-3.5">
-        <h1 className="text-[20px] font-bold tracking-[-0.02em] text-[var(--text-primary)] lg:text-[24px]">
+        <h1 className="text-[22px] font-bold tracking-[-0.02em] text-[var(--text-primary)] lg:text-[24px]">
           Bán hàng
         </h1>
 
@@ -165,7 +165,7 @@ export default function PosWorkspacePage() {
           {!loading && !catalogError && missingBankConfig && (
             <Link
               href="/settings#bank"
-              className="glass-btn-secondary press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold text-[var(--brand-jade-text)]"
+              className="glass-solid-control press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold text-[var(--brand-jade-text)]"
             >
               <Landmark className="h-4 w-4 shrink-0" />
               <span>Thêm STK QR</span>
@@ -174,12 +174,12 @@ export default function PosWorkspacePage() {
         </div>
       </div>
 
-      {/* Frosted Undo Banner after clearing cart */}
+      {/* Crystal Undo Banner after clearing cart (10s window) */}
       {clearedDraftUndo && (
         <div
           role="status"
           aria-live="polite"
-          className="animate-fade-in glass-card mb-3 flex flex-wrap items-center justify-between gap-2 rounded-[20px] px-4 py-2.5 text-[13px] text-[var(--text-primary)] sm:mb-3.5"
+          className="animate-fade-in glass-card mb-3 flex flex-wrap items-center justify-between gap-2 rounded-[22px] px-4 py-2.5 text-[13px] text-[var(--text-primary)] sm:mb-3.5"
         >
           <span className="font-medium">
             Đã xóa giỏ hàng ({clearedDraftUndo.cart.length} món).
@@ -188,7 +188,7 @@ export default function PosWorkspacePage() {
             <button
               type="button"
               onClick={handleUndoClearCart}
-              className="glass-chip-active press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[13px] font-bold"
+              className="glass-pill-jade press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-[13px] font-bold"
             >
               <RotateCcw className="h-3.5 w-3.5" />
               <span>Hoàn tác</span>
@@ -197,7 +197,7 @@ export default function PosWorkspacePage() {
               type="button"
               onClick={() => setClearedDraftUndo(null)}
               aria-label="Đóng thông báo"
-              className="glass-btn-secondary press-tactile flex h-11 w-11 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              className="glass-solid-control press-tactile flex h-11 w-11 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             >
               <X className="h-4 w-4" />
             </button>
@@ -244,7 +244,7 @@ export default function PosWorkspacePage() {
 
           {/* Desktop Sticky Cart Column */}
           <div className="hidden lg:col-span-5 lg:block xl:col-span-4">
-            <div className="lg:sticky lg:top-[82px]">
+            <div className="lg:sticky lg:top-[84px]">
               <CartPanel
                 items={cart}
                 discount={discount}
@@ -261,16 +261,16 @@ export default function PosWorkspacePage() {
         </div>
       )}
 
-      {/* Mobile Floating 3D Jade Crystal Cart Pill (above Floating Glass Dock) */}
+      {/* Mobile Floating 3D Jade Crystal Cart Pill with Caustic Glow */}
       {cart.length > 0 && (
-        <div className="pointer-events-none fixed inset-x-0 bottom-[calc(88px+env(safe-area-inset-bottom))] z-20 flex justify-center px-3 lg:hidden">
+        <div className="pointer-events-none fixed inset-x-0 bottom-[calc(90px+env(safe-area-inset-bottom))] z-20 flex justify-center px-3 lg:hidden">
           <button
             type="button"
             onClick={() => setMobileCartOpen(true)}
             className="glass-btn-primary press-tactile animate-sheet-up pointer-events-auto flex min-h-[56px] w-full max-w-[440px] items-center justify-between gap-3 rounded-full px-4"
           >
             <div className="flex min-w-0 items-center gap-2.5">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20">
                 <ShoppingBag className="h-[18px] w-[18px] shrink-0" />
               </span>
               <span

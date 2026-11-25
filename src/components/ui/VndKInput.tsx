@@ -73,12 +73,12 @@ export function VndKInput({
           placeholder={placeholder}
           onChange={(e) => handleChange(e.target.value)}
           className={`glass-input font-mono-tabular w-full min-w-0 rounded-[14px] text-[16px] font-semibold text-[var(--text-primary)] outline-none disabled:opacity-60 ${
-            compact ? 'min-h-[44px] py-1.5 pl-3 pr-[62px]' : 'min-h-[48px] py-2 pl-3.5 pr-[70px]'
+            compact ? 'min-h-[44px] py-1.5 pl-3 pr-[64px]' : 'min-h-[48px] py-2 pl-3.5 pr-[72px]'
           } ${align === 'right' ? 'text-right' : 'text-left'}`}
         />
         <span
           aria-hidden="true"
-          className={`font-mono-tabular pointer-events-none absolute right-2 select-none rounded-[9px] bg-[var(--bg-subtle)] px-2 py-0.5 font-semibold text-[var(--text-secondary)] ${
+          className={`font-mono-tabular pointer-events-none absolute right-2 select-none rounded-full bg-[var(--bg-subtle)] px-2.5 py-0.5 font-semibold text-[var(--brand-jade-text)] ${
             compact ? 'text-[12px]' : 'text-[13px]'
           }`}
         >

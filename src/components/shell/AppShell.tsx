@@ -133,15 +133,15 @@ export function AppShell({
           Bỏ qua tới nội dung chính
         </a>
 
-        {/* Sculpted Floating Liquid Glass Top Bar (Mobile & Desktop) */}
+        {/* Sculpted Floating Crystal Glass Top Bar (Mobile & Desktop) */}
         <div className="no-print sticky top-0 z-20 px-2.5 pt-2.5 sm:px-5 sm:pt-3">
-          <header className="glass-surface mx-auto flex h-[58px] max-w-[1440px] items-center justify-between gap-2 rounded-[22px] px-3 sm:px-5">
+          <header className="glass-surface mx-auto flex h-[60px] max-w-[1440px] items-center justify-between gap-1.5 rounded-[24px] px-2.5 sm:gap-2 sm:px-4">
             <Link
               href="/"
               prefetch={true}
-              className="flex min-h-[44px] min-w-0 items-center gap-2.5 rounded-[14px] pr-2 transition-opacity hover:opacity-90"
+              className="flex min-h-[44px] min-w-0 items-center gap-2 rounded-full pr-1 transition-opacity hover:opacity-90 sm:gap-2.5 sm:pr-2"
             >
-              <span className="glass-icon-orb flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] p-0.5">
+              <span className="glass-icon-orb flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] p-0.5">
                 <BrandMark className="h-8 w-8 shrink-0" />
               </span>
               <span className="truncate text-[15px] font-bold tracking-[-0.015em] text-[var(--text-primary)] sm:text-[16px]">
@@ -149,11 +149,9 @@ export function AppShell({
               </span>
             </Link>
 
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               <SyncStatusPill status={status} />
-              <div className="lg:hidden">
-                <ThemeQuickToggle iconOnly />
-              </div>
+              <ThemeQuickToggle iconOnly />
             </div>
           </header>
         </div>
@@ -180,11 +178,11 @@ export function AppShell({
           {children}
         </main>
 
-        {/* Sculpted 3D Floating Glass Dock (375px Mobile & 1280px Desktop) */}
-        <div className="no-print pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-3 pb-[calc(10px+env(safe-area-inset-bottom))] lg:pb-4">
+        {/* Sculpted 3D Crystal Floating Glass Dock (5 tabs, 375px Mobile & 1280px+ Desktop) */}
+        <div className="no-print pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-2 pb-[calc(10px+env(safe-area-inset-bottom))] lg:pb-4">
           <nav
             aria-label="Điều hướng chính"
-            className="glass-dock pointer-events-auto flex w-full max-w-[448px] items-center gap-1 rounded-[28px] p-1.5 lg:w-auto lg:max-w-none lg:gap-1.5 lg:px-2.5 lg:py-2"
+            className="glass-dock pointer-events-auto flex w-full max-w-[440px] items-center gap-0.5 rounded-[30px] p-1 lg:w-auto lg:max-w-none lg:gap-1.5 lg:rounded-full lg:px-2 lg:py-1.5"
           >
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
@@ -197,22 +195,19 @@ export function AppShell({
                   href={item.href}
                   prefetch={true}
                   aria-current={active ? 'page' : undefined}
-                  className={`press-tactile relative flex min-h-[52px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-[20px] px-1 text-[12px] font-medium transition-all lg:min-h-[46px] lg:flex-initial lg:flex-row lg:gap-2 lg:rounded-full lg:px-4 lg:text-[14px] ${
+                  className={`press-tactile relative flex min-h-[54px] min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-[24px] px-0 text-[12px] tracking-[-0.015em] leading-none transition-all lg:min-h-[46px] lg:flex-initial lg:flex-row lg:gap-2 lg:rounded-full lg:px-4 lg:text-[14px] lg:tracking-normal ${
                     active
-                      ? 'glass-chip-active font-semibold'
-                      : 'border border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
+                      ? 'glass-pill-jade font-semibold'
+                      : 'font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
                   }`}
                 >
-                  <Icon className="h-5 w-5 shrink-0 lg:h-[18px] lg:w-[18px]" />
-                  <span className="max-w-full truncate">{item.label}</span>
+                  <Icon className="h-[19px] w-[19px] shrink-0 lg:h-[18px] lg:w-[18px]" />
+                  <span className="max-w-full truncate whitespace-nowrap leading-none">
+                    {item.label}
+                  </span>
                 </Link>
               );
             })}
-
-            <div className="glass-divider mx-1 hidden h-6 border-l lg:block" />
-            <div className="hidden lg:block">
-              <ThemeQuickToggle iconOnly />
-            </div>
           </nav>
         </div>
       </div>
@@ -238,7 +233,7 @@ function SyncStatusPill({ status }: { status: 'synced' | 'connecting' | 'offline
       <div
         role="status"
         aria-live="polite"
-        className="glass-badge-overdue inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-[12px] font-semibold"
+        className="glass-badge-overdue inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[12px] font-semibold sm:px-3"
       >
         <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-overdue)]" />
         <span>Mất mạng</span>
@@ -251,7 +246,7 @@ function SyncStatusPill({ status }: { status: 'synced' | 'connecting' | 'offline
       <div
         role="status"
         aria-live="polite"
-        className="glass-badge-debt inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-[12px] font-semibold"
+        className="glass-badge-debt inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[12px] font-semibold sm:px-3"
       >
         <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-debt)]" />
         <span>Đang nối</span>
@@ -263,7 +258,7 @@ function SyncStatusPill({ status }: { status: 'synced' | 'connecting' | 'offline
     <div
       role="status"
       aria-live="polite"
-      className="glass-badge-paid inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-[12px] font-semibold"
+      className="glass-badge-paid inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[12px] font-semibold sm:px-3"
     >
       <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-paid)]" />
       <span>Đã đồng bộ</span>

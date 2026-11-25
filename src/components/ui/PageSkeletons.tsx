@@ -18,7 +18,7 @@ export function FetchErrorCard({
   return (
     <div
       role="alert"
-      className="animate-fade-in glass-card rounded-[24px] border-[var(--status-overdue-border)] p-6 text-center"
+      className="animate-fade-in glass-card rounded-[24px] p-6 text-center"
     >
       <div className="glass-badge-overdue mx-auto mb-3.5 flex h-14 w-14 items-center justify-center rounded-[18px]">
         <WifiOff className="h-6 w-6" />
@@ -48,13 +48,12 @@ export function PosWorkspaceSkeleton() {
     >
       {/* Left Buyer Bar + Catalog Skeleton */}
       <div className="space-y-3 lg:col-span-7 xl:col-span-8">
-        <div className="glass-card rounded-[20px] p-3">
+        <div className="glass-card rounded-[22px] p-3">
           <Bone className="h-[46px] w-full rounded-[14px]" />
         </div>
-        <div className="glass-surface flex gap-2 rounded-[20px] p-2.5">
-          <Bone className="h-[46px] flex-1 rounded-[14px]" />
-          <Bone className="h-[46px] w-[88px] rounded-[14px] sm:w-28" />
-          <Bone className="h-[46px] w-[72px] rounded-[14px] sm:w-28" />
+        <div className="glass-surface flex gap-2 rounded-[22px] p-2.5">
+          <Bone className="h-[46px] flex-1 rounded-full" />
+          <Bone className="h-[46px] w-[96px] rounded-full sm:w-28" />
         </div>
         <div className="flex gap-2 overflow-hidden">
           <Bone className="h-11 w-24 shrink-0 rounded-full" />
@@ -63,10 +62,11 @@ export function PosWorkspaceSkeleton() {
         </div>
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, idx) => (
-            <div key={idx} className="glass-card rounded-[20px] p-3.5">
-              <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-stretch">
-                <Bone className="h-5 w-3/5 sm:w-3/4" />
-                <Bone className="h-5 w-20 sm:mt-2.5 sm:w-24" />
+            <div key={idx} className="glass-card space-y-2.5 rounded-[22px] p-3.5">
+              <Bone className="h-5 w-3/4" />
+              <div className="flex items-center justify-between gap-3">
+                <Bone className="h-6 w-24" />
+                <Bone className="h-11 w-11 rounded-full" />
               </div>
             </div>
           ))}

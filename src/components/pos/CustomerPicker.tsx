@@ -98,7 +98,7 @@ export function CustomerPicker({
   return (
     <>
       <div
-        className={`glass-card glass-card-interactive flex min-w-0 items-center gap-2 rounded-[20px] px-3 py-1.5 ${className}`}
+        className={`glass-card glass-card-interactive flex min-w-0 items-center gap-2 rounded-[22px] px-3 py-1.5 ${className}`}
       >
         <button
           type="button"
@@ -143,7 +143,7 @@ export function CustomerPicker({
             </div>
           </div>
 
-          <span className="glass-chip shrink-0 rounded-full px-3 py-1.5 text-[13px] font-semibold text-[var(--brand-jade-text)]">
+          <span className="glass-solid-control shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-semibold text-[var(--brand-jade-text)]">
             {selectedCustomer ? 'Đổi' : 'Chọn khách'}
           </span>
         </button>
@@ -153,7 +153,7 @@ export function CustomerPicker({
             type="button"
             onClick={() => onSelect(null)}
             aria-label="Chuyển về khách lẻ"
-            className="glass-btn-secondary press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
             <X className="h-4 w-4" />
           </button>
@@ -165,7 +165,7 @@ export function CustomerPicker({
         onClose={() => setModalOpen(false)}
         ariaLabelledBy="customer-picker-modal-title"
         backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
-        panelClassName="animate-sheet-up sm:animate-modal-in glass-modal flex max-h-[90dvh] w-full max-w-[460px] flex-col overflow-hidden rounded-t-[26px] sm:rounded-[26px]"
+        panelClassName="animate-sheet-up sm:animate-modal-in glass-modal flex max-h-[90dvh] w-full max-w-[460px] flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px]"
       >
         <div className="glass-modal-header flex shrink-0 items-center justify-between gap-2 px-5 py-3.5">
           <h2
