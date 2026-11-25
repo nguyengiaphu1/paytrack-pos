@@ -327,7 +327,7 @@ export function WelcomeOnboardingModal({
 
         {/* Step 1: Shop Info */}
         <div
-          className={`rounded-[22px] transition-all ${
+          className={`rounded-[22px] transition-[background-color,border-color] ${
             activeStep === 1 ? 'glass-card glass-card-selected' : 'glass-well'
           }`}
         >
@@ -426,7 +426,7 @@ export function WelcomeOnboardingModal({
 
         {/* Step 2: Bank Account */}
         <div
-          className={`rounded-[22px] transition-all ${
+          className={`rounded-[22px] transition-[background-color,border-color] ${
             activeStep === 2 ? 'glass-card glass-card-selected' : 'glass-well'
           }`}
         >
@@ -552,7 +552,7 @@ export function WelcomeOnboardingModal({
 
         {/* Step 3: First Product */}
         <div
-          className={`rounded-[22px] transition-all ${
+          className={`rounded-[22px] transition-[background-color,border-color] ${
             activeStep === 3 ? 'glass-card glass-card-selected' : 'glass-well'
           }`}
         >

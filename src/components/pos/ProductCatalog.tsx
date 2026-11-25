@@ -1,7 +1,18 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Check, EyeOff, Minus, PackageOpen, Pencil, Plus, Search, Zap } from 'lucide-react';
+import {
+  Check,
+  EyeOff,
+  Minus,
+  PackageOpen,
+  Pencil,
+  Plus,
+  Search,
+  SlidersHorizontal,
+  X,
+  Zap,
+} from 'lucide-react';
 import type { Product } from '@/types/database';
 import { formatVND, stripVietnamese } from '@/lib/vietnamese';
 import { EmptyStateCard } from '@/components/ui/EmptyStateCard';
@@ -31,6 +42,7 @@ export function ProductCatalog({
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [showHidden, setShowHidden] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const [mobileManageOpen, setMobileManageOpen] = useState(false);
   const [liveAnnouncement, setLiveAnnouncement] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -81,6 +93,8 @@ export function ProductCatalog({
   }, [products, showHidden]);
 
   const activeCategory = categories.includes(selectedCategory) ? selectedCategory : 'ALL';
+  const managePanelExpanded = mobileManageOpen || editMode || showHidden;
+  const hasManageActive = editMode || showHidden;
 
   const filtered = useMemo(() => {
     const q = stripVietnamese(query);
@@ -93,7 +107,7 @@ export function ProductCatalog({
   }, [products, query, activeCategory, showHidden]);
 
   return (
-    <div className="space-y-3 sm:space-y-3.5">
+    <div className="space-y-2.5 sm:space-y-3.5">
       <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {liveAnnouncement}
       </div>
@@ -119,9 +133,21 @@ export function ProductCatalog({
             }}
             aria-label="Tìm món hàng"
             placeholder="Tìm món..."
-            className="glass-input min-h-[46px] w-full rounded-full pr-4 pl-10 text-[16px] text-[var(--text-primary)] outline-none lg:pr-11"
+            className="glass-input min-h-[46px] w-full rounded-full pr-11 pl-10 text-[16px] text-[var(--text-primary)] outline-none [&::-webkit-search-cancel-button]:hidden"
           />
-          {!query && (
+          {query ? (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery('');
+                searchInputRef.current?.focus();
+              }}
+              aria-label="Xóa từ khóa tìm món"
+              className="press-tactile absolute top-1/2 right-0.5 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          ) : (
             <kbd
               aria-hidden="true"
               className="glass-badge-neutral pointer-events-none absolute top-1/2 right-3 hidden -translate-y-1/2 items-center rounded-full px-2 py-0.5 font-mono text-[12px] font-semibold lg:inline-flex"
@@ -142,85 +168,159 @@ export function ProductCatalog({
         </button>
       </div>
 
-      {/* Category Pills (horizontal scroll on mobile) + Catalog Management (Đã ẩn / Thêm SP / Sửa) */}
+      {/* Category Pills (uncrushed full-width scroll strip on mobile) + Catalog Management */}
       {products.length > 0 && (
-        <div className="flex items-center justify-between gap-2">
-          {categories.length > 1 ? (
-            <div
-              className="scrollbar-none -my-1.5 flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto touch-pan-x py-2 sm:my-0 sm:flex-wrap sm:overflow-visible sm:py-0.5"
-              role="group"
-              aria-label="Lọc theo danh mục"
-            >
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  aria-pressed={activeCategory === cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`press-tactile min-h-[44px] shrink-0 whitespace-nowrap rounded-full px-3.5 text-[13px] ${
-                    activeCategory === cat
-                      ? 'glass-pill-jade font-semibold'
-                      : 'glass-chip font-medium'
-                  }`}
-                >
-                  {cat === 'ALL' ? 'Tất cả' : cat}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <span className="glass-badge-neutral font-mono-tabular inline-flex items-center rounded-full px-3 py-1 text-[13px] font-medium">
-              {filtered.length} món
-            </span>
-          )}
-
-          <div className="flex shrink-0 items-center gap-1.5">
-            {(hiddenCount > 0 || showHidden) && (
-              <button
-                type="button"
-                aria-pressed={showHidden}
-                onClick={() => setShowHidden((v) => !v)}
-                className={`press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 text-[13px] ${
-                  showHidden ? 'glass-pill-jade font-semibold' : 'glass-chip font-medium'
-                }`}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            {categories.length > 1 ? (
+              <div
+                className="scrollbar-none scroll-fade-x -my-1.5 flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto touch-pan-x py-2 pr-7 sm:my-0 sm:flex-wrap sm:overflow-visible sm:py-0.5 sm:pr-0"
+                role="group"
+                aria-label="Lọc theo danh mục"
               >
-                <EyeOff className="h-3.5 w-3.5 shrink-0" />
-                <span className="hidden sm:inline">Đã ẩn ({hiddenCount})</span>
-                <span className="font-mono-tabular sm:hidden">({hiddenCount})</span>
-              </button>
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    aria-pressed={activeCategory === cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`press-tactile min-h-[44px] shrink-0 whitespace-nowrap rounded-full px-3.5 text-[13px] ${
+                      activeCategory === cat
+                        ? 'glass-chip-active font-semibold'
+                        : 'glass-chip font-medium'
+                    }`}
+                  >
+                    {cat === 'ALL' ? 'Tất cả' : cat}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <span className="glass-badge-neutral font-mono-tabular inline-flex items-center rounded-full px-3 py-1 text-[13px] font-medium">
+                {filtered.length} món
+              </span>
             )}
 
+            {/* Mobile single-pill Catalog Management trigger (keeps category strip wide on 375px) */}
             <button
               type="button"
-              onClick={onOpenNewProduct}
-              aria-label="Thêm sản phẩm mới vào danh mục"
-              title="Thêm sản phẩm mới vào danh mục bán lâu dài"
-              className="glass-solid-control press-tactile inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-full px-3.5 text-[13px] font-semibold text-[var(--brand-jade-text)]"
-            >
-              <Plus className="h-3.5 w-3.5 shrink-0" />
-              <span>Thêm SP</span>
-            </button>
-
-            <button
-              type="button"
-              aria-pressed={editMode}
-              onClick={() => setEditMode((v) => !v)}
-              className={`press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold ${
-                editMode ? 'glass-pill-jade' : 'glass-chip'
+              aria-expanded={managePanelExpanded}
+              aria-controls="mobile-catalog-manage-tray"
+              onClick={() => setMobileManageOpen((v) => !v)}
+              className={`press-tactile inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full px-3 text-[13px] font-semibold sm:hidden ${
+                hasManageActive || managePanelExpanded ? 'glass-chip-active' : 'glass-solid-control text-[var(--text-primary)]'
               }`}
             >
-              {editMode ? (
-                <>
-                  <Check className="h-3.5 w-3.5 shrink-0" />
-                  <span>Xong</span>
-                </>
-              ) : (
-                <>
-                  <Pencil className="h-3.5 w-3.5 shrink-0" />
-                  <span>Sửa</span>
-                </>
-              )}
+              <SlidersHorizontal className="h-3.5 w-3.5 shrink-0" />
+              <span>Quản lý</span>
             </button>
+
+            {/* Tablet/Desktop direct Catalog Management pills (sm+) */}
+            <div className="hidden shrink-0 items-center gap-1.5 sm:flex">
+              {(hiddenCount > 0 || showHidden) && (
+                <button
+                  type="button"
+                  aria-pressed={showHidden}
+                  aria-label={`Hiện ${hiddenCount} món đã ẩn`}
+                  onClick={() => setShowHidden((v) => !v)}
+                  className={`press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 text-[13px] ${
+                    showHidden ? 'glass-chip-active font-semibold' : 'glass-chip font-medium'
+                  }`}
+                >
+                  <EyeOff className="h-3.5 w-3.5 shrink-0" />
+                  <span>Đã ẩn ({hiddenCount})</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={onOpenNewProduct}
+                aria-label="Thêm sản phẩm mới vào danh mục"
+                title="Thêm sản phẩm mới vào danh mục bán lâu dài"
+                className="glass-solid-control press-tactile inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-full px-3.5 text-[13px] font-semibold text-[var(--brand-jade-text)]"
+              >
+                <Plus className="h-3.5 w-3.5 shrink-0" />
+                <span>Thêm SP</span>
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={editMode}
+                onClick={() => setEditMode((v) => !v)}
+                className={`press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold ${
+                  editMode ? 'glass-chip-active' : 'glass-chip'
+                }`}
+              >
+                {editMode ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 shrink-0" />
+                    <span>Xong</span>
+                  </>
+                ) : (
+                  <>
+                    <Pencil className="h-3.5 w-3.5 shrink-0" />
+                    <span>Sửa</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
+
+          {/* Mobile Collapsible Catalog Management Tray (< sm) */}
+          {managePanelExpanded && (
+            <div
+              id="mobile-catalog-manage-tray"
+              className="animate-fade-in glass-well flex flex-wrap items-center gap-2 rounded-[18px] p-2 sm:hidden"
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileManageOpen(false);
+                  onOpenNewProduct();
+                }}
+                aria-label="Thêm sản phẩm mới vào danh mục"
+                className="glass-solid-control press-tactile inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold text-[var(--brand-jade-text)]"
+              >
+                <Plus className="h-3.5 w-3.5 shrink-0" />
+                <span>Thêm SP</span>
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={editMode}
+                onClick={() => setEditMode((v) => !v)}
+                className={`press-tactile inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold ${
+                  editMode ? 'glass-chip-active' : 'glass-solid-control text-[var(--text-primary)]'
+                }`}
+              >
+                {editMode ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 shrink-0" />
+                    <span>Xong</span>
+                  </>
+                ) : (
+                  <>
+                    <Pencil className="h-3.5 w-3.5 shrink-0" />
+                    <span>Sửa món</span>
+                  </>
+                )}
+              </button>
+
+              {(hiddenCount > 0 || showHidden) && (
+                <button
+                  type="button"
+                  aria-pressed={showHidden}
+                  aria-label={`Hiện ${hiddenCount} món đã ẩn`}
+                  onClick={() => setShowHidden((v) => !v)}
+                  className={`press-tactile inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full px-3.5 text-[13px] ${
+                    showHidden ? 'glass-chip-active font-semibold' : 'glass-solid-control font-medium text-[var(--text-secondary)]'
+                  }`}
+                >
+                  <EyeOff className="h-3.5 w-3.5 shrink-0" />
+                  <span>Đã ẩn ({hiddenCount})</span>
+                </button>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -364,17 +464,53 @@ export function ProductCatalog({
               );
             }
 
+            if (!inCart) {
+              return (
+                <div
+                  key={product.id}
+                  className="glass-card glass-card-interactive group flex min-w-0 flex-col overflow-hidden rounded-[22px]"
+                >
+                  <button
+                    type="button"
+                    onClick={() => handleAdd(product)}
+                    aria-label={`Thêm ${product.name}, ${formatVND(product.price)} / ${product.unit}`}
+                    className="press-tactile flex h-full min-h-[104px] w-full min-w-0 flex-col justify-between gap-2 px-3.5 py-3 text-left"
+                  >
+                    <div className="flex w-full min-w-0 items-start justify-between gap-2">
+                      <span className="line-clamp-2 break-words text-[15px] font-semibold leading-snug text-[var(--text-primary)]">
+                        {product.name}
+                      </span>
+                      <span className="shrink-0 pt-0.5 text-[12px] font-medium text-[var(--text-secondary)]">
+                        / {product.unit}
+                      </span>
+                    </div>
+
+                    <div className="flex w-full items-center justify-between gap-2 pt-1">
+                      <span className="font-mono-tabular truncate text-[16px] font-bold text-[var(--brand-jade-text)]">
+                        {formatVND(product.price)}
+                      </span>
+                      <span
+                        aria-hidden="true"
+                        className="glass-solid-control flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--brand-jade-text)]"
+                      >
+                        <Plus className="h-[18px] w-[18px]" />
+                      </span>
+                    </div>
+                  </button>
+                </div>
+              );
+            }
+
             return (
               <div
                 key={product.id}
-                className={`glass-card glass-card-interactive group flex min-w-0 flex-col justify-between overflow-hidden rounded-[22px] ${
-                  inCart ? 'glass-card-selected' : ''
-                }`}
+                className="glass-card glass-card-interactive glass-card-selected group flex min-w-0 flex-col justify-between overflow-hidden rounded-[22px]"
               >
                 {/* Compact Header Tap Zone (name + unit) */}
                 <button
                   type="button"
                   onClick={() => handleAdd(product)}
+                  aria-label={`Thêm 1 ${product.name}`}
                   className="press-tactile flex min-h-[44px] w-full flex-1 min-w-0 items-start justify-between gap-2 px-3.5 pt-3 pb-1 text-left"
                 >
                   <span className="line-clamp-2 break-words text-[15px] font-semibold leading-snug text-[var(--text-primary)]">
@@ -385,56 +521,39 @@ export function ProductCatalog({
                   </span>
                 </button>
 
-                {/* Single Compact Action Row: Price Left + Inline -/+ Stepper (or + Orb) Right */}
-                <div className="flex items-center justify-between gap-2 px-3.5 pb-3 pt-1">
-                  <button
-                    type="button"
-                    onClick={() => handleAdd(product)}
-                    className="press-tactile flex min-h-[44px] min-w-0 flex-1 items-center text-left"
-                  >
-                    <span className="font-mono-tabular truncate text-[16px] font-bold text-[var(--brand-jade-text)]">
-                      {formatVND(product.price)}
-                    </span>
-                  </button>
+                {/* Single Compact Action Row: Price Left + Inline 44x44px -/+ Stepper Right */}
+                <div className="flex items-center justify-between gap-2 px-3 pb-3 pt-1 sm:px-3.5">
+                  <span className="font-mono-tabular min-w-0 flex-1 truncate text-[16px] font-bold text-[var(--brand-jade-text)]">
+                    {formatVND(product.price)}
+                  </span>
 
-                  {inCart ? (
-                    <div className="glass-solid-control inline-flex shrink-0 items-center overflow-hidden rounded-full">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const next = Number((qty - 1).toFixed(2));
-                          onSetProductQty(product, next <= 0 ? 0 : next);
-                        }}
-                        aria-label={`Giảm ${product.name}`}
-                        className="press-tactile flex h-11 w-10 items-center justify-center text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-subtle)] sm:w-11"
-                      >
-                        <Minus className="h-4 w-4" />
-                      </button>
-                      <QtyNumberInput
-                        value={qty}
-                        onCommit={(val) => onSetProductQty(product, val)}
-                        ariaLabel={`Số lượng ${product.name}`}
-                        className="glass-divider font-mono-tabular h-11 w-11 border-0 border-x bg-transparent text-center text-[16px] font-bold text-[var(--brand-jade-text)] outline-none"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => onSetProductQty(product, Number((qty + 1).toFixed(2)))}
-                        aria-label={`Tăng ${product.name}`}
-                        className="press-tactile flex h-11 w-10 items-center justify-center text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-subtle)] sm:w-11"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ) : (
+                  <div className="glass-solid-control inline-flex shrink-0 items-center overflow-hidden rounded-full">
                     <button
                       type="button"
-                      onClick={() => handleAdd(product)}
-                      aria-label={`Thêm ${product.name}`}
-                      className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--brand-jade-text)]"
+                      onClick={() => {
+                        const next = Number((qty - 1).toFixed(2));
+                        onSetProductQty(product, next <= 0 ? 0 : next);
+                      }}
+                      aria-label={`Giảm ${product.name}`}
+                      className="press-tactile flex h-11 w-11 items-center justify-center text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-subtle)] focus-visible:bg-[var(--bg-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand-jade)]"
                     >
-                      <Plus className="h-[18px] w-[18px]" />
+                      <Minus className="h-4 w-4" />
                     </button>
-                  )}
+                    <QtyNumberInput
+                      value={qty}
+                      onCommit={(val) => onSetProductQty(product, val)}
+                      ariaLabel={`Số lượng ${product.name}`}
+                      className="glass-divider font-mono-tabular h-11 w-11 border-0 border-x bg-transparent text-center text-[16px] font-bold text-[var(--brand-jade-text)] focus-visible:bg-[var(--bg-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand-jade)]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => onSetProductQty(product, Number((qty + 1).toFixed(2)))}
+                      aria-label={`Tăng ${product.name}`}
+                      className="press-tactile flex h-11 w-11 items-center justify-center text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-subtle)] focus-visible:bg-[var(--bg-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand-jade)]"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             );

@@ -167,4 +167,136 @@ describe('Accessibility & ModalDialog guards (Impeccable Audit Step 4)', () => {
     const invoice = readRel('src/components/invoice/InvoicePreviewModal.tsx');
     expect(invoice).toContain('hasBalanceDue');
   });
+
+  it('enforces P1 audit fixes: keyboard-accessible /orders rows & decoupled mobile cards, QtyNumberInput focus rings, and bounded backdrop-filter on repeating cards/chips', () => {
+    const orders = readRel('src/app/(app)/orders/page.tsx');
+    expect(orders).toContain('Xem chi tiết đơn ${order.order_code}');
+    expect(orders).not.toContain('role="button"\n                  tabIndex={0}');
+
+    for (const relPath of [
+      'src/components/pos/ProductCatalog.tsx',
+      'src/components/pos/CartPanel.tsx',
+      'src/components/pos/QuickItemModal.tsx',
+    ]) {
+      const src = readRel(relPath);
+      expect(src, `${relPath} must use inset focus-visible ring on QtyNumberInput`).toContain(
+        'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand-jade)]'
+      );
+    }
+
+    const css = readRel('src/app/globals.css');
+    expect(css).toContain('.glass-solid-control:focus-within');
+    expect(css).toContain('contain: layout style;');
+
+    const cardRule = css.match(/\.glass-card\s*\{[^}]*\}/)?.[0] ?? '';
+    expect(cardRule).not.toContain('backdrop-filter');
+
+    const chipRule = css.match(/\.glass-chip\s*\{[^}]*\}/)?.[0] ?? '';
+    expect(chipRule).not.toContain('backdrop-filter');
+
+    // WCAG AA >= 5.1:1 gradient top stops and opaque-tinted badge tokens
+    expect(css).toContain('--brand-jade: #127A59;');
+    expect(css).toContain('--status-debt: #8A3B04;');
+    expect(css).toContain('--status-overdue: #9F1616;');
+    expect(css).toContain('--status-overdue: #FCA5A5;');
+    expect(css).not.toContain('rgba(22, 166, 124, 0.88)');
+    expect(css).not.toContain('rgba(32, 188, 142, 0.88)');
+  });
+
+  it('enforces P2/P3 audit fixes: no unused JetBrains_Mono, dynamic Recharts with reduced-motion, distinct PaymentBreakdownChart transfer color, 44px mobile product steppers, complete reduced-transparency, and zero transition-all in TSX', () => {
+    const layout = readRel('src/app/layout.tsx');
+    expect(layout).not.toContain('JetBrains_Mono');
+    expect(layout).not.toContain('--font-mono');
+
+    const stats = readRel('src/app/(app)/stats/page.tsx');
+    expect(stats).toContain("import dynamic from 'next/dynamic'");
+    expect(stats).toContain("import('@/components/stats/RevenueCashChart')");
+    expect(stats).not.toContain("from '@/components/stats/RevenueCashChart'");
+
+    const revChart = readRel('src/components/stats/RevenueCashChart.tsx');
+    expect(revChart).toContain('prefers-reduced-motion: reduce');
+    expect(revChart).toContain('isAnimationActive={!reducedMotion}');
+
+    const breakdown = readRel('src/components/stats/PaymentBreakdownChart.tsx');
+    expect(breakdown).toContain('var(--chart-transfer)');
+    expect(breakdown).toContain('gap-0.5');
+
+    const catalog = readRel('src/components/pos/ProductCatalog.tsx');
+    expect(catalog).toContain('if (!inCart)');
+    expect(catalog).not.toContain('flex h-11 w-10 items-center');
+
+    const css = readRel('src/app/globals.css');
+    expect(css).toContain('--chart-transfer: #0284C7;');
+    expect(css).toContain('--chart-transfer: #38BDF8;');
+    expect(css).toContain('.glass-btn-primary::before,');
+    expect(css).toContain('.glass-icon-orb::before {');
+
+    const tsxFiles: string[] = [];
+    function walk(dir: string) {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) walk(full);
+        else if (/\.tsx$/.test(entry.name)) tsxFiles.push(full);
+      }
+    }
+    walk(path.join(ROOT, 'src'));
+    for (const file of tsxFiles) {
+      const content = fs.readFileSync(file, 'utf8');
+      expect(content, `${path.relative(ROOT, file)} must not use transition-all`).not.toContain(
+        'transition-all'
+      );
+    }
+  });
+
+  it('enforces POS critique 6-step remediation (layout, harden, quieter, distill, clarify, polish)', () => {
+    const css = readRel('src/app/globals.css');
+    expect(css).toContain('.scroll-fade-x');
+
+    const pos = readRel('src/app/(app)/page.tsx');
+    expect(pos).toContain('Chốt đơn');
+    expect(pos).toContain('onOpenCustomerPicker');
+
+    const catalog = readRel('src/components/pos/ProductCatalog.tsx');
+    expect(catalog).toContain('mobile-catalog-manage-tray');
+    expect(catalog).toContain('aria-label="Xóa từ khóa tìm món"');
+    expect(catalog).not.toContain('glass-pill-jade');
+
+    const shell = readRel('src/components/shell/AppShell.tsx');
+    expect(shell).toContain('glass-chip-active font-semibold');
+    expect(shell).not.toContain('glass-pill-jade');
+    expect(shell).toContain('ThemeQuickToggle responsiveLabel');
+
+    const cart = readRel('src/components/pos/CartPanel.tsx');
+    expect(cart).toContain('role="status"');
+    expect(cart).toContain('Ctrl+↵');
+    expect(cart).not.toContain('glass-pill-jade');
+
+    const checkout = readRel('src/components/pos/CheckoutModal.tsx');
+    expect(checkout).toContain('closeOnBackdrop={Boolean(savedOrder)}');
+    expect(checkout).toContain('checkout-items-breakdown');
+    expect(checkout).toContain('Cần chọn khách hàng để ghi nợ');
+    expect(checkout).toContain('ring-2 ring-[var(--brand-jade)]');
+    expect(checkout).toContain('ring-2 ring-[var(--status-debt)]');
+    expect(checkout).toContain('Gần đây');
+
+    const picker = readRel('src/components/pos/CustomerPicker.tsx');
+    expect(picker).toContain('Gần đây');
+    expect(picker).toContain('aria-label="Xóa từ khóa tìm khách hàng"');
+    expect(picker).toContain('aria-label="Đóng"\n            className="glass-solid-control');
+
+    const quick = readRel('src/components/pos/QuickItemModal.tsx');
+    expect(quick).toContain('closeOnBackdrop={false}');
+    expect(quick).toContain('scrollIntoView');
+    expect(quick).toContain('aria-invalid=');
+    expect(quick).toContain('không lưu vào danh mục trừ khi bật bên dưới');
+
+    const prodForm = readRel('src/components/pos/ProductFormModal.tsx');
+    expect(prodForm).toContain('closeOnBackdrop={false}');
+    expect(prodForm).toContain('scrollIntoView');
+    expect(prodForm).toContain('aria-invalid=');
+
+    const accSelector = readRel('src/components/ui/PaymentAccountSelector.tsx');
+    expect(accSelector).toContain('grid grid-cols-2 gap-2');
+    expect(accSelector).not.toContain('glass-pill-jade');
+  });
 });

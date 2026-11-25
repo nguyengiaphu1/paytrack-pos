@@ -1,5 +1,6 @@
 'use client';
 
+import { useSyncExternalStore } from 'react';
 import {
   Bar,
   BarChart,
@@ -22,6 +23,26 @@ interface RevenueCashChartProps {
   data: DailyPoint[];
 }
 
+function subscribeReducedMotion(listener: () => void): () => void {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return () => {};
+  }
+  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (typeof mq.addEventListener === 'function') {
+    mq.addEventListener('change', listener);
+    return () => mq.removeEventListener('change', listener);
+  }
+  mq.addListener(listener);
+  return () => mq.removeListener(listener);
+}
+
+function getReducedMotionSnapshot(): boolean {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return false;
+  }
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 function formatShortDate(isoDate: string): string {
   const parts = isoDate.split('-');
   if (parts.length !== 3) return isoDate;
@@ -29,6 +50,12 @@ function formatShortDate(isoDate: string): string {
 }
 
 export function RevenueCashChart({ data }: RevenueCashChartProps) {
+  const reducedMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotionSnapshot,
+    () => false
+  );
+
   const chartData = data.map((d) => ({
     ...d,
     label: formatShortDate(d.date),
@@ -117,8 +144,20 @@ export function RevenueCashChart({ data }: RevenueCashChartProps) {
                     paddingTop: '6px',
                   }}
                 />
-                <Bar dataKey="revenue" fill="var(--brand-jade)" radius={[8, 8, 0, 0]} maxBarSize={28} />
-                <Bar dataKey="collected" fill="var(--status-debt)" radius={[8, 8, 0, 0]} maxBarSize={28} />
+                <Bar
+                  dataKey="revenue"
+                  fill="var(--brand-jade)"
+                  radius={[8, 8, 0, 0]}
+                  maxBarSize={28}
+                  isAnimationActive={!reducedMotion}
+                />
+                <Bar
+                  dataKey="collected"
+                  fill="var(--status-debt)"
+                  radius={[8, 8, 0, 0]}
+                  maxBarSize={28}
+                  isAnimationActive={!reducedMotion}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>

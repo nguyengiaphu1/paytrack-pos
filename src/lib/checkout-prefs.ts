@@ -128,3 +128,64 @@ export function getQuickPickAccounts(
 
   return result;
 }
+
+const RECENT_CUSTOMERS_STORAGE_KEY = 'paytrack:recent-customers:v1';
+const MAX_RECENT_CUSTOMERS = 4;
+
+export function sanitizeRecentCustomerIds(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  const ids: string[] = [];
+  for (const item of raw) {
+    if (typeof item === 'string' && item.trim() && !ids.includes(item)) {
+      ids.push(item);
+      if (ids.length >= MAX_RECENT_CUSTOMERS) break;
+    }
+  }
+  return ids;
+}
+
+export function loadRecentCustomerIds(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = window.localStorage.getItem(RECENT_CUSTOMERS_STORAGE_KEY);
+    if (!raw) return [];
+    return sanitizeRecentCustomerIds(JSON.parse(raw));
+  } catch {
+    return [];
+  }
+}
+
+export function recordRecentCustomerId(customerId: string): string[] {
+  const trimmed = customerId.trim();
+  if (!trimmed) return loadRecentCustomerIds();
+  const current = loadRecentCustomerIds();
+  const next = [trimmed, ...current.filter((id) => id !== trimmed)].slice(0, MAX_RECENT_CUSTOMERS);
+
+  if (typeof window !== 'undefined') {
+    try {
+      window.localStorage.setItem(RECENT_CUSTOMERS_STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      // Ignore storage quota or Safari private-mode restrictions
+    }
+  }
+
+  return next;
+}
+
+export function resolveRecentCustomers<T extends { id: string }>(
+  customers: readonly T[],
+  recentIds: readonly string[],
+  limit = MAX_RECENT_CUSTOMERS
+): T[] {
+  if (recentIds.length === 0 || customers.length === 0) return [];
+  const byId = new Map(customers.map((c) => [c.id, c]));
+  const result: T[] = [];
+  for (const id of recentIds) {
+    const match = byId.get(id);
+    if (match) {
+      result.push(match);
+      if (result.length >= limit) break;
+    }
+  }
+  return result;
+}

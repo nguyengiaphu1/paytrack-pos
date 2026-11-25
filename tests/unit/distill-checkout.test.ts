@@ -4,7 +4,9 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_CHECKOUT_PREFS,
   getQuickPickAccounts,
+  resolveRecentCustomers,
   sanitizeCheckoutPrefs,
+  sanitizeRecentCustomerIds,
 } from '@/lib/checkout-prefs';
 
 const ROOT = path.resolve(__dirname, '../..');
@@ -43,6 +45,26 @@ describe('Checkout preferences & MRU quick-pick accounts (checkout-prefs)', () =
       'Thanh',
     ]);
     expect(getQuickPickAccounts('Thuỷ', ['Thuỷ'], 3)).toEqual(['Thuỷ', 'Thanh', 'Phú']);
+  });
+
+  it('sanitizes and resolves up to 4 MRU recent customers while ignoring deleted IDs', () => {
+    expect(sanitizeRecentCustomerIds(null)).toEqual([]);
+    expect(sanitizeRecentCustomerIds(['c1', '', 'c2', 'c1', 42, 'c3', 'c4', 'c5'])).toEqual([
+      'c1',
+      'c2',
+      'c3',
+      'c4',
+    ]);
+
+    const customers = [
+      { id: 'c1', name: 'Cô Lan' },
+      { id: 'c2', name: 'Chị Hoa' },
+      { id: 'c3', name: 'Anh Minh' },
+    ];
+    expect(resolveRecentCustomers(customers, ['c3', 'deleted', 'c1'], 4)).toEqual([
+      { id: 'c3', name: 'Anh Minh' },
+      { id: 'c1', name: 'Cô Lan' },
+    ]);
   });
 });
 

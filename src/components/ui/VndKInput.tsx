@@ -17,6 +17,7 @@ interface VndKInputProps {
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
+  invalid?: boolean;
   ariaLabel?: string;
   compact?: boolean;
   align?: 'left' | 'right';
@@ -31,6 +32,7 @@ export function VndKInput({
   placeholder = '0',
   required = false,
   disabled = false,
+  invalid = false,
   ariaLabel,
   compact = false,
   align = 'left',
@@ -68,13 +70,16 @@ export function VndKInput({
           autoComplete="off"
           required={required}
           disabled={disabled}
+          aria-invalid={invalid || undefined}
           aria-label={ariaLabel}
           value={text}
           placeholder={placeholder}
           onChange={(e) => handleChange(e.target.value)}
           className={`glass-input font-mono-tabular w-full min-w-0 rounded-[14px] text-[16px] font-semibold text-[var(--text-primary)] outline-none disabled:opacity-60 ${
             compact ? 'min-h-[44px] py-1.5 pl-3 pr-[64px]' : 'min-h-[48px] py-2 pl-3.5 pr-[72px]'
-          } ${align === 'right' ? 'text-right' : 'text-left'}`}
+          } ${align === 'right' ? 'text-right' : 'text-left'} ${
+            invalid ? 'ring-2 ring-[var(--status-overdue)]' : ''
+          }`}
         />
         <span
           aria-hidden="true"

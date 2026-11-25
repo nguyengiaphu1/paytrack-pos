@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Loader2, Minus, Plus, X, Zap } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { formatErrorMessageVN } from '@/lib/errors';
@@ -35,6 +35,14 @@ function QuickItemModalBody({
   const [saveToCatalog, setSaveToCatalog] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [invalidField, setInvalidField] = useState<'name' | 'price' | 'qty' | null>(null);
+  const alertRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (error) {
+      alertRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [error]);
 
   function stepQty(delta: number) {
     const base = Number.isFinite(qty) && qty > 0 ? qty : 1;
@@ -53,19 +61,23 @@ function QuickItemModalBody({
     e.preventDefault();
     if (saving) return;
     setError(null);
+    setInvalidField(null);
 
     const trimmedName = name.trim();
     const numericQty = Number(qty);
 
     if (!trimmedName) {
+      setInvalidField('name');
       setError('Vui lòng nhập tên món');
       return;
     }
     if (priceVnd === null || !Number.isFinite(priceVnd) || priceVnd < 0) {
+      setInvalidField('price');
       setError('Đơn giá phải hợp lệ (>= 0)');
       return;
     }
     if (!Number.isFinite(numericQty) || numericQty <= 0) {
+      setInvalidField('qty');
       setError('Số lượng phải lớn hơn 0');
       return;
     }
@@ -125,6 +137,7 @@ function QuickItemModalBody({
     <ModalDialog
       open
       onClose={onClose}
+      closeOnBackdrop={false}
       ariaLabelledBy="quick-item-modal-title"
       backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
       panelClassName="animate-sheet-up sm:animate-modal-in glass-modal flex max-h-[92dvh] w-full max-w-[440px] flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px]"
@@ -134,12 +147,17 @@ function QuickItemModalBody({
           <span className="glass-icon-orb flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] text-[var(--brand-jade-text)]">
             <Zap className="h-[18px] w-[18px]" />
           </span>
-          <h2
-            id="quick-item-modal-title"
-            className="min-w-0 truncate text-[16px] font-bold text-[var(--text-primary)]"
-          >
-            Bán món lẻ
-          </h2>
+          <div className="min-w-0">
+            <h2
+              id="quick-item-modal-title"
+              className="truncate text-[16px] font-bold text-[var(--text-primary)]"
+            >
+              Bán món lẻ
+            </h2>
+            <p className="text-[12px] text-[var(--text-secondary)]">
+              Thêm nhanh cho đơn này — không lưu vào danh mục trừ khi bật bên dưới.
+            </p>
+          </div>
         </div>
         <button
           type="button"
@@ -155,6 +173,7 @@ function QuickItemModalBody({
         <div className="flex-1 space-y-3.5 overflow-y-auto p-4 sm:p-5">
           {error && (
             <div
+              ref={alertRef}
               role="alert"
               className="glass-badge-overdue rounded-[14px] px-3.5 py-2.5 text-[14px] font-medium"
             >
@@ -175,10 +194,16 @@ function QuickItemModalBody({
                 data-autofocus
                 type="text"
                 required
+                aria-invalid={invalidField === 'name' || undefined}
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (invalidField === 'name') setInvalidField(null);
+                }}
                 placeholder="Tên món hàng..."
-                className="glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none"
+                className={`glass-input min-h-[46px] w-full rounded-[14px] px-3.5 text-[16px] text-[var(--text-primary)] outline-none ${
+                  invalidField === 'name' ? 'ring-2 ring-[var(--status-overdue)]' : ''
+                }`}
               />
             </div>
 
@@ -190,27 +215,34 @@ function QuickItemModalBody({
                 >
                   Số lượng
                 </label>
-                <div className="glass-solid-control inline-flex w-full items-center overflow-hidden rounded-full">
+                <div
+                  className={`glass-solid-control inline-flex w-full items-center overflow-hidden rounded-full ${
+                    invalidField === 'qty' ? 'ring-2 ring-[var(--status-overdue)]' : ''
+                  }`}
+                >
                   <button
                     type="button"
                     onClick={() => stepQty(-1)}
                     aria-label="Giảm số lượng"
-                    className="press-tactile flex h-[46px] w-11 shrink-0 items-center justify-center text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-subtle)]"
+                    className="press-tactile flex h-[46px] w-11 shrink-0 items-center justify-center text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-subtle)] focus-visible:bg-[var(--bg-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand-jade)]"
                   >
                     <Minus className="h-4 w-4" />
                   </button>
                   <QtyNumberInput
                     id="quick-item-qty"
                     value={qty}
-                    onCommit={setQty}
+                    onCommit={(val) => {
+                      setQty(val);
+                      if (invalidField === 'qty') setInvalidField(null);
+                    }}
                     ariaLabel="Số lượng món lẻ"
-                    className="glass-divider font-mono-tabular h-[46px] w-full min-w-0 border-0 border-x bg-transparent px-2 text-center text-[16px] font-bold text-[var(--brand-jade-text)] outline-none"
+                    className="glass-divider font-mono-tabular h-[46px] w-full min-w-0 border-0 border-x bg-transparent px-2 text-center text-[16px] font-bold text-[var(--brand-jade-text)] focus-visible:bg-[var(--bg-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand-jade)]"
                   />
                   <button
                     type="button"
                     onClick={() => stepQty(1)}
                     aria-label="Tăng số lượng"
-                    className="press-tactile flex h-[46px] w-11 shrink-0 items-center justify-center text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-subtle)]"
+                    className="press-tactile flex h-[46px] w-11 shrink-0 items-center justify-center text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-subtle)] focus-visible:bg-[var(--bg-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand-jade)]"
                   >
                     <Plus className="h-4 w-4" />
                   </button>
@@ -244,8 +276,12 @@ function QuickItemModalBody({
                 <VndKInput
                   id="quick-price-k"
                   required
+                  invalid={invalidField === 'price'}
                   valueVnd={priceVnd}
-                  onChangeVnd={setPriceVnd}
+                  onChangeVnd={(val) => {
+                    setPriceVnd(val);
+                    if (invalidField === 'price') setInvalidField(null);
+                  }}
                   placeholder="50"
                   showPreview
                 />

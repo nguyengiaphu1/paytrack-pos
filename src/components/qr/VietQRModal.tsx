@@ -323,7 +323,7 @@ function VietQRModalBody({
                     aria-pressed={mode === 'total_debt'}
                     disabled={totalCustomerDebt <= 0}
                     onClick={() => setMode('total_debt')}
-                    className={`press-tactile min-h-[44px] truncate rounded-full px-1.5 text-[12px] font-semibold transition-all disabled:opacity-40 sm:px-2 sm:text-[13px] ${
+                    className={`press-tactile min-h-[44px] truncate rounded-full px-1.5 text-[12px] font-semibold transition-[transform,opacity,background-color,color] disabled:opacity-40 sm:px-2 sm:text-[13px] ${
                       mode === 'total_debt'
                         ? 'glass-pill-jade'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -336,7 +336,7 @@ function VietQRModalBody({
                     aria-pressed={mode === 'single_order'}
                     disabled={unpaidOrders.length === 0}
                     onClick={() => setMode('single_order')}
-                    className={`press-tactile min-h-[44px] truncate rounded-full px-1.5 text-[12px] font-semibold transition-all disabled:opacity-40 sm:px-2 sm:text-[13px] ${
+                    className={`press-tactile min-h-[44px] truncate rounded-full px-1.5 text-[12px] font-semibold transition-[transform,opacity,background-color,color] disabled:opacity-40 sm:px-2 sm:text-[13px] ${
                       mode === 'single_order'
                         ? 'glass-pill-jade'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -351,7 +351,7 @@ function VietQRModalBody({
                       setCustomAmountVnd(effectiveAmount > 0 ? effectiveAmount : null);
                       setMode('custom');
                     }}
-                    className={`press-tactile min-h-[44px] truncate rounded-full px-1.5 text-[12px] font-semibold transition-all sm:px-2 sm:text-[13px] ${
+                    className={`press-tactile min-h-[44px] truncate rounded-full px-1.5 text-[12px] font-semibold transition-[transform,opacity,background-color,color] sm:px-2 sm:text-[13px] ${
                       mode === 'custom'
                         ? 'glass-pill-jade'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'

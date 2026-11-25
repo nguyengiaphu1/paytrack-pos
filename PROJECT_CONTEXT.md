@@ -1,19 +1,19 @@
 # PayTrack POS — Project Context & Agent Quickstart
 
 > **Purpose**: Single-source-of-truth context file for AI assistants and developers. Read this file first in a new session instead of scanning the entire repository.
-> **Last Updated**: 2026-11-25 (`fix/wallpaper-tile-pop`: Refined 60-30-10 architectural studio wallpapers — Sunlit Limestone & Pewter Slate `#BCC3CE` Light + Lit Brushed Titanium & Deep Graphite `#161C26` Dark — with brighter white crystal tiles Light / smoked titanium crystal Dark so foreground tiles pop clearly in 3D relief)
+> **Last Updated**: 2026-11-25 (`v2.2.0`: Crystal Liquid Glass 3D Studio Wallpaper, refreshed/compacted `DESIGN.md` + `.impeccable/design.json`, all 15 audit findings resolved, and 6-step POS critique remediation `layout`/`harden`/`quieter`/`distill`/`clarify`/`polish`)
 
 ---
 
 ## 1. Project Overview & Tech Stack
 
-**PayTrack POS** (`v2.1.0+crystal-glass`) is a responsive Vietnamese home online-shop sales ledger and rapid order-entry app (juggling Zalo/Messenger chats on iPhone `375px` + evening 12-column ledger/profit reconciliation on Windows `1280px+`), with 12-field sales ledger & 9 payment accounts, FIFO customer debt ledger, multi-device Web Push reminder (iPhone Safari PWA + Windows Chrome/Edge), dynamic VietQR, customizable e-invoice (`PNG` / `A5` / `80mm`), Excel-safe CSV export, and visual analytics.
+**PayTrack POS** (`v2.2.0`) is a responsive Vietnamese home online-shop sales ledger and rapid order-entry app (juggling Zalo/Messenger chats on iPhone `375px` + evening 12-column ledger/profit reconciliation on Windows `1280px+`), with 12-field sales ledger & 9 payment accounts, FIFO customer debt ledger, multi-device Web Push reminder (iPhone Safari PWA + Windows Chrome/Edge), dynamic VietQR, customizable e-invoice (`PNG` / `A5` / `80mm`), Excel-safe CSV export, and visual analytics.
 
 - **Framework**: Next.js `^16.4.6` (App Router, Turbopack dev), React `^19.3.1`, TypeScript `^5.9.0`
-- **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`), **Crystal Liquid Glass / Deep Forest Jade (`#0E6B4E`)** 3D specular bevel material system in `src/app/globals.css` (strict **60-30-10** color balance with high tile separation: 60% neutral Sunlit Limestone/Pewter Slate `#BCC3CE` Light & Lit Brushed Titanium/Deep Graphite `#161C26` Dark fixed `body::before`/`body::after` studio wallpaper, 30% luminous neutral crystal `.glass-well`/`.glass-card`/`.glass-surface`/`.glass-panel`/`.glass-modal`/`.glass-dock` with `@layer components` `mask-composite: exclude` 135° specular bevel rims + opaque-inside-translucent `.glass-input` & `.glass-solid-control`, and 10% Deep Forest Jade `#0E6B4E` caustic-glow `.glass-btn-primary` & `.glass-pill-jade` + semantic status badges; `prefers-reduced-transparency` + opacity-preserving `prefers-reduced-motion`, WCAG AA contrast, `.print-surface-light` solid paper lock), fonts `Be Vietnam Pro` (`tabular-nums` for prices/quantities/phones via `.font-mono-tabular`, `>= 12px` Vietnamese floor, `>= 16px` input floor)
+- **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`), **Crystal Liquid Glass / Deep Forest Jade (`#0E6B4E`)** 3D specular bevel material system in `src/app/globals.css` (strict **60-30-10** color balance with high tile separation: 60% neutral Sunlit Limestone/Pewter Slate `#BCC3CE` Light & Lit Brushed Titanium/Deep Graphite `#161C26` Dark fixed `body::before`/`body::after` studio wallpaper, 30% luminous neutral crystal `.glass-well`/`.glass-card`/`.glass-surface`/`.glass-panel`/`.glass-modal`/`.glass-dock` with `@layer components` `mask-composite: exclude` 135° specular bevel rims, `backdrop-filter` bounded to structural chrome while high-cardinality `.glass-card`/`.glass-chip` use `contain: layout style` + crisp translucent fills, and opaque-inside-translucent `.glass-input` & `.glass-solid-control`, and 10% Deep Forest Jade `#0E6B4E` / `#127A59` WCAG AA `>= 5.1:1` caustic-glow `.glass-btn-primary` reserved for primary forward CTAs while active dock/filter/mode pills use frosted jade crystal `.glass-chip-active` + opaque-tinted semantic status badges; full `prefers-reduced-transparency` + opacity-preserving `prefers-reduced-motion`, WCAG AA/AAA contrast, `.print-surface-light` solid paper lock), font `Be Vietnam Pro` (`tabular-nums` for prices/quantities/phones via `.font-mono-tabular`, `>= 12px` Vietnamese floor, `>= 16px` input floor)
 - **Database / Auth / Realtime / Cron**: Supabase (`@supabase/ssr ^0.9.0`, `@supabase/supabase-js ^2.100.0`, Postgres 17, `pg_cron` + `pg_net`)
-- **Utilities**: `qrcode` (dynamically imported EMVCo/Napas 247 VietQR), `html-to-image` (dynamically imported PNG export/share), `web-push` (VAPID Web Push), `recharts` (charts), `lucide-react` (icons)
-- **Testing**: `vitest ^4.1.0` (unit tests in `tests/unit/` — 12 suites, 80 tests)
+- **Utilities**: `qrcode` (dynamically imported EMVCo/Napas 247 VietQR), `html-to-image` (dynamically imported PNG export/share), `web-push` (VAPID Web Push), `recharts` (dynamically imported charts), `lucide-react` (icons)
+- **Testing**: `vitest ^4.1.0` (unit tests in `tests/unit/` — 12 suites, 84 tests)
 
 ---
 
@@ -21,7 +21,7 @@
 
 ### Git Topology
 - `main`: Active production branch (auto-deploys to Vercel Production `https://paytrack-pos.vercel.app`). Create feature/fix/chore branches from `main` — **do not commit directly to `main`**.
-- Previous branches: `feat/spec-kit-foundation` (PR #1), `feat/001-paytrack-pos-mvp` (PR #2), `feat/002-ux-polish-theme` (PR #3), `fix/cron-reminders-not-firing` (PR #4), `chore/release-1.1.1` (PR #5), `fix/daily-digest-not-firing` (PR #6), `chore/release-1.1.2` (PR #7), `feat/003-mom-ledger-glass-dock` (PR #8), `fix/003-converge-polish` (PR #9), `fix/ui-impeccable-overhaul` (PR #10), `chore/release-2.1.0` (PR #11), `feat/liquid-glass-ui-overhaul` (PR #12), `feat/liquid-glass-wallpaper-backdrop` (PR #13), `fix/ui-taste-redesign` (PR #14). Tags: `v1.0.0`–`v2.1.0`.
+- Previous branches: `feat/spec-kit-foundation` (PR #1), `feat/001-paytrack-pos-mvp` (PR #2), `feat/002-ux-polish-theme` (PR #3), `fix/cron-reminders-not-firing` (PR #4), `chore/release-1.1.1` (PR #5), `fix/daily-digest-not-firing` (PR #6), `chore/release-1.1.2` (PR #7), `feat/003-mom-ledger-glass-dock` (PR #8), `fix/003-converge-polish` (PR #9), `fix/ui-impeccable-overhaul` (PR #10), `chore/release-2.1.0` (PR #11), `feat/liquid-glass-ui-overhaul` (PR #12), `feat/liquid-glass-wallpaper-backdrop` (PR #13), `fix/ui-taste-redesign` (PR #14), `fix/neutral-60-30-10-backdrop` (PR #15), `fix/wallpaper-tile-pop` (PR #16), `fix/impeccable-audit-p1` (PR #17). Tags: `v1.0.0`–`v2.2.0`.
 
 ### Live Infrastructure
 - **Vercel Production**: `https://paytrack-pos.vercel.app` (team `phu-nguyen4`, project `paytrack-pos`, preset `nextjs`, Node `24.x`, region `sin1`, plus daily fallback cron `0 1 * * *` via `vercel.json`).
@@ -140,11 +140,11 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 
 ## 6. Current Status & Open Backlog
 
-- **Live in Production (`main`, deployed to `https://paytrack-pos.vercel.app`)**:
+- **Live in Production (`main`, deployed to `https://paytrack-pos.vercel.app`, tag `v2.2.0`)**:
   - Live Supabase (`mezuxaqvbtjbbtugsohm`) migrated through `0005_mom_ledger_fields.sql`.
-  - Shipped full-app 3D Crystal Liquid Glass redesign (`PR #14`) + neutral 60-30-10 backdrop (`PR #15`).
-- **In Progress (`fix/wallpaper-tile-pop`)**:
-  - Replaced washed-out white `#EEF0F3` / dark `#0B0D11` backgrounds with sculpted neutral studio wallpapers (`#BCC3CE` Sunlit Limestone & Pewter Slate Light + `#161C26` Lit Brushed Titanium & Deep Graphite Dark) and boosted tile luminance/shadows so every frosted glass card/tile pops clearly off the background while preserving strict 60-30-10 balance.
+  - Shipped full-app 3D Crystal Liquid Glass redesign (`PR #14`), neutral 60-30-10 backdrop (`PR #15`), tile-pop architectural studio wallpapers (`PR #16`), and full audit remediation + 6-step POS critique polish (`PR #17`, `v2.2.0`).
+  - Refreshed and compacted `DESIGN.md` + `.impeccable/design-full.md` + `.impeccable/design.json` to match Sunlit Limestone & Jade Crystal (`0` doctor drift/sidecar findings).
+  - Resolved all 15 audit findings (5 P1 + 9 P2 + 1 P3) and completed all 6 POS critique steps (`layout`, `harden`, `quieter`, `distill`, `clarify`, `polish`), verified with `84/84` unit tests and `next build` (`14/14` routes).
 
 ---
 
@@ -175,4 +175,5 @@ Enabled on: `products`, `customers`, `orders`, `debt_payments`, `debt_reminders`
 | 2026-11-24 | `feat/liquid-glass-ui-overhaul` Liquid Glass 3D UI Overhaul (`PR #12`, `PR #13`) | Rebuilt full-app presentation into a 4-tier Liquid Glass / Jade Crystal optical material system across all routes & modals while preserving 100% business logic, `.print-surface-light`, and `80/80` tests. |
 | 2026-11-24 | `fix/ui-taste-redesign` Crystal Liquid Glass Full-App Redesign (`PR #14`) | Merged PR #14 (Turns 1 & 2): 3D specular bevel crystal system (`mask-composite: exclude`), caustic Jade CTAs/active pills, opaque-inside-translucent controls, `Be Vietnam Pro` `tabular-nums`, untruncated 5-tab dock, compact 1-row Price + stepper POS cards, and synchronized all secondary routes, modals, drawers & charts (`80/80` tests pass). |
 | 2026-11-24 | `fix/neutral-60-30-10-backdrop` Neutral 60-30-10 Studio Canvas (`PR #15`) | Switched Light/Dark canvases to neutral tones obeying 60-30-10 so Deep Forest Jade `#0E6B4E` stays a clean 10% accent. |
-| 2026-11-25 | `fix/wallpaper-tile-pop` Tile-Pop Studio Wallpaper | Upgraded Light (`#BCC3CE` Sunlit Limestone & Pewter Slate) and Dark (`#161C26` Lit Brushed Titanium & Deep Graphite) wallpapers plus brighter frosted crystal tiles & grounded 3D shadows so every tile stands out distinctly above the backdrop while keeping strict 60-30-10 balance. |
+| 2026-11-25 | `fix/wallpaper-tile-pop` Tile-Pop Studio Wallpaper (`PR #16`) | Upgraded Light (`#BCC3CE` Sunlit Limestone & Pewter Slate) and Dark (`#161C26` Lit Brushed Titanium & Deep Graphite) wallpapers plus brighter frosted crystal tiles & grounded 3D shadows so every tile stands out distinctly above the backdrop while keeping strict 60-30-10 balance. |
+| 2026-11-25 | `v2.2.0` Crystal Liquid Glass Audit & POS Critique Polish (`PR #17`) | Refreshed & compacted `DESIGN.md` + `.impeccable/design.json`; resolved all 15 audit findings (5 P1 + 9 P2 + 1 P3: WCAG AA `>= 5.1:1` CTAs & `>= 6.8:1` status badges, keyboard-accessible `/orders` rows & decoupled mobile cards, `QtyNumberInput` inset focus rings, bounded `backdrop-filter` + `contain: layout style`, `--chart-transfer` contrast, single-stop `ProductCatalog` cards + `44px` mobile steppers, dynamic reduced-motion Recharts, removed unused `JetBrains_Mono`, complete `prefers-reduced-transparency`, zero `transition-all`) and completed 6-step POS critique (`layout`, `harden`, `quieter`, `distill`, `clarify`, `polish`: `.scroll-fade-x` + mobile `Quản lý` tray, backdrop draft locks, checkout breakdown & pinned debt blocker, calm `.glass-chip-active` dock/catalog/presets + `<Check>` + `2px` rings, split mobile `Giỏ hàng` + 1-tap `Chốt đơn`, MRU `Gần đây` buyers, 2-col expanded accounts, `44px` search clear buttons, desktop shortcut cues, unified close buttons, `scrollIntoView` + `aria-invalid`, responsive desktop theme label; `84/84` tests). |

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Be_Vietnam_Pro, JetBrains_Mono } from 'next/font/google';
+import { Be_Vietnam_Pro } from 'next/font/google';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { AppBootSplash } from '@/components/ui/AppBootSplash';
 import { THEME_BOOTSTRAP_SCRIPT, THEME_COLOR_DARK, THEME_COLOR_LIGHT } from '@/lib/theme';
@@ -9,13 +9,6 @@ const beVietnamPro = Be_Vietnam_Pro({
   subsets: ['latin', 'vietnamese'],
   weight: ['400', '500', '600', '700'],
   variable: '--font-sans',
-  display: 'swap',
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin', 'vietnamese'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-mono',
   display: 'swap',
 });
 
@@ -59,11 +52,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="vi"
-      suppressHydrationWarning
-      className={`${beVietnamPro.variable} ${jetbrainsMono.variable}`}
-    >
+    <html lang="vi" suppressHydrationWarning className={beVietnamPro.variable}>
       <head>
         <script
           dangerouslySetInnerHTML={{
