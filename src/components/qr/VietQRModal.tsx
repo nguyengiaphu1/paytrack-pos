@@ -325,7 +325,7 @@ function VietQRModalBody({
                     onClick={() => setMode('total_debt')}
                     className={`press-tactile min-h-[44px] truncate rounded-full px-1.5 text-[12px] font-semibold transition-[transform,opacity,background-color,color] disabled:opacity-40 sm:px-2 sm:text-[13px] ${
                       mode === 'total_debt'
-                        ? 'glass-pill-jade'
+                        ? 'glass-chip-active'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                   >
@@ -338,7 +338,7 @@ function VietQRModalBody({
                     onClick={() => setMode('single_order')}
                     className={`press-tactile min-h-[44px] truncate rounded-full px-1.5 text-[12px] font-semibold transition-[transform,opacity,background-color,color] disabled:opacity-40 sm:px-2 sm:text-[13px] ${
                       mode === 'single_order'
-                        ? 'glass-pill-jade'
+                        ? 'glass-chip-active'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                   >
@@ -353,7 +353,7 @@ function VietQRModalBody({
                     }}
                     className={`press-tactile min-h-[44px] truncate rounded-full px-1.5 text-[12px] font-semibold transition-[transform,opacity,background-color,color] sm:px-2 sm:text-[13px] ${
                       mode === 'custom'
-                        ? 'glass-pill-jade'
+                        ? 'glass-chip-active'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                   >

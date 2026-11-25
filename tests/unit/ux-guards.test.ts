@@ -39,12 +39,16 @@ const BANNED_SCATTERED_SLOP_IN_TSX = [
   'rounded-3xl',
 ];
 
-describe('PayTrack POS Crystal Liquid Glass, Floating Glass Dock, PWA, and Anti-AI-Slop architectural guards', () => {
-  it('defines Crystal Liquid Glass Light/Dark tokens, directional specular bevels, caustic pills, Be Vietnam Pro tabular-nums, print light lock, and reduced motion/transparency fallbacks in globals.css', () => {
+describe('PayTrack POS Neutral 60-30-10 Glassmorphism, Geometric Backdrop, Floating Glass Dock, PWA, and Anti-AI-Slop guards', () => {
+  it('defines Neutral 60-30-10 Glassmorphism Light/Dark tokens, #ECEFED grid & #0C100E dot-grid patterns, modal slide-up & tab slide keyframes, print light lock, and reduced motion/transparency fallbacks in globals.css', () => {
     const css = readRel('src/app/globals.css');
     expect(css).toContain(':root[data-theme="dark"]');
+    expect(css).toContain('--bg-canvas: #ECEFED;');
+    expect(css).toContain('--bg-canvas: #0C100E;');
+    expect(css).toContain('rgba(15, 23, 20, 0.07)');
+    expect(css).toContain('rgba(255, 255, 255, 0.08)');
     expect(css).toContain('body::before');
-    expect(css).toContain('body::after');
+    expect(css).not.toContain('--glass-bevel-rim-jade');
     expect(css).toContain('.glass-dock');
     expect(css).toContain('.glass-surface');
     expect(css).toContain('.glass-panel');
@@ -55,7 +59,6 @@ describe('PayTrack POS Crystal Liquid Glass, Floating Glass Dock, PWA, and Anti-
     expect(css).toContain('.glass-input');
     expect(css).toContain('.glass-solid-control');
     expect(css).toContain('.glass-btn-primary');
-    expect(css).toContain('.glass-pill-jade');
     expect(css).toContain('.glass-btn-secondary');
     expect(css).toContain('.glass-chip');
     expect(css).toContain('.glass-chip-active');
@@ -70,6 +73,10 @@ describe('PayTrack POS Crystal Liquid Glass, Floating Glass Dock, PWA, and Anti-
     expect(css).toContain('color-scheme: light');
     expect(css).toContain('.skeleton-shimmer');
     expect(css).toContain('.press-tactile');
+    expect(css).toContain('.animate-modal-in');
+    expect(css).toContain('.animate-sheet-up');
+    expect(css).toContain('.animate-tab-slide-left');
+    expect(css).toContain('.animate-tab-slide-right');
     expect(css).toContain('@media (prefers-reduced-motion: reduce)');
   });
 
@@ -96,11 +103,13 @@ describe('PayTrack POS Crystal Liquid Glass, Floating Glass Dock, PWA, and Anti-
     expect(fs.existsSync(path.join(ROOT, 'public/icons/icon-512-maskable.png'))).toBe(true);
   });
 
-  it('uses 5-tab Floating Glass Dock with header ThemeQuickToggle, no legacy 228px rail, and never renders dock on /login', () => {
+  it('uses 5-tab Floating Glass Dock with directional tab slides, header ThemeQuickToggle, no legacy 228px rail, and never renders dock on /login', () => {
     const shell = readRel('src/components/shell/AppShell.tsx');
     expect(shell).toContain('glass-dock');
     expect(shell).toContain('ThemeQuickToggle');
     expect(shell).toContain('WelcomeOnboardingModal');
+    expect(shell).toContain('animate-tab-slide-left');
+    expect(shell).toContain('animate-tab-slide-right');
     expect(shell).not.toContain('lg:w-[228px]');
     for (const label of ['Bán hàng', 'Công nợ', 'Sổ bán', 'Thống kê', 'Cài đặt']) {
       expect(shell).toContain(`label: '${label}'`);
@@ -111,15 +120,17 @@ describe('PayTrack POS Crystal Liquid Glass, Floating Glass Dock, PWA, and Anti-
     expect(login).not.toContain('AppShell');
   });
 
-  it('exposes CustomerPicker on POS screen and keeps ProductCatalog cards compact without redundant Số lượng label', () => {
+  it('exposes CustomerPicker on POS screen, replaces Món lẻ/Thêm SP with Thêm món, and keeps ProductCatalog cards compact', () => {
     const pos = readRel('src/app/(app)/page.tsx');
     expect(pos).toContain('<CustomerPicker');
+    expect(pos).not.toContain('QuickItemModal');
     const cartPanel = readRel('src/components/pos/CartPanel.tsx');
     expect(cartPanel).not.toContain('<CustomerPicker');
 
     const catalog = readRel('src/components/pos/ProductCatalog.tsx');
-    expect(catalog).toContain('Thêm SP');
-    expect(catalog).toContain('Món lẻ');
+    expect(catalog).toContain('Thêm món');
+    expect(catalog).not.toContain('Món lẻ');
+    expect(catalog).not.toContain('Thêm SP');
     expect(catalog).not.toContain('Số lượng ({product.unit})');
   });
 

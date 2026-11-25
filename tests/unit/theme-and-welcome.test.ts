@@ -104,10 +104,12 @@ describe('theme utilities', () => {
     expect(() => writeStoredThemePreference('light')).not.toThrow();
   });
 
-  it('includes data-theme bootstrap logic and syncs all theme-color meta tags', () => {
+  it('includes data-theme bootstrap logic and syncs harmonized #ECEFED / #0C100E theme-color meta tags', () => {
     expect(THEME_BOOTSTRAP_SCRIPT).toContain(THEME_STORAGE_KEY);
     expect(THEME_BOOTSTRAP_SCRIPT).toContain("setAttribute('data-theme',t)");
     expect(THEME_BOOTSTRAP_SCRIPT).toContain('prefers-color-scheme: dark');
+    expect(THEME_BOOTSTRAP_SCRIPT).toContain('#ECEFED');
+    expect(THEME_BOOTSTRAP_SCRIPT).toContain('#0C100E');
     expect(THEME_BOOTSTRAP_SCRIPT).toContain('querySelectorAll(\'meta[name="theme-color"]\')');
   });
 });

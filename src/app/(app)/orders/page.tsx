@@ -14,6 +14,7 @@ import {
   RotateCcw,
   Search,
   ShoppingBag,
+  Upload,
   X,
   XCircle,
 } from 'lucide-react';
@@ -50,6 +51,7 @@ import { VietQRModal } from '@/components/qr/VietQRModal';
 import { InvoicePreviewModal } from '@/components/invoice/InvoicePreviewModal';
 import { CollectDebtModal } from '@/components/debts/CollectDebtModal';
 import { OrderLedgerEditModal } from '@/components/orders/OrderLedgerEditModal';
+import { CsvImportModal } from '@/components/orders/CsvImportModal';
 import { EmptyStateCard } from '@/components/ui/EmptyStateCard';
 import { FetchErrorCard, OrdersPageSkeleton } from '@/components/ui/PageSkeletons';
 
@@ -120,6 +122,7 @@ export default function OrdersPage() {
 
   const [qrOpen, setQrOpen] = useState(false);
   const [invoiceOpen, setInvoiceOpen] = useState(false);
+  const [csvImportOpen, setCsvImportOpen] = useState(false);
 
   useEffect(() => {
     void ensureOrders();
@@ -264,7 +267,7 @@ export default function OrdersPage() {
 
   return (
     <div className="mx-auto max-w-[1440px] px-3 py-4 sm:px-6 lg:py-5">
-      {/* Header + CSV Export */}
+      {/* Header + CSV Import / Export */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <div className="glass-icon-orb flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px]">
@@ -282,16 +285,26 @@ export default function OrdersPage() {
             )}
           </div>
         </div>
-        {filtered.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={handleExportCsv}
-            className="glass-solid-control press-tactile inline-flex min-h-[44px] items-center gap-2 rounded-full px-4 text-[13px] font-semibold text-[var(--text-primary)]"
+            onClick={() => setCsvImportOpen(true)}
+            className="glass-btn-primary press-tactile inline-flex min-h-[44px] items-center gap-2 rounded-full px-4 text-[13px] font-semibold"
           >
-            <Download className="h-4 w-4 text-[var(--brand-jade-text)]" />
-            <span>Xuất CSV</span>
+            <Upload className="h-4 w-4" />
+            <span>Nhập CSV</span>
           </button>
-        )}
+          {filtered.length > 0 && (
+            <button
+              type="button"
+              onClick={handleExportCsv}
+              className="glass-solid-control press-tactile inline-flex min-h-[44px] items-center gap-2 rounded-full px-4 text-[13px] font-semibold text-[var(--text-primary)]"
+            >
+              <Download className="h-4 w-4 text-[var(--brand-jade-text)]" />
+              <span>Xuất CSV</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Totals KPI Strip */}
@@ -1277,6 +1290,11 @@ export default function OrdersPage() {
         order={selectedOrder}
         items={selectedItems}
         profile={profile}
+      />
+
+      <CsvImportModal
+        open={csvImportOpen}
+        onClose={() => setCsvImportOpen(false)}
       />
     </div>
   );

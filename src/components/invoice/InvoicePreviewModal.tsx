@@ -179,7 +179,7 @@ function InvoicePreviewModalBody({
             onClick={() => setFormat('a5')}
             className={`press-tactile min-h-[44px] rounded-full px-3.5 font-semibold transition-[transform,background-color,color] ${
               format === 'a5'
-                ? 'glass-pill-jade'
+                ? 'glass-chip-active'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`}
           >
@@ -191,7 +191,7 @@ function InvoicePreviewModalBody({
             onClick={() => setFormat('80mm')}
             className={`press-tactile min-h-[44px] rounded-full px-3.5 font-semibold transition-[transform,background-color,color] ${
               format === '80mm'
-                ? 'glass-pill-jade'
+                ? 'glass-chip-active'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`}
           >

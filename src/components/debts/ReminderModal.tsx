@@ -169,7 +169,7 @@ function ReminderModalBody({
                   aria-pressed={active}
                   onClick={() => setDate(preset.value)}
                   className={`press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] ${
-                    active ? 'glass-pill-jade font-bold' : 'glass-chip font-semibold'
+                    active ? 'glass-chip-active font-bold' : 'glass-chip font-semibold'
                   }`}
                 >
                   {preset.label}
@@ -229,7 +229,7 @@ function ReminderModalBody({
                   aria-pressed={active}
                   onClick={() => setTime(preset)}
                   className={`font-mono-tabular press-tactile min-h-[44px] rounded-full px-3.5 text-[13px] ${
-                    active ? 'glass-pill-jade font-bold' : 'glass-chip font-semibold'
+                    active ? 'glass-chip-active font-bold' : 'glass-chip font-semibold'
                   }`}
                 >
                   {preset}

@@ -109,7 +109,7 @@ export function SettingsThemeSelector() {
               aria-pressed={active}
               className={`press-tactile flex min-h-[46px] items-center justify-center gap-2 rounded-full px-2 text-[14px] font-semibold transition-[transform,opacity,background-color,color] ${
                 active
-                  ? 'glass-pill-jade'
+                  ? 'glass-chip-active'
                   : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >

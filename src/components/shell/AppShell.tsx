@@ -7,7 +7,9 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
+  useRef,
   useState,
   useSyncExternalStore,
   type ReactNode,
@@ -52,6 +54,12 @@ const NAV_ITEMS = [
   { href: '/settings', label: 'Cài đặt', icon: Settings },
 ] as const;
 
+function getNavTabIndex(pathname: string): number {
+  if (pathname === '/') return 0;
+  const idx = NAV_ITEMS.findIndex((item) => item.href !== '/' && pathname.startsWith(item.href));
+  return idx >= 0 ? idx : 0;
+}
+
 interface AppShellProps {
   userId: string;
   initialWelcomeSeen: boolean;
@@ -68,6 +76,10 @@ export function AppShell({
   children,
 }: AppShellProps) {
   const pathname = usePathname();
+  const activeTabIndex = getNavTabIndex(pathname);
+  const prevTabIndexRef = useRef<number>(activeTabIndex);
+  const tabStageRef = useRef<HTMLDivElement>(null);
+
   const [swRegistered, setSwRegistered] = useState(false);
   const [forceOnboardingOpen, setForceOnboardingOpen] = useState(false);
   const [dismissedInSession, setDismissedInSession] = useState(false);
@@ -106,6 +118,22 @@ export function AppShell({
     return () => window.removeEventListener('paytrack:open-onboarding', onOpenEvent);
   }, []);
 
+  useLayoutEffect(() => {
+    const prevIdx = prevTabIndexRef.current;
+    if (prevIdx === activeTabIndex) return;
+    prevTabIndexRef.current = activeTabIndex;
+
+    const stage = tabStageRef.current;
+    if (!stage) return;
+
+    const animClass =
+      activeTabIndex > prevIdx ? 'animate-tab-slide-left' : 'animate-tab-slide-right';
+    stage.classList.remove('animate-tab-slide-left', 'animate-tab-slide-right');
+    // Force reflow so rapid consecutive tab switches restart the slide cleanly
+    void stage.offsetWidth;
+    stage.classList.add(animClass);
+  }, [activeTabIndex]);
+
   useEffect(() => {
     if (swRegistered || typeof window === 'undefined') return;
     if ('serviceWorker' in navigator) {
@@ -133,7 +161,7 @@ export function AppShell({
           Bỏ qua tới nội dung chính
         </a>
 
-        {/* Sculpted Floating Crystal Glass Top Bar (Mobile & Desktop) */}
+        {/* Neutral Frosted Glass Top Bar (Mobile & Desktop) */}
         <div className="no-print sticky top-0 z-20 px-2.5 pt-2.5 sm:px-5 sm:pt-3">
           <header className="glass-surface mx-auto flex h-[60px] max-w-[1440px] items-center justify-between gap-1.5 rounded-[24px] px-2.5 sm:gap-2 sm:px-4">
             <Link
@@ -169,13 +197,25 @@ export function AppShell({
           </div>
         )}
 
-        {/* Full-Width Main Workspace (safe bottom padding for Sculpted Floating Glass Dock) */}
+        {/* Full-Width Main Workspace with directional slide-left / slide-right tab transitions */}
         <main
           id="main-content"
           tabIndex={-1}
           className="min-w-0 flex-1 pb-[118px] outline-none lg:pb-[112px]"
         >
-          {children}
+          <div
+            ref={tabStageRef}
+            onAnimationEnd={(e) => {
+              if (e.target === e.currentTarget) {
+                e.currentTarget.classList.remove(
+                  'animate-tab-slide-left',
+                  'animate-tab-slide-right'
+                );
+              }
+            }}
+          >
+            {children}
+          </div>
         </main>
 
         {/* Sculpted 3D Crystal Floating Glass Dock (5 tabs, 375px Mobile & 1280px+ Desktop) */}

@@ -10,7 +10,6 @@ import type { Product } from '@/types/database';
 import { CustomerPicker } from '@/components/pos/CustomerPicker';
 import { ProductCatalog } from '@/components/pos/ProductCatalog';
 import { ProductFormModal } from '@/components/pos/ProductFormModal';
-import { QuickItemModal } from '@/components/pos/QuickItemModal';
 import { CartPanel } from '@/components/pos/CartPanel';
 import { CheckoutModal } from '@/components/pos/CheckoutModal';
 import { FetchErrorCard, PosWorkspaceSkeleton } from '@/components/ui/PageSkeletons';
@@ -29,7 +28,6 @@ export default function PosWorkspacePage() {
     addProductToCart,
     setProductQtyInCart,
     syncProductInCart,
-    addQuickItemToCart,
     updateCartItemQty,
     removeCartItem,
     setCartDiscount,
@@ -46,7 +44,6 @@ export default function PosWorkspacePage() {
 
   const [productModalOpen, setProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [quickItemOpen, setQuickItemOpen] = useState(false);
   const [customerPickerOpen, setCustomerPickerOpen] = useState(false);
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -145,7 +142,7 @@ export default function PosWorkspacePage() {
         cart.length > 0 ? 'pb-24 lg:pb-5' : ''
       }`}
     >
-      {/* Crisp Unboxed Workspace Header + Contextual Crystal Pills */}
+      {/* Crisp Unboxed Workspace Header + Contextual Pills */}
       <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2 sm:mb-3.5">
         <h1 className="text-[22px] font-bold tracking-[-0.02em] text-[var(--text-primary)] lg:text-[24px]">
           Bán hàng
@@ -177,7 +174,7 @@ export default function PosWorkspacePage() {
         </div>
       </div>
 
-      {/* Crystal Undo Banner after clearing cart (10s window) */}
+      {/* Undo Banner after clearing cart (10s window) */}
       {clearedDraftUndo && (
         <div
           role="status"
@@ -191,9 +188,9 @@ export default function PosWorkspacePage() {
             <button
               type="button"
               onClick={handleUndoClearCart}
-              className="glass-pill-jade press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-[13px] font-bold"
+              className="glass-solid-control press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-[13px] font-bold text-[var(--text-primary)]"
             >
-              <RotateCcw className="h-3.5 w-3.5" />
+              <RotateCcw className="h-3.5 w-3.5 text-[var(--brand-jade-text)]" />
               <span>Hoàn tác</span>
             </button>
             <button
@@ -243,7 +240,6 @@ export default function PosWorkspacePage() {
                 setEditingProduct(prod);
                 setProductModalOpen(true);
               }}
-              onOpenQuickItem={() => setQuickItemOpen(true)}
             />
           </div>
 
@@ -349,13 +345,6 @@ export default function PosWorkspacePage() {
             void refreshPosCatalog();
           }
         }}
-      />
-
-      <QuickItemModal
-        open={quickItemOpen}
-        onClose={() => setQuickItemOpen(false)}
-        onAddItem={addQuickItemToCart}
-        onSavedToCatalog={upsertProductLocal}
       />
 
       <CheckoutModal

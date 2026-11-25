@@ -316,7 +316,6 @@ export function CustomerPicker({
                 <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
                 <input
                   ref={searchInputRef}
-                  data-autofocus
                   type="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
