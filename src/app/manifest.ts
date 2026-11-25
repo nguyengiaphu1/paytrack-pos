@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next';
+import { THEME_COLOR_LIGHT } from '@/lib/theme';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -7,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Sổ bán hàng, công nợ và VietQR cho cửa hàng bán lẻ.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#F5F7F6',
+    background_color: THEME_COLOR_LIGHT,
     theme_color: '#0E6B4E',
     orientation: 'portrait',
     icons: [

@@ -174,40 +174,47 @@ export function OrdersPageSkeleton() {
 export function StatsPageSkeleton() {
   return (
     <div aria-busy="true" aria-label="Đang tải thống kê bán hàng" className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, idx) => (
-          <div key={idx} className="glass-card rounded-[22px] p-4">
-            <Bone className="h-4 w-24" />
-            <Bone className="mt-2.5 h-7 w-32" />
-            <Bone className="mt-2 h-3.5 w-20" />
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+        {Array.from({ length: 2 }).map((_, idx) => (
+          <div key={idx} className="glass-panel rounded-[26px] p-5 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <Bone className="h-4 w-28" />
+              <Bone className="h-5 w-20 rounded-full" />
+            </div>
+            <Bone className="mt-3 h-8 w-44" />
+            <Bone className="mt-4 h-4 w-full" />
           </div>
         ))}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-        <div className="glass-panel rounded-[24px] p-5">
-          <Bone className="h-5 w-52" />
-          <Bone className="mt-1.5 h-4 w-64" />
-          <Bone className="mt-4 h-[240px] w-full rounded-[18px]" />
-        </div>
-        <div className="space-y-4">
-          <div className="glass-panel rounded-[24px] p-5">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {Array.from({ length: 2 }).map((_, idx) => (
+          <div key={idx} className="glass-card rounded-[22px] p-4">
+            <div className="flex items-center justify-between gap-2">
+              <Bone className="h-4 w-24" />
+              <Bone className="h-6 w-32" />
+            </div>
+            <Bone className="mt-3 h-2.5 w-full rounded-full" />
+          </div>
+        ))}
+      </div>
+
+      <div className="glass-panel rounded-[26px] p-5">
+        <Bone className="h-5 w-52" />
+        <Bone className="mt-4 h-[250px] w-full rounded-[18px]" />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {Array.from({ length: 2 }).map((_, idx) => (
+          <div key={idx} className="glass-panel rounded-[26px] p-5">
             <Bone className="h-5 w-40" />
-            <Bone className="mt-3 h-4 w-full rounded-full" />
             <div className="mt-4 space-y-2.5">
-              <Bone className="h-5 w-full" />
-              <Bone className="h-5 w-full" />
-              <Bone className="h-5 w-full" />
+              <Bone className="h-11 w-full rounded-[14px]" />
+              <Bone className="h-11 w-full rounded-[14px]" />
+              <Bone className="h-11 w-full rounded-[14px]" />
             </div>
           </div>
-          <div className="glass-panel rounded-[24px] p-5">
-            <Bone className="h-5 w-44" />
-            <div className="mt-4 space-y-3">
-              <Bone className="h-9 w-full rounded-[14px]" />
-              <Bone className="h-9 w-full rounded-[14px]" />
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

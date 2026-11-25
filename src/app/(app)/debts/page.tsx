@@ -227,7 +227,7 @@ function DebtsContent() {
                     aria-pressed={active}
                     onClick={() => setFilter(key)}
                     className={`press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-[13px] ${
-                      active ? 'glass-pill-jade font-bold' : 'glass-chip font-semibold'
+                      active ? 'glass-chip-active font-bold' : 'glass-chip font-semibold'
                     }`}
                   >
                     <span>{label}</span>

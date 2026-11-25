@@ -241,7 +241,7 @@ function DebtCustomerDrawerBody({
                 aria-pressed={editingInfo}
                 className={`press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
                   editingInfo
-                    ? 'glass-pill-jade'
+                    ? 'glass-chip-active'
                     : 'glass-solid-control text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
@@ -426,7 +426,7 @@ function DebtCustomerDrawerBody({
                   type="button"
                   onClick={() => void handleCopyZaloMessage()}
                   className={`press-tactile mt-2.5 flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-full px-4 text-[13px] font-semibold ${
-                    copiedZalo ? 'glass-pill-jade' : 'glass-solid-control text-[var(--text-primary)]'
+                    copiedZalo ? 'glass-badge-paid' : 'glass-solid-control text-[var(--text-primary)]'
                   }`}
                 >
                   {copiedZalo ? (

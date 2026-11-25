@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { BookOpen, CheckCircle2, Loader2, LogOut, Save } from 'lucide-react';
+import { BookOpen, CheckCircle2, Loader2, LogOut, Save, Upload } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import {
   getCurrentTimeHHMM_VN,
@@ -15,6 +15,7 @@ import { usePosData } from '@/components/providers/PosDataProvider';
 import { useAppUser } from '@/components/shell/AppShell';
 import type { ShopProfile } from '@/types/database';
 import { PushNotificationSetup } from '@/components/pwa/PushNotificationSetup';
+import { CsvImportModal } from '@/components/orders/CsvImportModal';
 import { SettingsThemeSelector } from '@/components/ui/ThemeToggle';
 import { FetchErrorCard, SettingsPageSkeleton } from '@/components/ui/PageSkeletons';
 
@@ -80,6 +81,7 @@ function SettingsFormBody({
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [csvImportOpen, setCsvImportOpen] = useState(false);
 
   const syncedProfileIdRef = useRef<string | null>(profile?.id ?? null);
   const [shopName, setShopName] = useState(profile?.shop_name ?? 'Shop của Mẹ');
@@ -412,10 +414,30 @@ function SettingsFormBody({
         </button>
       </form>
 
-      {/* 3. Giao diện */}
+      {/* 3. Nhập dữ liệu từ CSV */}
+      <section className="glass-panel flex flex-wrap items-center justify-between gap-3 rounded-[26px] p-4 sm:p-5">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-[15px] font-bold text-[var(--text-primary)]">
+            Nhập sổ bán từ CSV
+          </h2>
+          <p className="mt-0.5 text-[13px] text-[var(--text-secondary)]">
+            Tải file Excel/CSV để tự động thêm khách hàng, món hàng, đơn bán và công nợ vào cửa hàng.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setCsvImportOpen(true)}
+          className="glass-btn-primary press-tactile inline-flex min-h-[46px] shrink-0 items-center gap-2 rounded-full px-5 text-[14px] font-semibold"
+        >
+          <Upload className="h-4 w-4" />
+          <span>Nhập CSV</span>
+        </button>
+      </section>
+
+      {/* 4. Giao diện */}
       <SettingsThemeSelector />
 
-      {/* 4. Tài khoản */}
+      {/* 5. Tài khoản */}
       <section className="glass-panel flex flex-wrap items-center justify-between gap-3 rounded-[26px] p-4 sm:p-5">
         <div className="min-w-0 flex-1">
           <h2 className="text-[15px] font-bold text-[var(--text-primary)]">Tài khoản</h2>
@@ -444,6 +466,8 @@ function SettingsFormBody({
           </button>
         </div>
       </section>
+
+      <CsvImportModal open={csvImportOpen} onClose={() => setCsvImportOpen(false)} />
     </div>
   );
 }

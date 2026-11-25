@@ -33,6 +33,7 @@ describe('Accessibility & ModalDialog guards (Impeccable Audit Step 4)', () => {
       ['src/components/invoice/InvoicePreviewModal.tsx', 'invoice-preview-modal-title'],
       ['src/components/qr/VietQRModal.tsx', 'vietqr-modal-title'],
       ['src/components/orders/OrderLedgerEditModal.tsx', 'order-ledger-edit-title'],
+      ['src/components/orders/CsvImportModal.tsx', 'csv-import-modal-title'],
       ['src/app/(app)/orders/page.tsx', 'order-detail-modal-title'],
       ['src/components/debts/DebtCustomerDrawer.tsx', 'debt-customer-drawer-title'],
       ['src/components/debts/ReminderModal.tsx', 'reminder-modal-title'],
@@ -62,6 +63,7 @@ describe('Accessibility & ModalDialog guards (Impeccable Audit Step 4)', () => {
       ['src/components/welcome/WelcomeOnboardingModal.tsx', 'welcome-shop-name'],
       ['src/app/(app)/settings/page.tsx', 'settings-shop-name'],
       ['src/components/orders/OrderLedgerEditModal.tsx', 'ledger-edit-customer-name'],
+      ['src/components/orders/CsvImportModal.tsx', 'csv-import-year'],
       ['src/components/debts/CollectDebtModal.tsx', 'collect-paid-date'],
       ['src/components/debts/ReminderModal.tsx', 'reminder-date'],
     ];
@@ -154,6 +156,7 @@ describe('Accessibility & ModalDialog guards (Impeccable Audit Step 4)', () => {
       'src/components/invoice/InvoicePreviewModal.tsx',
       'src/components/qr/VietQRModal.tsx',
       'src/components/debts/CollectDebtModal.tsx',
+      'src/components/orders/CsvImportModal.tsx',
     ]) {
       expect(readRel(relPath), `${relPath} must use aria-pressed on toggle buttons`).toContain(
         'aria-pressed='
@@ -168,7 +171,7 @@ describe('Accessibility & ModalDialog guards (Impeccable Audit Step 4)', () => {
     expect(invoice).toContain('hasBalanceDue');
   });
 
-  it('enforces P1 audit fixes: keyboard-accessible /orders rows & decoupled mobile cards, QtyNumberInput focus rings, and bounded backdrop-filter on repeating cards/chips', () => {
+  it('enforces P1 audit fixes: keyboard-accessible /orders rows & decoupled mobile cards, QtyNumberInput focus rings, and neutral glassmorphism with WCAG AA contrast', () => {
     const orders = readRel('src/app/(app)/orders/page.tsx');
     expect(orders).toContain('Xem chi tiết đơn ${order.order_code}');
     expect(orders).not.toContain('role="button"\n                  tabIndex={0}');
@@ -189,21 +192,19 @@ describe('Accessibility & ModalDialog guards (Impeccable Audit Step 4)', () => {
     expect(css).toContain('contain: layout style;');
 
     const cardRule = css.match(/\.glass-card\s*\{[^}]*\}/)?.[0] ?? '';
-    expect(cardRule).not.toContain('backdrop-filter');
+    expect(cardRule).toContain('backdrop-filter: blur(12px)');
 
     const chipRule = css.match(/\.glass-chip\s*\{[^}]*\}/)?.[0] ?? '';
     expect(chipRule).not.toContain('backdrop-filter');
 
-    // WCAG AA >= 5.1:1 gradient top stops and opaque-tinted badge tokens
+    // WCAG AA >= 5.1:1 solid CTA tokens and opaque-tinted badge tokens
     expect(css).toContain('--brand-jade: #127A59;');
     expect(css).toContain('--status-debt: #8A3B04;');
     expect(css).toContain('--status-overdue: #9F1616;');
     expect(css).toContain('--status-overdue: #FCA5A5;');
-    expect(css).not.toContain('rgba(22, 166, 124, 0.88)');
-    expect(css).not.toContain('rgba(32, 188, 142, 0.88)');
   });
 
-  it('enforces P2/P3 audit fixes: no unused JetBrains_Mono, dynamic Recharts with reduced-motion, distinct PaymentBreakdownChart transfer color, 44px mobile product steppers, complete reduced-transparency, and zero transition-all in TSX', () => {
+  it('enforces P2/P3 audit & 004 redesign fixes: no unused JetBrains_Mono, dynamic Recharts with reduced-motion, redesigned Stats hierarchy, unobstructed mobile CustomerPicker, complete reduced-transparency, and zero transition-all in TSX', () => {
     const layout = readRel('src/app/layout.tsx');
     expect(layout).not.toContain('JetBrains_Mono');
     expect(layout).not.toContain('--font-mono');
@@ -212,23 +213,25 @@ describe('Accessibility & ModalDialog guards (Impeccable Audit Step 4)', () => {
     expect(stats).toContain("import dynamic from 'next/dynamic'");
     expect(stats).toContain("import('@/components/stats/RevenueCashChart')");
     expect(stats).not.toContain("from '@/components/stats/RevenueCashChart'");
+    expect(stats).not.toContain('PaymentBreakdownChart');
+    expect(stats).not.toContain('DebtAgingCard');
+    expect(stats).toContain('var(--chart-transfer)');
 
     const revChart = readRel('src/components/stats/RevenueCashChart.tsx');
     expect(revChart).toContain('prefers-reduced-motion: reduce');
     expect(revChart).toContain('isAnimationActive={!reducedMotion}');
 
-    const breakdown = readRel('src/components/stats/PaymentBreakdownChart.tsx');
-    expect(breakdown).toContain('var(--chart-transfer)');
-    expect(breakdown).toContain('gap-0.5');
-
     const catalog = readRel('src/components/pos/ProductCatalog.tsx');
     expect(catalog).toContain('if (!inCart)');
     expect(catalog).not.toContain('flex h-11 w-10 items-center');
 
+    const picker = readRel('src/components/pos/CustomerPicker.tsx');
+    const searchInputMatch = picker.match(/ref=\{searchInputRef\}[\s\S]{0,120}/)?.[0] ?? '';
+    expect(searchInputMatch).not.toContain('data-autofocus');
+
     const css = readRel('src/app/globals.css');
     expect(css).toContain('--chart-transfer: #0284C7;');
     expect(css).toContain('--chart-transfer: #38BDF8;');
-    expect(css).toContain('.glass-btn-primary::before,');
     expect(css).toContain('.glass-icon-orb::before {');
 
     const tsxFiles: string[] = [];
@@ -283,12 +286,6 @@ describe('Accessibility & ModalDialog guards (Impeccable Audit Step 4)', () => {
     expect(picker).toContain('Gần đây');
     expect(picker).toContain('aria-label="Xóa từ khóa tìm khách hàng"');
     expect(picker).toContain('aria-label="Đóng"\n            className="glass-solid-control');
-
-    const quick = readRel('src/components/pos/QuickItemModal.tsx');
-    expect(quick).toContain('closeOnBackdrop={false}');
-    expect(quick).toContain('scrollIntoView');
-    expect(quick).toContain('aria-invalid=');
-    expect(quick).toContain('không lưu vào danh mục trừ khi bật bên dưới');
 
     const prodForm = readRel('src/components/pos/ProductFormModal.tsx');
     expect(prodForm).toContain('closeOnBackdrop={false}');

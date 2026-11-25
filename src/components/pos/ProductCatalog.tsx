@@ -11,7 +11,6 @@ import {
   Search,
   SlidersHorizontal,
   X,
-  Zap,
 } from 'lucide-react';
 import type { Product } from '@/types/database';
 import { formatVND, stripVietnamese } from '@/lib/vietnamese';
@@ -26,7 +25,6 @@ interface ProductCatalogProps {
   onSetProductQty: (product: Product, nextQty: number) => void;
   onOpenNewProduct: () => void;
   onEditProduct: (product: Product) => void;
-  onOpenQuickItem: () => void;
 }
 
 export function ProductCatalog({
@@ -36,7 +34,6 @@ export function ProductCatalog({
   onSetProductQty,
   onOpenNewProduct,
   onEditProduct,
-  onOpenQuickItem,
 }: ProductCatalogProps) {
   const [query, setQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -112,7 +109,7 @@ export function ProductCatalog({
         {liveAnnouncement}
       </div>
 
-      {/* Crystal Glass Search Tray with Opaque-inside-Translucent Pill Input (strictly 1-row at 375px) */}
+      {/* Neutral Frosted Glass Search Tray with 1-Tap Thêm món CTA (strictly 1-row at 375px) */}
       <div className="glass-surface flex items-center gap-2 rounded-[24px] p-2 sm:p-2.5">
         <div className="relative min-w-0 flex-1">
           <Search
@@ -159,12 +156,13 @@ export function ProductCatalog({
 
         <button
           type="button"
-          onClick={onOpenQuickItem}
-          title="Thêm nhanh món ngoài danh mục vào đơn này"
+          onClick={onOpenNewProduct}
+          aria-label="Thêm món mới vào danh mục"
+          title="Thêm món mới vào danh mục bán lâu dài"
           className="glass-solid-control press-tactile flex min-h-[46px] shrink-0 items-center justify-center gap-1.5 rounded-full px-3.5 text-[14px] font-semibold text-[var(--text-primary)] sm:px-4"
         >
-          <Zap className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
-          <span>Món lẻ</span>
+          <Plus className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
+          <span>Thêm món</span>
         </button>
       </div>
 
@@ -233,17 +231,6 @@ export function ProductCatalog({
 
               <button
                 type="button"
-                onClick={onOpenNewProduct}
-                aria-label="Thêm sản phẩm mới vào danh mục"
-                title="Thêm sản phẩm mới vào danh mục bán lâu dài"
-                className="glass-solid-control press-tactile inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-full px-3.5 text-[13px] font-semibold text-[var(--brand-jade-text)]"
-              >
-                <Plus className="h-3.5 w-3.5 shrink-0" />
-                <span>Thêm SP</span>
-              </button>
-
-              <button
-                type="button"
                 aria-pressed={editMode}
                 onClick={() => setEditMode((v) => !v)}
                 className={`press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold ${
@@ -271,19 +258,6 @@ export function ProductCatalog({
               id="mobile-catalog-manage-tray"
               className="animate-fade-in glass-well flex flex-wrap items-center gap-2 rounded-[18px] p-2 sm:hidden"
             >
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileManageOpen(false);
-                  onOpenNewProduct();
-                }}
-                aria-label="Thêm sản phẩm mới vào danh mục"
-                className="glass-solid-control press-tactile inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold text-[var(--brand-jade-text)]"
-              >
-                <Plus className="h-3.5 w-3.5 shrink-0" />
-                <span>Thêm SP</span>
-              </button>
-
               <button
                 type="button"
                 aria-pressed={editMode}
@@ -324,7 +298,7 @@ export function ProductCatalog({
         </div>
       )}
 
-      {/* Calm Crystal Edit-Mode Banner */}
+      {/* Calm Edit-Mode Banner */}
       {editMode && products.length > 0 && (
         <div
           role="status"
@@ -335,38 +309,28 @@ export function ProductCatalog({
           <button
             type="button"
             onClick={() => setEditMode(false)}
-            className="glass-solid-control press-tactile inline-flex min-h-[44px] shrink-0 items-center rounded-full px-3.5 text-[13px] font-bold text-[var(--brand-jade-text)]"
+            className="glass-solid-control press-tactile inline-flex min-h-[44px] shrink-0 items-center rounded-full px-3.5 text-[13px] font-bold text-[var(--text-primary)]"
           >
             Xong
           </button>
         </div>
       )}
 
-      {/* Compact 3D Crystal Glass Product Grid or Empty State */}
+      {/* Compact Neutral Glass Product Grid or Empty State */}
       {products.length === 0 ? (
         <EmptyStateCard
           icon={PackageOpen}
           title="Chưa có món hàng"
-          description="Thêm sản phẩm thường bán hoặc bấm Món lẻ để lên đơn ngay."
+          description="Thêm món thường bán vào danh mục để lên đơn nhanh chỉ với 1 chạm."
           action={
-            <>
-              <button
-                type="button"
-                onClick={onOpenNewProduct}
-                className="glass-btn-primary press-tactile flex min-h-[48px] items-center gap-2 rounded-full px-5 text-[15px] font-semibold"
-              >
-                <Plus className="h-4 w-4" />
-                <span>Thêm SP</span>
-              </button>
-              <button
-                type="button"
-                onClick={onOpenQuickItem}
-                className="glass-solid-control press-tactile flex min-h-[48px] items-center gap-2 rounded-full px-5 text-[15px] font-semibold text-[var(--text-primary)]"
-              >
-                <Zap className="h-4 w-4 text-[var(--brand-jade-text)]" />
-                <span>Món lẻ</span>
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={onOpenNewProduct}
+              className="glass-btn-primary press-tactile flex min-h-[48px] items-center gap-2 rounded-full px-5 text-[15px] font-semibold"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Thêm món</span>
+            </button>
           }
         />
       ) : filtered.length === 0 ? (
@@ -381,8 +345,8 @@ export function ProductCatalog({
           }
           description={
             query.trim()
-              ? 'Thử từ khác hoặc thêm nhanh món lẻ vào đơn.'
-              : 'Xóa bộ lọc để xem toàn bộ danh sách hoặc thêm món lẻ.'
+              ? 'Thử từ khóa khác hoặc thêm món mới vào danh mục.'
+              : 'Xóa bộ lọc để xem toàn bộ danh sách hoặc thêm món mới.'
           }
           action={
             <>
@@ -400,11 +364,11 @@ export function ProductCatalog({
               )}
               <button
                 type="button"
-                onClick={onOpenQuickItem}
+                onClick={onOpenNewProduct}
                 className="glass-btn-primary press-tactile flex min-h-[48px] items-center gap-2 rounded-full px-5 text-[15px] font-semibold"
               >
-                <Zap className="h-4 w-4" />
-                <span>Thêm món lẻ</span>
+                <Plus className="h-4 w-4" />
+                <span>Thêm món</span>
               </button>
             </>
           }

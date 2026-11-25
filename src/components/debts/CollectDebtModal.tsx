@@ -232,7 +232,7 @@ function CollectDebtModalBody({
               onClick={() => setAmountVnd(maxAllowed)}
               className={`press-tactile min-h-[44px] shrink-0 rounded-full px-3.5 text-[12px] font-semibold ${
                 isPayingFull
-                  ? 'glass-pill-jade'
+                  ? 'glass-chip-active'
                   : 'glass-solid-control text-[var(--brand-jade-text)]'
               }`}
             >
@@ -260,7 +260,7 @@ function CollectDebtModalBody({
                 aria-pressed={method === 'cash'}
                 onClick={() => setMethod('cash')}
                 className={`press-tactile min-h-[46px] rounded-full px-2.5 text-[13px] ${
-                  method === 'cash' ? 'glass-pill-jade font-bold' : 'glass-chip font-semibold'
+                  method === 'cash' ? 'glass-chip-active font-bold' : 'glass-chip font-semibold'
                 }`}
               >
                 Tiền mặt
@@ -271,7 +271,7 @@ function CollectDebtModalBody({
                 onClick={() => setMethod('transfer')}
                 className={`press-tactile min-h-[46px] rounded-full px-2.5 text-[13px] ${
                   method === 'transfer'
-                    ? 'glass-pill-jade font-bold'
+                    ? 'glass-chip-active font-bold'
                     : 'glass-chip font-semibold'
                 }`}
               >

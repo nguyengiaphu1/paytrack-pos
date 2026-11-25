@@ -132,6 +132,13 @@ export function ModalDialog({
 
   if (!open) return null;
 
+  const hasExplicitAnimation = /\banimate-(sheet-up|modal-in|drawer-in|fade-in)\b/.test(
+    panelClassName
+  );
+  const resolvedPanelClassName = hasExplicitAnimation
+    ? `${panelClassName} outline-none`
+    : `animate-sheet-up sm:animate-modal-in ${panelClassName} outline-none`;
+
   return (
     <div
       className={backdropClassName}
@@ -145,7 +152,7 @@ export function ModalDialog({
         }
       }}
     >
-      <div ref={panelRef} tabIndex={-1} className={`${panelClassName} outline-none`}>
+      <div ref={panelRef} tabIndex={-1} className={resolvedPanelClassName}>
         {children}
       </div>
     </div>
