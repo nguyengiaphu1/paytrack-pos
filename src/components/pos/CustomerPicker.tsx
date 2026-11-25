@@ -2,14 +2,14 @@
 
 import { useMemo, useRef, useState, type FormEvent } from 'react';
 import { Check, Loader2, MapPin, Phone, Plus, Search, UserCheck, UserPlus, X } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 import {
   loadRecentCustomerIds,
   recordRecentCustomerId,
   resolveRecentCustomers,
 } from '@/lib/checkout-prefs';
+import { createCustomerRecord, filterCustomersByQuery } from '@/lib/customers';
 import { formatErrorMessageVN } from '@/lib/errors';
-import { formatVND, stripVietnamese } from '@/lib/vietnamese';
+import { formatVND } from '@/lib/vietnamese';
 import type { Customer } from '@/types/database';
 import { ModalDialog } from '@/components/ui/ModalDialog';
 
@@ -64,14 +64,7 @@ export function CustomerPicker({
     [customers, recentCustomerIds]
   );
 
-  const filtered = useMemo(() => {
-    const q = stripVietnamese(query);
-    if (!q) return customers;
-    return customers.filter((c) => {
-      const hay = stripVietnamese(`${c.name} ${c.phone ?? ''} ${c.address ?? ''} ${c.note ?? ''}`);
-      return hay.includes(q) || c.search_text.includes(q);
-    });
-  }, [customers, query]);
+  const filtered = useMemo(() => filterCustomersByQuery(customers, query), [customers, query]);
 
   function handleSelectCustomer(customer: Customer | null) {
     if (customer) {
@@ -93,27 +86,12 @@ export function CustomerPicker({
 
     setSaving(true);
     try {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.');
-
-      const { data, error: insertErr } = await supabase
-        .from('customers')
-        .insert({
-          user_id: user.id,
-          name: trimmed,
-          search_text: stripVietnamese(`${trimmed} ${newPhone.trim()} ${newAddress.trim()}`),
-          phone: newPhone.trim() || null,
-          address: newAddress.trim() || null,
-          note: newNote.trim() || null,
-        })
-        .select('*')
-        .single();
-
-      if (insertErr) throw insertErr;
-      const created = data as Customer;
+      const created = await createCustomerRecord({
+        name: trimmed,
+        phone: newPhone,
+        address: newAddress,
+        note: newNote,
+      });
       onCustomerCreated(created);
       setRecentCustomerIds(recordRecentCustomerId(created.id));
       onSelect(created);

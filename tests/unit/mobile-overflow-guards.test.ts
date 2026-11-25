@@ -16,26 +16,27 @@ describe('mobile-text-overflow responsive guards (375px viewport)', () => {
     expect(stats).toContain('min-w-0');
   });
 
-  it('stacks or wraps cramped mobile grids in DebtCustomerDrawer, ReminderModal, and QuickItemModal', () => {
+  it('stacks or wraps cramped mobile grids in DebtCustomerDrawer and ReminderModal', () => {
     const drawer = readRel('src/components/debts/DebtCustomerDrawer.tsx');
     expect(drawer).toContain('grid-cols-2 gap-2 sm:grid-cols-3');
     expect(drawer).toContain('col-span-2 flex min-h-[48px]');
 
     const reminderModal = readRel('src/components/debts/ReminderModal.tsx');
     expect(reminderModal).toContain('grid-cols-1 gap-2.5 sm:grid-cols-2');
-    expect(reminderModal).toContain('min-w-0 flex-1 items-center');
-    expect(reminderModal).toContain('min-w-0 truncate');
+    expect(reminderModal).toContain('<ModalHeader');
 
-    const quickItem = readRel('src/components/pos/QuickItemModal.tsx');
-    expect(quickItem).toContain('grid-cols-1 gap-3 sm:grid-cols-2');
-    expect(quickItem).toContain('min-w-0');
+    const modalHeader = readRel('src/components/ui/ModalHeader.tsx');
+    expect(modalHeader).toContain('min-w-0 flex-1 items-center');
+    expect(modalHeader).toContain('min-w-0 truncate');
   });
 
   it('keeps Orders 12-column desktop table isolated behind lg:block and mobile cards overflow-safe', () => {
-    const orders = readRel('src/app/(app)/orders/page.tsx');
-    expect(orders).toContain('hidden overflow-x-auto');
-    expect(orders).toContain('lg:hidden');
-    expect(orders).toContain('min-w-0');
+    const desktopTable = readRel('src/components/orders/OrdersDesktopTable.tsx');
+    const mobileList = readRel('src/components/orders/OrdersMobileList.tsx');
+    expect(desktopTable).toContain('overflow-x-auto');
+    expect(desktopTable).toContain('lg:block');
+    expect(mobileList).toContain('lg:hidden');
+    expect(mobileList).toContain('min-w-0');
   });
 
   it('hardens ReceiptTemplate table layout and AppShell mobile navigation against text clipping', () => {

@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { BellPlus, Loader2, X } from 'lucide-react';
+import { BellPlus, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { formatVND, getTodayVN } from '@/lib/vietnamese';
 import { formatErrorMessageVN } from '@/lib/errors';
 import type { Customer, Order } from '@/types/database';
 import { ModalDialog } from '@/components/ui/ModalDialog';
+import { ModalHeader } from '@/components/ui/ModalHeader';
 
 interface ReminderModalProps {
   open: boolean;
@@ -101,30 +102,13 @@ function ReminderModalBody({
       backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
       panelClassName="animate-sheet-up sm:animate-modal-in glass-modal max-h-[92dvh] w-full max-w-[460px] overflow-y-auto rounded-t-[28px] sm:rounded-[28px]"
     >
-      <div className="glass-modal-header sticky top-0 z-10 flex items-center justify-between gap-2 px-4 py-3.5 sm:px-5">
-        <div className="flex min-w-0 flex-1 items-center gap-2.5">
-          <span
-            aria-hidden="true"
-            className="glass-icon-orb flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] text-[var(--brand-jade-text)]"
-          >
-            <BellPlus className="h-5 w-5" />
-          </span>
-          <h2
-            id="reminder-modal-title"
-            className="min-w-0 truncate text-[16px] font-bold text-[var(--text-primary)]"
-          >
-            Hẹn nhắc thu — {customer.name}
-          </h2>
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Đóng"
-          className="glass-solid-control press-tactile flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-        >
-          <X className="h-5 w-5" />
-        </button>
-      </div>
+      <ModalHeader
+        title={`Hẹn nhắc thu — ${customer.name}`}
+        titleId="reminder-modal-title"
+        icon={<BellPlus className="h-5 w-5" />}
+        onClose={onClose}
+        className="sticky top-0 z-10 px-4 sm:px-5"
+      />
 
       <form
         onSubmit={handleSubmit}

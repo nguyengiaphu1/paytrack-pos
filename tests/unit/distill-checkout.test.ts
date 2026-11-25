@@ -71,11 +71,13 @@ describe('Checkout preferences & MRU quick-pick accounts (checkout-prefs)', () =
 describe('Distilled online-shop CheckoutModal & PaymentAccountSelector architecture', () => {
   it('removes dead partialMethod select, collapses bookkeeping details, surfaces Chưa nhập vốn, and pins sticky submit footer', () => {
     const checkout = readRel('src/components/pos/CheckoutModal.tsx');
+    const summary = readRel('src/components/pos/checkout/CheckoutOrderSummary.tsx');
+    const bookkeeping = readRel('src/components/pos/checkout/CheckoutBookkeepingSection.tsx');
     expect(checkout).not.toContain('partialMethod');
     expect(checkout).toContain('loadCheckoutPrefs');
     expect(checkout).toContain('saveCheckoutPrefs');
-    expect(checkout).toContain('Chưa nhập vốn');
-    expect(checkout).toContain('Ngày, SĐT/địa chỉ & ghi chú');
+    expect(summary).toContain('Chưa nhập vốn');
+    expect(bookkeeping).toContain('Ngày, SĐT/địa chỉ & ghi chú');
     expect(checkout).toContain('showChangeCalc');
     expect(checkout).toContain('Sticky Submit Footer');
   });

@@ -6,6 +6,12 @@ import { Check, Copy, Download, QrCode, Settings, Share2, X } from 'lucide-react
 import type { Order, ShopProfile } from '@/types/database';
 import { buildVietQRPayload, sanitizeVietQRMemo } from '@/lib/vietqr';
 import { buildZaloDebtMessage, formatVND } from '@/lib/vietnamese';
+import {
+  captureElementAsPng,
+  copyTextToClipboard,
+  shareOrDownloadElementPng,
+  triggerDataUrlDownload,
+} from '@/lib/browser-export';
 import { VndKInput } from '@/components/ui/VndKInput';
 import { ModalDialog } from '@/components/ui/ModalDialog';
 
@@ -151,33 +157,20 @@ function VietQRModalBody({
         ? qrState.error
         : null;
 
-  async function renderCardBlob(): Promise<{ dataUrl: string; blob: Blob } | null> {
-    if (!cardRef.current) return null;
-    const { toPng } = await import('html-to-image');
-    const dataUrl = await toPng(cardRef.current, {
-      pixelRatio: 2,
-      backgroundColor: '#FFFFFF',
-      cacheBust: true,
-    });
-    const res = await fetch(dataUrl);
-    const blob = await res.blob();
-    return { dataUrl, blob };
-  }
-
   async function handleDownloadPng() {
     if (exporting) return;
     setActionError(null);
     setExporting(true);
     try {
-      const rendered = await renderCardBlob();
+      const rendered = await captureElementAsPng(cardRef.current);
       if (!rendered) {
         setActionError('Không tạo được ảnh QR, vui lòng thử lại.');
         return;
       }
-      const link = document.createElement('a');
-      link.download = `vietqr-${memo.toLowerCase().replace(/\s+/g, '-')}.png`;
-      link.href = rendered.dataUrl;
-      link.click();
+      triggerDataUrlDownload(
+        rendered.dataUrl,
+        `vietqr-${memo.toLowerCase().replace(/\s+/g, '-')}.png`
+      );
       setDownloadedPng(true);
       setTimeout(() => setDownloadedPng(false), 2500);
     } catch {
@@ -192,30 +185,22 @@ function VietQRModalBody({
     setActionError(null);
     setExporting(true);
     try {
-      const rendered = await renderCardBlob();
-      if (!rendered) {
+      const outcome = await shareOrDownloadElementPng({
+        element: cardRef.current,
+        downloadFilename: `vietqr-${memo.toLowerCase().replace(/\s+/g, '-')}.png`,
+        shareFilename: `vietqr-${Date.now()}.png`,
+        title: `Mã QR thanh toán ${formatVND(effectiveAmount)}`,
+        text: `${profile?.shop_name ?? 'PayTrack POS'} gửi mã thanh toán ${formatVND(effectiveAmount)}`,
+      });
+      if (!outcome) {
         setActionError('Không tạo được ảnh QR, vui lòng thử lại.');
         return;
       }
-      const file = new File([rendered.blob], `vietqr-${Date.now()}.png`, { type: 'image/png' });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: `Mã QR thanh toán ${formatVND(effectiveAmount)}`,
-          text: `${profile?.shop_name ?? 'PayTrack POS'} gửi mã thanh toán ${formatVND(effectiveAmount)}`,
-        });
-      } else {
-        const link = document.createElement('a');
-        link.download = `vietqr-${memo.toLowerCase().replace(/\s+/g, '-')}.png`;
-        link.href = rendered.dataUrl;
-        link.click();
+      if (outcome === 'downloaded') {
         setDownloadedPng(true);
         setTimeout(() => setDownloadedPng(false), 2500);
       }
-    } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') {
-        return;
-      }
+    } catch {
       setActionError('Không chia sẻ được ảnh QR. Bạn có thể bấm Tải ảnh QR.');
     } finally {
       setExporting(false);
@@ -242,20 +227,7 @@ function VietQRModalBody({
     });
 
     try {
-      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-        await navigator.clipboard.writeText(text);
-      } else {
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        textarea.setAttribute('readonly', '');
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
-        const ok = document.execCommand('copy');
-        document.body.removeChild(textarea);
-        if (!ok) throw new Error('Clipboard unavailable');
-      }
+      await copyTextToClipboard(text);
       setCopiedZalo(true);
       setTimeout(() => setCopiedZalo(false), 2500);
     } catch {

@@ -5,7 +5,11 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { ArrowRight, BarChart3 } from 'lucide-react';
 import { formatDateVN, formatVND, getTodayVN } from '@/lib/vietnamese';
-import { PAYMENT_ACCOUNTS } from '@/lib/ledger';
+import {
+  PAYMENT_ACCOUNTS,
+  computeVnDatePresetIsoRange,
+  type LedgerDatePreset,
+} from '@/lib/ledger';
 import { usePosData } from '@/components/providers/PosDataProvider';
 import type { AnalyticsSummary, PaymentAccount } from '@/types/database';
 import { EmptyStateCard } from '@/components/ui/EmptyStateCard';
@@ -26,44 +30,7 @@ const RevenueCashChart = dynamic(
   }
 );
 
-type DatePreset = 'today' | '7d' | '30d' | 'month' | 'custom';
-
-function computeDateRange(
-  preset: DatePreset,
-  customStart: string,
-  customEnd: string
-): { startIso: string; endIso: string } {
-  const todayStr = getTodayVN();
-  const todayDate = new Date(`${todayStr}T00:00:00+07:00`);
-
-  let startStr = todayStr;
-  let endStr = todayStr;
-
-  if (preset === '7d') {
-    const d = new Date(todayDate);
-    d.setDate(d.getDate() - 6);
-    startStr = d.toISOString().slice(0, 10);
-  } else if (preset === '30d') {
-    const d = new Date(todayDate);
-    d.setDate(d.getDate() - 29);
-    startStr = d.toISOString().slice(0, 10);
-  } else if (preset === 'month') {
-    startStr = `${todayStr.slice(0, 7)}-01`;
-  } else if (preset === 'custom') {
-    startStr = customStart || todayStr;
-    endStr = customEnd || todayStr;
-    if (startStr > endStr) {
-      const tmp = startStr;
-      startStr = endStr;
-      endStr = tmp;
-    }
-  }
-
-  return {
-    startIso: `${startStr}T00:00:00+07:00`,
-    endIso: `${endStr}T23:59:59.999+07:00`,
-  };
-}
+type DatePreset = Exclude<LedgerDatePreset, 'all'>;
 
 export default function StatsPage() {
   const todayVN = getTodayVN();
@@ -74,7 +41,7 @@ export default function StatsPage() {
   const [customEnd, setCustomEnd] = useState(todayVN);
   const [accountFilter, setAccountFilter] = useState<'ALL' | PaymentAccount>('ALL');
 
-  const { startIso, endIso } = computeDateRange(preset, customStart, customEnd);
+  const { startIso, endIso } = computeVnDatePresetIsoRange(preset, customStart, customEnd);
   const paymentAccountParam = accountFilter === 'ALL' ? null : accountFilter;
   const rangeKey = `${startIso}|${endIso}|${paymentAccountParam ?? ''}`;
   const cached = getCachedAnalytics(startIso, endIso, paymentAccountParam);
