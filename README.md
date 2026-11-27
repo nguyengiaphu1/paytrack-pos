@@ -147,3 +147,5 @@ Sau khi kiểm tra Vercel Preview URL và test ổn định trên iPhone/Windows
 4. **Deploy trên Vercel**:
    - Import repo `nguyengiaphu1/paytrack-pos` vào Vercel, thêm đầy đủ biến môi trường trên.
    - Mỗi nhánh feature đẩy lên GitHub sẽ tự có một Preview URL riêng để kiểm thử trên iPhone và Windows trước khi merge Pull Request vào `main`.
+
+<!-- Orchestrator (Neon) local workflow test: 2026-11-27 -->
