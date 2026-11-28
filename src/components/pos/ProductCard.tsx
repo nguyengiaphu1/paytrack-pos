@@ -1,7 +1,9 @@
 'use client';
 
+import { useRef } from 'react';
 import { Minus, Pencil, Plus } from 'lucide-react';
 import type { Product } from '@/types/database';
+import { ensureGsapInitialized, gsap, GSAP_MOTION, useGSAP } from '@/lib/gsap';
 import { formatVND } from '@/lib/vietnamese';
 import { QtyNumberInput } from '@/components/ui/QtyNumberInput';
 
@@ -25,10 +27,74 @@ export function ProductCard({
   const inCart = qty > 0;
   const openEditor = editMode || !product.is_active;
 
+  const cardRef = useRef<HTMLDivElement>(null);
+  const stepperRef = useRef<HTMLDivElement>(null);
+  const editBadgeRef = useRef<HTMLSpanElement>(null);
+  const prevInCartRef = useRef<boolean>(inCart);
+  const prevEditRef = useRef<boolean>(openEditor);
+
+  useGSAP(
+    () => {
+      ensureGsapInitialized();
+      const wasInCart = prevInCartRef.current;
+      prevInCartRef.current = inCart;
+
+      if (!wasInCart && inCart && stepperRef.current) {
+        const mm = gsap.matchMedia();
+        mm.add('(prefers-reduced-motion: no-preference)', () => {
+          gsap.fromTo(
+            stepperRef.current,
+            { scaleX: 0.65, x: 10, opacity: 0, transformOrigin: 'right center' },
+            {
+              scaleX: 1,
+              x: 0,
+              opacity: 1,
+              duration: 0.34,
+              ease: GSAP_MOTION.ease.bouncy,
+              clearProps: 'transform,opacity',
+            }
+          );
+        });
+        return () => mm.revert();
+      }
+    },
+    { scope: cardRef, dependencies: [inCart] }
+  );
+
+  useGSAP(
+    () => {
+      ensureGsapInitialized();
+      const wasEdit = prevEditRef.current;
+      prevEditRef.current = openEditor;
+
+      if (!wasEdit && openEditor && editBadgeRef.current) {
+        const mm = gsap.matchMedia();
+        mm.add('(prefers-reduced-motion: no-preference)', () => {
+          gsap.fromTo(
+            editBadgeRef.current,
+            { y: 10, opacity: 0, scale: 0.88 },
+            {
+              y: 0,
+              opacity: 1,
+              scale: 1,
+              duration: 0.3,
+              ease: GSAP_MOTION.ease.bouncy,
+              clearProps: 'transform,opacity',
+            }
+          );
+        });
+        return () => mm.revert();
+      }
+    },
+    { scope: cardRef, dependencies: [openEditor] }
+  );
+
   if (openEditor) {
     return (
       <div
-        className={`glass-card glass-card-interactive glass-card-editing group flex min-w-0 flex-col overflow-hidden rounded-[22px] ${
+        ref={cardRef}
+        data-flip-id={`prod-${product.id}`}
+        className={`pos-flip-card glass-card glass-card-interactive glass-card-editing group flex min-w-0 flex-col overflow-hidden rounded-[22px] ${
           !product.is_active ? 'opacity-80' : ''
         }`}
       >
@@ -60,7 +126,10 @@ export function ProductCard({
                 / {product.unit}
               </span>
             </div>
-            <span className="glass-badge-paid inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-1 text-[12px] font-semibold">
+            <span
+              ref={editBadgeRef}
+              className="glass-badge-paid inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-1 text-[12px] font-semibold"
+            >
               <Pencil className="h-3.5 w-3.5" />
               <span>{!product.is_active ? 'Hiện lại' : 'Sửa'}</span>
             </span>
@@ -72,7 +141,11 @@ export function ProductCard({
 
   if (!inCart) {
     return (
-      <div className="glass-card glass-card-interactive group flex min-w-0 flex-col overflow-hidden rounded-[22px]">
+      <div
+        ref={cardRef}
+        data-flip-id={`prod-${product.id}`}
+        className="pos-flip-card glass-card glass-card-interactive group flex min-w-0 flex-col overflow-hidden rounded-[22px]"
+      >
         <button
           type="button"
           onClick={() => onAdd(product)}
@@ -105,7 +178,11 @@ export function ProductCard({
   }
 
   return (
-    <div className="glass-card glass-card-interactive glass-card-selected group flex min-w-0 flex-col justify-between overflow-hidden rounded-[22px]">
+    <div
+      ref={cardRef}
+      data-flip-id={`prod-${product.id}`}
+      className="pos-flip-card glass-card glass-card-interactive glass-card-selected group flex min-w-0 flex-col justify-between overflow-hidden rounded-[22px]"
+    >
       {/* Compact Header Tap Zone (name + unit) */}
       <button
         type="button"
@@ -127,7 +204,10 @@ export function ProductCard({
           {formatVND(product.price)}
         </span>
 
-        <div className="glass-solid-control inline-flex shrink-0 items-center overflow-hidden rounded-full">
+        <div
+          ref={stepperRef}
+          className="glass-solid-control inline-flex shrink-0 items-center overflow-hidden rounded-full"
+        >
           <button
             type="button"
             onClick={() => {

@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { MapPin, Minus, Phone, Plus, ShoppingCart, Trash2, X } from 'lucide-react';
 import { computeLineTotal, computeOrderTotals, formatVND } from '@/lib/vietnamese';
 import type { CartItem, Customer } from '@/types/database';
+import { AnimatedSwap } from '@/components/ui/AnimatedSwap';
+import { AnimatedVnd } from '@/components/ui/AnimatedVnd';
 import { VndKInput } from '@/components/ui/VndKInput';
 import { QtyNumberInput } from '@/components/ui/QtyNumberInput';
 
@@ -46,11 +48,11 @@ export function CartPanel({
       className={`flex flex-col overflow-hidden ${
         isSheet
           ? 'min-h-0 flex-1'
-          : 'glass-panel rounded-[26px] lg:max-h-[calc(100dvh-168px)]'
+          : 'glass-panel min-h-0 rounded-[26px] lg:max-h-[calc(100dvh-168px)] lg:flex-1'
       }`}
     >
       {/* Crystal Frosted Header */}
-      <div className="glass-modal-header flex shrink-0 items-center justify-between gap-2 px-4 py-3.5">
+      <div className="glass-modal-header flex shrink-0 items-center justify-between gap-2 px-4 py-2.5">
         <div className="flex min-w-0 items-center gap-2.5">
           <span className="glass-icon-orb flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] text-[var(--brand-jade-text)]">
             <ShoppingCart className="h-[18px] w-[18px]" />
@@ -62,12 +64,13 @@ export function CartPanel({
             Giỏ hàng
           </h2>
           <span
-            key={items.length}
-            className={`animate-badge-pop font-mono-tabular inline-flex h-6 min-w-[26px] shrink-0 items-center justify-center rounded-full px-2 text-[12px] font-bold ${
+            className={`font-mono-tabular inline-flex h-6 min-w-[26px] shrink-0 items-center justify-center rounded-full px-2 text-[12px] font-bold ${
               items.length > 0 ? 'glass-badge-paid' : 'glass-badge-neutral'
             }`}
           >
-            {items.length}
+            <AnimatedSwap swapKey={items.length} direction="up">
+              <span>{items.length}</span>
+            </AnimatedSwap>
           </span>
         </div>
         <div className="flex shrink-0 items-center gap-1">
@@ -144,7 +147,9 @@ export function CartPanel({
               )}
             </div>
             <span className="shrink-0 text-[12px] font-semibold text-[var(--brand-jade-text)]">
-              {selectedCustomer ? 'Đổi' : 'Chọn khách'}
+              <AnimatedSwap swapKey={selectedCustomer ? 'change' : 'pick'} direction="up">
+                <span>{selectedCustomer ? 'Đổi' : 'Chọn khách'}</span>
+              </AnimatedSwap>
             </span>
           </div>
           {(selectedCustomer?.phone || selectedCustomer?.address) && (
@@ -288,8 +293,8 @@ export function CartPanel({
       </div>
 
       {/* Frosted Totals Well + 3D Jade Crystal Caustic Checkout CTA */}
-      <div className="glass-modal-footer shrink-0 space-y-3 p-4">
-        <div className="glass-well space-y-2.5 rounded-[18px] p-3">
+      <div className="glass-modal-footer shrink-0 space-y-2.5 p-3.5">
+        <div className="glass-well space-y-2 rounded-[18px] p-2.5">
           <div className="flex items-center justify-between gap-2 text-[14px]">
             <span className="text-[var(--text-secondary)]">Tạm tính</span>
             <span className="font-mono-tabular shrink-0 font-semibold text-[var(--text-primary)]">
@@ -318,7 +323,7 @@ export function CartPanel({
           <div className="glass-divider flex flex-wrap items-baseline justify-between gap-2 border-t pt-2.5">
             <span className="text-[15px] font-bold text-[var(--text-primary)]">Tổng cộng</span>
             <span className="font-mono-tabular shrink-0 text-[20px] font-bold text-[var(--brand-jade-text)]">
-              {formatVND(total)}
+              <AnimatedVnd value={total} highlightOnChange />
             </span>
           </div>
         </div>
@@ -333,7 +338,7 @@ export function CartPanel({
           type="button"
           disabled={items.length === 0}
           onClick={onOpenCheckout}
-          className="glass-btn-primary press-tactile flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full px-4 text-center text-[15px] font-bold disabled:cursor-not-allowed disabled:opacity-45 sm:text-[16px]"
+          className="glass-btn-primary press-tactile flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full px-4 text-center text-[15px] font-bold disabled:cursor-not-allowed disabled:opacity-45 sm:text-[16px]"
         >
           <span>Thanh toán ({formatVND(total)})</span>
           {!isSheet && items.length > 0 && (

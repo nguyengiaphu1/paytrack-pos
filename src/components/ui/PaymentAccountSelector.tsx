@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { ensureGsapInitialized, gsap, GSAP_MOTION, useGSAP } from '@/lib/gsap';
+import { AnimatedSwap } from '@/components/ui/AnimatedSwap';
 import {
   getQuickPickAccounts,
   loadCheckoutPrefs,
@@ -46,6 +48,26 @@ export function PaymentAccountSelector({
     loadCheckoutPrefs().recentAccounts
   );
   const [expanded, setExpanded] = useState(!collapsible);
+  const trayRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      if (!expanded || !trayRef.current) return;
+      ensureGsapInitialized();
+      const mm = gsap.matchMedia();
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        gsap.from(trayRef.current, {
+          y: -12,
+          opacity: 0,
+          duration: 0.3,
+          ease: GSAP_MOTION.ease.bouncySoft,
+          clearProps: 'transform,opacity',
+        });
+      });
+      return () => mm.revert();
+    },
+    { scope: trayRef, dependencies: [expanded] }
+  );
 
   const quickPicks = getQuickPickAccounts(value, recentAccounts, 3);
   const remainingCount = 9 - quickPicks.length;
@@ -118,12 +140,14 @@ export function PaymentAccountSelector({
             aria-expanded={false}
             className="glass-btn-secondary press-tactile inline-flex min-h-[44px] items-center gap-1 rounded-full px-3.5 text-[13px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
-            <span>Thêm (+{remainingCount})</span>
-            <ChevronDown className="h-3.5 w-3.5 shrink-0" />
+            <AnimatedSwap swapKey="collapsed" direction="down">
+              <span>Thêm (+{remainingCount})</span>
+              <ChevronDown className="h-3.5 w-3.5 shrink-0" />
+            </AnimatedSwap>
           </button>
         </div>
       ) : (
-        <div className="glass-well space-y-3 rounded-[18px] p-3">
+        <div ref={trayRef} className="glass-well space-y-3 rounded-[18px] p-3">
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-2">
               <span className="text-[12px] font-semibold text-[var(--text-secondary)]">
@@ -136,8 +160,10 @@ export function PaymentAccountSelector({
                   aria-expanded={true}
                   className="inline-flex min-h-[44px] items-center gap-1 rounded-full px-2.5 text-[12px] font-semibold text-[var(--brand-jade-text)] transition-colors hover:bg-[var(--bg-subtle)]"
                 >
-                  <span>Thu gọn</span>
-                  <ChevronUp className="h-3.5 w-3.5 shrink-0" />
+                  <AnimatedSwap swapKey="expanded" direction="up">
+                    <span>Thu gọn</span>
+                    <ChevronUp className="h-3.5 w-3.5 shrink-0" />
+                  </AnimatedSwap>
                 </button>
               )}
             </div>

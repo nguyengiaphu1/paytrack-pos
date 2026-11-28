@@ -17,7 +17,7 @@ export function EmptyStateCard({
   secondaryHint,
 }: EmptyStateCardProps) {
   return (
-    <div className="animate-fade-in glass-card rounded-[24px] px-5 py-9 text-center">
+    <div data-gsap-reveal="empty-state" className="animate-fade-in glass-card rounded-[24px] px-5 py-9 text-center">
       <div className="glass-icon-orb mx-auto mb-3.5 flex h-14 w-14 items-center justify-center rounded-[18px] text-[var(--brand-jade-text)]">
         <Icon className="h-6 w-6" />
       </div>

@@ -12,6 +12,7 @@ import {
 } from '@/lib/ledger';
 import { usePosData } from '@/components/providers/PosDataProvider';
 import type { AnalyticsSummary, PaymentAccount } from '@/types/database';
+import { AnimatedVnd } from '@/components/ui/AnimatedVnd';
 import { EmptyStateCard } from '@/components/ui/EmptyStateCard';
 import { FetchErrorCard, StatsPageSkeleton } from '@/components/ui/PageSkeletons';
 
@@ -251,12 +252,12 @@ export default function StatsPage() {
                     : 'text-[var(--status-overdue)]'
                 }`}
               >
-                {formatVND(totalProfit)}
+                <AnimatedVnd value={totalProfit} highlightOnChange />
               </p>
               <div className="glass-divider mt-3.5 flex flex-wrap items-center justify-between gap-2 border-t pt-3 text-[13px] text-[var(--text-secondary)]">
                 <span>Giá vốn trong kỳ</span>
                 <strong className="font-mono-tabular font-semibold text-[var(--text-primary)]">
-                  {formatVND(totalCost)}
+                  <AnimatedVnd value={totalCost} />
                 </strong>
               </div>
             </section>
@@ -272,12 +273,12 @@ export default function StatsPage() {
                 </span>
               </div>
               <p className="font-mono-tabular mt-2 break-words text-[26px] leading-tight font-bold tracking-[-0.02em] text-[var(--text-primary)] sm:text-[30px]">
-                {formatVND(totalRevenue)}
+                <AnimatedVnd value={totalRevenue} highlightOnChange />
               </p>
               <div className="glass-divider mt-3.5 flex flex-wrap items-center justify-between gap-2 border-t pt-3 text-[13px] text-[var(--text-secondary)]">
                 <span>Trung bình mỗi đơn</span>
                 <strong className="font-mono-tabular font-semibold text-[var(--text-primary)]">
-                  {avgOrderValue !== null ? formatVND(avgOrderValue) : '—'}
+                  {avgOrderValue !== null ? <AnimatedVnd value={avgOrderValue} /> : '—'}
                 </strong>
               </div>
             </section>
@@ -292,7 +293,7 @@ export default function StatsPage() {
                   Thực thu
                 </p>
                 <p className="font-mono-tabular text-[18px] font-bold text-[var(--text-primary)] sm:text-[20px]">
-                  {formatVND(kpis.cash_collected)}
+                  <AnimatedVnd value={kpis.cash_collected} />
                 </p>
               </div>
 
@@ -360,7 +361,7 @@ export default function StatsPage() {
                       : 'text-[var(--text-primary)]'
                   }`}
                 >
-                  {formatVND(kpis.total_outstanding_debt)}
+                  <AnimatedVnd value={kpis.total_outstanding_debt} />
                 </p>
               </div>
               <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-[12px] text-[var(--text-secondary)]">

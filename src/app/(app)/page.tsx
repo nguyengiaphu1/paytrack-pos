@@ -245,7 +245,7 @@ export default function PosWorkspacePage() {
 
           {/* Desktop Sticky Cart Column */}
           <div className="hidden lg:col-span-5 lg:block xl:col-span-4">
-            <div className="lg:sticky lg:top-[84px]">
+            <div className="lg:sticky lg:top-[76px] lg:flex lg:max-h-[calc(100dvh-212px)] lg:flex-col">
               <CartPanel
                 items={cart}
                 discount={discount}

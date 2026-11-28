@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { ensureGsapInitialized, gsap, GSAP_MOTION, useGSAP } from '@/lib/gsap';
 
 const FOCUSABLE_SELECTOR = [
   'a[href]',
@@ -43,8 +44,164 @@ export function ModalDialog({
   closeOnEscape = true,
   children,
 }: ModalDialogProps) {
+  const [closing, setClosing] = useState(false);
+  const [lastOpen, setLastOpen] = useState(open);
+
+  if (open !== lastOpen) {
+    setLastOpen(open);
+    if (open) {
+      setClosing(false);
+    } else {
+      setClosing(true);
+    }
+  }
+
+  const shouldRender = open || closing;
+
+  const backdropRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
+
+  useGSAP(
+    () => {
+      if (!shouldRender) return;
+      ensureGsapInitialized();
+      const backdropEl = backdropRef.current;
+      const panelEl = panelRef.current;
+      if (!panelEl) return;
+
+      const mm = gsap.matchMedia();
+      mm.add(
+        {
+          isDesktop: '(min-width: 640px)',
+          reduceMotion: '(prefers-reduced-motion: reduce)',
+        },
+        (context) => {
+          const reduceMotion = Boolean(context.conditions?.reduceMotion);
+          const isDesktop = Boolean(context.conditions?.isDesktop);
+
+          if (!open && closing) {
+            if (reduceMotion) {
+              const id = window.setTimeout(() => setClosing(false), 0);
+              return () => window.clearTimeout(id);
+            }
+
+            const exitTl = gsap.timeline({
+              onComplete: () => setClosing(false),
+            });
+            exitTl.to(
+              panelEl,
+              {
+                y: isDesktop ? 24 : 56,
+                scale: isDesktop ? 0.96 : 1,
+                opacity: 0,
+                duration: GSAP_MOTION.duration.modalOut,
+                ease: GSAP_MOTION.ease.exit,
+              },
+              0
+            );
+            if (backdropEl) {
+              exitTl.to(
+                backdropEl,
+                {
+                  opacity: 0,
+                  duration: GSAP_MOTION.duration.modalOut,
+                  ease: GSAP_MOTION.ease.exit,
+                },
+                0
+              );
+            }
+            return;
+          }
+
+          if (open) {
+            if (reduceMotion) {
+              if (backdropEl) {
+                gsap.fromTo(
+                  backdropEl,
+                  { opacity: 0 },
+                  {
+                    opacity: 1,
+                    duration: GSAP_MOTION.duration.reduced,
+                    ease: 'power2.out',
+                    clearProps: 'opacity',
+                  }
+                );
+              }
+              gsap.fromTo(
+                panelEl,
+                { opacity: 0 },
+                {
+                  opacity: 1,
+                  duration: GSAP_MOTION.duration.reduced,
+                  ease: 'power2.out',
+                  clearProps: 'opacity',
+                }
+              );
+              return;
+            }
+
+            const enterTl = gsap.timeline();
+            enterTl.addLabel('open', 0);
+
+            if (backdropEl) {
+              enterTl.fromTo(
+                backdropEl,
+                { opacity: 0 },
+                {
+                  opacity: 1,
+                  duration: 0.22,
+                  ease: 'power2.out',
+                  clearProps: 'opacity',
+                },
+                'open'
+              );
+            }
+
+            enterTl.fromTo(
+              panelEl,
+              {
+                y: isDesktop ? 36 : 64,
+                scale: isDesktop ? 0.94 : 0.98,
+                opacity: 0,
+              },
+              {
+                y: 0,
+                scale: 1,
+                opacity: 1,
+                duration: GSAP_MOTION.duration.modalIn,
+                ease: isDesktop ? GSAP_MOTION.ease.bouncySoft : 'power4.out',
+                clearProps: 'transform,opacity',
+              },
+              'open'
+            );
+
+            const directChildren = Array.from(panelEl.children).filter(
+              (child): child is HTMLElement =>
+                child instanceof HTMLElement && !child.classList.contains('print-surface-light')
+            );
+            if (directChildren.length > 1) {
+              enterTl.from(
+                directChildren,
+                {
+                  y: 12,
+                  opacity: 0,
+                  duration: 0.28,
+                  stagger: GSAP_MOTION.stagger.modalChildren,
+                  ease: GSAP_MOTION.ease.enter,
+                  clearProps: 'transform,opacity',
+                },
+                'open+=0.08'
+              );
+            }
+          }
+        }
+      );
+
+      return () => mm.revert();
+    },
+    { scope: backdropRef, dependencies: [open, closing, shouldRender] }
+  );
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -130,7 +287,7 @@ export function ModalDialog({
     };
   }, [open, closeOnEscape]);
 
-  if (!open) return null;
+  if (!shouldRender) return null;
 
   const hasExplicitAnimation = /\banimate-(sheet-up|modal-in|drawer-in|fade-in)\b/.test(
     panelClassName
@@ -141,13 +298,14 @@ export function ModalDialog({
 
   return (
     <div
-      className={backdropClassName}
+      ref={backdropRef}
+      className={`${backdropClassName} ${closing ? 'pointer-events-none' : ''}`.trim()}
       role="dialog"
       aria-modal="true"
       aria-label={ariaLabelledBy ? undefined : ariaLabel}
       aria-labelledby={ariaLabelledBy}
       onMouseDown={(e) => {
-        if (closeOnBackdrop && e.target === e.currentTarget) {
+        if (!closing && closeOnBackdrop && e.target === e.currentTarget) {
           onCloseRef.current();
         }
       }}
