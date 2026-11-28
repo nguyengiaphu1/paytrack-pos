@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Archive, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { formatErrorMessageVN } from '@/lib/errors';
@@ -18,39 +18,20 @@ interface ProductFormModalProps {
 }
 
 export function ProductFormModal(props: ProductFormModalProps) {
-  const [mounted, setMounted] = useState(props.open);
-  const [retainedProduct, setRetainedProduct] = useState<Product | null>(props.product);
-
-  if (props.open && !mounted) {
-    setMounted(true);
-    setRetainedProduct(props.product);
-  } else if (props.open && props.product !== retainedProduct) {
-    setRetainedProduct(props.product);
-  }
-
-  const handleExited = useCallback(() => {
-    setMounted(false);
-  }, []);
-
-  if (!props.open && !mounted) return null;
-  const activeProduct = props.open ? props.product : retainedProduct;
+  if (!props.open) return null;
   return (
     <ProductFormModalBody
-      key={activeProduct?.id ?? 'new-product'}
+      key={props.product?.id ?? 'new-product'}
       {...props}
-      product={activeProduct}
-      onExited={handleExited}
     />
   );
 }
 
 function ProductFormModalBody({
-  open,
   onClose,
-  onExited,
   product,
   onSaved,
-}: ProductFormModalProps & { onExited: () => void }) {
+}: ProductFormModalProps) {
   const [name, setName] = useState(product?.name ?? '');
   const [unit, setUnit] = useState(product?.unit ?? 'cái');
   const [priceVnd, setPriceVnd] = useState<number | null>(product ? product.price : null);
@@ -165,9 +146,8 @@ function ProductFormModalBody({
 
   return (
     <ModalDialog
-      open={open}
+      open
       onClose={onClose}
-      onExited={onExited}
       closeOnBackdrop={false}
       ariaLabelledBy="product-form-modal-title"
       backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"

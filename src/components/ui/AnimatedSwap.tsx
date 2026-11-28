@@ -11,9 +11,8 @@ interface AnimatedSwapProps {
 }
 
 /**
- * Slot-roll / slide-up/down / icon-flip transition for buttons, labels,
+ * Slot-roll / bouncy slide-up/down / icon-flip transition for buttons, labels,
  * icons, and badges whenever their semantic state changes.
- * Uses subtle 2px blur crossfade on fine pointers and transform-only 60fps on touch.
  */
 export function AnimatedSwap({
   swapKey,
@@ -38,16 +37,9 @@ export function AnimatedSwap({
 
       const mm = gsap.matchMedia();
       mm.add(
-        {
-          all: 'all',
-          finePointer: '(hover: hover) and (pointer: fine)',
-          reduceMotion: '(prefers-reduced-motion: reduce)',
-        },
+        { reduceMotion: '(prefers-reduced-motion: reduce)' },
         (context) => {
-          const reduceMotion = Boolean(context.conditions?.reduceMotion);
-          const finePointer = Boolean(context.conditions?.finePointer);
-
-          if (reduceMotion) {
+          if (context.conditions?.reduceMotion) {
             gsap.fromTo(
               slot,
               { opacity: 0 },
@@ -64,42 +56,30 @@ export function AnimatedSwap({
           if (direction === 'flip') {
             gsap.fromTo(
               slot,
-              {
-                rotation: -80,
-                scale: 0.72,
-                opacity: 0,
-                ...(finePointer ? { filter: 'blur(2px)' } : {}),
-              },
+              { rotation: -95, scale: 0.55, opacity: 0 },
               {
                 rotation: 0,
                 scale: 1,
                 opacity: 1,
-                ...(finePointer ? { filter: 'blur(0px)' } : {}),
-                duration: GSAP_MOTION.duration.swap,
-                ease: GSAP_MOTION.ease.iosSheet,
-                clearProps: 'transform,opacity,filter',
+                duration: 0.34,
+                ease: GSAP_MOTION.ease.bouncySnap,
+                clearProps: 'transform,opacity',
               }
             );
             return;
           }
 
-          const fromYPercent = direction === 'down' ? -105 : 105;
+          const fromYPercent = direction === 'down' ? -115 : 115;
           gsap.fromTo(
             slot,
-            {
-              yPercent: fromYPercent,
-              opacity: 0,
-              scale: 0.96,
-              ...(finePointer ? { filter: 'blur(2px)' } : {}),
-            },
+            { yPercent: fromYPercent, opacity: 0, scale: 0.92 },
             {
               yPercent: 0,
               opacity: 1,
               scale: 1,
-              ...(finePointer ? { filter: 'blur(0px)' } : {}),
-              duration: GSAP_MOTION.duration.swap,
-              ease: GSAP_MOTION.ease.iosSheet,
-              clearProps: 'transform,opacity,filter',
+              duration: 0.3,
+              ease: GSAP_MOTION.ease.bouncy,
+              clearProps: 'transform,opacity',
             }
           );
         }

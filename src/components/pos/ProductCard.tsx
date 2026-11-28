@@ -44,13 +44,13 @@ export function ProductCard({
         mm.add('(prefers-reduced-motion: no-preference)', () => {
           gsap.fromTo(
             stepperRef.current,
-            { scaleX: 0.72, x: 8, opacity: 0, transformOrigin: 'right center' },
+            { scaleX: 0.65, x: 10, opacity: 0, transformOrigin: 'right center' },
             {
               scaleX: 1,
               x: 0,
               opacity: 1,
-              duration: 0.24,
-              ease: GSAP_MOTION.ease.iosSheet,
+              duration: 0.34,
+              ease: GSAP_MOTION.ease.bouncy,
               clearProps: 'transform,opacity',
             }
           );
@@ -72,13 +72,13 @@ export function ProductCard({
         mm.add('(prefers-reduced-motion: no-preference)', () => {
           gsap.fromTo(
             editBadgeRef.current,
-            { y: 8, opacity: 0, scale: 0.94 },
+            { y: 10, opacity: 0, scale: 0.88 },
             {
               y: 0,
               opacity: 1,
               scale: 1,
-              duration: 0.22,
-              ease: GSAP_MOTION.ease.iosSheet,
+              duration: 0.3,
+              ease: GSAP_MOTION.ease.bouncy,
               clearProps: 'transform,opacity',
             }
           );

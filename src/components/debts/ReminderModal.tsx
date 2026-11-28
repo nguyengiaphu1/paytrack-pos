@@ -8,7 +8,6 @@ import { formatErrorMessageVN } from '@/lib/errors';
 import type { Customer, Order } from '@/types/database';
 import { ModalDialog } from '@/components/ui/ModalDialog';
 import { ModalHeader } from '@/components/ui/ModalHeader';
-import { useRetainedModalData } from '@/hooks/useRetainedModalData';
 
 interface ReminderModalProps {
   open: boolean;
@@ -27,27 +26,22 @@ function shiftDateVN(baseYYYYMMDD: string, offsetDays: number): string {
 }
 
 export function ReminderModal(props: ReminderModalProps) {
-  const { renderedData, isOpen, handleExited } = useRetainedModalData(props.open, props.customer);
-  if (!renderedData) return null;
+  if (!props.open || !props.customer) return null;
   return (
     <ReminderModalBody
-      key={renderedData.id}
+      key={props.customer.id}
       {...props}
-      open={isOpen}
-      onExited={handleExited}
-      customer={renderedData}
+      customer={props.customer}
     />
   );
 }
 
 function ReminderModalBody({
-  open,
   onClose,
-  onExited,
   customer,
   unpaidOrders,
   onSaved,
-}: ReminderModalProps & { customer: Customer; onExited: () => void }) {
+}: Omit<ReminderModalProps, 'open' | 'customer'> & { customer: Customer }) {
   const todayVN = getTodayVN();
   const quickDates = [
     { label: 'Hôm nay', value: todayVN },
@@ -102,9 +96,8 @@ function ReminderModalBody({
 
   return (
     <ModalDialog
-      open={open}
+      open={true}
       onClose={onClose}
-      onExited={onExited}
       ariaLabelledBy="reminder-modal-title"
       backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
       panelClassName="animate-sheet-up sm:animate-modal-in glass-modal max-h-[92dvh] w-full max-w-[460px] overflow-y-auto rounded-t-[28px] sm:rounded-[28px]"

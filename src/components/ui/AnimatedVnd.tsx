@@ -45,10 +45,7 @@ export function AnimatedVnd({
 
       const mm = gsap.matchMedia();
       mm.add(
-        {
-          all: 'all',
-          reduceMotion: '(prefers-reduced-motion: reduce)',
-        },
+        { reduceMotion: '(prefers-reduced-motion: reduce)' },
         (context) => {
           if (context.conditions?.reduceMotion) {
             el.textContent = formatVND(value);
@@ -74,12 +71,12 @@ export function AnimatedVnd({
           if (highlightOnChange) {
             gsap.fromTo(
               el,
-              { y: value > startVal ? -3 : 3, scale: 1.02 },
+              { y: value > startVal ? -4 : 4, scale: 1.03 },
               {
                 y: 0,
                 scale: 1,
-                duration: 0.24,
-                ease: GSAP_MOTION.ease.iosSheet,
+                duration: 0.34,
+                ease: GSAP_MOTION.ease.bouncySnap,
                 clearProps: 'transform',
               }
             );
