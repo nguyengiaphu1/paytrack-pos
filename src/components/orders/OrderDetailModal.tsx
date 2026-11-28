@@ -15,6 +15,7 @@ import type { Order, OrderItem } from '@/types/database';
 import { ModalDialog } from '@/components/ui/ModalDialog';
 import { ModalHeader } from '@/components/ui/ModalHeader';
 import { OrderStatusBadge } from '@/components/ui/OrderStatusBadge';
+import { useRetainedModalData } from '@/hooks/useRetainedModalData';
 
 interface OrderDetailModalProps {
   order: Order | null;
@@ -47,22 +48,27 @@ export function OrderDetailModal({
   onSetCancelConfirmOpen,
   onConfirmCancel,
 }: OrderDetailModalProps) {
-  if (!order) return null;
+  const { renderedData: activeOrder, isOpen, handleExited } = useRetainedModalData(
+    Boolean(order),
+    order
+  );
+  if (!activeOrder) return null;
 
   return (
     <ModalDialog
-      open={true}
+      open={isOpen}
       onClose={onClose}
+      onExited={handleExited}
       ariaLabelledBy="order-detail-modal-title"
       backdropClassName="glass-backdrop animate-backdrop-in fixed inset-0 z-40 flex items-end justify-center p-0 sm:items-center sm:p-4"
       panelClassName="glass-modal animate-sheet-up sm:animate-modal-in flex max-h-[92dvh] w-full max-w-[540px] flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px]"
     >
       <ModalHeader
-        title={order.order_code}
+        title={activeOrder.order_code}
         titleId="order-detail-modal-title"
         titleClassName="font-mono-tabular"
-        badge={<OrderStatusBadge status={order.payment_status} />}
-        subtitle={`${order.customer_name_snapshot} · Mua ${formatDateVN(order.purchased_at || order.created_at)}`}
+        badge={<OrderStatusBadge status={activeOrder.payment_status} />}
+        subtitle={`${activeOrder.customer_name_snapshot} · Mua ${formatDateVN(activeOrder.purchased_at || activeOrder.created_at)}`}
         onClose={onClose}
       />
 
@@ -72,32 +78,32 @@ export function OrderDetailModal({
           <div className="min-w-0">
             <span className="block text-[12px] text-[var(--text-secondary)]">SĐT</span>
             <span className="font-mono-tabular font-medium text-[var(--text-primary)]">
-              {order.customer_phone_snapshot || '—'}
+              {activeOrder.customer_phone_snapshot || '—'}
             </span>
           </div>
           <div className="min-w-0">
             <span className="block text-[12px] text-[var(--text-secondary)]">Địa chỉ</span>
             <span className="break-words font-medium text-[var(--text-primary)]">
-              {order.customer_address_snapshot || '—'}
+              {activeOrder.customer_address_snapshot || '—'}
             </span>
           </div>
           <div className="min-w-0">
             <span className="block text-[12px] text-[var(--text-secondary)]">Tên TK</span>
             <span className="font-medium text-[var(--text-primary)]">
-              {formatPaymentAccount(order.payment_account, order.payment_account_note)}
+              {formatPaymentAccount(activeOrder.payment_account, activeOrder.payment_account_note)}
             </span>
           </div>
           <div className="min-w-0">
             <span className="block text-[12px] text-[var(--text-secondary)]">Ngày TT</span>
             <span className="font-mono-tabular font-medium text-[var(--text-primary)]">
-              {order.paid_at ? formatDateVN(order.paid_at) : '—'}
+              {activeOrder.paid_at ? formatDateVN(activeOrder.paid_at) : '—'}
             </span>
           </div>
-          {order.note && (
+          {activeOrder.note && (
             <div className="col-span-2 min-w-0">
               <span className="block text-[12px] text-[var(--text-secondary)]">Ghi chú</span>
               <span className="break-words font-medium text-[var(--text-primary)]">
-                {order.note}
+                {activeOrder.note}
               </span>
             </div>
           )}
@@ -106,7 +112,7 @@ export function OrderDetailModal({
               Ngày tạo hệ thống
             </span>
             <span className="font-mono-tabular text-[12px] text-[var(--text-secondary)]">
-              {formatDateTimeVN(order.created_at)}
+              {formatDateTimeVN(activeOrder.created_at)}
             </span>
           </div>
         </div>
@@ -147,39 +153,39 @@ export function OrderDetailModal({
           <div className="flex justify-between gap-2">
             <span className="text-[var(--text-secondary)]">Giá bán</span>
             <span className="font-mono-tabular shrink-0 font-bold text-[var(--text-primary)]">
-              {formatVND(order.total_amount)}
+              {formatVND(activeOrder.total_amount)}
             </span>
           </div>
           <div className="flex justify-between gap-2">
             <span className="text-[var(--text-secondary)]">Giá vốn</span>
             <span className="font-mono-tabular shrink-0 font-semibold text-[var(--text-secondary)]">
-              {formatVND(order.total_cost ?? 0)}
+              {formatVND(activeOrder.total_cost ?? 0)}
             </span>
           </div>
           <div className="flex justify-between gap-2">
             <span className="text-[var(--text-secondary)]">Lãi</span>
             <span className="font-mono-tabular shrink-0 font-bold text-[var(--brand-jade-text)]">
-              {order.payment_status === 'cancelled' ? '—' : formatVND(computeOrderProfit(order))}
+              {activeOrder.payment_status === 'cancelled' ? '—' : formatVND(computeOrderProfit(activeOrder))}
             </span>
           </div>
           <div className="glass-divider flex justify-between gap-2 border-t pt-2">
             <span className="text-[var(--text-secondary)]">Đã thu</span>
             <span className="font-mono-tabular shrink-0 font-semibold text-[var(--brand-jade-text)]">
-              {formatVND(order.paid_amount)}
+              {formatVND(activeOrder.paid_amount)}
             </span>
           </div>
-          {order.remaining_amount > 0 && (
+          {activeOrder.remaining_amount > 0 && (
             <div className="flex justify-between gap-2 font-bold text-[var(--status-debt)]">
               <span>Còn nợ</span>
               <span className="font-mono-tabular shrink-0">
-                {formatVND(order.remaining_amount)}
+                {formatVND(activeOrder.remaining_amount)}
               </span>
             </div>
           )}
         </div>
 
         {/* Action Buttons */}
-        {order.payment_status === 'cancelled' ? (
+        {activeOrder.payment_status === 'cancelled' ? (
           <button
             type="button"
             onClick={onOpenEdit}
@@ -188,8 +194,8 @@ export function OrderDetailModal({
             <Pencil className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
             <span>Sửa sổ</span>
           </button>
-        ) : (order.payment_status === 'unpaid' || order.payment_status === 'partial') &&
-          order.customer_id ? (
+        ) : (activeOrder.payment_status === 'unpaid' || activeOrder.payment_status === 'partial') &&
+          activeOrder.customer_id ? (
           <div className="grid grid-cols-2 gap-2.5">
             <button
               type="button"
@@ -201,7 +207,7 @@ export function OrderDetailModal({
             </button>
             <button
               type="button"
-              onClick={() => onOpenCollect(order)}
+              onClick={() => onOpenCollect(activeOrder)}
               className="glass-btn-primary press-tactile flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2.5 text-[13px] font-semibold sm:text-[14px]"
             >
               <Banknote className="h-4 w-4 shrink-0" />
@@ -254,7 +260,7 @@ export function OrderDetailModal({
         )}
 
         {/* Cancel Order Section */}
-        {order.payment_status !== 'cancelled' && (
+        {activeOrder.payment_status !== 'cancelled' && (
           <div className="glass-divider border-t pt-3.5">
             {!cancelConfirmOpen ? (
               <button
@@ -270,11 +276,11 @@ export function OrderDetailModal({
                 <div className="flex items-start gap-2 text-[13px]">
                   <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                   <div className="min-w-0 flex-1 break-words">
-                    <p className="font-bold">Hủy đơn {order.order_code}?</p>
+                    <p className="font-bold">Hủy đơn {activeOrder.order_code}?</p>
                     <p className="mt-1">
                       Chỉ trừ phần nợ chưa thu (
                       <strong className="font-mono-tabular">
-                        {formatVND(order.remaining_amount)}
+                        {formatVND(activeOrder.remaining_amount)}
                       </strong>
                       ) khỏi công nợ khách.
                     </p>

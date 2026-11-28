@@ -112,6 +112,8 @@ describe('PayTrack POS Neutral 60-30-10 Glassmorphism, Multi-Color Solid-Blur Ha
     expect(gsapCore).toContain("from '@gsap/react'");
     expect(gsapCore).toContain("from 'gsap/Flip'");
     expect(gsapCore).toContain("from 'gsap/ScrollTrigger'");
+    expect(gsapCore).toContain("from 'gsap/CustomEase'");
+    expect(gsapCore).toContain('iosSheet');
 
     const gsapProvider = readRel('src/components/providers/GsapMotionProvider.tsx');
     expect(gsapProvider).toContain('gsap.matchMedia()');
@@ -133,10 +135,22 @@ describe('PayTrack POS Neutral 60-30-10 Glassmorphism, Multi-Color Solid-Blur Ha
 
     const modalDialog = readRel('src/components/ui/ModalDialog.tsx');
     expect(modalDialog).toContain('gsap.timeline(');
+    expect(modalDialog).toContain("all: 'all'");
+    expect(modalDialog).toContain('overscroll-contain');
+    expect(modalDialog).not.toContain('onMouseDown=');
 
     const haloBackdrop = readRel('src/components/ui/AmbientHaloBackdrop.tsx');
     expect(haloBackdrop).toContain('gsap.matchMedia()');
+    expect(haloBackdrop).toContain('paytrack:modal-state');
     expect(haloBackdrop).not.toMatch(/(linear|radial|conic)-gradient\(/i);
+
+    const themeToggle = readRel('src/components/ui/ThemeToggle.tsx');
+    expect(themeToggle).toContain('<HexColorWheel');
+    expect(themeToggle).toContain('THEME_PALETTE_PRESETS');
+
+    const themeProvider = readRel('src/components/providers/ThemeProvider.tsx');
+    expect(themeProvider).toContain('startViewTransition');
+    expect(themeProvider).toContain('applyPaletteToDom');
 
     const manifest = readRel('src/app/manifest.ts');
     expect(manifest).toContain('icon-192.png');

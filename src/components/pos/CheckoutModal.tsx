@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type FormEvent } from 'react';
+import { useCallback, useRef, useState, type FormEvent } from 'react';
 import { AlertTriangle, Calculator, Check, Loader2, UserPlus } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { loadCheckoutPrefs, saveCheckoutPrefs } from '@/lib/checkout-prefs';
@@ -46,14 +46,24 @@ interface CheckoutModalProps {
 type PayChoice = 'full_transfer' | 'full_cash' | 'partial' | 'unpaid';
 
 export function CheckoutModal(props: CheckoutModalProps) {
-  if (!props.open) return null;
+  const [mounted, setMounted] = useState(props.open);
+  if (props.open && !mounted) {
+    setMounted(true);
+  }
+  const handleExited = useCallback(() => {
+    setMounted(false);
+  }, []);
+
+  if (!props.open && !mounted) return null;
   // Key strictly by sessionId (incremented only when opening Checkout) so
   // clearing the cart after save never unmounts the confirmation screen.
-  return <CheckoutModalBody key={props.sessionId} {...props} />;
+  return <CheckoutModalBody key={props.sessionId} {...props} onExited={handleExited} />;
 }
 
 function CheckoutModalBody({
+  open,
   onClose,
+  onExited,
   items,
   discount,
   customers,
@@ -63,7 +73,7 @@ function CheckoutModalBody({
   onCustomerCreated,
   onOrderCreated,
   onCustomerUpdated,
-}: CheckoutModalProps) {
+}: CheckoutModalProps & { onExited: () => void }) {
   // Freeze order items & discount for this checkout session so clearing the draft
   // cart on save cannot mutate or zero-out the active checkout state.
   const [orderItems] = useState<CartItem[]>(() => items);
@@ -386,8 +396,9 @@ function CheckoutModalBody({
   return (
     <>
       <ModalDialog
-        open
+        open={open}
         onClose={onClose}
+        onExited={onExited}
         closeOnBackdrop={Boolean(savedOrder)}
         ariaLabelledBy="checkout-modal-title"
         backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-40 flex items-end justify-center p-0 sm:items-center sm:p-4"

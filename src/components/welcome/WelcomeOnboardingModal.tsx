@@ -20,6 +20,7 @@ import type { Product, ShopProfile } from '@/types/database';
 import { BrandMark } from '@/components/ui/BrandMark';
 import { VndKInput } from '@/components/ui/VndKInput';
 import { ModalDialog } from '@/components/ui/ModalDialog';
+import { SmoothCollapse } from '@/components/ui/SmoothCollapse';
 
 interface WelcomeOnboardingModalProps {
   open: boolean;
@@ -364,7 +365,7 @@ export function WelcomeOnboardingModal({
             </div>
           </button>
 
-          {activeStep === 1 && (
+          <SmoothCollapse open={activeStep === 1}>
             <form
               onSubmit={handleSaveShop}
               className="glass-divider space-y-3 border-t px-3.5 py-3.5"
@@ -421,7 +422,7 @@ export function WelcomeOnboardingModal({
                 </button>
               </div>
             </form>
-          )}
+          </SmoothCollapse>
         </div>
 
         {/* Step 2: Bank Account */}
@@ -463,7 +464,7 @@ export function WelcomeOnboardingModal({
             </div>
           </button>
 
-          {activeStep === 2 && (
+          <SmoothCollapse open={activeStep === 2}>
             <form
               onSubmit={handleSaveBank}
               className="glass-divider space-y-3 border-t px-3.5 py-3.5"
@@ -547,7 +548,7 @@ export function WelcomeOnboardingModal({
                 </button>
               </div>
             </form>
-          )}
+          </SmoothCollapse>
         </div>
 
         {/* Step 3: First Product */}
@@ -589,7 +590,7 @@ export function WelcomeOnboardingModal({
             </div>
           </button>
 
-          {activeStep === 3 && (
+          <SmoothCollapse open={activeStep === 3}>
             <form
               onSubmit={handleAddFirstProduct}
               className="glass-divider space-y-3 border-t px-3.5 py-3.5"
@@ -663,7 +664,7 @@ export function WelcomeOnboardingModal({
                 </button>
               </div>
             </form>
-          )}
+          </SmoothCollapse>
         </div>
       </div>
 

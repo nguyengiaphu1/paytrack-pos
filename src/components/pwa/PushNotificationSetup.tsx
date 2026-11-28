@@ -14,6 +14,7 @@ import {
   Smartphone,
 } from 'lucide-react';
 import { formatDateTimeVN } from '@/lib/vietnamese';
+import { SmoothCollapse } from '@/components/ui/SmoothCollapse';
 
 interface RegisteredDevice {
   id: string;
@@ -81,6 +82,7 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
   const [cronHeartbeat, setCronHeartbeat] = useState<CronHeartbeat | null>(null);
   const [digestStatus, setDigestStatus] = useState<DigestStatus | null>(null);
   const [busy, setBusy] = useState(false);
+  const [diagOpen, setDiagOpen] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -422,60 +424,72 @@ export function PushNotificationSetup({ embedded = false }: { embedded?: boolean
       )}
 
       {/* Collapsible Technical Diagnostics (clean by default, full power on demand) */}
-      <details className="glass-well group rounded-[18px] px-3.5 py-2 text-[12px] text-[var(--text-secondary)]">
-        <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-2 font-medium text-[var(--text-secondary)]">
+      <div className="glass-well rounded-[18px] px-3.5 py-2 text-[12px] text-[var(--text-secondary)]">
+        <button
+          type="button"
+          aria-expanded={diagOpen}
+          aria-controls="push-diagnostics-panel"
+          onClick={() => setDiagOpen((v) => !v)}
+          className="flex min-h-[44px] w-full items-center justify-between gap-2 text-left font-medium text-[var(--text-secondary)]"
+        >
           <span>
             Kiểm tra kết nối ({devices.length} máy
             {dueCustomersToday > 0 ? ` · ${dueCustomersToday} khách đến hạn` : ''})
           </span>
-          <ChevronDown className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180" />
-        </summary>
+          <ChevronDown
+            className={`h-4 w-4 shrink-0 transition-transform duration-200 ${
+              diagOpen ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
 
-        <div className="glass-divider space-y-2.5 border-t pt-2.5 pb-1">
-          {envState.subscribed && (
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                disabled={busy}
-                onClick={handleSendTest}
-                className="glass-solid-control press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[12px] font-semibold text-[var(--text-primary)] disabled:opacity-60"
-              >
-                <Send className="h-3.5 w-3.5 text-[var(--brand-jade-text)]" />
-                <span>Gửi thử</span>
-              </button>
-              <button
-                type="button"
-                disabled={busy}
-                onClick={handleDispatchDue}
-                className="glass-solid-control press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[12px] font-semibold text-[var(--text-primary)] disabled:opacity-60"
-              >
-                <Clock className="h-3.5 w-3.5 text-[var(--brand-jade-text)]" />
-                <span>Gửi lịch đến hạn</span>
-              </button>
-            </div>
-          )}
+        <SmoothCollapse open={diagOpen} id="push-diagnostics-panel">
+          <div className="glass-divider space-y-2.5 border-t pt-2.5 pb-1">
+            {envState.subscribed && (
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={handleSendTest}
+                  className="glass-solid-control press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[12px] font-semibold text-[var(--text-primary)] disabled:opacity-60"
+                >
+                  <Send className="h-3.5 w-3.5 text-[var(--brand-jade-text)]" />
+                  <span>Gửi thử</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={handleDispatchDue}
+                  className="glass-solid-control press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[12px] font-semibold text-[var(--text-primary)] disabled:opacity-60"
+                >
+                  <Clock className="h-3.5 w-3.5 text-[var(--brand-jade-text)]" />
+                  <span>Gửi lịch đến hạn</span>
+                </button>
+              </div>
+            )}
 
-          {devices.length > 0 && (
-            <p className="break-words">
-              Thiết bị: {devices.map((d) => d.device_label || 'Web').join(' · ')}
-            </p>
-          )}
-          {pendingReminders > 0 && (
-            <p className="font-mono-tabular">Lịch hẹn đang chờ: {pendingReminders}</p>
-          )}
-          {digestStatus && (
-            <p className="font-mono-tabular">
-              Tổng hợp ngày: {digestStatus.enabled ? `${digestStatus.hour} (${digestStatus.sentToday ? 'đã gửi' : 'chờ'})` : 'tắt'}
-            </p>
-          )}
-          {cronHeartbeat && (
-            <p className="font-mono-tabular">
-              Kiểm tra gần nhất: {formatDateTimeVN(cronHeartbeat.last_run_at)} (
-              {cronHeartbeat.last_status})
-            </p>
-          )}
-        </div>
-      </details>
+            {devices.length > 0 && (
+              <p className="break-words">
+                Thiết bị: {devices.map((d) => d.device_label || 'Web').join(' · ')}
+              </p>
+            )}
+            {pendingReminders > 0 && (
+              <p className="font-mono-tabular">Lịch hẹn đang chờ: {pendingReminders}</p>
+            )}
+            {digestStatus && (
+              <p className="font-mono-tabular">
+                Tổng hợp ngày: {digestStatus.enabled ? `${digestStatus.hour} (${digestStatus.sentToday ? 'đã gửi' : 'chờ'})` : 'tắt'}
+              </p>
+            )}
+            {cronHeartbeat && (
+              <p className="font-mono-tabular">
+                Kiểm tra gần nhất: {formatDateTimeVN(cronHeartbeat.last_run_at)} (
+                {cronHeartbeat.last_status})
+              </p>
+            )}
+          </div>
+        </SmoothCollapse>
+      </div>
     </div>
   );
 }

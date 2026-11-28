@@ -17,6 +17,7 @@ import { stripVietnamese } from '@/lib/vietnamese';
 import { AnimatedSwap } from '@/components/ui/AnimatedSwap';
 import { EmptyStateCard } from '@/components/ui/EmptyStateCard';
 import { hasOpenModalDialog } from '@/components/ui/ModalDialog';
+import { SmoothCollapse } from '@/components/ui/SmoothCollapse';
 import { ProductCard } from './ProductCard';
 
 interface ProductCatalogProps {
@@ -44,7 +45,9 @@ export function ProductCatalog({
   const [liveAnnouncement, setLiveAnnouncement] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const catRailRef = useRef<HTMLDivElement>(null);
   const flipStateRef = useRef<Flip.FlipState | null>(null);
+  const railBounceRef = useRef({ active: false, startX: 0, offset: 0 });
 
   useEffect(() => {
     function handleSlashShortcut(e: KeyboardEvent) {
@@ -130,25 +133,25 @@ export function ProductCatalog({
         if (cards.length === 0) return;
         Flip.from(state, {
           targets: cards,
-          duration: 0.42,
-          ease: GSAP_MOTION.ease.flip,
+          duration: 0.28,
+          ease: GSAP_MOTION.ease.iosMove,
           stagger: 0.02,
           scale: true,
           simple: true,
           onEnter: (els) =>
             gsap.fromTo(
               els,
-              { opacity: 0, y: 16, scale: 0.94 },
+              { opacity: 0, y: 12, scale: 0.96 },
               {
                 opacity: 1,
                 y: 0,
                 scale: 1,
-                duration: 0.34,
-                ease: GSAP_MOTION.ease.bouncySoft,
+                duration: 0.24,
+                ease: GSAP_MOTION.ease.iosSheet,
                 clearProps: 'transform,opacity',
               }
             ),
-          onLeave: (els) => gsap.to(els, { opacity: 0, scale: 0.94, duration: 0.18 }),
+          onLeave: (els) => gsap.to(els, { opacity: 0, scale: 0.96, duration: 0.16 }),
         });
       });
 
@@ -226,6 +229,46 @@ export function ProductCatalog({
           <div className="flex items-center justify-between gap-2">
             {categories.length > 1 ? (
               <div
+                ref={catRailRef}
+                onTouchStart={(e) => {
+                  if (e.touches.length !== 1) return;
+                  railBounceRef.current = {
+                    active: true,
+                    startX: e.touches[0].clientX,
+                    offset: 0,
+                  };
+                }}
+                onTouchMove={(e) => {
+                  const rail = catRailRef.current;
+                  const state = railBounceRef.current;
+                  if (!rail || !state.active || e.touches.length !== 1) return;
+                  const dx = e.touches[0].clientX - state.startX;
+                  const atStart = rail.scrollLeft <= 1 && dx > 0;
+                  const maxScroll = Math.max(0, rail.scrollWidth - rail.clientWidth);
+                  const atEnd = rail.scrollLeft >= maxScroll - 1 && dx < 0;
+                  if (atStart || atEnd) {
+                    const damped = dx / (1 + Math.abs(dx) / 90);
+                    state.offset = damped;
+                    gsap.set(rail, { x: damped });
+                  } else if (state.offset !== 0) {
+                    state.offset = 0;
+                    gsap.set(rail, { x: 0 });
+                  }
+                }}
+                onTouchEnd={() => {
+                  const rail = catRailRef.current;
+                  const state = railBounceRef.current;
+                  state.active = false;
+                  if (rail && state.offset !== 0) {
+                    state.offset = 0;
+                    gsap.to(rail, {
+                      x: 0,
+                      duration: 0.3,
+                      ease: GSAP_MOTION.ease.iosSpring,
+                      clearProps: 'transform',
+                    });
+                  }
+                }}
                 className="scrollbar-none scroll-fade-x -my-1.5 flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto touch-pan-x py-2 pr-7 sm:my-0 sm:flex-wrap sm:overflow-visible sm:py-0.5 sm:pr-0"
                 role="group"
                 aria-label="Lọc theo danh mục"
@@ -318,11 +361,8 @@ export function ProductCatalog({
           </div>
 
           {/* Mobile Collapsible Catalog Management Tray (< sm) */}
-          {managePanelExpanded && (
-            <div
-              id="mobile-catalog-manage-tray"
-              className="animate-fade-in glass-well flex flex-wrap items-center gap-2 rounded-[18px] p-2 sm:hidden"
-            >
+          <SmoothCollapse open={managePanelExpanded} id="mobile-catalog-manage-tray" className="sm:hidden">
+            <div className="glass-well flex flex-wrap items-center gap-2 rounded-[18px] p-2">
               <button
                 type="button"
                 aria-pressed={editMode}
@@ -367,7 +407,7 @@ export function ProductCatalog({
                 </button>
               )}
             </div>
-          )}
+          </SmoothCollapse>
         </div>
       )}
 

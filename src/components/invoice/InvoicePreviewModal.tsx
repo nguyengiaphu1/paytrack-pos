@@ -10,6 +10,7 @@ import {
   triggerDataUrlDownload,
 } from '@/lib/browser-export';
 import { ModalDialog } from '@/components/ui/ModalDialog';
+import { useRetainedModalData } from '@/hooks/useRetainedModalData';
 
 interface InvoicePreviewModalProps {
   open: boolean;
@@ -20,22 +21,27 @@ interface InvoicePreviewModalProps {
 }
 
 export function InvoicePreviewModal(props: InvoicePreviewModalProps) {
-  if (!props.open || !props.order) return null;
+  const { renderedData, isOpen, handleExited } = useRetainedModalData(props.open, props.order);
+  if (!renderedData) return null;
   return (
     <InvoicePreviewModalBody
-      key={props.order.id}
+      key={renderedData.id}
       {...props}
-      order={props.order}
+      open={isOpen}
+      onExited={handleExited}
+      order={renderedData}
     />
   );
 }
 
 function InvoicePreviewModalBody({
+  open,
   onClose,
+  onExited,
   order,
   items,
   profile,
-}: Omit<InvoicePreviewModalProps, 'open' | 'order'> & { order: Order }) {
+}: InvoicePreviewModalProps & { order: Order; onExited: () => void }) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const hasCustomer = Boolean(order.customer_id);
   const cumulativeDebt = Math.max(
@@ -116,8 +122,9 @@ function InvoicePreviewModalBody({
 
   return (
     <ModalDialog
-      open
+      open={open}
       onClose={onClose}
+      onExited={onExited}
       ariaLabelledBy="invoice-preview-modal-title"
       panelClassName="animate-sheet-up sm:animate-modal-in glass-modal max-h-[94dvh] w-full max-w-[600px] overflow-y-auto rounded-t-[28px] sm:rounded-[28px]"
     >

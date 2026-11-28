@@ -138,10 +138,10 @@ export function AppShell({
           bootTl.from(
             headerRef.current,
             {
-              y: -18,
+              y: -12,
               autoAlpha: 0,
               duration: GSAP_MOTION.duration.enter,
-              ease: GSAP_MOTION.ease.bouncySoft,
+              ease: GSAP_MOTION.ease.iosSheet,
               clearProps: 'transform,opacity,visibility',
             },
             0
@@ -154,7 +154,7 @@ export function AppShell({
               if (!headerRef.current) return;
               gsap.to(headerRef.current, {
                 scale: 0.992,
-                duration: 0.24,
+                duration: 0.2,
                 ease: GSAP_MOTION.ease.smooth,
               });
             },
@@ -162,7 +162,7 @@ export function AppShell({
               if (!headerRef.current) return;
               gsap.to(headerRef.current, {
                 scale: 1,
-                duration: 0.24,
+                duration: 0.2,
                 ease: GSAP_MOTION.ease.smooth,
                 clearProps: 'transform',
               });
@@ -173,14 +173,14 @@ export function AppShell({
           bootTl.from(
             dockRef.current,
             {
-              y: 28,
-              scale: 0.94,
+              y: 20,
+              scale: 0.97,
               autoAlpha: 0,
-              duration: 0.44,
-              ease: GSAP_MOTION.ease.bouncySoft,
+              duration: 0.26,
+              ease: GSAP_MOTION.ease.iosSheet,
               clearProps: 'transform,opacity,visibility',
             },
-            0.06
+            0.03
           );
         }
       });
@@ -190,7 +190,7 @@ export function AppShell({
     { scope: shellRef }
   );
 
-  // Sliding Floating Glass Dock elastic pill + bouncy icon hop timeline
+  // Sliding Floating Glass Dock GPU-only pill (x/y/scaleX/scaleY, zero width/height layout thrash)
   useGSAP(
     () => {
       ensureGsapInitialized();
@@ -205,63 +205,72 @@ export function AppShell({
         const y = activeLink.offsetTop;
         const width = activeLink.offsetWidth;
         const height = activeLink.offsetHeight;
+        if (width <= 0 || height <= 0) return;
+
+        const baseWidth = 100;
+        const baseHeight = 44;
+        const scaleX = width / baseWidth;
+        const scaleY = height / baseHeight;
 
         if (!animate) {
-          gsap.set(pillEl, { x, y, width, height, autoAlpha: 1 });
+          gsap.set(pillEl, {
+            x,
+            y,
+            scaleX,
+            scaleY,
+            transformOrigin: '0 0',
+            autoAlpha: 1,
+          });
           return;
         }
 
         const mm = gsap.matchMedia();
         mm.add(
           {
+            all: 'all',
             reduceMotion: '(prefers-reduced-motion: reduce)',
           },
           (context) => {
             if (context.conditions?.reduceMotion) {
-              gsap.set(pillEl, { x, y, width, height, autoAlpha: 1 });
+              gsap.set(pillEl, {
+                x,
+                y,
+                scaleX,
+                scaleY,
+                transformOrigin: '0 0',
+                autoAlpha: 1,
+              });
               return;
             }
             const dockTl = gsap.timeline();
-            dockTl
-              .to(
-                pillEl,
-                {
-                  x,
-                  y,
-                  width,
-                  height,
-                  autoAlpha: 1,
-                  duration: 0.4,
-                  ease: GSAP_MOTION.ease.bouncySoft,
-                },
-                0
-              )
-              .fromTo(
-                pillEl,
-                { scaleX: 1.08, scaleY: 0.92 },
-                {
-                  scaleX: 1,
-                  scaleY: 1,
-                  duration: 0.36,
-                  ease: GSAP_MOTION.ease.bouncy,
-                  clearProps: 'scaleX,scaleY',
-                },
-                0
-              );
+            dockTl.to(
+              pillEl,
+              {
+                x,
+                y,
+                scaleX,
+                scaleY,
+                transformOrigin: '0 0',
+                autoAlpha: 1,
+                duration: 0.26,
+                ease: GSAP_MOTION.ease.iosMove,
+              },
+              0
+            );
 
             const activeIcon = activeLink.querySelector<SVGSVGElement>('svg');
             if (activeIcon) {
               dockTl.fromTo(
                 activeIcon,
-                { y: -6, scale: 1.18 },
+                { y: -3, scale: 1.08 },
                 {
                   y: 0,
                   scale: 1,
-                  duration: 0.36,
-                  ease: GSAP_MOTION.ease.bouncySnap,
+                  duration: 0.22,
+                  ease: GSAP_MOTION.ease.iosSheet,
                   clearProps: 'transform',
                 },
-                0.03
+                0.02
               );
             }
           }
@@ -301,6 +310,7 @@ export function AppShell({
       const mm = gsap.matchMedia();
       mm.add(
         {
+          all: 'all',
           reduceMotion: '(prefers-reduced-motion: reduce)',
         },
         (context) => {
@@ -317,12 +327,12 @@ export function AppShell({
 
           pageTl.fromTo(
             stage,
-            { x: direction * 34, autoAlpha: 0 },
+            { x: direction * 28, autoAlpha: 0 },
             {
               x: 0,
               autoAlpha: 1,
               duration: GSAP_MOTION.duration.pageIn,
-              ease: GSAP_MOTION.ease.enter,
+              ease: GSAP_MOTION.ease.iosSheet,
               clearProps: 'transform,opacity,visibility',
             },
             0
@@ -333,13 +343,13 @@ export function AppShell({
             pageTl.from(
               heading,
               {
-                y: 14,
+                y: 8,
                 autoAlpha: 0,
-                duration: 0.32,
-                ease: GSAP_MOTION.ease.bouncy,
+                duration: 0.22,
+                ease: GSAP_MOTION.ease.iosSheet,
                 clearProps: 'transform,opacity,visibility',
               },
-              0.04
+              0.02
             );
           }
 
@@ -347,24 +357,24 @@ export function AppShell({
             stage.querySelectorAll<HTMLElement>('.glass-panel, .glass-surface, .glass-card')
           )
             .filter((el) => !el.closest('.print-surface-light'))
-            .slice(0, 12);
+            .slice(0, 8);
 
           if (cards.length > 0) {
             pageTl.from(
               cards,
               {
-                y: 20,
-                scale: 0.975,
+                y: 12,
+                scale: 0.97,
                 autoAlpha: 0,
-                duration: 0.36,
+                duration: 0.24,
                 stagger: {
-                  amount: GSAP_MOTION.stagger.gridWave,
+                  each: 0.028,
                   from: 'start',
                 },
-                ease: GSAP_MOTION.ease.bouncySoft,
+                ease: GSAP_MOTION.ease.iosSheet,
                 clearProps: 'transform,opacity,visibility',
               },
-              0.05
+              0.03
             );
           }
         }
@@ -472,7 +482,7 @@ export function AppShell({
             <span
               ref={dockPillRef}
               aria-hidden="true"
-              className="glass-dock-pill pointer-events-none absolute top-0 left-0 z-0 rounded-[24px] opacity-0 lg:rounded-full"
+              className="glass-dock-pill pointer-events-none absolute top-0 left-0 z-0 h-[44px] w-[100px] rounded-[24px] opacity-0 will-change-transform lg:rounded-full"
             />
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;

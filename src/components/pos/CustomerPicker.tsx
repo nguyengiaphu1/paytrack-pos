@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState, type FormEvent } from 'react';
 import { Check, Loader2, MapPin, Phone, Plus, Search, UserCheck, UserPlus, X } from 'lucide-react';
+import { ensureGsapInitialized, gsap, GSAP_MOTION, useGSAP } from '@/lib/gsap';
 import {
   loadRecentCustomerIds,
   recordRecentCustomerId,
@@ -47,6 +48,8 @@ export function CustomerPicker({
   const [creating, setCreating] = useState(false);
   const [query, setQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const viewStageRef = useRef<HTMLDivElement>(null);
+  const hasToggledCreateRef = useRef(false);
   const [newName, setNewName] = useState('');
   const [newPhone, setNewPhone] = useState('');
   const [newAddress, setNewAddress] = useState('');
@@ -65,6 +68,45 @@ export function CustomerPicker({
   );
 
   const filtered = useMemo(() => filterCustomersByQuery(customers, query), [customers, query]);
+
+  useGSAP(
+    () => {
+      if (!modalOpen) {
+        hasToggledCreateRef.current = false;
+        return;
+      }
+      if (!hasToggledCreateRef.current) {
+        hasToggledCreateRef.current = true;
+        return;
+      }
+      const stage = viewStageRef.current;
+      if (!stage) return;
+      ensureGsapInitialized();
+      const mm = gsap.matchMedia();
+      mm.add(
+        {
+          all: 'all',
+          reduceMotion: '(prefers-reduced-motion: reduce)',
+        },
+        (context) => {
+          if (context.conditions?.reduceMotion) return;
+          gsap.fromTo(
+            stage,
+            { x: creating ? 24 : -24, opacity: 0 },
+            {
+              x: 0,
+              opacity: 1,
+              duration: 0.22,
+              ease: GSAP_MOTION.ease.iosSheet,
+              clearProps: 'transform,opacity',
+            }
+          );
+        }
+      );
+      return () => mm.revert();
+    },
+    { scope: viewStageRef, dependencies: [creating, modalOpen] }
+  );
 
   function handleSelectCustomer(customer: Customer | null) {
     if (customer) {
@@ -197,6 +239,7 @@ export function CustomerPicker({
           </button>
         </div>
 
+        <div ref={viewStageRef} className="flex min-h-0 flex-1 flex-col">
         {creating ? (
           <form
             onSubmit={handleCreateCustomer}
@@ -444,6 +487,7 @@ export function CustomerPicker({
             </div>
           </div>
         )}
+        </div>
       </ModalDialog>
     </>
   );

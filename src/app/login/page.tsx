@@ -26,6 +26,7 @@ export default function LoginPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const hasEnteredRef = useRef(false);
+  const prevModeRef = useRef<AuthMode>('login');
 
   useGSAP(
     () => {
@@ -40,11 +41,11 @@ export default function LoginPage() {
           loginTl.from(
             panelRef.current,
             {
-              y: 28,
-              scale: 0.96,
+              y: 16,
+              scale: 0.97,
               autoAlpha: 0,
-              duration: 0.42,
-              ease: GSAP_MOTION.ease.bouncySoft,
+              duration: 0.25,
+              ease: GSAP_MOTION.ease.iosSheet,
               clearProps: 'transform,opacity,visibility',
             },
             0
@@ -54,27 +55,26 @@ export default function LoginPage() {
           .from(
             '.login-orb-entrance',
             {
-              y: -14,
-              scale: 0.68,
-              rotation: -12,
+              y: -10,
+              scale: 0.84,
               autoAlpha: 0,
-              duration: 0.46,
-              ease: GSAP_MOTION.ease.bouncy,
+              duration: 0.26,
+              ease: GSAP_MOTION.ease.iosSheet,
               clearProps: 'transform,opacity,visibility',
             },
-            0.06
+            0.03
           )
           .from(
             '.login-stagger-item',
             {
-              y: 14,
+              y: 10,
               autoAlpha: 0,
-              duration: 0.34,
+              duration: 0.24,
               stagger: GSAP_MOTION.stagger.form,
-              ease: GSAP_MOTION.ease.enter,
+              ease: GSAP_MOTION.ease.iosSheet,
               clearProps: 'transform,opacity,visibility',
             },
-            0.12
+            0.06
           );
       });
 
@@ -89,21 +89,29 @@ export default function LoginPage() {
       ensureGsapInitialized();
       if (!modeMountedRef.current) {
         modeMountedRef.current = true;
+        prevModeRef.current = mode;
         return;
       }
       const formEl = formRef.current;
       if (!formEl) return;
 
+      const order: Record<AuthMode, number> = { login: 0, signup: 1, forgot: 2 };
+      const dir = order[mode] >= order[prevModeRef.current] ? 1 : -1;
+      prevModeRef.current = mode;
+
       const mm = gsap.matchMedia();
       mm.add('(prefers-reduced-motion: no-preference)', () => {
-        gsap.from(formEl.children, {
-          y: 10,
-          autoAlpha: 0,
-          duration: 0.26,
-          stagger: 0.035,
-          ease: GSAP_MOTION.ease.enter,
-          clearProps: 'transform,opacity,visibility',
-        });
+        gsap.fromTo(
+          formEl,
+          { x: dir * 22, autoAlpha: 0 },
+          {
+            x: 0,
+            autoAlpha: 1,
+            duration: 0.22,
+            ease: GSAP_MOTION.ease.iosSheet,
+            clearProps: 'transform,opacity,visibility',
+          }
+        );
       });
       return () => mm.revert();
     },

@@ -29,6 +29,7 @@ import { formatPaymentAccount } from '@/lib/ledger';
 import { copyTextToClipboard } from '@/lib/browser-export';
 import { buildCustomerSearchText } from '@/lib/customers';
 import { ModalDialog } from '@/components/ui/ModalDialog';
+import { useRetainedModalData } from '@/hooks/useRetainedModalData';
 import type {
   Customer,
   DebtPayment,
@@ -84,23 +85,28 @@ interface DebtCustomerDrawerProps {
 }
 
 export function DebtCustomerDrawer(props: DebtCustomerDrawerProps) {
-  if (!props.open || !props.customer) return null;
+  const { renderedData, isOpen, handleExited } = useRetainedModalData(props.open, props.customer);
+  if (!renderedData) return null;
   return (
     <DebtCustomerDrawerBody
-      key={props.customer.id}
+      key={renderedData.id}
       {...props}
-      customer={props.customer}
+      open={isOpen}
+      onExited={handleExited}
+      customer={renderedData}
     />
   );
 }
 
 function DebtCustomerDrawerBody({
+  open,
   onClose,
+  onExited,
   customer,
   profile,
   initialOpenCollect = false,
   onDataUpdated,
-}: Omit<DebtCustomerDrawerProps, 'open' | 'customer'> & { customer: Customer }) {
+}: DebtCustomerDrawerProps & { customer: Customer; onExited: () => void }) {
   const [unpaidOrders, setUnpaidOrders] = useState<Order[]>([]);
   const [payments, setPayments] = useState<DebtPayment[]>([]);
   const [reminders, setReminders] = useState<DebtReminder[]>([]);
@@ -207,8 +213,9 @@ function DebtCustomerDrawerBody({
   return (
     <>
       <ModalDialog
-        open={true}
+        open={open}
         onClose={onClose}
+        onExited={onExited}
         ariaLabelledBy="debt-customer-drawer-title"
         backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-40 flex items-end justify-end p-0 sm:items-stretch"
         panelClassName="animate-sheet-up sm:animate-drawer-in glass-modal max-h-[93dvh] w-full overflow-y-auto rounded-t-[28px] sm:h-full sm:max-h-dvh sm:max-w-[520px] sm:rounded-l-[28px] sm:rounded-tr-none"
