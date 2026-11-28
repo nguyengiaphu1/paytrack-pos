@@ -86,8 +86,8 @@ const HALO_ORBS: readonly HaloOrbConfig[] = [
 
 /**
  * Multi-color ambient halo backdrop built strictly from solid-color blurred orbs
- * (zero CSS gradients). Gently drifts with GSAP and pauses automatically when
- * the tab is hidden or prefers-reduced-motion is enabled.
+ * (zero CSS gradients). Pauses automatically when tab is hidden, when any modal
+ * dialog is open (60fps iPhone GPU headroom), or under prefers-reduced-motion.
  */
 export function AmbientHaloBackdrop() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -101,6 +101,8 @@ export function AmbientHaloBackdrop() {
       const mm = gsap.matchMedia();
       mm.add(
         {
+          all: 'all',
+          coarsePointer: '(pointer: coarse)',
           reduceMotion: '(prefers-reduced-motion: reduce)',
         },
         (context) => {
@@ -108,6 +110,7 @@ export function AmbientHaloBackdrop() {
             return;
           }
 
+          const coarsePointer = Boolean(context.conditions?.coarsePointer);
           const orbNodes = Array.from(
             container.querySelectorAll<HTMLElement>('[data-halo-orb]')
           );
@@ -125,28 +128,40 @@ export function AmbientHaloBackdrop() {
             });
           });
 
-          gsap.to(container, {
-            yPercent: -4,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: document.documentElement,
-              start: 'top top',
-              end: 'bottom bottom',
-              scrub: 1.4,
-            },
-          });
+          if (!coarsePointer) {
+            gsap.to(container, {
+              yPercent: -4,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: document.documentElement,
+                start: 'top top',
+                end: 'bottom bottom',
+                scrub: 1.4,
+              },
+            });
+          }
 
-          const onVisibilityChange = () => {
-            const hidden = document.hidden;
+          let modalOpenCount = 0;
+          const syncPlayback = () => {
+            const shouldPause = document.hidden || modalOpenCount > 0;
             for (const tween of tweens) {
-              if (hidden) tween.pause();
+              if (shouldPause) tween.pause();
               else tween.resume();
             }
           };
 
+          const onVisibilityChange = () => syncPlayback();
+          const onModalState = (e: Event) => {
+            const detail = (e as CustomEvent<{ openCount?: number }>).detail;
+            modalOpenCount = detail?.openCount ?? 0;
+            syncPlayback();
+          };
+
           document.addEventListener('visibilitychange', onVisibilityChange);
+          window.addEventListener('paytrack:modal-state', onModalState);
           return () => {
             document.removeEventListener('visibilitychange', onVisibilityChange);
+            window.removeEventListener('paytrack:modal-state', onModalState);
           };
         }
       );

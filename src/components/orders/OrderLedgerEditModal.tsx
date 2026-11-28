@@ -14,6 +14,7 @@ import { PaymentAccountSelector } from '@/components/ui/PaymentAccountSelector';
 import { VndKInput } from '@/components/ui/VndKInput';
 import { ModalDialog } from '@/components/ui/ModalDialog';
 import { ModalHeader } from '@/components/ui/ModalHeader';
+import { useRetainedModalData } from '@/hooks/useRetainedModalData';
 
 interface OrderLedgerEditModalProps {
   open: boolean;
@@ -24,22 +25,27 @@ interface OrderLedgerEditModalProps {
 }
 
 export function OrderLedgerEditModal(props: OrderLedgerEditModalProps) {
-  if (!props.open || !props.order) return null;
+  const { renderedData, isOpen, handleExited } = useRetainedModalData(props.open, props.order);
+  if (!renderedData) return null;
   return (
     <OrderLedgerEditModalBody
-      key={`${props.order.id}-${props.order.updated_at}`}
+      key={`${renderedData.id}-${renderedData.updated_at}`}
       {...props}
-      order={props.order}
+      open={isOpen}
+      onExited={handleExited}
+      order={renderedData}
     />
   );
 }
 
 function OrderLedgerEditModalBody({
+  open,
   onClose,
+  onExited,
   order,
   items,
   onSaved,
-}: Omit<OrderLedgerEditModalProps, 'open' | 'order'> & { order: Order }) {
+}: OrderLedgerEditModalProps & { order: Order; onExited: () => void }) {
   const [customerName, setCustomerName] = useState(order.customer_name_snapshot);
   const [customerPhone, setCustomerPhone] = useState(order.customer_phone_snapshot ?? '');
   const [customerAddress, setCustomerAddress] = useState(order.customer_address_snapshot ?? '');
@@ -140,8 +146,9 @@ function OrderLedgerEditModalBody({
 
   return (
     <ModalDialog
-      open={true}
+      open={open}
       onClose={onClose}
+      onExited={onExited}
       ariaLabelledBy="order-ledger-edit-title"
       backdropClassName="glass-backdrop animate-backdrop-in fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
       panelClassName="glass-modal animate-sheet-up sm:animate-modal-in flex max-h-[92dvh] w-full max-w-[540px] flex-col overflow-hidden rounded-t-[28px] sm:rounded-[28px]"

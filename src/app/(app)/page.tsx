@@ -50,15 +50,51 @@ export default function PosWorkspacePage() {
   const [checkoutSessionId, setCheckoutSessionId] = useState(0);
   const [clearedDraftUndo, setClearedDraftUndo] = useState<PosDraftState | null>(null);
   const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const undoRemainingRef = useRef<number>(0);
+  const undoStartedAtRef = useRef<number>(0);
+  const undoPausedRef = useRef<boolean>(false);
 
   useEffect(() => {
     void ensurePosCatalog();
   }, [ensurePosCatalog]);
 
+  function scheduleUndoExpiry(ms: number) {
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    undoRemainingRef.current = ms;
+    undoStartedAtRef.current = Date.now();
+    undoTimerRef.current = setTimeout(() => {
+      undoTimerRef.current = null;
+      undoRemainingRef.current = 0;
+      setClearedDraftUndo(null);
+    }, ms);
+  }
+
+  function pauseUndoTimer() {
+    if (!undoTimerRef.current || undoPausedRef.current) return;
+    undoPausedRef.current = true;
+    clearTimeout(undoTimerRef.current);
+    undoTimerRef.current = null;
+    const elapsed = Date.now() - undoStartedAtRef.current;
+    undoRemainingRef.current = Math.max(1500, undoRemainingRef.current - elapsed);
+  }
+
+  function resumeUndoTimer() {
+    if (!undoPausedRef.current || undoRemainingRef.current <= 0) return;
+    undoPausedRef.current = false;
+    scheduleUndoExpiry(undoRemainingRef.current);
+  }
+
   useEffect(() => {
+    const onVisibilityChange = () => {
+      if (document.hidden) pauseUndoTimer();
+      else resumeUndoTimer();
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
     return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -83,10 +119,8 @@ export default function PosWorkspacePage() {
     setMobileCartOpen(false);
     if (previous.cart.length > 0) {
       setClearedDraftUndo(previous);
-      if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
-      undoTimerRef.current = setTimeout(() => {
-        setClearedDraftUndo(null);
-      }, 10000);
+      undoPausedRef.current = false;
+      scheduleUndoExpiry(10000);
     }
   }
 
@@ -94,6 +128,8 @@ export default function PosWorkspacePage() {
     if (!clearedDraftUndo) return;
     restoreCartDraft(clearedDraftUndo);
     setClearedDraftUndo(null);
+    undoRemainingRef.current = 0;
+    undoPausedRef.current = false;
     if (undoTimerRef.current) {
       clearTimeout(undoTimerRef.current);
       undoTimerRef.current = null;
@@ -174,11 +210,13 @@ export default function PosWorkspacePage() {
         </div>
       </div>
 
-      {/* Undo Banner after clearing cart (10s window) */}
+      {/* Undo Banner after clearing cart (10s window, pauses on hover/hidden tab) */}
       {clearedDraftUndo && (
         <div
           role="status"
           aria-live="polite"
+          onPointerEnter={pauseUndoTimer}
+          onPointerLeave={resumeUndoTimer}
           className="animate-fade-in glass-card mb-2.5 flex flex-wrap items-center justify-between gap-2 rounded-[22px] px-4 py-2.5 text-[13px] text-[var(--text-primary)] sm:mb-3.5"
         >
           <span className="font-medium">

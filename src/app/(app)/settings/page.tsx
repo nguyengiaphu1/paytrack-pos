@@ -206,7 +206,7 @@ function SettingsFormBody({
         {/* 1. Cửa hàng & VietQR */}
         <section
           id="bank"
-          className="glass-panel space-y-4 rounded-[24px] p-4 sm:p-5"
+          className="glass-panel scroll-mt-[84px] space-y-4 rounded-[24px] p-4 sm:p-5"
         >
           <h2 className="text-[15px] font-bold text-[var(--text-primary)]">
             Cửa hàng &amp; VietQR

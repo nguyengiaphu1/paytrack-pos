@@ -1,9 +1,9 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Check, ChevronDown, ChevronUp } from 'lucide-react';
-import { ensureGsapInitialized, gsap, GSAP_MOTION, useGSAP } from '@/lib/gsap';
 import { AnimatedSwap } from '@/components/ui/AnimatedSwap';
+import { SmoothCollapse } from '@/components/ui/SmoothCollapse';
 import {
   getQuickPickAccounts,
   loadCheckoutPrefs,
@@ -48,26 +48,6 @@ export function PaymentAccountSelector({
     loadCheckoutPrefs().recentAccounts
   );
   const [expanded, setExpanded] = useState(!collapsible);
-  const trayRef = useRef<HTMLDivElement>(null);
-
-  useGSAP(
-    () => {
-      if (!expanded || !trayRef.current) return;
-      ensureGsapInitialized();
-      const mm = gsap.matchMedia();
-      mm.add('(prefers-reduced-motion: no-preference)', () => {
-        gsap.from(trayRef.current, {
-          y: -12,
-          opacity: 0,
-          duration: 0.3,
-          ease: GSAP_MOTION.ease.bouncySoft,
-          clearProps: 'transform,opacity',
-        });
-      });
-      return () => mm.revert();
-    },
-    { scope: trayRef, dependencies: [expanded] }
-  );
 
   const quickPicks = getQuickPickAccounts(value, recentAccounts, 3);
   const remainingCount = 9 - quickPicks.length;
@@ -127,7 +107,7 @@ export function PaymentAccountSelector({
         )}
       </div>
 
-      {!expanded ? (
+      {!expanded && (
         <div
           className="flex flex-wrap gap-2"
           role="group"
@@ -146,8 +126,10 @@ export function PaymentAccountSelector({
             </AnimatedSwap>
           </button>
         </div>
-      ) : (
-        <div ref={trayRef} className="glass-well space-y-3 rounded-[18px] p-3">
+      )}
+
+      <SmoothCollapse open={expanded}>
+        <div className="glass-well space-y-3 rounded-[18px] p-3">
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-2">
               <span className="text-[12px] font-semibold text-[var(--text-secondary)]">
@@ -181,7 +163,7 @@ export function PaymentAccountSelector({
             </div>
           </div>
         </div>
-      )}
+      </SmoothCollapse>
 
       {value === 'Khác' && (
         <div>
