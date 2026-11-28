@@ -1,12 +1,17 @@
 ---
 name: PayTrack POS
-description: Architectural Neutral Glassmorphism (Warm Gray Grid & Matte Obsidian Dot-Grid) home online-shop sales ledger and rapid order-entry system with strict 60-30-10 balance and Floating Glass Dock.
+description: Neutral Glassmorphism (60-30-10) over gradient-free multi-color solid-blur ambient halos, powered by a global 60fps GSAP choreography engine and Floating Glass Dock.
 colors:
   jade-primary: "#0E6B4E"
   jade-hover: "#0A563F"
   jade-text: "#09583F"
   limestone-canvas: "#ECEFED"
-  limestone-grid: "rgba(15, 23, 20, 0.07)"
+  halo-light-1: "#68D8B4"
+  halo-light-2: "#F9BC8C"
+  halo-light-3: "#79C9F7"
+  halo-light-4: "#F3DA8A"
+  halo-light-5: "#66CFC7"
+  halo-light-6: "#F5A6A2"
   porcelain-surface: "#FFFFFF"
   porcelain-subtle: "rgba(15, 23, 20, 0.055)"
   slate-border: "rgba(15, 23, 20, 0.13)"
@@ -22,7 +27,12 @@ colors:
   glass-input-light: "rgba(255, 255, 255, 0.96)"
   glass-border-light: "rgba(255, 255, 255, 0.92)"
   dark-canvas: "#0C100E"
-  dark-dot-grid: "rgba(255, 255, 255, 0.08)"
+  halo-dark-1: "#0F8C68"
+  halo-dark-2: "#0C74A8"
+  halo-dark-3: "#C46532"
+  halo-dark-4: "#0E9B8C"
+  halo-dark-5: "#B3882B"
+  halo-dark-6: "#1E6F78"
   dark-surface: "#161B19"
   dark-subtle: "rgba(255, 255, 255, 0.07)"
   dark-border: "rgba(255, 255, 255, 0.14)"
@@ -171,16 +181,16 @@ components:
 
 <!-- impeccable:design-map -->
 Name: PayTrack POS
-Colors: primary: jade-primary #0E6B4E; neutral: limestone-canvas #ECEFED (+ 7% dark forest-gray grid); neutral: porcelain-surface #FFFFFF; neutral: dark-canvas #0C100E (+ 8% white dot-grid); semantic: status-paid #075444; semantic: status-debt #8A3B04; semantic: status-overdue #9F1616
+Colors: primary: jade-primary #0E6B4E; neutral: limestone-canvas #ECEFED (+ 6 solid-blur multi-color halo orbs); neutral: porcelain-surface #FFFFFF; neutral: dark-canvas #0C100E (+ 6 solid-blur jewel halo orbs); semantic: status-paid #075444; semantic: status-debt #8A3B04; semantic: status-overdue #9F1616
 Fonts: Be Vietnam Pro (headline, headline-mobile, metric, metric-sm, title, body, body-sm, label, caption, tabular)
 Spacing: xs 4px, sm 8px, md 12px, lg 16px, xl 24px
 Radius: control 14px, inset 16px, well 18px, card 22px, surface 24px, panel 26px, modal 28px, dock 30px, full 9999px
-North Star: "Architectural Neutral Glassmorphism (60–30–10)"
+North Star: "Multi-Color Solid-Blur Ambient Halo Glassmorphism + Global GSAP Motion (60–30–10)"
 Rules:
-- The 60–30–10 Neutral Glassmorphism Rule. Hold 60% architectural geometric pattern canvas (Light `#ECEFED` + `rgba(15, 23, 20, 0.07)` grid lines; Dark `#0C100E` + `rgba(255, 255, 255, 0.08)` dot-grid), 30% pure neutral frosted glassmorphism tiles (zero green-tinted glass on cards, chips, orbs, modals, or dock), and <= 10% solid opaque Deep Forest Jade reserved strictly for important primary CTA buttons and semantic status indicators.
-- The Chat-Ready Light-Paper Lock Rule. Receipts and VietQR cards always apply `.print-surface-light` (`porcelain-surface` + `print-ink`, `color-scheme: light`, `backdrop-filter: none`) even when Dark Mode is active.
+- The 60–30–10 Neutral Glassmorphism + Gradient-Free Halo Rule. Hold 60% solid canvas (`#ECEFED` Light / `#0C100E` Dark) paired with `AmbientHaloBackdrop` (6 harmonious solid-color `filter: blur(...)` orbs, ZERO CSS gradients), 30% pure neutral frosted glassmorphism tiles (`blur(12–28px) saturate(170–190%)`, zero green-tinted glass), and <= 10% solid opaque Deep Forest Jade reserved strictly for important primary CTA buttons and semantic status indicators.
+- The Chat-Ready Light-Paper Lock Rule. Receipts and VietQR cards always apply `.print-surface-light` (`porcelain-surface` + `print-ink`, `color-scheme: light`, `backdrop-filter: none`) even when Dark Mode is active and are excluded from GSAP transforms.
 - The 16px Input & 12px Diacritic Floor Rule. Every `input`, `select`, and `textarea` renders at `>= 16px` (`src/app/globals.css`, preventing iOS Safari auto-zoom), and no Vietnamese UI, badge, or receipt copy drops below `12px`.
-- The Purposeful Motion Rule. Modals and sheets smoothly slide up on open (`.animate-sheet-up` / `.animate-modal-in`), and top-level dock tab switches slide left or right directionally (`.animate-tab-slide-left` / `.animate-tab-slide-right`) with sticky-safe cleanup and opacity-only `prefers-reduced-motion` fallback.
+- The Global GSAP Purposeful Motion Rule. `GsapMotionProvider` (`gsap` + `@gsap/react`) orchestrates delegated hover/press/focus micro-physics across cards, buttons, chips, icons, inputs, badges, and `[role="alert"]`, while `AppShell` drives the sliding `.glass-dock-pill` + directional tab transitions + card stagger, `ModalDialog` drives smooth modal/sheet slide-ups, and `AmbientHaloBackdrop` drifts ambiently (pausing when hidden), with sticky-safe `clearProps` and `gsap.matchMedia()` `prefers-reduced-motion` degradation.
 Elevation:
 - Tier 1 — Recessed Neutral Well (.glass-well): Soft inset hairline well for nested summary trays, cart rows, chart wells, and segmented control tracks.
 - Tier 2 — Frosted Neutral Card (.glass-card): Translucent neutral glass (`blur(12px)`) with specular bevel rim and layout/style containment.

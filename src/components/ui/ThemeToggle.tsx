@@ -2,6 +2,7 @@
 
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { AnimatedSwap } from '@/components/ui/AnimatedSwap';
 import {
   getThemePreferenceLabelVN,
   type ThemePreference,
@@ -28,6 +29,7 @@ export function ThemeQuickToggle({
         : Sun;
 
   const label = getThemePreferenceLabelVN(preference);
+  const iconKey = `${preference}-${resolvedTheme}`;
 
   if (responsiveLabel) {
     return (
@@ -38,8 +40,14 @@ export function ThemeQuickToggle({
         title={`Giao diện: ${label}`}
         className="glass-solid-control press-tactile inline-flex h-[44px] w-[44px] items-center justify-center gap-1.5 rounded-full text-[13px] font-semibold text-[var(--text-primary)] transition-[transform,opacity,background-color,color] hover:opacity-95 sm:w-auto sm:px-3.5"
       >
-        <Icon className="h-[18px] w-[18px] shrink-0 text-[var(--brand-jade-text)]" />
-        <span className="hidden sm:inline">{label}</span>
+        <AnimatedSwap swapKey={iconKey} direction="flip">
+          <Icon className="h-[18px] w-[18px] shrink-0 text-[var(--brand-jade-text)]" />
+        </AnimatedSwap>
+        <span className="hidden sm:inline-flex">
+          <AnimatedSwap swapKey={label} direction="up">
+            <span>{label}</span>
+          </AnimatedSwap>
+        </span>
       </button>
     );
   }
@@ -53,7 +61,9 @@ export function ThemeQuickToggle({
         title={`Giao diện: ${label}`}
         className="glass-solid-control press-tactile flex h-[44px] w-[44px] items-center justify-center rounded-full text-[var(--brand-jade-text)] transition-[transform,opacity,background-color,color] hover:opacity-95"
       >
-        <Icon className="h-[18px] w-[18px]" />
+        <AnimatedSwap swapKey={iconKey} direction="flip">
+          <Icon className="h-[18px] w-[18px]" />
+        </AnimatedSwap>
       </button>
     );
   }
@@ -66,8 +76,12 @@ export function ThemeQuickToggle({
       title={`Giao diện: ${label}`}
       className="glass-solid-control press-tactile inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-4 text-[13px] font-semibold text-[var(--text-primary)]"
     >
-      <Icon className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
-      <span>{compact ? label : `Giao diện: ${label}`}</span>
+      <AnimatedSwap swapKey={iconKey} direction="flip">
+        <Icon className="h-4 w-4 shrink-0 text-[var(--brand-jade-text)]" />
+      </AnimatedSwap>
+      <AnimatedSwap swapKey={label} direction="up">
+        <span>{compact ? label : `Giao diện: ${label}`}</span>
+      </AnimatedSwap>
     </button>
   );
 }
@@ -113,7 +127,9 @@ export function SettingsThemeSelector() {
                   : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
-              <Icon className="h-4 w-4 shrink-0" />
+              <AnimatedSwap swapKey={active ? 'on' : 'off'} direction="flip">
+                <Icon className="h-4 w-4 shrink-0" />
+              </AnimatedSwap>
               <span className="truncate">{opt.label}</span>
             </button>
           );

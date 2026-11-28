@@ -7,7 +7,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -26,6 +25,7 @@ import { useShellPosData } from '@/components/providers/PosDataProvider';
 import { BrandMark } from '@/components/ui/BrandMark';
 import { ThemeQuickToggle } from '@/components/ui/ThemeToggle';
 import { WelcomeOnboardingModal } from '@/components/welcome/WelcomeOnboardingModal';
+import { ensureGsapInitialized, gsap, GSAP_MOTION, ScrollTrigger, useGSAP } from '@/lib/gsap';
 import { readOnboardingMirror } from '@/lib/welcome';
 
 interface AppUserContextValue {
@@ -78,7 +78,13 @@ export function AppShell({
   const pathname = usePathname();
   const activeTabIndex = getNavTabIndex(pathname);
   const prevTabIndexRef = useRef<number>(activeTabIndex);
+  const shellRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  const dockRef = useRef<HTMLElement>(null);
+  const dockPillRef = useRef<HTMLSpanElement>(null);
   const tabStageRef = useRef<HTMLDivElement>(null);
+  const hasBootedShellRef = useRef(false);
+  const pillInitializedRef = useRef(false);
 
   const [swRegistered, setSwRegistered] = useState(false);
   const [forceOnboardingOpen, setForceOnboardingOpen] = useState(false);
@@ -118,21 +124,256 @@ export function AppShell({
     return () => window.removeEventListener('paytrack:open-onboarding', onOpenEvent);
   }, []);
 
-  useLayoutEffect(() => {
-    const prevIdx = prevTabIndexRef.current;
-    if (prevIdx === activeTabIndex) return;
-    prevTabIndexRef.current = activeTabIndex;
+  // Initial top-bar + floating dock GSAP timeline + ScrollTrigger header polish
+  useGSAP(
+    () => {
+      ensureGsapInitialized();
+      if (hasBootedShellRef.current) return;
+      hasBootedShellRef.current = true;
 
-    const stage = tabStageRef.current;
-    if (!stage) return;
+      const mm = gsap.matchMedia();
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        const bootTl = gsap.timeline();
+        if (headerRef.current) {
+          bootTl.from(
+            headerRef.current,
+            {
+              y: -18,
+              autoAlpha: 0,
+              duration: GSAP_MOTION.duration.enter,
+              ease: GSAP_MOTION.ease.bouncySoft,
+              clearProps: 'transform,opacity,visibility',
+            },
+            0
+          );
 
-    const animClass =
-      activeTabIndex > prevIdx ? 'animate-tab-slide-left' : 'animate-tab-slide-right';
-    stage.classList.remove('animate-tab-slide-left', 'animate-tab-slide-right');
-    // Force reflow so rapid consecutive tab switches restart the slide cleanly
-    void stage.offsetWidth;
-    stage.classList.add(animClass);
-  }, [activeTabIndex]);
+          ScrollTrigger.create({
+            start: 18,
+            end: 'max',
+            onEnter: () => {
+              if (!headerRef.current) return;
+              gsap.to(headerRef.current, {
+                scale: 0.992,
+                duration: 0.24,
+                ease: GSAP_MOTION.ease.smooth,
+              });
+            },
+            onLeaveBack: () => {
+              if (!headerRef.current) return;
+              gsap.to(headerRef.current, {
+                scale: 1,
+                duration: 0.24,
+                ease: GSAP_MOTION.ease.smooth,
+                clearProps: 'transform',
+              });
+            },
+          });
+        }
+        if (dockRef.current) {
+          bootTl.from(
+            dockRef.current,
+            {
+              y: 28,
+              scale: 0.94,
+              autoAlpha: 0,
+              duration: 0.44,
+              ease: GSAP_MOTION.ease.bouncySoft,
+              clearProps: 'transform,opacity,visibility',
+            },
+            0.06
+          );
+        }
+      });
+
+      return () => mm.revert();
+    },
+    { scope: shellRef }
+  );
+
+  // Sliding Floating Glass Dock elastic pill + bouncy icon hop timeline
+  useGSAP(
+    () => {
+      ensureGsapInitialized();
+      const navEl = dockRef.current;
+      const pillEl = dockPillRef.current;
+      if (!navEl || !pillEl) return;
+
+      const positionPill = (animate: boolean) => {
+        const activeLink = navEl.querySelector<HTMLElement>('[aria-current="page"]');
+        if (!activeLink) return;
+        const x = activeLink.offsetLeft;
+        const y = activeLink.offsetTop;
+        const width = activeLink.offsetWidth;
+        const height = activeLink.offsetHeight;
+
+        if (!animate) {
+          gsap.set(pillEl, { x, y, width, height, autoAlpha: 1 });
+          return;
+        }
+
+        const mm = gsap.matchMedia();
+        mm.add(
+          {
+            reduceMotion: '(prefers-reduced-motion: reduce)',
+          },
+          (context) => {
+            if (context.conditions?.reduceMotion) {
+              gsap.set(pillEl, { x, y, width, height, autoAlpha: 1 });
+              return;
+            }
+            const dockTl = gsap.timeline();
+            dockTl
+              .to(
+                pillEl,
+                {
+                  x,
+                  y,
+                  width,
+                  height,
+                  autoAlpha: 1,
+                  duration: 0.4,
+                  ease: GSAP_MOTION.ease.bouncySoft,
+                },
+                0
+              )
+              .fromTo(
+                pillEl,
+                { scaleX: 1.08, scaleY: 0.92 },
+                {
+                  scaleX: 1,
+                  scaleY: 1,
+                  duration: 0.36,
+                  ease: GSAP_MOTION.ease.bouncy,
+                  clearProps: 'scaleX,scaleY',
+                },
+                0
+              );
+
+            const activeIcon = activeLink.querySelector<SVGSVGElement>('svg');
+            if (activeIcon) {
+              dockTl.fromTo(
+                activeIcon,
+                { y: -6, scale: 1.18 },
+                {
+                  y: 0,
+                  scale: 1,
+                  duration: 0.36,
+                  ease: GSAP_MOTION.ease.bouncySnap,
+                  clearProps: 'transform',
+                },
+                0.03
+              );
+            }
+          }
+        );
+      };
+
+      const shouldAnimate = pillInitializedRef.current;
+      pillInitializedRef.current = true;
+      positionPill(shouldAnimate);
+
+      const ro =
+        typeof ResizeObserver !== 'undefined'
+          ? new ResizeObserver(() => positionPill(false))
+          : null;
+      ro?.observe(navEl);
+      return () => ro?.disconnect();
+    },
+    { scope: dockRef, dependencies: [activeTabIndex] }
+  );
+
+  // Directional page timeline + staggered glass card entrance on dock tab switches
+  // (preserves CSS class names animate-tab-slide-left / animate-tab-slide-right for reduced-motion & tests)
+  useGSAP(
+    () => {
+      ensureGsapInitialized();
+      const prevIdx = prevTabIndexRef.current;
+      if (prevIdx === activeTabIndex) return;
+      prevTabIndexRef.current = activeTabIndex;
+
+      const stage = tabStageRef.current;
+      if (!stage) return;
+
+      const direction = activeTabIndex > prevIdx ? 1 : -1;
+      const fallbackClass =
+        direction > 0 ? 'animate-tab-slide-left' : 'animate-tab-slide-right';
+
+      const mm = gsap.matchMedia();
+      mm.add(
+        {
+          reduceMotion: '(prefers-reduced-motion: reduce)',
+        },
+        (context) => {
+          if (context.conditions?.reduceMotion) {
+            stage.classList.remove('animate-tab-slide-left', 'animate-tab-slide-right');
+            void stage.offsetWidth;
+            stage.classList.add(fallbackClass);
+            return;
+          }
+
+          const pageTl = gsap.timeline({
+            onComplete: () => ScrollTrigger.refresh(),
+          });
+
+          pageTl.fromTo(
+            stage,
+            { x: direction * 34, autoAlpha: 0 },
+            {
+              x: 0,
+              autoAlpha: 1,
+              duration: GSAP_MOTION.duration.pageIn,
+              ease: GSAP_MOTION.ease.enter,
+              clearProps: 'transform,opacity,visibility',
+            },
+            0
+          );
+
+          const heading = stage.querySelector<HTMLElement>('h1');
+          if (heading) {
+            pageTl.from(
+              heading,
+              {
+                y: 14,
+                autoAlpha: 0,
+                duration: 0.32,
+                ease: GSAP_MOTION.ease.bouncy,
+                clearProps: 'transform,opacity,visibility',
+              },
+              0.04
+            );
+          }
+
+          const cards = Array.from(
+            stage.querySelectorAll<HTMLElement>('.glass-panel, .glass-surface, .glass-card')
+          )
+            .filter((el) => !el.closest('.print-surface-light'))
+            .slice(0, 12);
+
+          if (cards.length > 0) {
+            pageTl.from(
+              cards,
+              {
+                y: 20,
+                scale: 0.975,
+                autoAlpha: 0,
+                duration: 0.36,
+                stagger: {
+                  amount: GSAP_MOTION.stagger.gridWave,
+                  from: 'start',
+                },
+                ease: GSAP_MOTION.ease.bouncySoft,
+                clearProps: 'transform,opacity,visibility',
+              },
+              0.05
+            );
+          }
+        }
+      );
+
+      return () => mm.revert();
+    },
+    { scope: tabStageRef, dependencies: [activeTabIndex] }
+  );
 
   useEffect(() => {
     if (swRegistered || typeof window === 'undefined') return;
@@ -153,7 +394,7 @@ export function AppShell({
 
   return (
     <AppUserContext.Provider value={userCtxValue}>
-      <div className="relative flex min-h-dvh flex-col text-[var(--text-primary)]">
+      <div ref={shellRef} className="relative flex min-h-dvh flex-col text-[var(--text-primary)]">
         <a
           href="#main-content"
           className="no-print glass-btn-primary sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:inline-flex focus:min-h-[44px] focus:items-center focus:rounded-full focus:px-4 focus:text-[14px] focus:font-semibold"
@@ -163,7 +404,10 @@ export function AppShell({
 
         {/* Neutral Frosted Glass Top Bar (Mobile & Desktop) */}
         <div className="no-print sticky top-0 z-20 px-2.5 pt-2.5 sm:px-5 sm:pt-3">
-          <header className="glass-surface mx-auto flex h-[60px] max-w-[1440px] items-center justify-between gap-1.5 rounded-[24px] px-2.5 sm:gap-2 sm:px-4">
+          <header
+            ref={headerRef}
+            className="glass-surface mx-auto flex h-[60px] max-w-[1440px] items-center justify-between gap-1.5 rounded-[24px] px-2.5 sm:gap-2 sm:px-4"
+          >
             <Link
               href="/"
               prefetch={true}
@@ -221,9 +465,15 @@ export function AppShell({
         {/* Sculpted 3D Crystal Floating Glass Dock (5 tabs, 375px Mobile & 1280px+ Desktop) */}
         <div className="no-print pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-2 pb-[calc(10px+env(safe-area-inset-bottom))] lg:pb-4">
           <nav
+            ref={dockRef}
             aria-label="Điều hướng chính"
-            className="glass-dock pointer-events-auto flex w-full max-w-[440px] items-center gap-0.5 rounded-[30px] p-1 lg:w-auto lg:max-w-none lg:gap-1.5 lg:rounded-full lg:px-2 lg:py-1.5"
+            className="glass-dock pointer-events-auto relative flex w-full max-w-[440px] items-center gap-0.5 rounded-[30px] p-1 lg:w-auto lg:max-w-none lg:gap-1.5 lg:rounded-full lg:px-2 lg:py-1.5"
           >
+            <span
+              ref={dockPillRef}
+              aria-hidden="true"
+              className="glass-dock-pill pointer-events-none absolute top-0 left-0 z-0 rounded-[24px] opacity-0 lg:rounded-full"
+            />
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const active =
@@ -235,7 +485,7 @@ export function AppShell({
                   href={item.href}
                   prefetch={true}
                   aria-current={active ? 'page' : undefined}
-                  className={`press-tactile relative flex min-h-[54px] min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-[24px] px-0 text-[12px] tracking-[-0.015em] leading-none transition-[transform,background-color,color] lg:min-h-[46px] lg:flex-initial lg:flex-row lg:gap-2 lg:rounded-full lg:px-4 lg:text-[14px] lg:tracking-normal ${
+                  className={`press-tactile relative z-[1] flex min-h-[54px] min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-[24px] px-0 text-[12px] tracking-[-0.015em] leading-none transition-[transform,background-color,color] lg:min-h-[46px] lg:flex-initial lg:flex-row lg:gap-2 lg:rounded-full lg:px-4 lg:text-[14px] lg:tracking-normal ${
                     active
                       ? 'glass-chip-active font-semibold'
                       : 'font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'

@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { ensureGsapInitialized, gsap, GSAP_MOTION, useGSAP } from '@/lib/gsap';
 import { BrandMark } from './BrandMark';
 
 const SESSION_BOOT_KEY = 'paytrack-boot-splash-shown';
@@ -12,6 +13,52 @@ const SESSION_BOOT_KEY = 'paytrack-boot-splash-shown';
  */
 export function AppBootSplash() {
   const [phase, setPhase] = useState<'visible' | 'fading' | 'done'>('visible');
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      if (phase === 'done') return;
+      ensureGsapInitialized();
+      const overlay = overlayRef.current;
+      const card = cardRef.current;
+      if (!overlay || !card) return;
+
+      const mm = gsap.matchMedia();
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        if (phase === 'visible') {
+          gsap.fromTo(
+            card,
+            { scale: 0.94, y: 10, opacity: 0 },
+            {
+              scale: 1,
+              y: 0,
+              opacity: 1,
+              duration: 0.24,
+              ease: GSAP_MOTION.ease.enter,
+              clearProps: 'transform,opacity',
+            }
+          );
+        } else if (phase === 'fading') {
+          gsap.to(card, {
+            scale: 0.97,
+            y: -8,
+            opacity: 0,
+            duration: 0.22,
+            ease: 'power2.in',
+          });
+          gsap.to(overlay, {
+            opacity: 0,
+            duration: 0.24,
+            ease: 'power2.out',
+          });
+        }
+      });
+
+      return () => mm.revert();
+    },
+    { scope: overlayRef, dependencies: [phase] }
+  );
 
   useEffect(() => {
     let alreadyShown = false;
@@ -44,12 +91,16 @@ export function AppBootSplash() {
 
   return (
     <div
+      ref={overlayRef}
       aria-hidden="true"
       className={`no-print fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[var(--bg-canvas)] px-6 transition-opacity duration-200 ease-out ${
         phase === 'fading' ? 'pointer-events-none opacity-0' : 'opacity-100'
       }`}
     >
-      <div className="glass-panel flex flex-col items-center rounded-[28px] px-10 py-8">
+      <div
+        ref={cardRef}
+        className="glass-panel flex flex-col items-center rounded-[28px] px-10 py-8"
+      >
         <div className="glass-icon-orb mb-3.5 flex h-[74px] w-[74px] items-center justify-center rounded-[22px] p-1.5">
           <BrandMark className="h-16 w-16" />
         </div>

@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import { Be_Vietnam_Pro } from 'next/font/google';
+import { GsapMotionProvider } from '@/components/providers/GsapMotionProvider';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import { AmbientHaloBackdrop } from '@/components/ui/AmbientHaloBackdrop';
 import { AppBootSplash } from '@/components/ui/AppBootSplash';
 import { THEME_BOOTSTRAP_SCRIPT, THEME_COLOR_DARK, THEME_COLOR_LIGHT } from '@/lib/theme';
 import './globals.css';
@@ -62,8 +64,11 @@ export default function RootLayout({
       </head>
       <body className="min-h-dvh text-[var(--text-primary)] antialiased selection:bg-[var(--status-paid-bg)] selection:text-[var(--brand-jade-text)]">
         <ThemeProvider>
-          <AppBootSplash />
-          {children}
+          <AmbientHaloBackdrop />
+          <GsapMotionProvider>
+            <AppBootSplash />
+            {children}
+          </GsapMotionProvider>
         </ThemeProvider>
       </body>
     </html>

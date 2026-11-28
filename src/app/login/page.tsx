@@ -1,16 +1,21 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Eye, EyeOff, Loader2, Lock, Mail, Store } from 'lucide-react';
+import { AnimatedSwap } from '@/components/ui/AnimatedSwap';
 import { BrandMark } from '@/components/ui/BrandMark';
 import { ThemeQuickToggle } from '@/components/ui/ThemeToggle';
+import { ensureGsapInitialized, gsap, GSAP_MOTION, useGSAP } from '@/lib/gsap';
 
 type AuthMode = 'login' | 'signup' | 'forgot';
 
 export default function LoginPage() {
   const router = useRouter();
+  const pageRef = useRef<HTMLElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,6 +25,90 @@ export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const hasEnteredRef = useRef(false);
+
+  useGSAP(
+    () => {
+      ensureGsapInitialized();
+      if (hasEnteredRef.current) return;
+      hasEnteredRef.current = true;
+
+      const mm = gsap.matchMedia();
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        const loginTl = gsap.timeline();
+        if (panelRef.current) {
+          loginTl.from(
+            panelRef.current,
+            {
+              y: 28,
+              scale: 0.96,
+              autoAlpha: 0,
+              duration: 0.42,
+              ease: GSAP_MOTION.ease.bouncySoft,
+              clearProps: 'transform,opacity,visibility',
+            },
+            0
+          );
+        }
+        loginTl
+          .from(
+            '.login-orb-entrance',
+            {
+              y: -14,
+              scale: 0.68,
+              rotation: -12,
+              autoAlpha: 0,
+              duration: 0.46,
+              ease: GSAP_MOTION.ease.bouncy,
+              clearProps: 'transform,opacity,visibility',
+            },
+            0.06
+          )
+          .from(
+            '.login-stagger-item',
+            {
+              y: 14,
+              autoAlpha: 0,
+              duration: 0.34,
+              stagger: GSAP_MOTION.stagger.form,
+              ease: GSAP_MOTION.ease.enter,
+              clearProps: 'transform,opacity,visibility',
+            },
+            0.12
+          );
+      });
+
+      return () => mm.revert();
+    },
+    { scope: pageRef }
+  );
+
+  const modeMountedRef = useRef(false);
+  useGSAP(
+    () => {
+      ensureGsapInitialized();
+      if (!modeMountedRef.current) {
+        modeMountedRef.current = true;
+        return;
+      }
+      const formEl = formRef.current;
+      if (!formEl) return;
+
+      const mm = gsap.matchMedia();
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        gsap.from(formEl.children, {
+          y: 10,
+          autoAlpha: 0,
+          duration: 0.26,
+          stagger: 0.035,
+          ease: GSAP_MOTION.ease.enter,
+          clearProps: 'transform,opacity,visibility',
+        });
+      });
+      return () => mm.revert();
+    },
+    { scope: formRef, dependencies: [mode] }
+  );
 
   async function handleGoogleLogin() {
     if (googleLoading || loading) return;
@@ -109,29 +198,29 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-dvh flex-col px-4 py-5 sm:px-6 sm:py-8">
+    <main ref={pageRef} className="flex min-h-dvh flex-col px-4 py-5 sm:px-6 sm:py-8">
       {/* Floating glass theme switch in top-right corner */}
       <div className="mx-auto flex w-full max-w-[1120px] items-center justify-end">
         <ThemeQuickToggle compact />
       </div>
 
       <div className="mx-auto my-auto w-full max-w-[440px] py-6 sm:py-8">
-        <section className="animate-fade-in glass-panel rounded-[28px] p-5 sm:p-7">
+        <section ref={panelRef} className="glass-panel rounded-[28px] p-5 sm:p-7">
           {/* Luminous BrandMark Orb & Hero Title */}
           <div className="mb-6 flex flex-col items-center text-center">
-            <div className="glass-icon-orb mb-3.5 flex h-16 w-16 items-center justify-center rounded-[20px] p-2.5">
+            <div className="login-orb-entrance glass-icon-orb mb-3.5 flex h-16 w-16 items-center justify-center rounded-[20px] p-2.5">
               <BrandMark className="h-11 w-11 shrink-0" />
             </div>
-            <h1 className="text-[22px] font-bold tracking-[-0.02em] text-[var(--text-primary)] sm:text-[24px]">
+            <h1 className="login-stagger-item text-[22px] font-bold tracking-[-0.02em] text-[var(--text-primary)] sm:text-[24px]">
               PayTrack POS
             </h1>
-            <p className="mt-0.5 text-[13px] font-medium text-[var(--text-secondary)]">
+            <p className="login-stagger-item mt-0.5 text-[13px] font-medium text-[var(--text-secondary)]">
               Sổ bán hàng &amp; Công nợ
             </p>
           </div>
 
           {mode !== 'forgot' && (
-            <div className="glass-well mb-5 grid grid-cols-2 gap-1.5 rounded-full p-1.5">
+            <div className="login-stagger-item glass-well mb-5 grid grid-cols-2 gap-1.5 rounded-full p-1.5">
               <button
                 type="button"
                 aria-pressed={mode === 'login'}
@@ -191,7 +280,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form ref={formRef} onSubmit={handleSubmit} className="login-stagger-item space-y-4">
             {mode === 'signup' && (
               <div>
                 <label
@@ -278,7 +367,9 @@ export default function LoginPage() {
                     aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                     className="press-tactile absolute top-1/2 right-1 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-[12px] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    <AnimatedSwap swapKey={showPassword ? 'hide' : 'show'} direction="flip">
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </AnimatedSwap>
                   </button>
                 </div>
               </div>
@@ -290,11 +381,16 @@ export default function LoginPage() {
               className="glass-btn-primary press-tactile flex min-h-[50px] w-full items-center justify-center gap-2 rounded-full px-5 text-[16px] font-bold disabled:opacity-60"
             >
               {loading && <Loader2 className="h-5 w-5 animate-spin" />}
-              <span>
-                {mode === 'login' && (loading ? 'Đang vào...' : 'Đăng nhập')}
-                {mode === 'signup' && (loading ? 'Đang tạo...' : 'Tạo tài khoản')}
-                {mode === 'forgot' && (loading ? 'Đang gửi...' : 'Gửi email đặt lại')}
-              </span>
+              <AnimatedSwap
+                swapKey={`${mode}-${loading ? 'loading' : 'idle'}`}
+                direction={mode === 'signup' ? 'up' : 'down'}
+              >
+                <span>
+                  {mode === 'login' && (loading ? 'Đang vào...' : 'Đăng nhập')}
+                  {mode === 'signup' && (loading ? 'Đang tạo...' : 'Tạo tài khoản')}
+                  {mode === 'forgot' && (loading ? 'Đang gửi...' : 'Gửi email đặt lại')}
+                </span>
+              </AnimatedSwap>
             </button>
           </form>
 

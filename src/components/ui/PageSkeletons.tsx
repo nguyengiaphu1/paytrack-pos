@@ -18,6 +18,7 @@ export function FetchErrorCard({
   return (
     <div
       role="alert"
+      data-gsap-reveal="fetch-error"
       className="animate-fade-in glass-card rounded-[24px] p-6 text-center"
     >
       <div className="glass-badge-overdue mx-auto mb-3.5 flex h-14 w-14 items-center justify-center rounded-[18px]">

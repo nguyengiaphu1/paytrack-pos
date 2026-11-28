@@ -12,7 +12,9 @@ import {
   X,
 } from 'lucide-react';
 import type { Product } from '@/types/database';
+import { ensureGsapInitialized, Flip, gsap, GSAP_MOTION, useGSAP } from '@/lib/gsap';
 import { stripVietnamese } from '@/lib/vietnamese';
+import { AnimatedSwap } from '@/components/ui/AnimatedSwap';
 import { EmptyStateCard } from '@/components/ui/EmptyStateCard';
 import { hasOpenModalDialog } from '@/components/ui/ModalDialog';
 import { ProductCard } from './ProductCard';
@@ -41,6 +43,8 @@ export function ProductCatalog({
   const [mobileManageOpen, setMobileManageOpen] = useState(false);
   const [liveAnnouncement, setLiveAnnouncement] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const flipStateRef = useRef<Flip.FlipState | null>(null);
 
   useEffect(() => {
     function handleSlashShortcut(e: KeyboardEvent) {
@@ -101,6 +105,57 @@ export function ProductCatalog({
       return true;
     });
   }, [products, query, activeCategory, showHidden]);
+
+  function captureGridFlipState() {
+    ensureGsapInitialized();
+    const gridEl = gridRef.current;
+    if (!gridEl) return;
+    const cards = gridEl.querySelectorAll('.pos-flip-card');
+    if (cards.length > 0) {
+      flipStateRef.current = Flip.getState(cards);
+    }
+  }
+
+  useGSAP(
+    () => {
+      ensureGsapInitialized();
+      const state = flipStateRef.current;
+      flipStateRef.current = null;
+      const gridEl = gridRef.current;
+      if (!state || !gridEl) return;
+
+      const mm = gsap.matchMedia();
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        const cards = gridEl.querySelectorAll('.pos-flip-card');
+        if (cards.length === 0) return;
+        Flip.from(state, {
+          targets: cards,
+          duration: 0.42,
+          ease: GSAP_MOTION.ease.flip,
+          stagger: 0.02,
+          scale: true,
+          simple: true,
+          onEnter: (els) =>
+            gsap.fromTo(
+              els,
+              { opacity: 0, y: 16, scale: 0.94 },
+              {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                duration: 0.34,
+                ease: GSAP_MOTION.ease.bouncySoft,
+                clearProps: 'transform,opacity',
+              }
+            ),
+          onLeave: (els) => gsap.to(els, { opacity: 0, scale: 0.94, duration: 0.18 }),
+        });
+      });
+
+      return () => mm.revert();
+    },
+    { scope: gridRef, dependencies: [activeCategory, showHidden] }
+  );
 
   return (
     <div className="space-y-2.5 sm:space-y-3.5">
@@ -180,7 +235,10 @@ export function ProductCatalog({
                     key={cat}
                     type="button"
                     aria-pressed={activeCategory === cat}
-                    onClick={() => setSelectedCategory(cat)}
+                    onClick={() => {
+                      captureGridFlipState();
+                      setSelectedCategory(cat);
+                    }}
                     className={`press-tactile min-h-[44px] shrink-0 whitespace-nowrap rounded-full px-3.5 text-[13px] ${
                       activeCategory === cat
                         ? 'glass-chip-active font-semibold'
@@ -218,7 +276,10 @@ export function ProductCatalog({
                   type="button"
                   aria-pressed={showHidden}
                   aria-label={`Hiện ${hiddenCount} món đã ẩn`}
-                  onClick={() => setShowHidden((v) => !v)}
+                  onClick={() => {
+                    captureGridFlipState();
+                    setShowHidden((v) => !v);
+                  }}
                   className={`press-tactile inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 text-[13px] ${
                     showHidden ? 'glass-chip-active font-semibold' : 'glass-chip font-medium'
                   }`}
@@ -236,17 +297,22 @@ export function ProductCatalog({
                   editMode ? 'glass-chip-active' : 'glass-chip'
                 }`}
               >
-                {editMode ? (
-                  <>
-                    <Check className="h-3.5 w-3.5 shrink-0" />
-                    <span>Xong</span>
-                  </>
-                ) : (
-                  <>
-                    <Pencil className="h-3.5 w-3.5 shrink-0" />
-                    <span>Sửa</span>
-                  </>
-                )}
+                <AnimatedSwap
+                  swapKey={editMode ? 'done' : 'edit'}
+                  direction={editMode ? 'up' : 'down'}
+                >
+                  {editMode ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 shrink-0" />
+                      <span>Xong</span>
+                    </>
+                  ) : (
+                    <>
+                      <Pencil className="h-3.5 w-3.5 shrink-0" />
+                      <span>Sửa</span>
+                    </>
+                  )}
+                </AnimatedSwap>
               </button>
             </div>
           </div>
@@ -265,17 +331,22 @@ export function ProductCatalog({
                   editMode ? 'glass-chip-active' : 'glass-solid-control text-[var(--text-primary)]'
                 }`}
               >
-                {editMode ? (
-                  <>
-                    <Check className="h-3.5 w-3.5 shrink-0" />
-                    <span>Xong</span>
-                  </>
-                ) : (
-                  <>
-                    <Pencil className="h-3.5 w-3.5 shrink-0" />
-                    <span>Sửa món</span>
-                  </>
-                )}
+                <AnimatedSwap
+                  swapKey={editMode ? 'done' : 'edit'}
+                  direction={editMode ? 'up' : 'down'}
+                >
+                  {editMode ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 shrink-0" />
+                      <span>Xong</span>
+                    </>
+                  ) : (
+                    <>
+                      <Pencil className="h-3.5 w-3.5 shrink-0" />
+                      <span>Sửa món</span>
+                    </>
+                  )}
+                </AnimatedSwap>
               </button>
 
               {(hiddenCount > 0 || showHidden) && (
@@ -283,7 +354,10 @@ export function ProductCatalog({
                   type="button"
                   aria-pressed={showHidden}
                   aria-label={`Hiện ${hiddenCount} món đã ẩn`}
-                  onClick={() => setShowHidden((v) => !v)}
+                  onClick={() => {
+                    captureGridFlipState();
+                    setShowHidden((v) => !v);
+                  }}
                   className={`press-tactile inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full px-3.5 text-[13px] ${
                     showHidden ? 'glass-chip-active font-semibold' : 'glass-solid-control font-medium text-[var(--text-secondary)]'
                   }`}
@@ -373,7 +447,10 @@ export function ProductCatalog({
           }
         />
       ) : (
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:items-stretch xl:grid-cols-3">
+        <div
+          ref={gridRef}
+          className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:items-stretch xl:grid-cols-3"
+        >
           {filtered.map((product) => (
             <ProductCard
               key={product.id}

@@ -39,15 +39,30 @@ const BANNED_SCATTERED_SLOP_IN_TSX = [
   'rounded-3xl',
 ];
 
-describe('PayTrack POS Neutral 60-30-10 Glassmorphism, Geometric Backdrop, Floating Glass Dock, PWA, and Anti-AI-Slop guards', () => {
-  it('defines Neutral 60-30-10 Glassmorphism Light/Dark tokens, #ECEFED grid & #0C100E dot-grid patterns, modal slide-up & tab slide keyframes, print light lock, and reduced motion/transparency fallbacks in globals.css', () => {
+describe('PayTrack POS Neutral 60-30-10 Glassmorphism, Multi-Color Solid-Blur Halos, Global GSAP Motion, Floating Glass Dock, PWA, and Anti-AI-Slop guards', () => {
+  it('defines Neutral 60-30-10 Glassmorphism Light/Dark tokens, gradient-free multi-color ambient halo orbs, modal slide-up & tab slide keyframes, print light lock, and reduced motion/transparency fallbacks in globals.css', () => {
     const css = readRel('src/app/globals.css');
     expect(css).toContain(':root[data-theme="dark"]');
     expect(css).toContain('--bg-canvas: #ECEFED;');
     expect(css).toContain('--bg-canvas: #0C100E;');
-    expect(css).toContain('rgba(15, 23, 20, 0.07)');
-    expect(css).toContain('rgba(255, 255, 255, 0.08)');
+    for (let i = 1; i <= 6; i++) {
+      expect(css).toContain(`--halo-${i}:`);
+    }
     expect(css).toContain('body::before');
+    expect(css).toContain('.ambient-halo-canvas');
+    expect(css).toContain('.ambient-halo-orb');
+    expect(css).toContain('filter: blur(');
+    expect(css).toContain('.glass-dock-pill');
+
+    // Ensure background rules (body::before & ambient halo classes) contain ZERO CSS gradients
+    const bgRules = [
+      css.match(/body::before\s*\{[^}]*\}/)?.[0] ?? '',
+      css.match(/:root\[data-theme="dark"\]\s+body::before\s*\{[^}]*\}/)?.[0] ?? '',
+      css.match(/\.ambient-halo-canvas\s*\{[^}]*\}/)?.[0] ?? '',
+      css.match(/\.ambient-halo-orb\s*\{[^}]*\}/)?.[0] ?? '',
+    ].join('\n');
+    expect(bgRules).not.toMatch(/(linear|radial|conic)-gradient\(/i);
+
     expect(css).not.toContain('--glass-bevel-rim-jade');
     expect(css).toContain('.glass-dock');
     expect(css).toContain('.glass-surface');
@@ -80,15 +95,48 @@ describe('PayTrack POS Neutral 60-30-10 Glassmorphism, Geometric Backdrop, Float
     expect(css).toContain('@media (prefers-reduced-motion: reduce)');
   });
 
-  it('wires pre-hydration THEME_BOOTSTRAP_SCRIPT, AppBootSplash, dynamic themeColor, and full PWA icons in root layout & manifest', () => {
+  it('wires AmbientHaloBackdrop, GsapMotionProvider with matchMedia reduced-motion, pre-hydration THEME_BOOTSTRAP_SCRIPT, AppBootSplash, dynamic themeColor, and full PWA icons', () => {
     const layout = readRel('src/app/layout.tsx');
     expect(layout).toContain('THEME_BOOTSTRAP_SCRIPT');
     expect(layout).toContain('suppressHydrationWarning');
     expect(layout).toContain('<ThemeProvider>');
+    expect(layout).toContain('<AmbientHaloBackdrop />');
+    expect(layout).toContain('<GsapMotionProvider>');
     expect(layout).toContain('<AppBootSplash />');
     expect(layout).toContain('/favicon.svg');
     expect(layout).toContain('/favicon.ico');
     expect(layout).toContain('/icons/apple-touch-icon.png');
+
+    const gsapCore = readRel('src/lib/gsap.ts');
+    expect(gsapCore).toContain("from 'gsap'");
+    expect(gsapCore).toContain("from '@gsap/react'");
+    expect(gsapCore).toContain("from 'gsap/Flip'");
+    expect(gsapCore).toContain("from 'gsap/ScrollTrigger'");
+
+    const gsapProvider = readRel('src/components/providers/GsapMotionProvider.tsx');
+    expect(gsapProvider).toContain('gsap.matchMedia()');
+    expect(gsapProvider).toContain('prefers-reduced-motion: reduce');
+    expect(gsapProvider).toContain('ScrollTrigger.batch');
+    expect(gsapProvider).toContain('gsap.utils.mapRange');
+
+    const animatedSwap = readRel('src/components/ui/AnimatedSwap.tsx');
+    expect(animatedSwap).toContain('gsap.matchMedia()');
+    expect(animatedSwap).toContain('yPercent');
+
+    const animatedVnd = readRel('src/components/ui/AnimatedVnd.tsx');
+    expect(animatedVnd).toContain('snap:');
+
+    const catalog = readRel('src/components/pos/ProductCatalog.tsx');
+    expect(catalog).toContain('Flip.getState');
+    expect(catalog).toContain('Flip.from');
+    expect(catalog).toContain('<AnimatedSwap');
+
+    const modalDialog = readRel('src/components/ui/ModalDialog.tsx');
+    expect(modalDialog).toContain('gsap.timeline(');
+
+    const haloBackdrop = readRel('src/components/ui/AmbientHaloBackdrop.tsx');
+    expect(haloBackdrop).toContain('gsap.matchMedia()');
+    expect(haloBackdrop).not.toMatch(/(linear|radial|conic)-gradient\(/i);
 
     const manifest = readRel('src/app/manifest.ts');
     expect(manifest).toContain('icon-192.png');
