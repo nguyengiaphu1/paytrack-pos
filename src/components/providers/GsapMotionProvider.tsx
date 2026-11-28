@@ -30,37 +30,13 @@ function getLeadingInputIcon(field: HTMLElement): SVGSVGElement | null {
   return icon;
 }
 
-function playDampedErrorShake(el: HTMLElement, withFadeIn = false): void {
-  if (!el.isConnected || el.closest('.print-surface-light')) return;
-  const tl = gsap.timeline();
-  if (withFadeIn) {
-    tl.fromTo(
-      el,
-      { autoAlpha: 0, y: -6 },
-      { autoAlpha: 1, y: 0, duration: 0.14, ease: 'power2.out' }
-    );
-  }
-  tl.to(el, {
-    keyframes: [
-      { x: -10, duration: 0.06 },
-      { x: 10, duration: 0.06 },
-      { x: -6, duration: 0.06 },
-      { x: 6, duration: 0.06 },
-      { x: -3, duration: 0.06 },
-      { x: 0, duration: 0.06 },
-    ],
-    ease: 'power1.inOut',
-    clearProps: 'transform,opacity,visibility',
-  });
-}
-
 /**
  * Global multi-archetype GSAP choreography engine:
- * - Cards: subtle 3D perspective tilt on fine pointers via gsap.utils.mapRange & clamp
- * - Hover-parent move-child: stable hit target with smooth SVG icon glide
- * - Tactile press (scale: 0.97 / 0.985) with touch scroll-cancel (> 8px) for 60fps iPhone
- * - Wrong-input / alert damped horizontal shake (360ms)
- * - Toasts, badges, [data-gsap-reveal] & [data-gsap-scroll] batches (< 300ms iOS curves)
+ * - Cards: subtle 3D perspective tilt + smooth lift via gsap.utils.mapRange & clamp
+ * - Primary CTAs: lift + subtle right arrow glide + bouncy release
+ * - Chips & secondary pills: crisp tactile press without rubbery exaggeration
+ * - Inputs: upward focus glide + leading icon slide/pop
+ * - Alerts, toasts, badges, [data-gsap-reveal] & [data-gsap-scroll] batches
  */
 export function GsapMotionProvider({ children }: { children: ReactNode }) {
   useGSAP(() => {
@@ -69,7 +45,6 @@ export function GsapMotionProvider({ children }: { children: ReactNode }) {
     const mm = gsap.matchMedia();
     mm.add(
       {
-        all: 'all',
         reduceMotion: '(prefers-reduced-motion: reduce)',
         finePointer: '(hover: hover) and (pointer: fine)',
       },
@@ -87,8 +62,6 @@ export function GsapMotionProvider({ children }: { children: ReactNode }) {
         let hoveredCard: HTMLElement | null = null;
         let hoveredControl: HTMLElement | null = null;
         let pressedTarget: HTMLElement | null = null;
-        let pressStartX = 0;
-        let pressStartY = 0;
         let tiltRafPending = false;
         let lastPointerEvent: PointerEvent | null = null;
 
@@ -115,14 +88,14 @@ export function GsapMotionProvider({ children }: { children: ReactNode }) {
           const relX = lastPointerEvent.clientX - rect.left;
           const relY = lastPointerEvent.clientY - rect.top;
           const rotY = gsap.utils.clamp(
-            -2.2,
-            2.2,
-            gsap.utils.mapRange(0, rect.width, -2.2, 2.2, relX)
+            -2.4,
+            2.4,
+            gsap.utils.mapRange(0, rect.width, -2.4, 2.4, relX)
           );
           const rotX = gsap.utils.clamp(
-            -1.8,
-            1.8,
-            gsap.utils.mapRange(0, rect.height, 1.8, -1.8, relY)
+            -2.0,
+            2.0,
+            gsap.utils.mapRange(0, rect.height, 2.0, -2.0, relY)
           );
 
           gsap.to(hoveredCard, {
@@ -130,26 +103,13 @@ export function GsapMotionProvider({ children }: { children: ReactNode }) {
             rotateX: rotX,
             rotateY: rotY,
             transformPerspective: 900,
-            duration: 0.2,
+            duration: 0.24,
             ease: GSAP_MOTION.ease.smooth,
             overwrite: 'auto',
           });
         };
 
         const onPointerMove = (e: PointerEvent) => {
-          if (pressedTarget && !finePointer) {
-            if (Math.hypot(e.clientX - pressStartX, e.clientY - pressStartY) > 8) {
-              const cancelled = pressedTarget;
-              pressedTarget = null;
-              gsap.to(cancelled, {
-                scale: 1,
-                duration: 0.12,
-                ease: 'power2.out',
-                clearProps: 'transform',
-              });
-            }
-          }
-
           if (!finePointer || !hoveredCard) return;
           lastPointerEvent = e;
           if (!tiltRafPending) {
@@ -177,7 +137,6 @@ export function GsapMotionProvider({ children }: { children: ReactNode }) {
             });
           }
 
-          // Hover parent, move child icon without shifting hit-area bounds off cursor
           const control = target.closest<HTMLElement>(INTERACTIVE_CONTROL_SELECTOR);
           if (
             control &&
@@ -204,20 +163,18 @@ export function GsapMotionProvider({ children }: { children: ReactNode }) {
             }
             hoveredControl = control;
             const isPrimary = control.classList.contains('glass-btn-primary');
-            if (isPrimary) {
-              gsap.to(control, {
-                y: GSAP_MOTION.lift.controlY,
-                duration: GSAP_MOTION.duration.hover,
-                ease: GSAP_MOTION.ease.smooth,
-              });
-            }
+            gsap.to(control, {
+              y: isPrimary ? -2 : GSAP_MOTION.lift.controlY,
+              duration: GSAP_MOTION.duration.hover,
+              ease: GSAP_MOTION.ease.smooth,
+            });
             const icon = control.querySelector<SVGSVGElement>('svg');
             if (icon && !icon.classList.contains('animate-spin')) {
               gsap.to(icon, {
-                x: isPrimary ? 2 : 0,
-                scale: 1.06,
+                x: isPrimary ? 2.5 : 0,
+                scale: isPrimary ? 1.08 : 1.06,
                 duration: GSAP_MOTION.duration.hover,
-                ease: GSAP_MOTION.ease.iosSheet,
+                ease: GSAP_MOTION.ease.bouncy,
               });
             }
           }
@@ -261,8 +218,6 @@ export function GsapMotionProvider({ children }: { children: ReactNode }) {
           if (!interactive || isDisabledOrPrint(interactive)) return;
 
           pressedTarget = interactive;
-          pressStartX = e.clientX;
-          pressStartY = e.clientY;
           const isCard = interactive.matches(CARD_SELECTOR);
           gsap.to(interactive, {
             scale: isCard ? GSAP_MOTION.lift.cardPressScale : GSAP_MOTION.lift.pressScale,
@@ -275,11 +230,12 @@ export function GsapMotionProvider({ children }: { children: ReactNode }) {
           if (!pressedTarget) return;
           const target = pressedTarget;
           pressedTarget = null;
+          const isCard = target.matches(CARD_SELECTOR);
           const isHovering = finePointer && (target === hoveredCard || target === hoveredControl);
           gsap.to(target, {
             scale: 1,
             duration: GSAP_MOTION.duration.release,
-            ease: 'power2.out',
+            ease: isCard ? GSAP_MOTION.ease.smooth : GSAP_MOTION.ease.bouncy,
             ...(isHovering ? {} : { clearProps: 'transform' }),
           });
         };
@@ -288,13 +244,18 @@ export function GsapMotionProvider({ children }: { children: ReactNode }) {
           const target = e.target as HTMLElement | null;
           if (!target || !target.matches(INPUT_SELECTOR) || isDisabledOrPrint(target)) return;
 
+          gsap.to(target, {
+            y: -1,
+            duration: 0.18,
+            ease: GSAP_MOTION.ease.smooth,
+          });
           const icon = getLeadingInputIcon(target);
           if (icon) {
             gsap.to(icon, {
-              x: 1.5,
-              scale: 1.08,
-              duration: 0.18,
-              ease: GSAP_MOTION.ease.iosSheet,
+              x: 2,
+              scale: 1.12,
+              duration: 0.22,
+              ease: GSAP_MOTION.ease.bouncy,
             });
           }
         };
@@ -303,6 +264,12 @@ export function GsapMotionProvider({ children }: { children: ReactNode }) {
           const target = e.target as HTMLElement | null;
           if (!target || !target.matches(INPUT_SELECTOR) || isDisabledOrPrint(target)) return;
 
+          gsap.to(target, {
+            y: 0,
+            duration: GSAP_MOTION.duration.leave,
+            ease: GSAP_MOTION.ease.smooth,
+            clearProps: 'transform',
+          });
           const icon = getLeadingInputIcon(target);
           if (icon) {
             gsap.to(icon, {
@@ -331,20 +298,20 @@ export function GsapMotionProvider({ children }: { children: ReactNode }) {
             el.dataset.gsapScrollDone = '1';
           }
 
-          gsap.set(nodes, { y: 16, scale: 0.97, autoAlpha: 0 });
+          gsap.set(nodes, { y: 26, scale: 0.97, autoAlpha: 0 });
           const created = ScrollTrigger.batch(nodes, {
-            start: 'top 94%',
+            start: 'top 93%',
             once: true,
-            interval: 0.06,
+            interval: 0.08,
             batchMax: 6,
             onEnter: (batch) => {
               gsap.to(batch, {
                 y: 0,
                 scale: 1,
                 autoAlpha: 1,
-                duration: 0.28,
-                stagger: { amount: 0.14, from: 'start' },
-                ease: GSAP_MOTION.ease.iosSheet,
+                duration: 0.42,
+                stagger: { amount: 0.18, from: 'start' },
+                ease: GSAP_MOTION.ease.bouncySoft,
                 clearProps: 'transform,opacity,visibility',
               });
             },
@@ -354,10 +321,9 @@ export function GsapMotionProvider({ children }: { children: ReactNode }) {
 
         initScrollBatches();
 
-        // Dynamic alert shake, toast, badge pop, invalid-field shake & reveal batched on rAF
+        // Dynamic alert shake, bouncy slide-down toast, badge pop & reveal batched on rAF
         const animatedNodes = new WeakSet<Element>();
         const pendingAlerts = new Set<HTMLElement>();
-        const pendingInvalidFields = new Set<HTMLElement>();
         const pendingToasts = new Set<HTMLElement>();
         const pendingBadges = new Set<HTMLElement>();
         const pendingReveals = new Set<HTMLElement>();
@@ -369,16 +335,25 @@ export function GsapMotionProvider({ children }: { children: ReactNode }) {
 
           if (pendingAlerts.size > 0) {
             for (const alertEl of pendingAlerts) {
-              playDampedErrorShake(alertEl, true);
+              if (!alertEl.isConnected || alertEl.closest('.print-surface-light')) continue;
+              gsap
+                .timeline()
+                .fromTo(
+                  alertEl,
+                  { autoAlpha: 0, y: -10 },
+                  { autoAlpha: 1, y: 0, duration: 0.22, ease: 'power2.out' }
+                )
+                .to(alertEl, { x: -6, duration: 0.055, ease: 'power1.inOut' })
+                .to(alertEl, { x: 5, duration: 0.06, ease: 'power1.inOut' })
+                .to(alertEl, { x: -3, duration: 0.055, ease: 'power1.inOut' })
+                .to(alertEl, {
+                  x: 0,
+                  duration: 0.08,
+                  ease: 'power2.out',
+                  clearProps: 'transform,opacity,visibility',
+                });
             }
             pendingAlerts.clear();
-          }
-
-          if (pendingInvalidFields.size > 0) {
-            for (const fieldEl of pendingInvalidFields) {
-              playDampedErrorShake(fieldEl, false);
-            }
-            pendingInvalidFields.clear();
           }
 
           if (pendingToasts.size > 0) {
@@ -386,13 +361,13 @@ export function GsapMotionProvider({ children }: { children: ReactNode }) {
               if (!toast.isConnected || toast.closest('.print-surface-light')) continue;
               gsap.fromTo(
                 toast,
-                { y: -12, scale: 0.97, autoAlpha: 0 },
+                { y: -18, scale: 0.95, autoAlpha: 0 },
                 {
                   y: 0,
                   scale: 1,
                   autoAlpha: 1,
-                  duration: 0.25,
-                  ease: GSAP_MOTION.ease.iosSheet,
+                  duration: 0.36,
+                  ease: GSAP_MOTION.ease.bouncy,
                   clearProps: 'transform,opacity,visibility',
                 }
               );
@@ -405,12 +380,13 @@ export function GsapMotionProvider({ children }: { children: ReactNode }) {
               if (!badge.isConnected || badge.closest('.print-surface-light')) continue;
               gsap.fromTo(
                 badge,
-                { scale: 0.92, opacity: 0.75 },
+                { y: 6, scale: 0.82, opacity: 0.7 },
                 {
+                  y: 0,
                   scale: 1,
                   opacity: 1,
-                  duration: 0.22,
-                  ease: GSAP_MOTION.ease.iosSheet,
+                  duration: 0.3,
+                  ease: GSAP_MOTION.ease.bouncySnap,
                   clearProps: 'transform,opacity',
                 }
               );
@@ -419,20 +395,20 @@ export function GsapMotionProvider({ children }: { children: ReactNode }) {
           }
 
           if (pendingReveals.size > 0) {
-            const items = Array.from(pendingReveals)
-              .filter((el) => el.isConnected && !el.closest('.print-surface-light'))
-              .slice(0, 10);
+            const items = Array.from(pendingReveals).filter(
+              (el) => el.isConnected && !el.closest('.print-surface-light')
+            );
             if (items.length > 0) {
               gsap.fromTo(
                 items,
-                { y: 14, scale: 0.97, autoAlpha: 0 },
+                { y: 22, scale: 0.97, autoAlpha: 0 },
                 {
                   y: 0,
                   scale: 1,
                   autoAlpha: 1,
-                  duration: 0.25,
+                  duration: 0.38,
                   stagger: GSAP_MOTION.stagger.cards,
-                  ease: GSAP_MOTION.ease.iosSheet,
+                  ease: GSAP_MOTION.ease.bouncySoft,
                   clearProps: 'transform,opacity,visibility',
                 }
               );
@@ -447,39 +423,18 @@ export function GsapMotionProvider({ children }: { children: ReactNode }) {
           }
         };
 
-        const scheduleFlush = () => {
-          if (
-            (pendingAlerts.size > 0 ||
-              pendingInvalidFields.size > 0 ||
-              pendingToasts.size > 0 ||
-              pendingBadges.size > 0 ||
-              pendingReveals.size > 0 ||
-              pendingScrollInit) &&
-            rafId === null
-          ) {
-            rafId = window.requestAnimationFrame(flushMutations);
-          }
-        };
-
         const queueElement = (node: Node) => {
           if (!(node instanceof HTMLElement)) return;
-          if (node.closest('.print-surface-light')) return;
-
-          const inDialog = Boolean(node.closest('[role="dialog"]'));
+          if (node.closest('.print-surface-light') || node.closest('[role="dialog"]')) return;
 
           const checkMatch = (el: HTMLElement) => {
             if (animatedNodes.has(el)) return;
-            if (el.matches('[role="alert"]')) {
-              animatedNodes.add(el);
-              pendingAlerts.add(el);
-            } else if (el.getAttribute('aria-invalid') === 'true') {
-              animatedNodes.add(el);
-              pendingInvalidFields.add(el);
-            } else if (inDialog) {
-              return;
-            } else if (el.matches('[data-gsap-toast]')) {
+            if (el.matches('[data-gsap-toast]')) {
               animatedNodes.add(el);
               pendingToasts.add(el);
+            } else if (el.matches('[role="alert"]')) {
+              animatedNodes.add(el);
+              pendingAlerts.add(el);
             } else if (el.matches('.animate-badge-pop')) {
               animatedNodes.add(el);
               pendingBadges.add(el);
@@ -494,37 +449,31 @@ export function GsapMotionProvider({ children }: { children: ReactNode }) {
           checkMatch(node);
           node
             .querySelectorAll<HTMLElement>(
-              '[data-gsap-toast], [role="alert"], [aria-invalid="true"], .animate-badge-pop, [data-gsap-reveal], [data-gsap-scroll]'
+              '[data-gsap-toast], [role="alert"], .animate-badge-pop, [data-gsap-reveal], [data-gsap-scroll]'
             )
             .forEach(checkMatch);
 
-          scheduleFlush();
+          if (
+            (pendingAlerts.size > 0 ||
+              pendingToasts.size > 0 ||
+              pendingBadges.size > 0 ||
+              pendingReveals.size > 0 ||
+              pendingScrollInit) &&
+            rafId === null
+          ) {
+            rafId = window.requestAnimationFrame(flushMutations);
+          }
         };
 
         const observer = new MutationObserver((mutations) => {
           for (const m of mutations) {
-            if (
-              m.type === 'attributes' &&
-              m.attributeName === 'aria-invalid' &&
-              m.target instanceof HTMLElement &&
-              m.target.getAttribute('aria-invalid') === 'true'
-            ) {
-              pendingInvalidFields.add(m.target);
-              scheduleFlush();
-              continue;
-            }
             for (const added of m.addedNodes) {
               queueElement(added);
             }
           }
         });
 
-        observer.observe(document.body, {
-          childList: true,
-          subtree: true,
-          attributes: true,
-          attributeFilter: ['aria-invalid'],
-        });
+        observer.observe(document.body, { childList: true, subtree: true });
 
         document.addEventListener('pointermove', onPointerMove, { passive: true });
         document.addEventListener('pointerover', onPointerOver, { passive: true });

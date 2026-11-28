@@ -11,7 +11,6 @@ import { VndKInput } from '@/components/ui/VndKInput';
 import { PaymentAccountSelector } from '@/components/ui/PaymentAccountSelector';
 import { ModalDialog } from '@/components/ui/ModalDialog';
 import { ModalHeader } from '@/components/ui/ModalHeader';
-import { useRetainedModalData } from '@/hooks/useRetainedModalData';
 
 interface CollectDebtModalProps {
   open: boolean;
@@ -23,28 +22,23 @@ interface CollectDebtModalProps {
 }
 
 export function CollectDebtModal(props: CollectDebtModalProps) {
-  const { renderedData, isOpen, handleExited } = useRetainedModalData(props.open, props.customer);
-  if (!renderedData) return null;
+  if (!props.open || !props.customer) return null;
   return (
     <CollectDebtModalBody
-      key={`${renderedData.id}-${props.initialOrderId ?? 'fifo'}`}
+      key={`${props.customer.id}-${props.initialOrderId ?? 'fifo'}`}
       {...props}
-      open={isOpen}
-      onExited={handleExited}
-      customer={renderedData}
+      customer={props.customer}
     />
   );
 }
 
 function CollectDebtModalBody({
-  open,
   onClose,
-  onExited,
   customer,
   unpaidOrders,
   initialOrderId = null,
   onCollected,
-}: CollectDebtModalProps & { customer: Customer; onExited: () => void }) {
+}: Omit<CollectDebtModalProps, 'open' | 'customer'> & { customer: Customer }) {
   const initialAmt = initialOrderId
     ? unpaidOrders.find((o) => o.id === initialOrderId)?.remaining_amount ?? customer.total_debt
     : customer.total_debt;
@@ -115,9 +109,8 @@ function CollectDebtModalBody({
 
   return (
     <ModalDialog
-      open={open}
+      open={true}
       onClose={onClose}
-      onExited={onExited}
       ariaLabelledBy="collect-debt-modal-title"
       backdropClassName="animate-backdrop-in glass-backdrop fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
       panelClassName="animate-sheet-up sm:animate-modal-in glass-modal max-h-[92dvh] w-full max-w-[480px] overflow-y-auto rounded-t-[28px] sm:rounded-[28px]"

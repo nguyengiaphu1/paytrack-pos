@@ -449,58 +449,59 @@ export function GlassmorphismPreviewStudio() {
         const height = activeBtn.offsetHeight;
 
         if (!animate) {
-          gsap.set(pillEl, {
-            x,
-            y,
-            scaleX: width / 100,
-            scaleY: height / 44,
-            transformOrigin: '0 0',
-            autoAlpha: 1,
-          });
+          gsap.set(pillEl, { x, y, width, height, autoAlpha: 1 });
           return;
         }
 
         const mm = gsap.matchMedia();
         mm.add(
-          { all: 'all', reduceMotion: '(prefers-reduced-motion: reduce)' },
+          { reduceMotion: '(prefers-reduced-motion: reduce)' },
           (context) => {
-            const baseWidth = 100;
-            const baseHeight = 44;
-            const scaleX = width / baseWidth;
-            const scaleY = height / baseHeight;
             if (context.conditions?.reduceMotion) {
-              gsap.set(pillEl, { x, y, scaleX, scaleY, transformOrigin: '0 0', autoAlpha: 1 });
+              gsap.set(pillEl, { x, y, width, height, autoAlpha: 1 });
               return;
             }
             const dockTl = gsap.timeline();
-            dockTl.to(
-              pillEl,
-              {
-                x,
-                y,
-                scaleX,
-                scaleY,
-                transformOrigin: '0 0',
-                autoAlpha: 1,
-                duration: 0.26,
-                ease: GSAP_MOTION.ease.iosMove,
-              },
-              0
-            );
+            dockTl
+              .to(
+                pillEl,
+                {
+                  x,
+                  y,
+                  width,
+                  height,
+                  autoAlpha: 1,
+                  duration: 0.4,
+                  ease: GSAP_MOTION.ease.bouncySoft,
+                },
+                0
+              )
+              .fromTo(
+                pillEl,
+                { scaleX: 1.08, scaleY: 0.92 },
+                {
+                  scaleX: 1,
+                  scaleY: 1,
+                  duration: 0.36,
+                  ease: GSAP_MOTION.ease.bouncy,
+                  clearProps: 'scaleX,scaleY',
+                },
+                0
+              );
 
             const icon = activeBtn.querySelector<SVGSVGElement>('svg');
             if (icon) {
               dockTl.fromTo(
                 icon,
-                { y: -3, scale: 1.08 },
+                { y: -6, scale: 1.18 },
                 {
                   y: 0,
                   scale: 1,
-                  duration: 0.22,
-                  ease: GSAP_MOTION.ease.iosSheet,
+                  duration: 0.36,
+                  ease: GSAP_MOTION.ease.bouncySnap,
                   clearProps: 'transform',
                 },
-                0.02
+                0.03
               );
             }
           }
@@ -534,7 +535,7 @@ export function GlassmorphismPreviewStudio() {
 
       const mm = gsap.matchMedia();
       mm.add(
-        { all: 'all', reduceMotion: '(prefers-reduced-motion: reduce)' },
+        { reduceMotion: '(prefers-reduced-motion: reduce)' },
         (context) => {
           if (context.conditions?.reduceMotion) {
             gsap.fromTo(
@@ -551,12 +552,12 @@ export function GlassmorphismPreviewStudio() {
 
           pageTl.fromTo(
             stage,
-            { x: direction * 28, autoAlpha: 0 },
+            { x: direction * 34, autoAlpha: 0 },
             {
               x: 0,
               autoAlpha: 1,
               duration: GSAP_MOTION.duration.pageIn,
-              ease: GSAP_MOTION.ease.iosSheet,
+              ease: GSAP_MOTION.ease.enter,
               clearProps: 'transform,opacity,visibility',
             },
             0
@@ -567,32 +568,32 @@ export function GlassmorphismPreviewStudio() {
             pageTl.from(
               heading,
               {
-                y: 8,
+                y: 14,
                 autoAlpha: 0,
-                duration: 0.22,
-                ease: GSAP_MOTION.ease.iosSheet,
+                duration: 0.32,
+                ease: GSAP_MOTION.ease.bouncy,
                 clearProps: 'transform,opacity,visibility',
               },
-              0.02
+              0.04
             );
           }
 
           const cards = Array.from(
             stage.querySelectorAll<HTMLElement>('.glass-panel, .glass-surface, .glass-card')
-          ).slice(0, 8);
+          ).slice(0, 12);
           if (cards.length > 0) {
             pageTl.from(
               cards,
               {
-                y: 12,
-                scale: 0.97,
+                y: 20,
+                scale: 0.975,
                 autoAlpha: 0,
-                duration: 0.24,
-                stagger: { each: 0.028, from: 'start' },
-                ease: GSAP_MOTION.ease.iosSheet,
+                duration: 0.36,
+                stagger: { amount: GSAP_MOTION.stagger.gridWave, from: 'start' },
+                ease: GSAP_MOTION.ease.bouncySoft,
                 clearProps: 'transform,opacity,visibility',
               },
-              0.03
+              0.05
             );
           }
         }
@@ -1527,7 +1528,7 @@ export function GlassmorphismPreviewStudio() {
           <span
             ref={dockPillRef}
             aria-hidden="true"
-            className="glass-dock-pill pointer-events-none absolute top-0 left-0 z-0 h-[44px] w-[100px] rounded-[24px] opacity-0 will-change-transform lg:rounded-full"
+            className="glass-dock-pill pointer-events-none absolute top-0 left-0 z-0 rounded-[24px] opacity-0 lg:rounded-full"
           />
           {PREVIEW_TABS.map((tab) => {
             const Icon = tab.icon;

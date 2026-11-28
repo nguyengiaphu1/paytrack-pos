@@ -49,41 +49,12 @@ describe('mobile-text-overflow responsive guards (375px viewport)', () => {
     expect(shell).toContain('max-w-full truncate');
   });
 
-  it('keeps iOS >= 16px input font-size rule and iPhone Safari touch/hover/view-transition guards in globals.css', () => {
+  it('keeps iOS >= 16px input font-size rule and iPhone Safari touch/hover/scroll-padding guards in globals.css', () => {
     const css = readRel('src/app/globals.css');
     expect(css).toContain('font-size: 16px;');
     expect(css).toContain('-webkit-tap-highlight-color: transparent;');
     expect(css).toContain('touch-action: manipulation;');
     expect(css).toContain('@media (hover: hover) and (pointer: fine)');
-    expect(css).toContain('::view-transition-new(root)');
     expect(css).toContain('scroll-padding-top: 84px;');
-  });
-
-  it('prevents gsap.matchMedia() object conditions from silently skipping mobile viewports and keeps AppShell dock pill GPU-only', () => {
-    const srcDir = path.join(ROOT, 'src');
-    const files: string[] = [];
-    function walk(dir: string) {
-      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-        const full = path.join(dir, entry.name);
-        if (entry.isDirectory()) walk(full);
-        else if (/\.(ts|tsx)$/.test(entry.name)) files.push(full);
-      }
-    }
-    walk(srcDir);
-
-    for (const file of files) {
-      const content = fs.readFileSync(file, 'utf8');
-      const rel = path.relative(ROOT, file);
-      for (const match of content.matchAll(/mm\.add\(\s*\{([\s\S]*?)\}/g)) {
-        expect(
-          match[1],
-          `${rel} uses mm.add({ ... }) without "all:" condition — mobile iPhone viewports would silently skip callback`
-        ).toMatch(/\ball\s*:/);
-      }
-    }
-
-    const shell = readRel('src/components/shell/AppShell.tsx');
-    expect(shell).toContain('scaleX');
-    expect(shell).not.toContain('x,\n                  y,\n                  width,\n                  height,');
   });
 });

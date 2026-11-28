@@ -2,32 +2,17 @@
 
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { CustomEase } from 'gsap/CustomEase';
 import { Flip } from 'gsap/Flip';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 let registered = false;
 
-export const MATCH_MEDIA_CONDITIONS = {
-  all: 'all',
-  isDesktop: '(min-width: 640px)',
-  isMobile: '(max-width: 639px)',
-  finePointer: '(hover: hover) and (pointer: fine)',
-  coarsePointer: '(pointer: coarse)',
-  reduceMotion: '(prefers-reduced-motion: reduce)',
-} as const;
-
 export function ensureGsapInitialized(): void {
   if (typeof window === 'undefined' || registered) return;
-  gsap.registerPlugin(useGSAP, ScrollTrigger, Flip, CustomEase);
-  CustomEase.create('iosSheet', '0.32, 0.72, 0, 1');
-  CustomEase.create('iosMove', '0.645, 0.045, 0.355, 1');
-  CustomEase.create('iosAccordion', '0.77, 0, 0.175, 1');
-  CustomEase.create('iosSpring', '0.22, 1, 0.36, 1');
-  gsap.config({ force3D: true });
+  gsap.registerPlugin(useGSAP, ScrollTrigger, Flip);
   gsap.defaults({
-    duration: 0.25,
-    ease: 'iosSheet',
+    duration: 0.34,
+    ease: 'power3.out',
     overwrite: 'auto',
   });
   registered = true;
@@ -35,48 +20,41 @@ export function ensureGsapInitialized(): void {
 
 export const GSAP_MOTION = {
   duration: {
-    press: 0.095,
-    release: 0.15,
-    hover: 0.18,
-    leave: 0.2,
-    enter: 0.24,
-    swap: 0.22,
-    swapOut: 0.1,
-    swapIn: 0.22,
-    modalIn: 0.25,
-    modalOut: 0.19,
-    pageIn: 0.24,
-    accordion: 0.25,
-    shake: 0.36,
-    counter: 0.38,
+    press: 0.1,
+    release: 0.3,
+    hover: 0.24,
+    leave: 0.28,
+    enter: 0.34,
+    swapOut: 0.12,
+    swapIn: 0.28,
+    modalIn: 0.42,
+    modalOut: 0.2,
+    pageIn: 0.38,
+    counter: 0.55,
     reduced: 0.12,
   },
   ease: {
-    enter: 'iosSheet',
+    enter: 'power3.out',
     exit: 'power2.in',
-    bouncy: 'back.out(1.45)',
-    bouncySoft: 'back.out(1.2)',
-    bouncySnap: 'back.out(1.85)',
+    bouncy: 'back.out(1.65)',
+    bouncySoft: 'back.out(1.3)',
+    bouncySnap: 'back.out(2.1)',
     elastic: 'elastic.out(1, 0.55)',
-    flip: 'iosMove',
+    flip: 'power3.inOut',
     smooth: 'power2.out',
     ambient: 'sine.inOut',
-    iosSheet: 'iosSheet',
-    iosMove: 'iosMove',
-    iosAccordion: 'iosAccordion',
-    iosSpring: 'iosSpring',
   },
   stagger: {
-    cards: 0.03,
-    gridWave: 0.16,
-    form: 0.03,
-    modalChildren: 0.03,
+    cards: 0.038,
+    gridWave: 0.28,
+    form: 0.042,
+    modalChildren: 0.045,
   },
   lift: {
-    cardY: -2,
-    controlY: -1,
-    pressScale: 0.97,
-    cardPressScale: 0.985,
+    cardY: -3,
+    controlY: -1.5,
+    pressScale: 0.965,
+    cardPressScale: 0.988,
   },
 } as const;
 
@@ -94,4 +72,4 @@ export function isFinePointer(): boolean {
   return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 }
 
-export { CustomEase, Flip, ScrollTrigger, gsap, useGSAP };
+export { Flip, ScrollTrigger, gsap, useGSAP };

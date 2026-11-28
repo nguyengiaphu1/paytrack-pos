@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, type MouseEvent } from 'react';
+import { useState } from 'react';
 import { Check, ChevronDown, Monitor, Moon, Palette, Sun } from 'lucide-react';
-import { useTheme, type ThemeTransitionOrigin } from '@/components/providers/ThemeProvider';
+import { useTheme } from '@/components/providers/ThemeProvider';
 import { AnimatedSwap } from '@/components/ui/AnimatedSwap';
 import { HexColorWheel } from '@/components/ui/HexColorWheel';
-import { SmoothCollapse } from '@/components/ui/SmoothCollapse';
 import {
   getThemePreferenceLabelVN,
   type ThemePreference,
@@ -19,14 +18,6 @@ interface ThemeQuickToggleProps {
   compact?: boolean;
   iconOnly?: boolean;
   responsiveLabel?: boolean;
-}
-
-function getButtonOrigin(e: MouseEvent<HTMLButtonElement>): ThemeTransitionOrigin {
-  const rect = e.currentTarget.getBoundingClientRect();
-  return {
-    x: rect.left + rect.width / 2,
-    y: rect.top + rect.height / 2,
-  };
 }
 
 export function ThemeQuickToggle({
@@ -50,7 +41,7 @@ export function ThemeQuickToggle({
     return (
       <button
         type="button"
-        onClick={(e) => cyclePreference(getButtonOrigin(e))}
+        onClick={cyclePreference}
         aria-label={`Đổi giao diện: ${label}`}
         title={`Giao diện: ${label}`}
         className="glass-solid-control press-tactile inline-flex h-[44px] w-[44px] items-center justify-center gap-1.5 rounded-full text-[13px] font-semibold text-[var(--text-primary)] transition-[transform,opacity,background-color,color] hover:opacity-95 sm:w-auto sm:px-3.5"
@@ -71,7 +62,7 @@ export function ThemeQuickToggle({
     return (
       <button
         type="button"
-        onClick={(e) => cyclePreference(getButtonOrigin(e))}
+        onClick={cyclePreference}
         aria-label={`Giao diện: ${label}`}
         title={`Giao diện: ${label}`}
         className="glass-solid-control press-tactile flex h-[44px] w-[44px] items-center justify-center rounded-full text-[var(--brand-jade-text)] transition-[transform,opacity,background-color,color] hover:opacity-95"
@@ -86,7 +77,7 @@ export function ThemeQuickToggle({
   return (
     <button
       type="button"
-      onClick={(e) => cyclePreference(getButtonOrigin(e))}
+      onClick={cyclePreference}
       aria-label={`Đổi giao diện: ${label}`}
       title={`Giao diện: ${label}`}
       className="glass-solid-control press-tactile inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-4 text-[13px] font-semibold text-[var(--text-primary)]"
@@ -134,7 +125,7 @@ export function SettingsThemeSelector() {
         )}
       </div>
 
-      {/* Light / Dark / System Segmented Switch (triggers radial circle wipe) */}
+      {/* Light / Dark / System Segmented Switch */}
       <div className="glass-well grid grid-cols-3 gap-1.5 rounded-full p-1.5">
         {THEME_OPTIONS.map((opt) => {
           const Icon = opt.icon;
@@ -143,7 +134,7 @@ export function SettingsThemeSelector() {
             <button
               key={opt.value}
               type="button"
-              onClick={(e) => setPreference(opt.value, getButtonOrigin(e))}
+              onClick={() => setPreference(opt.value)}
               aria-pressed={active}
               className={`press-tactile flex min-h-[46px] items-center justify-center gap-1.5 rounded-full px-1.5 text-[13px] font-semibold transition-[transform,opacity,background-color,color] sm:gap-2 sm:px-2 sm:text-[14px] ${
                 active
@@ -236,13 +227,15 @@ export function SettingsThemeSelector() {
           />
         </button>
 
-        <SmoothCollapse open={wheelOpen} id="settings-hex-color-wheel">
-          <HexColorWheel
-            palette={palette}
-            onChange={setPalette}
-            onReset={resetPalette}
-          />
-        </SmoothCollapse>
+        {wheelOpen && (
+          <div id="settings-hex-color-wheel">
+            <HexColorWheel
+              palette={palette}
+              onChange={setPalette}
+              onReset={resetPalette}
+            />
+          </div>
+        )}
       </div>
     </section>
   );

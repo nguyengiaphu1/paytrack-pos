@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, Copy, Download, QrCode, Settings, Share2, X } from 'lucide-react';
 import type { Order, ShopProfile } from '@/types/database';
 import { buildVietQRPayload, sanitizeVietQRMemo } from '@/lib/vietqr';
@@ -29,42 +29,20 @@ export interface VietQRModalProps {
 type AmountMode = 'total_debt' | 'single_order' | 'custom';
 
 export function VietQRModal(props: VietQRModalProps) {
-  const [mounted, setMounted] = useState(props.open);
-  const [snapshot, setSnapshot] = useState(props);
-
-  if (props.open) {
-    if (!mounted) setMounted(true);
-    if (
-      snapshot.fixedOrder !== props.fixedOrder ||
-      snapshot.customerName !== props.customerName ||
-      snapshot.totalCustomerDebt !== props.totalCustomerDebt ||
-      snapshot.profile !== props.profile
-    ) {
-      setSnapshot(props);
-    }
-  }
-
-  const handleExited = useCallback(() => {
-    setMounted(false);
-  }, []);
-
-  if (!props.open && !mounted) return null;
-  const active = props.open ? props : snapshot;
-  const key = `${active.fixedOrder?.id ?? active.customerName}-${active.totalCustomerDebt ?? 0}`;
-  return <VietQRModalBody key={key} {...active} open={props.open} onExited={handleExited} />;
+  if (!props.open) return null;
+  const key = `${props.fixedOrder?.id ?? props.customerName}-${props.totalCustomerDebt ?? 0}`;
+  return <VietQRModalBody key={key} {...props} />;
 }
 
 function VietQRModalBody({
-  open,
   onClose,
-  onExited,
   profile,
   customerName,
   totalCustomerDebt = 0,
   unpaidOrders = [],
   fixedOrder = null,
   context,
-}: VietQRModalProps & { onExited: () => void }) {
+}: VietQRModalProps) {
   const cardRef = useRef<HTMLDivElement>(null);
 
   const initialMode: AmountMode = fixedOrder
@@ -259,9 +237,8 @@ function VietQRModalBody({
 
   return (
     <ModalDialog
-      open={open}
+      open
       onClose={onClose}
-      onExited={onExited}
       ariaLabelledBy="vietqr-modal-title"
       panelClassName="animate-sheet-up sm:animate-modal-in glass-modal max-h-[92dvh] w-full max-w-[468px] overflow-y-auto rounded-t-[28px] sm:rounded-[28px]"
     >
